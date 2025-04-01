@@ -1,0 +1,853 @@
+.btn {
+    outline: 0 !important;
+    box-shadow: none !important;
+    display: flex;
+    align-items: center;
+    border: 1px solid;
+    justify-content: center;
+    border-radius: 6px;
+
+
+    &:not(.btn-sm, .btn-lg, .btn-xs) {
+        font-size: 16px;
+        font-weight: 400;
+
+        i {
+            line-height: 24px;
+        }
+
+    }
+
+    &.btn-lg {
+        font-size: 20px;
+        font-weight: 400;
+
+        i {
+            line-height: 30px;
+        }
+    }
+
+    &.btn-sm {
+        font-size: 14px;
+        font-weight: 400;
+
+        i {
+            line-height: 21px;
+        }
+    }
+
+    &.btn-xs {
+        font-size: 10px;
+        font-weight: 400;
+        padding: 4px 8px;
+
+        i {
+            line-height: 16px;
+        }
+    }
+
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+
+    &:not(.btn-sm, .btn-lg, .btn-xs) {
+        width: 38px;
+        height: 38px;
+    }
+
+    &.btn-lg {
+        width: 48px;
+        height: 48px;
+    }
+
+    &.btn-sm {
+        width: 31px;
+        height: 31px;
+        font-size: 15px;
+
+        i {
+            -webkit-text-stroke: 0px;
+        }
+    }
+
+    &.btn-xs {
+        width: 26px;
+        height: 26px;
+        font-size: 15px;
+
+        i {
+            -webkit-text-stroke: 0px;
+        }
+    }
+
+
+    i {
+        -webkit-text-stroke: 0.2px;
+    }
+
+}
+
+.btn-link {
+    background-color: transparent !important;
+    border: 0px;
+    padding: 0px;
+    text-decoration: unset;
+    cursor: pointer;
+}
+
+.btn-icon-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0 7px;
+
+    img {
+        width: 14px;
+        height: 14px;
+        object-fit: contain;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &.btn-sm {
+        img {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    &.btn-sm {
+        img {
+            width: 12px;
+            height: 12px;
+        }
+    }
+
+    &.btn-sx {
+        img {
+            width: 10px;
+            height: 10px;
+        }
+    }
+}
+
+/* --------------------------------- Primary -------------------------------- */
+.btn-primary {
+    background-color: $primary_color;
+    color: $white_color;
+    border-color: $primary_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $primary_hover_color ;
+        border-color: $primary_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-light-primary {
+    background-color: $primary_light_color;
+    color: $primary_color;
+    border-color: $primary_light_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $primary_hover_color ;
+        border-color: $primary_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-outline-primary {
+    background-color: $white_color;
+    color: $primary_color;
+    border-color: $primary_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $primary_color ;
+        border-color: $primary_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: transparent;
+        border-color: $stock_dark ;
+        color: $stock_dark ;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+/* --------------------------------- Primary -------------------------------- */
+
+/* --------------------------------- Secondary -------------------------------- */
+.btn-secondary {
+    background-color: $secondary_color;
+    color: $white_color;
+    border-color: $secondary_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $secondary_hover_color ;
+        border-color: $secondary_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-light-secondary {
+    background-color: $secondary_light_color;
+    color: $secondary_color;
+    border-color: $secondary_light_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $secondary_hover_color ;
+        border-color: $secondary_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-outline-secondary {
+    background-color: $white_color;
+    color: $secondary_color;
+    border-color: $secondary_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $secondary_color ;
+        border-color: $secondary_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: transparent;
+        border-color: $stock_dark ;
+        color: $stock_dark ;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+/* --------------------------------- Secondary -------------------------------- */
+
+
+
+
+
+/* --------------------------------- Secondary Two -------------------------------- */
+.btn-secondary-two {
+    background-color: $secondary_two_color;
+    color: $white_color;
+    border-color: $secondary_two_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $secondary_hover_two_color;
+        border-color: $secondary_hover_two_color;
+        color: $white_color;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark;
+        border-color: $stock_dark;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-light-secondary-two {
+    background-color: $secondary_light_two_color;
+    color: $secondary_two_color;
+    border-color: $secondary_light_two_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $secondary_hover_two_color;
+        border-color: $secondary_hover_two_color;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark;
+        border-color: $stock_dark;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-outline-secondary-two {
+    background-color: $white_color;
+    color: $secondary_two_color;
+    border-color: $secondary_two_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $secondary_two_color;
+        border-color: $secondary_two_color;
+        color: $white_color;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: transparent;
+        border-color: $stock_dark;
+        color: $stock_dark;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+/* --------------------------------- Secondary Two -------------------------------- */
+
+
+/* --------------------------------- success -------------------------------- */
+.btn-success {
+    background-color: $success_color;
+    color: $white_color;
+    border-color: $success_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $success_hover_color ;
+        border-color: $success_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-light-success {
+    background-color: $success_light_color;
+    color: $success_color;
+    border-color: $success_light_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $success_hover_color ;
+        border-color: $success_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-outline-success {
+    background-color: $white_color;
+    color: $success_color;
+    border-color: $success_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $success_color ;
+        border-color: $success_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: transparent;
+        border-color: $stock_dark ;
+        color: $stock_dark ;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+/* --------------------------------- success -------------------------------- */
+
+
+
+
+/* --------------------------------- danger -------------------------------- */
+.btn-danger {
+    background-color: $danger_color;
+    color: $white_color;
+    border-color: $danger_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $danger_hover_color ;
+        border-color: $danger_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-light-danger {
+    background-color: $danger_light_color;
+    color: $danger_color;
+    border-color: $danger_light_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $danger_hover_color ;
+        border-color: $danger_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-outline-danger {
+    background-color: $white_color;
+    color: $danger_color;
+    border-color: $danger_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $danger_color ;
+        border-color: $danger_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: transparent;
+        border-color: $stock_dark ;
+        color: $stock_dark ;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+/* --------------------------------- danger -------------------------------- */
+
+
+
+/* --------------------------------- warning -------------------------------- */
+.btn-warning {
+    background-color: $warning_color;
+    color: $white_color;
+    border-color: $warning_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $warning_hover_color ;
+        border-color: $warning_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-light-warning {
+    background-color: $warning_light_color;
+    color: $warning_color;
+    border-color: $warning_light_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $warning_hover_color ;
+        border-color: $warning_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-outline-warning {
+    background-color: $white_color;
+    color: $warning_color;
+    border-color: $warning_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $warning_color ;
+        border-color: $warning_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: transparent;
+        border-color: $stock_dark ;
+        color: $stock_dark ;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+/* --------------------------------- warning -------------------------------- */
+
+
+
+/* --------------------------------- info -------------------------------- */
+.btn-info {
+    background-color: $info_color;
+    color: $white_color;
+    border-color: $info_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $info_hover_color ;
+        border-color: $info_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-light-info {
+    background-color: $info_light_color;
+    color: $info_color;
+    border-color: $info_light_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $info_hover_color ;
+        border-color: $info_hover_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-outline-info {
+    background-color: $white_color;
+    color: $info_color;
+    border-color: $info_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $info_color ;
+        border-color: $info_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: transparent;
+        border-color: $stock_dark ;
+        color: $stock_dark ;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+/* --------------------------------- info -------------------------------- */
+
+
+
+
+
+/* --------------------------------- White -------------------------------- */
+.btn-white {
+    background-color: $gray_color;
+    color: $white_color;
+    border-color: $gray_color;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $bg_grey ;
+        border-color: $bg_grey ;
+        color: $gray_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-light-white {
+    background-color: $bg_grey;
+    color: $text_color;
+    border-color: $bg_grey;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $gray_color ;
+        border-color: $gray_color ;
+        color: $white_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+.btn-outline-white {
+    background-color: $white_color;
+    color: $text_color;
+    border-color: $stock_light;
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: $stock_light ;
+        border-color: $stock_light ;
+        color: $text_color ;
+        outline: none;
+        box-shadow: unset;
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: $stock_dark ;
+        border-color: $stock_dark ;
+        color: #535E78;
+        outline: none;
+        box-shadow: unset;
+        pointer-events: none;
+    }
+}
+
+/* --------------------------------- White -------------------------------- */

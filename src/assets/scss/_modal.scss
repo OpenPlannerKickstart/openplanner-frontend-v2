@@ -1,0 +1,332 @@
+.modal-theme {
+    .modal-content {
+        border: 0;
+        border-radius: 15px;
+
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            padding: 30px;
+        }
+
+        .modal-header {
+            padding-bottom: 0;
+        }
+
+        .modal-body {
+            padding-bottom: 20px;
+        }
+
+        .modal-footer {
+            padding-top: 0;
+        }
+    }
+
+    .btn-close {
+        background: 0;
+        font-size: 20px;
+        color: $text_color;
+        opacity: 1;
+        box-shadow: none;
+        border: 0;
+        padding: 0;
+        height: 31px;
+        width: 31px;
+
+        i {
+            transition: 0.70s;
+            -webkit-text-stroke: 0.5px;
+        }
+
+        &:hover {
+            background-color: #F4F5F6;
+            color: $black_color;
+
+            i {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    .modal-header {
+        border-bottom: 0;
+
+
+        .modal-title {
+            font-size: 18px;
+            color: $text_black_color;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+
+            i {
+                margin-right: 4px;
+            }
+        }
+    }
+
+    .modal-footer {
+        border-top: 0;
+
+        .btn {
+            min-width: 100px;
+            padding: 8px 16px;
+        }
+    }
+
+    .modal-body {
+
+
+        .btn-close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+        }
+    }
+
+    .modal-button-group {
+        margin-top: 25px;
+        display: flex;
+        justify-content: flex-start;
+        gap: 8px;
+        width: 100%;
+
+
+        &.modal-full-width-btn {
+            .btn {
+                width: 100%;
+            }
+        }
+
+        &.modal-btn-end {
+            justify-content: flex-end;
+        }
+
+
+    }
+
+    .modal-footer-group {
+        margin-top: 0;
+        display: flex;
+        justify-content: flex-start;
+        gap: 8px;
+        width: 100%;
+
+        &.modal-full-width-btn {
+            .btn {
+                width: 100%;
+            }
+        }
+
+        &.modal-btn-end {
+            justify-content: flex-end;
+        }
+    }
+
+    &.modal-confirmation {
+        .modal-dialog {
+            @media only screen and (min-width:1200px) {
+                width: 400px;
+            }
+        }
+
+        .modal-body {
+            padding: 0 25px 25px;
+        }
+
+        .modal-confirmation-container {
+            text-align: center;
+        }
+
+        .modal-confirmation-image {
+
+            img {
+                height: 70px;
+                width: auto;
+            }
+        }
+
+        .modal-confirmation-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            line-height: 25px;
+            position: relative;
+            margin: 0 auto;
+            color: $white_color;
+
+            i {
+                z-index: 22;
+            }
+
+            &::before {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 50px;
+                height: 50px;
+                border-radius: 50px;
+                background-color: $primary_color;
+            }
+
+            &::after {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 70px;
+                height: 70px;
+                border-radius: 50px;
+                background-color: $primary_color;
+                opacity: 0.3;
+            }
+
+
+        }
+
+        .modal-confirmation-content {
+            margin-top: 30px;
+            color: #2D3C5C;
+
+            h5 {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+
+            p {
+                margin-bottom: 0;
+            }
+        }
+
+        .modal-forms {
+            margin-top: 25px;
+            text-align: center;
+
+            .form-group {
+                .form-label {
+                    text-align: left;
+                    width: 100%;
+                }
+            }
+        }
+    }
+
+    &.modal-approve {
+        .modal-confirmation-icon {
+
+            &::before,
+            &::after {
+                background-color: $success_color;
+            }
+        }
+    }
+
+    &.modal-reject {
+        .modal-confirmation-icon {
+
+            &::before,
+            &::after {
+                background-color: $danger_color;
+            }
+        }
+    }
+
+    &.modal-warning {
+        .modal-confirmation-icon {
+
+            &::before,
+            &::after {
+                background-color: $warning_color;
+            }
+        }
+    }
+
+    &.modal-close-icon {
+        .btn-close {
+            position: absolute;
+            right: -30px;
+            top: -30px;
+            padding: 0;
+            margin: 0;
+            color: $white_color;
+
+            &:hover {
+                color: $danger_color;
+            }
+        }
+    }
+}
+
+.modal-delete {
+
+    .modal-content .modal-header,
+    .modal-content .modal-body,
+    .modal-content .modal-footer {
+        padding: 34px;
+    }
+
+    .modal-content .modal-footer {
+        padding-top: 0;
+    }
+
+    .delete-modal {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        .delete-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 25px;
+            color: $danger_color;
+            background-color: #FEF1F2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-size: 26px;
+        }
+
+        .delete-text {
+            h6 {
+                font-size: 18px;
+                font-weight: 600;
+                line-height: 23.4px;
+                text-align: center;
+                margin-bottom: 16px;
+                color: $black_color;
+            }
+
+            p {
+                font-size: 12px;
+                font-weight: 400;
+                line-height: 22.1px;
+                text-align: center;
+                margin-bottom: 0px;
+                color: $text_color;
+            }
+        }
+    }
+
+    .modal-footer {
+        display: flex;
+
+        .btn {
+            width: 48%;
+        }
+    }
+}
+
+.modal-color {
+    .modal-body {
+        min-height: 500px;
+    }
+}

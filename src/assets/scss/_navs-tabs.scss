@@ -1,0 +1,144 @@
+.nav-tabs-outer {
+    .nav-tabs {
+        border: 0;
+        gap: 7px;
+
+        .nav-link {
+            border: 0;
+            padding: 8px 10px;
+
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 16.8px;
+            border-radius: 4px !important;
+            background-color: $white_color;
+            color: $text_color;
+            display: flex;
+            align-items: center;
+            gap: 0 7px;
+
+            i {
+                font-size: 17px;
+            }
+
+            &.active,
+            &:hover {
+                background-color: $primary_color;
+                color: $white_color;
+            }
+        }
+    }
+
+    .tab-pane {
+        padding: 20px 0;
+    }
+
+    &.nav-tabs-style1 {
+        .nav-tabs {
+            background-color: $white_color;
+            border: 1px solid #EAECF0;
+            padding: 5px;
+            border-radius: 6px;
+        }
+    }
+
+    &.nav-tabs-style2 {
+        .nav-tabs {
+            border-bottom: 1px solid #E6EAEE;
+
+            .nav-link {
+                border-radius: 0px !important;
+                background-color: transparent;
+                color: $text_color;
+                border-bottom: 2px solid transparent;
+                font-size: 14px;
+                font-weight: 500;
+
+                &.active,
+                &:hover {
+                    background-color: transparent;
+                    color: $primary_color;
+                }
+
+                &.active {
+                    border-color: $primary_color;
+                }
+            }
+
+            .form-group-sm {
+                margin-bottom: 0px;
+            }
+
+            .form-group.form-group-sm .form-control,
+            .form-group.form-group-sm .form-select {
+                min-height: 35px;
+                line-height: 0px;
+            }
+
+            .react-select-status .css-1dimb5e-singleValue,
+            .react-select-status div[class*=-singleValue] {
+                padding: 5px 10px;
+            }
+
+            .form-group .react-select-container .css-13cymwt-control,
+            .form-group .react-select-container .css-t3ipsp-control,
+            .form-group .react-select-container div[class*=-control] {
+                min-height: 35px;
+                border: 1px solid #E6EAEE;
+            }
+
+            .form-group.form-group-sm .react-select-container .css-1xc3v61-indicatorContainer,
+            .form-group.form-group-sm .react-select-container .css-15lsz6c-indicatorContainer {
+                padding: 3px 8px;
+            }
+        }
+
+    }
+
+}
+
+.nav-tabs-grid {
+    background-color: #F2F6FF;
+    border: 1px solid #E6EAEE;
+    padding: 2px;
+    border-radius: 6px;
+    width: fit-content;
+    width: -moz-fit-content;
+    block-size: fit-content;
+
+    ul {
+        display: flex;
+        flex-direction: row;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            padding: 5px 12px;
+            color: $text_color;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+
+            i {
+                margin-right: 5px;
+            }
+
+            &.active {
+                background-color: $primary_color;
+                color: $white_color;
+
+                &:hover {
+                    color: $white_color;
+                }
+            }
+
+            &:hover {
+                color: $primary_color;
+            }
+        }
+    }
+}

@@ -1,0 +1,117 @@
+$text_color: #98A2B3;
+$white_color: #fff;
+$black_color: #000;
+$gray_color: #98A2B3;
+$primary_color: #3B0D58;
+$primary_hover_color: #2E094B;
+$primary_light_color: #FBF7F0;
+$warning_color: #B25E09;
+$warning_hover_color: #B25E09;
+$success_color: #08875D;
+$secondary_color: #0D3B66;
+$danger_color: #E02D3C;
+$primary_black_color: #2D3C5C;
+$secondary_black_color: #57637D;
+$disabled_black_color: #A0A7B5;
+
+
+.paginationbox.pagination-fixed {
+  z-index: 9;
+  position: fixed;
+  left: 100px;
+  right: 0;
+  bottom: 0;
+}
+
+.pagination-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $white_color;
+  border-top: 2px solid #F4F6F8;
+  padding: 7px 10px;
+
+  .pagination-left {
+    p {
+      font-size: 14px;
+    }
+  }
+
+  .pagination-right {
+
+    display: flex;
+    flex-direction: row;
+
+
+    ul {
+      display: flex;
+      flex-direction: row;
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+
+      li {
+        .btn {
+          margin: 0 5px;
+          min-width: 34px;
+
+        }
+
+        &.previous,
+        &.next {
+          .btn {
+            border: 1px solid #E1E6EF;
+            background-color: transparent;
+            color: #A0A7B5;
+            border-radius: 8px;
+
+            &:hover {
+              border: 1px solid $primary_color;
+              background-color: $primary_color;
+              color: $white_color;
+            }
+          }
+        }
+
+        &.number {
+          .btn {
+            background-color: transparent;
+            color: #A0A7B5;
+            border: 0;
+            border-radius: 4px;
+
+            &:hover {
+              color: $primary_color;
+            }
+          }
+        }
+
+        &.active {
+          .btn {
+            background-color: $primary_color;
+            color: $white_color;
+
+            &:hover {
+              background-color: $primary_color;
+              color: $white_color;
+            }
+          }
+        }
+
+        &.disabled {
+          .btn {
+            opacity: 0.65;
+            pointer-events: none;
+          }
+        }
+      }
+    }
+    .form-select{
+      min-height: inherit;
+    }
+
+  }
+
+}
+

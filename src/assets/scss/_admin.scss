@@ -1,0 +1,487 @@
+/* ----------------------------------  color --------------------------------- */
+$border_color: $stock_light;
+$side_menu_primary_light_color: $bg_light;
+
+
+$menuTilte_color: #8E96B9;
+
+$main_sidebar_bg_color: #21263C;
+$main_sidebar_top_bg_color: #13172E;
+$main_nav_bg_color: $bg_light;
+
+
+/* --------------------------- Side bar text color -------------------------- */
+$side_menu_text_active_color : $primary_color;
+$side_menu_text_color: $white_color;
+$side_menu_text_active_bg_color: #FFFFFF12;
+
+/* --------------------------- Side bar text color -------------------------- */
+
+
+
+/* --------------------------- side-bar-inner-menu -------------------------- */
+/* --------------------------- side-bar-inner-menu -------------------------- */
+
+/* --------------------------- Navbar height Width -------------------------- */
+$navbarHeight: 60px;
+$searchHeight: 38px;
+
+
+/* -------------------------- Sidebar Height Width -------------------------- */
+$sidebarWidth: 250px;
+$sm_sidebarWidth: 70px;
+$sm_sidebar_home_link_width: 270px;
+
+
+
+
+#page-topbar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1002;
+    background-color: $main_nav_bg_color;
+    box-shadow: unset;
+    -webkit-transition: all .1s ease-out;
+    transition: all .1s ease-out;
+    border-bottom: 1px solid transparent;
+    border-bottom: 1px solid $border_color;
+
+    &.topbar-shadow {
+        -webkit-box-shadow: 0 1px 2px rgba(56, 65, 74, 0.15);
+        box-shadow: 0 1px 2px rgba(56, 65, 74, 0.15);
+    }
+
+    @media(min-width: 768px) {
+        left: $sidebarWidth;
+    }
+}
+
+.navbar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 auto;
+    height: $navbarHeight;
+    padding: 0 20px;
+
+
+    .navbar-header-right,
+    .navbar-header-left {
+        display: flex;
+        align-items: center;
+        gap: 0 15px;
+    }
+
+    /* ------------------------- Profile Dropdown Start ------------------------- */
+    .topbar-user {
+        display: flex;
+        align-items: center;
+
+        .topbar-user-btn {
+            background-color: transparent;
+            padding: 0;
+            border: 0px;
+            padding-right: 27px;
+
+            img {
+                width: 44px;
+                height: 44px;
+                object-fit: contain;
+                border: 1px solid $secondary_color;
+            }
+
+            .text-start {
+                margin-left: 7px;
+            }
+
+            .user-name-text {
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 20.8px;
+                text-align: left;
+                color: $black_color;
+                margin-bottom: 0px;
+            }
+
+            .user-name-sub-text {
+                font-size: 12px;
+                font-weight: 400;
+                line-height: 20.4px;
+                text-align: left;
+                color: $text_color;
+                margin-bottom: 0px;
+            }
+
+            &::before {
+                content: "\e935";
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                font-family: "techhive" !important;
+            }
+        }
+    }
+
+    /* -------------------------- Profile Dropdown End -------------------------- */
+
+    /* --------------------------- Navbar Search Start -------------------------- */
+    .app-search {
+        .form-control {
+            border-radius: 7px;
+            height: $searchHeight;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 22.4px;
+            letter-spacing: 0.20000000298023224px;
+        }
+    }
+
+    /* ---------------------------- Navbar Search End --------------------------- */
+
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+/*                                Sidebar Start                               */
+/* -------------------------------------------------------------------------- */
+
+.navbar-menu {
+    width: $sidebarWidth;
+    z-index: 1002;
+    background: $main_sidebar_bg_color;
+    border-right: 1px solid $border_color;
+    bottom: 0;
+    margin-top: 0;
+    position: fixed;
+    top: 0;
+    box-shadow: unset;
+    padding: 0 0 95px 0;
+    transition: all 0.1s ease-out;
+
+    .container-fluid {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+
+    .navbar-brand-box {
+        padding: 10px 12px;
+        transition: all 0.1s ease-out;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: $main_sidebar_top_bg_color;
+        border-bottom: 1px solid transparent;
+
+        .logo {
+            display: flex;
+
+            .logo-lg {
+                width: auto;
+                height: 40px;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+    .navbar-sidemenu {
+        padding: 20px 10px 10px 10px;
+    }
+
+    .navbar-nav {
+        gap: 7px 0px;
+
+
+        .menu-title {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 19.2px;
+            letter-spacing: 0.20000000298023224px;
+            text-align: left;
+            color: $menuTilte_color;
+        }
+
+
+
+        .nav-item {
+            position: relative;
+
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                padding: 12px 10px;
+                border-radius: 7px;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 22px;
+                text-align: left;
+                color: $side_menu_text_color;
+
+                i {
+                    display: inline-block;
+                    min-width: 1.75rem;
+                    font-size: 18px;
+                    line-height: inherit;
+                }
+
+                &.active {
+                    color: $white_color;
+                    background-color: $side_menu_text_active_color;
+                }
+
+                &:hover {
+                    color: $side_menu_text_active_color;
+                    background-color: $side_menu_primary_light_color;
+                }
+
+                &[data-bs-toggle=collapse] {
+                    &:after {
+                        display: block;
+                        content: "\ed20";
+                        font-family: 'techhive' !important;
+                        margin-left: auto;
+                        -webkit-transition: -webkit-transform .2s;
+                        transition: -webkit-transform .2s;
+                        transition: transform .2s;
+                        transition: transform .2s, -webkit-transform .2s;
+                        font-size: 1.05rem;
+                        position: absolute;
+                        right: 10px;
+                        color: inherit;
+                        transform: rotate(180deg);
+                    }
+
+                    &.collapsed {
+                        &:after {
+                            transform: rotate(0deg);
+                        }
+                    }
+
+
+                }
+            }
+
+            .menu-dropdown {
+                background: transparent;
+                margin-top: 5px;
+                border-radius: 7px;
+
+                .nav-link {
+                    padding-left: 30px;
+                }
+            }
+
+            &:hover {
+                >.nav-link {
+                    color: $side_menu_text_active_color;
+                    background-color: transparent;
+
+                    &.active {
+                        color: $white_color;
+                        background-color: $side_menu_text_active_color;
+                    }
+
+
+                }
+            }
+        }
+
+
+
+    }
+}
+
+.navbar-bottom {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+
+    .navbar-nav {
+        border-top: 1px solid $border_color;
+    }
+
+    .sidebar-footer {
+        margin-top: 7px;
+
+        p {
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 20.4px;
+            color: $side_menu_text_color;
+            text-align: center;
+            margin-bottom: 0px;
+        }
+    }
+}
+
+
+/* -------------------------- SM Slidebar on Navbar ------------------------- */
+[data-sidebar-size=sm] {
+    #page-topbar {
+        left: $sm_sidebarWidth;
+    }
+
+    .navbar-menu {
+        width: $sm_sidebarWidth;
+
+        .navbar-brand-box {
+
+            .logo {
+                .logo-lg {
+                    img {}
+                }
+            }
+        }
+
+        .navbar-sidemenu {}
+
+        .navbar-nav {
+
+            .menu-title {
+                display: none;
+            }
+
+            .nav-item {
+
+                .nav-link {
+                    transition: all 0.5s;
+
+                    i {
+                        font-size: 22px;
+                        text-align: center;
+                    }
+
+                    span {
+                        display: none;
+                        transition: all 0.5s;
+
+                    }
+
+
+                    &.menu-link {
+                        span {
+                            padding-left: 25px;
+                        }
+                    }
+
+                    &.active {}
+
+                    &[data-bs-toggle=collapse] {
+
+
+                        &:after {
+                            content: unset;
+                        }
+                    }
+                }
+
+                .menu-dropdown {
+                    display: none;
+                    height: auto;
+                    margin-top: 0px;
+                }
+
+                &:hover {
+
+                    .nav-link {
+                        position: relative;
+                        width: $sm_sidebar_home_link_width;
+                        background-color: $white_color;
+
+                        span {
+                            display: block;
+                        }
+
+                        &.active {
+                            background-color: $primary_color;
+                        }
+
+                        &.menu-link {
+                            background-color: $primary_color;
+                            color: $white_color;
+
+                        }
+
+                        &[data-bs-toggle=collapse] {
+                            border-bottom-right-radius: 0px;
+                            color: $white_color;
+                        }
+                    }
+
+                    .menu-dropdown {
+                        display: block;
+                        left: 60px;
+                        top: 100%;
+                        position: absolute;
+                        width: calc(280px - $sm_sidebarWidth);
+                        background: $bg_light;
+                        height: auto !important;
+                        padding: 5px;
+                        border-radius: 0;
+                        border-bottom-right-radius: 7px;
+                        border-bottom-left-radius: 7px;
+                        box-shadow: #00000017 0 1px 10px 4px;
+
+                        .nav-item {
+                            width: 100%;
+
+                            .nav-link {
+                                width: 100%;
+                                background-color: transparent;
+                                padding-left: 10px;
+                                color: $text_color;
+
+                                &:hover {
+                                    color: $primary_color;
+                                }
+                            }
+
+                            &:hover {
+
+                                .nav-link {
+                                    width: 100%;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+}
+
+/* -------------------------- SM Slidebar on Navbar ------------------------- */
+
+.main-content {
+    width: calc(100% - $sidebarWidth);
+    min-height: calc(100vh - $navbarHeight);
+    margin-left: $sidebarWidth;
+}
+
+[data-sidebar-size=sm] {
+    .main-content {
+        width: calc(100% - $sm_sidebarWidth);
+        margin-left: $sm_sidebarWidth;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 Sidebar End                                */
+/* -------------------------------------------------------------------------- */

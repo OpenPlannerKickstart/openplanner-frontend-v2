@@ -1,0 +1,342 @@
+body {
+    font-family: "Poppins", serif;
+    font-size: 14px;
+    color: $text_color;
+}
+
+// Common CSS
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 600
+}
+
+
+h1 {
+    font-size: 48px;
+    line-height: 62.4px;
+}
+
+h2 {
+    font-size: 36px;
+    line-height: 46px;
+}
+
+h3 {
+    font-size: 28px;
+    line-height: 36px;
+}
+
+h4 {
+    font-size: 24px;
+    line-height: 31px;
+}
+
+h5 {
+    font-size: 21px;
+    line-height: 27px;
+}
+
+h6 {
+    font-size: 18px;
+    line-height: 23px;
+}
+
+p {
+    font-size: 16px;
+    font-weight: 400;
+
+    &:nth-last-child(1) {
+        margin-bottom: 0px;
+    }
+}
+
+b {
+    font-weight: 500;
+}
+
+a,
+a:hover {
+    text-decoration: none
+}
+
+p:nth-last-child(1) {
+    margin-bottom: 0;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+img {
+    max-width: 100%
+}
+
+.error-msg {
+    font-size: 12px;
+    margin-bottom: 0;
+    color: $danger_color;
+    font-weight: 500;
+}
+
+.success-msg {
+    font-size: 12px;
+    margin-bottom: 0;
+    color: $success_color;
+    font-weight: 500;
+}
+
+.file-name {
+    font-size: 12px;
+    margin-bottom: 0;
+    color: $primary_color;
+    font-weight: 500;
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+.note-msg {
+    font-size: 12px;
+    margin-bottom: 0;
+    color: $text_color;
+    font-weight: 500;
+}
+
+// Font Size
+.fs-10 {
+    font-size: 10px !important
+}
+
+.fs-11 {
+    font-size: 11px !important
+}
+
+.fs-12 {
+    font-size: 12px !important
+}
+
+.fs-13 {
+    font-size: 13px !important
+}
+
+.fs-14 {
+    font-size: 14px !important
+}
+
+.fs-15 {
+    font-size: 15px !important
+}
+
+.fs-16 {
+    font-size: 16px !important
+}
+
+.fs-17 {
+    font-size: 17px !important
+}
+
+.fs-18 {
+    font-size: 18px !important
+}
+
+.fs-19 {
+    font-size: 19px !important
+}
+
+.fs-20 {
+    font-size: 20px !important
+}
+
+.fs-21 {
+    font-size: 21px !important
+}
+
+.fs-22 {
+    font-size: 22px !important
+}
+
+.fs-23 {
+    font-size: 23px !important
+}
+
+.fs-24 {
+    font-size: 24px !important
+}
+
+.fs-26 {
+    font-size: 26px !important
+}
+
+.fs-28 {
+    font-size: 28px !important
+}
+
+.fs-30 {
+    font-size: 30px !important
+}
+
+.fs-36 {
+    font-size: 36px !important
+}
+
+.fs-42 {
+    font-size: 42px !important
+}
+
+.fs-48 {
+    font-size: 48px !important
+}
+
+// Font Weight
+.fw-400 {
+    font-weight: 400 !important;
+}
+
+.fw-500 {
+    font-weight: 500 !important;
+}
+
+.fw-600 {
+    font-weight: 600 !important;
+}
+
+.fw-700 {
+    font-weight: 700 !important;
+}
+
+.fw-800 {
+    font-weight: 800 !important;
+}
+
+// Icon Size
+.icon-xs {
+    height: 16px;
+    width: 16px
+}
+
+.icon-sm {
+    height: 18px;
+    width: 18px
+}
+
+.icon-md {
+    height: 22px;
+    width: 22px
+}
+
+.icon-lg {
+    height: 24px;
+    width: 24px
+}
+
+.icon-xl {
+    height: 28px;
+    width: 28px
+}
+
+.icon-xxl {
+    height: 32px;
+    width: 32px
+}
+
+// File Information
+.file-information {
+    padding: 4px 10px;
+    border-radius: 40px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: capitalize;
+    width: fit-content;
+    block-size: fit-content;
+    display: flex;
+    align-items: center;
+    background-color: #EAECEF;
+    color: $text_color;
+    margin-top: 5px;
+
+    i {
+        margin-right: 4px;
+        -webkit-text-stroke: 0.4px;
+    }
+}
+
+
+
+.main-content {
+    min-height: 100%;
+
+    .page-content {
+        margin-top: 60px;
+        min-height: calc(100vh - 60px);
+        padding: 0px;
+
+        .content-area {
+            padding: 15px;
+            height: 100%;
+            background-color: $white_color;
+            border-radius: 16px;
+            overflow: auto;
+            min-height: calc(100vh - 80px);
+            max-height: calc(100vh - 80px);
+
+            &.content-area-title {
+                max-height: calc(100vh - 120px);
+                min-height: calc(100vh - 120px);
+            }
+        }
+
+    }
+}
+
+
+.page-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 19px 16px;
+    border-bottom: 1px solid $stock_light;
+
+    .page-title-left {
+        display: flex;
+        align-items: center;
+        gap: 0 10px;
+
+        .page-title-text {
+            h2 {
+                margin-bottom: 0px;
+                font-size: 16px;
+                font-weight: 600;
+                line-height: 20.8px;
+                text-align: left;
+                color: $text_black_color;
+            }
+        }
+    }
+
+    .page-title-right {
+        display: flex;
+        align-items: center;
+        gap: 0 10px;
+    }
+}
+
+
+.inner-title {
+    h3 {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 18.2px;
+        text-align: left;
+        color: $text_black_color;
+    }
+}
