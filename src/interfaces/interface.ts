@@ -1,50 +1,6 @@
 
 import Login from '../pages/auth/Login/Login';
-/**
- * Enum for status values.
- */
-export const ENUMFORSTATUS = {
-  PENDING: "Pending",
-  INPROGRESS: "Inprogress",
-  COMPLETED: "Completed",
-  INCOMPLETE: "Incomplete",
-} as const;
 
-/**
- * Enum for stone master tab names.
- */
-export const ENUMFORSTONEMASTERTAB = {
-  LOTSIZE: "LOTSIZE",
-  ARTICLE: "ARTICLE",
-  SIEVES: "SIEVES",
-
-}
-
-
-/**
- * Enum for route paths.
- */
-export const ENUMFORROUTES = {
-
-  DASHBOARD: "/dashboard",
-  REPORTS: "/reports",
-  LOGIN: "/login",
-  PAGE_COMPONENT: "/page-component",
-  ACCESS_DENIED: "/access-denied",
-  USER_MANGEMNET: "/user-mangemnet",
-
-}
-
-
-
-/**
- * Enum for account tab names.
- */
-export const ENUMFORACCOUNTTAB = {
-  PERSONAL_DETAILS: "Personal Details",
-  UPDATE_PASSWORD: "Update Password"
-
-} as const;
 /**
  * Response wrapper data transfer object interface.
  */

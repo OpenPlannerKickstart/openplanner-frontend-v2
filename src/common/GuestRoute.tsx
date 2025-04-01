@@ -1,7 +1,8 @@
 import React from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import { getToken } from "../Utility/Helper";
-import { ENUMFORROUTES } from "../interfaces/interface";
+import { ENUMFORROUTES } from "../interfaces/enum";
+
 /**
  * GuestRoute component
  * Redirects authenticated users away from routes intended for guests.

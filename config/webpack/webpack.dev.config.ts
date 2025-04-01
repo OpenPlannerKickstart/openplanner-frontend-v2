@@ -21,7 +21,7 @@ const devConfig: webpack.Configuration = merge(commonConfig, {
       },
       entry: [
         // "react-hot-loader/patch", // activate HMR for React
-        "webpack-dev-server/client?http://0.0.0.0:4800", // bundle the client for webpack-dev-server and connect to the provided endpoint
+        "webpack-dev-server/client?http://0.0.0.0:2100", // bundle the client for webpack-dev-server and connect to the provided endpoint
         "webpack/hot/only-dev-server", // bundle the client for hot reloading, only- means to only hot reload for successful updates
         "./index.tsx", // the entry point of our app
       ],  
@@ -30,7 +30,7 @@ const devConfig: webpack.Configuration = merge(commonConfig, {
         static: paths.src,
         open: true,
         compress: true,
-        port: 4800,
+        port: 2100,
         https:false,
         // host: "local-ipv4",
       },

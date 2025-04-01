@@ -2,18 +2,20 @@ import React, { useEffect, useState } from 'react'
 import { Route, HashRouter as Router, Routes, useLocation } from 'react-router-dom';
 import { getToken, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from './Utility/Helper';
 import Login from './pages/auth/Login/Login';
-import Dashboard from './pages/admin/Dashboard/Dashboard';
+
 import { RouterProps } from './interfaces';
-import { ENUMFORROUTES } from './interfaces/interface';
+
 
 import Sidebar from './components/Sidebar/Sidebar';
 import GuestRoute from './common/GuestRoute';
 import AuthRoute from './common/AuthRoute';
 import NotFound from './components/NotFound/NotFound';
-import UserMangement from './pages/admin/UserMangement/UserMangement';
+
 import { jwtDecode } from "jwt-decode";
 import Navbar from './components/Navbar/Navbar';
-import PageComponent from './pages/admin/PageComponent/PageComponent';
+
+import { ENUMFORROUTES } from './interfaces/enum';
+import Dashboard from './pages/Customer/Dashboard/Dashboard';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -23,18 +25,7 @@ const privateRoutes: RouterProps[] = [
     caseSensitive: true,
     url: ENUMFORROUTES.DASHBOARD,
   },
-  {
-    path: ENUMFORROUTES.USER_MANGEMNET,
-    component: <UserMangement />,
-    caseSensitive: true,
-    url: ENUMFORROUTES.DASHBOARD,
-  },
-  {
-    path: ENUMFORROUTES.PAGE_COMPONENT,
-    component: <PageComponent />,
-    caseSensitive: true,
-    url: ENUMFORROUTES.PAGE_COMPONENT,
-  },
+  
 
 
 ];

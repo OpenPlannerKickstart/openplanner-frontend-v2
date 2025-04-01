@@ -1,7 +1,8 @@
 import React from 'react'
 import { useLocation,Navigate } from 'react-router-dom';
 import { getToken, isNullUndefinedOrBlank } from '../Utility/Helper';
-import { ENUMFORROUTES } from '../interfaces/interface';
+import { ENUMFORROUTES } from '../interfaces/enum';
+
 /**
  * AuthRoute component renders the children only if the user is authenticated,
  * otherwise redirects to the login page.
