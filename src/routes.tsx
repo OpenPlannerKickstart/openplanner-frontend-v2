@@ -16,6 +16,7 @@ import Navbar from './components/Navbar/Navbar';
 
 import { ENUMFORROUTES } from './interfaces/enum';
 import Dashboard from './pages/Customer/Dashboard/Dashboard';
+import PageComponent from './pages/Customer/PageComponent/PageComponent';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -24,6 +25,12 @@ const privateRoutes: RouterProps[] = [
     component: <Dashboard />,
     caseSensitive: true,
     url: ENUMFORROUTES.DASHBOARD,
+  },
+  {
+    path: ENUMFORROUTES.PAGE_COMPONENT,
+    component: <PageComponent />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.PAGE_COMPONENT,
   },
   
 
