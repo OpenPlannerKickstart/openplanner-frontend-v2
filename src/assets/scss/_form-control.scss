@@ -42,11 +42,43 @@
         align-items: center;
         justify-content: center;
 
+
+        &>div{
+            gap: 0 10px;
+        }
+
         input {
-            width: 38px;
             border: 1px solid $stock_light;
             color: $text_black_color;
             text-align: center;
+            border-radius: 10px;
+            background-color: transparent;
+            width: 55px !important;
+            min-height: 55px;
+            font-size: 21px;
+            font-weight: 600;
+            line-height: 27.3px;
+            text-align: center;
+
+
+        
+            &:focus,
+            &:hover {
+                background-color: transparent;
+                border: 1px solid $primary_color;
+                color: $primary_color;
+            }
+
+            &:focus-visible{
+                outline: 0;
+            }
+            &[type=number]::-webkit-inner-spin-button, 
+            &[type=number]::-webkit-outer-spin-button { 
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                margin: 0; 
+            }
         }
 
     }

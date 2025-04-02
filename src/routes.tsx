@@ -17,7 +17,9 @@ import Navbar from './components/Navbar/Navbar';
 import { ENUMFORROUTES } from './interfaces/enum';
 import Dashboard from './pages/Customer/Dashboard/Dashboard';
 import PageComponent from './pages/Customer/PageComponent/PageComponent';
-import ForgotPassword from './redux/Service/auth/ForgotPassword/ForgotPassword';
+import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
+import NewPassword from './pages/auth/NewPassword/NewPassword';
+import Registration from './pages/auth/Registration/Registration';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -54,6 +56,16 @@ const publicRoutes: RouterProps[] = [
   {
     path: ENUMFORROUTES.FORGOTPASSWORD,
     component: <ForgotPassword />,
+    caseSensitive: true,
+  },
+  {
+    path: ENUMFORROUTES.NEWPASSWORD,
+    component: <NewPassword />,
+    caseSensitive: true,
+  },
+  {
+    path: ENUMFORROUTES.REGISTRATION,
+    component: <Registration />,
     caseSensitive: true,
   },
 

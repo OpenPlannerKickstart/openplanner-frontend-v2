@@ -28,6 +28,8 @@ export const ENUMFORSTATUS = {
     REPORTS: "/reports",
     LOGIN: "/login",
     FORGOTPASSWORD: "/forgot-password",
+    NEWPASSWORD: "/set-new-password",
+    REGISTRATION: "/registration",
     PAGE_COMPONENT: "/page-component",
     ACCESS_DENIED: "/access-denied",
     USER_MANGEMNET: "/user-mangemnet",

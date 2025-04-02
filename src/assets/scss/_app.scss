@@ -18,7 +18,7 @@
 
             .admin-auth-left {
                 width: 100%;
-                background-color: $primary_color;
+                background: linear-gradient(118.43deg, #F7F4DF 3.68%, #EEF6FF 94.5%);
                 border-radius: 17px;
                 position: relative;
 
@@ -32,24 +32,37 @@
                     position: absolute;
                     left: 30px;
                     top: 30px;
-
+                    @media (max-width:1366px){
+                        height: 50px;
+                    }
                     img {
                         width: auto;
-                        height: auto;
+                        height: 100%;
                     }
                 }
 
                 .auth-image {
-                    max-width: 340px;
+                    max-width: 500px;
                     width: 100%;
                     height: auto;
-
+                    @media (max-width:1366px){
+                        height: 100%;
+                        max-height: 310px;
+                        text-align: center;
+                    }
                     img {
                         width: auto;
-                        height: auto;
+                        height: 100%;
                     }
+                }                
+                
+                .terms-condition-wrapper{
+                    position: absolute;
+                    bottom: 30px;
+                    text-align: center;
+                    width: 100%;
+                    left: 0;
                 }
-
 
                 .bg-shape-one {
                     position: absolute;
@@ -86,10 +99,10 @@
                 display: flex;
                 align-items: flex-start;
                 justify-content: center;
-
                 position: relative;
-
-
+                @media (max-width:1366px){
+                    width: calc(100% - 170px);
+                }
                 .golf-men {
                     position: absolute;
                     right: 36px;
@@ -102,6 +115,125 @@
                         height: auto;
                     }
                 }
+                @media (max-width:1366px){
+                    padding: 20px;
+                    overflow: auto;
+                }
+                .admin-auth-card-title{
+                    @media (max-width:1366px){
+                        margin-bottom: 25px;
+                    }
+                    .box-icon{
+                        @media (max-width:1366px){
+                            margin-bottom: 15px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.admin-registration-wrapper{
+    .admin-auth-inner-wrapper{
+        .admin-auth-row{
+            .admin-auth-left{
+                align-items: start;
+                justify-content: start;
+                padding: 180px 30px 10px;
+                @media (max-width:1366px){
+                    padding: 115px 15px 10px;
+                }
+                .auth-text{
+                    max-width: 530px;
+                    width: 100%;
+                    margin-left: 70px;
+                    height: auto;
+                    .side-main-title{
+                        h2{
+                            font-size: 28px;
+                            line-height: 36.4px;                            
+                            text-align: left;
+                            color: $text_black_color;
+                            margin-bottom: 39px;
+                            @media (max-width:1366px) {
+                                font-size: 23px;
+                                line-height: 31.4px;
+                                margin-bottom: 10px;
+                            }
+                        }                        
+                    }
+                    .side-detail-wrapper{
+                        ul{
+                            list-style: none;
+                            display: flex;
+                            gap: 15px 0;
+                            flex-direction: column;
+                            @media (max-width:1366px) {
+                                gap: 8px 0;              
+                            }
+                            li{
+                                padding: 14px;
+                                padding-left: 50px;
+                                position: relative;
+                                &::before{
+                                    content: "\f075";
+                                    font-family: "techhive" !important;
+                                    font-style: normal;
+                                    font-weight: normal;
+                                    color: #239BC2;
+                                    position: absolute;
+                                    left: 6px;
+                                    top: 8px;
+                                    font-size: 23px;
+                                    @media (max-width:1366px){
+                                        top: 6px;
+                                        font-size: 18px;
+                                    }
+                                }
+                                @media (max-width:1366px) {
+                                    padding: 10px 14px;
+                                    padding-left: 35px;                                
+                                }
+                                h5{
+                                    font-size: 16px;
+                                    line-height: 20.8px;
+                                    color: $text_black_color;
+                                    margin-bottom: 12px;
+                                    @media (max-width:1366px) {
+                                        font-size: 15px;
+                                        line-height: 18.8px;
+                                        margin-bottom: 6px;                                    
+                                    }
+                                }                                
+                                p{
+                                    font-weight: 400;
+                                    font-size: 14px;
+                                    line-height: 23.8px;                                      
+                                    color: $text_color;
+                                    @media (max-width:1366px) {
+                                        font-size: 13px;
+                                        line-height: 19.8px;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                img.signup_bg-img{
+                    position: absolute;
+                    left: 0;
+                    bottom: 0;
+                }
+                .terms-condition-wrapper{
+                    position: absolute;
+                    bottom: 30px;
+                    text-align: center;
+                    width: 100%;
+                    left: 0;
+                }
+
+
             }
         }
     }
@@ -116,9 +248,13 @@
 
     .admin-auth-card-title {
         margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+
 
         .box-icon {
-            margin-bottom: 14px;
+            margin-bottom: 27px;
         }
 
         h2 {
@@ -126,17 +262,20 @@
             font-weight: 600;
             line-height: 36.4px;
             text-align: left;
-            color: $primary_color;
+            color: $text_black_color;
             margin-bottom: 14px;
+            @media (max-width:1366px){
+                font-size: 23px;
+                line-height: 30.4px;
+            }
         }
 
         p {
             font-size: 16px;
             font-weight: 400;
-            line-height: 19.36px;
-            color: $primary_color;
+            line-height: normal;
+            color: $text_black_color;
             margin-bottom: 0px;
-
             span {
                 color: $secondary_color;
             }
@@ -144,10 +283,20 @@
     }
 
     .admin-auth-card {
-        border: 1px solid $stock_light;
+        border: transparent;
 
         .card-body {
-            padding: 34px;
+            padding: 0px;
+
+            .auth-bottom-text-link{
+                margin-top: 40px;
+                p{
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                }
+            }
         }
     }
 }
