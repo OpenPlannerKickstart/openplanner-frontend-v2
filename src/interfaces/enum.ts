@@ -27,6 +27,7 @@ export const ENUMFORSTATUS = {
     DASHBOARD: "/dashboard",
     REPORTS: "/reports",
     LOGIN: "/login",
+    FORGOTPASSWORD: "/forgot-password",
     PAGE_COMPONENT: "/page-component",
     ACCESS_DENIED: "/access-denied",
     USER_MANGEMNET: "/user-mangemnet",

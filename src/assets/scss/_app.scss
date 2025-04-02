@@ -1,154 +1,153 @@
-// Authentication
-.authentication {
-    .auth-outer {
-        display: flex;
-        flex-direction: row;
-        min-height: 100vh;
-        background-color: $white_color;
-    }
+.admin-auth-wrapper {
+    height: 100vh;
 
-    .auth-left {
-        flex: 0 0 620px;
-        max-width: 620px;
-        position: relative;
-        display: flex;
-        align-items: center;
+    .admin-auth-inner-wrapper {
+        padding: 20px;
+        height: 100%;
 
-        &::before {
-            content: '';
-            background-size: contain;
-            background-position: center center;
-            background-repeat: no-repeat;
-            height: 400px;
-            width: 400px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            margin: 0 auto;
-        }
-    }
 
-    .auth-right {
-        flex: 0 0 calc(100% - 620px);
-        max-width: calc(100% - 620px);
-        background-color: #F4F4F4;
-        padding: 30px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .auth-forms-outer {
-        width: 100%;
-        position: relative;
-        z-index: 1;
-    }
-
-    .auth-card {
-        width: 100%;
-        margin: 0 auto;
-
-        @media screen and (min-width: 1366px) {
-            width: 430px;
-        }
-
-        .auth-titlebar {
-            padding-bottom: 30px;
-            margin-bottom: 30px;
-            text-align: center;
-            border-bottom: 2px solid #EFEFEF;
-
-            .auth-logo-small {
-                margin-bottom: 15px;
-            }
-
-            h4 {
-                font-size: 26px;
-                color: #1A1D1F;
-                margin-bottom: 0;
-
-                &:has(+p) {
-                    margin-bottom: 8px;
-                }
-            }
-
-            p {
-                color: #33383F;
-            }
-        }
-
-        .forms-footer {
-            margin-top: 20px;
-            text-align: center;
-
-            .auth-link {
-                font-weight: 500;
-                cursor: pointer;
-                color: $primary_color;
-            }
-        }
-
-        .forms-forgot-rememberme {
+        .admin-auth-row {
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-        }
+            align-items: stretch;
+            height: 100%;
 
-        .auth-forms {
-            h6 {
-                color: #1A1D1F;
-                margin-bottom: 10px;
+            .admin-auth-col {
+                height: 100%;
             }
 
-            .form-group {
-                margin-bottom: 24px;
+
+            .admin-auth-left {
+                width: 100%;
+                background-color: $primary_color;
+                border-radius: 17px;
+                position: relative;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                .admin-auth-logo {
+                    height: 80px;
+                    width: auto;
+                    position: absolute;
+                    left: 30px;
+                    top: 30px;
+
+                    img {
+                        width: auto;
+                        height: auto;
+                    }
+                }
+
+                .auth-image {
+                    max-width: 340px;
+                    width: 100%;
+                    height: auto;
+
+                    img {
+                        width: auto;
+                        height: auto;
+                    }
+                }
+
+
+                .bg-shape-one {
+                    position: absolute;
+                    right: 0;
+                    top: 0;
+                    width: 268px;
+                    height: 247px;
+
+                    img {
+                        width: 100%;
+                        height: auto;
+                        object-fit: contain;
+                    }
+                }
+
+                .bg-shape-two {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 232px;
+                    height: 270px;
+
+                    img {
+                        width: 100%;
+                        height: auto;
+                        object-fit: contain;
+                    }
+                }
             }
 
-            .form-control,
-            .form-select {
-                height: 44px;
-                font-size: 14px;
-            }
+            .admin-auth-right {
+                width: calc(100% - 670px);
+                padding-top: 140px;
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
 
-            .forms-button {
-                margin-top: 24px;
-                display: grid;
-                gap: 10px;
+                position: relative;
 
-                .btn {
-                    height: 44px;
+
+                .golf-men {
+                    position: absolute;
+                    right: 36px;
+                    bottom: -20px;
+                    width: 135px;
+                    height: auto;
+
+                    img {
+                        width: 100%;
+                        height: auto;
+                    }
                 }
             }
         }
+    }
+}
 
-        .otp-resend-box {
-            p {
-                margin-bottom: 0;
-                text-align: center;
-            }
 
-            .btn-resendotp {
-                padding: 0;
-                border: 0;
-                font-weight: 500;
-                border-radius: 0;
-                color: $primary_color;
-            }
+
+.admin-auth-from {
+    max-width: 450px;
+
+    width: 100%;
+
+    .admin-auth-card-title {
+        margin-bottom: 40px;
+
+        .box-icon {
+            margin-bottom: 14px;
         }
 
-        .nav-tabs-auth {
-            margin-top: 20px;
+        h2 {
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 36.4px;
+            text-align: left;
+            color: $primary_color;
+            margin-bottom: 14px;
         }
 
-        &.auth-card-otp,
-        &.auth-card-forgotpassword,
-        &.auth-card-newpassword {
-            .auth-titlebar {
-                border-bottom: 0;
-                padding-bottom: 0;
+        p {
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 19.36px;
+            color: $primary_color;
+            margin-bottom: 0px;
+
+            span {
+                color: $secondary_color;
             }
+        }
+    }
+
+    .admin-auth-card {
+        border: 1px solid $stock_light;
+
+        .card-body {
+            padding: 34px;
         }
     }
 }
