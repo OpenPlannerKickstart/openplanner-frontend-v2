@@ -8,13 +8,19 @@
 
         th,
         td {
-            padding: 5px;
-            font-size: 12px;
+            padding: 10px;
+            font-size: 14px;
             white-space: nowrap;
-            color: $text_color;
+            font-weight: 400;
+            color: #535862;
+            border: 0;
 
-
-
+            &:first-child{
+                border-left: 1px solid #E6EAEE;
+            }
+            &:last-child{
+                border-right: 1px solid #E6EAEE;
+            }
         }
 
         tr {
@@ -42,12 +48,12 @@
 
 
         th {
-            background-color: $primary_light_color;
-            color: $text_color;
+            background-color: #F9FAFB;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 400;
             text-transform: capitalize;
-
+            padding: 7px 10px;
+            color: $text_black_color;
             i {
                 vertical-align: middle;
                 margin-right: 4px;

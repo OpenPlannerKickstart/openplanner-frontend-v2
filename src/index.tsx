@@ -11,6 +11,8 @@ import {
   // useSubscription,
 } from "react-stomp-hooks";
 import { WEB_SOCKET_CONNECTION_URL } from './Utility/Config';
+import "react-datepicker/dist/react-datepicker.css";
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );

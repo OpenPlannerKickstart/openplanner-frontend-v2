@@ -852,3 +852,16 @@
 }
 
 /* --------------------------------- White -------------------------------- */
+
+.btn-transparent,
+.btn-trasparent {
+    background-color: transparent;
+    color: $text_color;
+    border-color: transparent;
+
+    &:hover {
+        color: $black_color;
+        background-color: $white_color;
+        border-color: $stock_dark;
+    }
+}
