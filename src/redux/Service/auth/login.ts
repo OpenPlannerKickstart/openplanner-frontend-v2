@@ -14,22 +14,22 @@ import { setLoading } from "../../Loader/LoaderSlice";
 export const loginToSystem =
   (objBody: any = undefined) =>
   async (dispatch: AppDispatch) => {
-    dispatch(setLoading(true));
-    setTimeout(() => {
-      dispatch(setLoading(false));
-    }, 2000);
-    // try {
-    //   const response: any = await post(GET_LOGIN_DATA_API, objBody);
-    //   if (!response.data.error) {
-    //     dispatch(getLoginSuccess(objBody));
-    //   } else {
-    //     dispatch(getLoginFailure());
-    //   }
-    // } catch (err) {
-    //   dispatch(getLoginFailure());
-    // } finally {
+    // dispatch(setLoading(true));
+    // setTimeout(() => {
     //   dispatch(setLoading(false));
-    // }
+    // }, 2000);
+    try {
+      const response: any = await post(GET_LOGIN_DATA_API, objBody);
+      if (!response.data.error) {
+        dispatch(getLoginSuccess(objBody));
+      } else {
+        dispatch(getLoginFailure());
+      }
+    } catch (err) {
+      dispatch(getLoginFailure());
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
 /**

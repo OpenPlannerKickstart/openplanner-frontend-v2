@@ -34,6 +34,7 @@ export const ENUMFORSTATUS = {
     ACCESS_DENIED: "/access-denied",
     USER_MANGEMNET: "/user-mangemnet",
     COURSES: "/courses",
+    VERIFY_SIGNUP_OTP:"/verify-user-otp"
   
   }
   

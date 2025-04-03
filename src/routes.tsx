@@ -21,6 +21,7 @@ import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
 import NewPassword from './pages/auth/NewPassword/NewPassword';
 import Registration from './pages/auth/Registration/Registration';
 import Courses from './pages/Customer/Courses/Courses';
+import VerifySignupOtp from './pages/auth/Registration/VerifySignupOtp';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -73,6 +74,11 @@ const publicRoutes: RouterProps[] = [
   {
     path: ENUMFORROUTES.REGISTRATION,
     component: <Registration />,
+    caseSensitive: true,
+  },
+  {
+    path: ENUMFORROUTES.VERIFY_SIGNUP_OTP,
+    component: <VerifySignupOtp />,
     caseSensitive: true,
   },
 

@@ -121,7 +121,19 @@ export interface Notification {
  * Login data interface.
  */
 export interface LoginData {
-  userEmail: string;
+  email: string;
   password: string;
 
 }
+/**
+ * SignUp data interface.
+ */
+export interface SignUpData {
+  first_name: string;
+  last_name: string;
+  university_name: string;
+  email: string;
+  password: string;
+ 
+}
+
