@@ -3,8 +3,8 @@ import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import authLogo from "/assets/images/auth-logo.svg";
 import authTextBG from "/assets/images/signup-bg.svg";
 
-import authBGImage from '/assets/images/auth-bg-image.svg'
-import authBGImage3 from '/assets/images/auth-bg-image3.svg'
+import authBGImage from "/assets/images/auth-bg-image.svg";
+import authBGImage3 from "/assets/images/auth-bg-image3.svg";
 
 import { connect, useDispatch } from "react-redux";
 import { NavLink } from "react-router-dom";
@@ -16,8 +16,7 @@ const Registeration = (props) => {
   const [eyeToggle, setEyeToggle] = useState<boolean>(false);
   const dispatch: AppDispatch = useDispatch();
 
-
-   const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
   return (
     <>
       <div className="admin-auth-wrapper admin-registration-wrapper admin-auth-side-image">
@@ -65,7 +64,7 @@ const Registeration = (props) => {
                 alt="OpenPlanner"
               />
               <div className="terms-condition-wrapper">
-                <p className="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                <p>
                   By creating an account, you agree to our{" "}
                   <NavLink
                     className="text-link text-primary justify-content-center fw-600"
@@ -169,12 +168,10 @@ const Registeration = (props) => {
                       </Button>
                     </div>
 
-                    <div className="mt-4">
-                      <p className="d-flex align-items-center justify-content-center gap-2 ">
+                    <div className="auth-bottom-text-link">
+                      <p>
                         Already have an account?{" "}
-                        <NavLink
-                          className="text-link text-primary justify-content-center fw-600"
-                          to={ENUMFORROUTES.LOGIN}
+                        <NavLink to={ENUMFORROUTES.LOGIN}
                         >
                           Log In
                         </NavLink>
@@ -188,7 +185,7 @@ const Registeration = (props) => {
         </div>
       </div>
 
-      <div className="admin-auth-wrapper admin-auth-side-image">        
+      <div className="admin-auth-wrapper admin-auth-side-image">
         <div className={`admin-auth-inner-wrapper`}>
           <div className="admin-auth-row">
             <div className="admin-auth-col admin-auth-left">
@@ -200,17 +197,17 @@ const Registeration = (props) => {
                 <img src={authBGImage3} alt="OpenPlanner" />
               </div>
               <div className="terms-condition-wrapper">
-                <p className="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                <p >
                   By creating an account, you agree to our{" "}
                   <NavLink
-                    className="text-link text-primary justify-content-center fw-600"
+                    className="text-link text-primary fw-600"
                     to={""}
                   >
                     Terms and Conditions
                   </NavLink>
                   and
                   <NavLink
-                    className="text-link text-primary justify-content-center fw-600"
+                    className="text-link text-primary fw-600"
                     to={""}
                   >
                     Services Agreement.
@@ -242,16 +239,15 @@ const Registeration = (props) => {
                           onChange={setOtp}
                           containerStyle={""}
                           shouldAutoFocus={true}
+                            placeholder={"-"}
                           renderInput={(props) => <input {...props} />}
                         />
                       </div>
                     </Form.Group>
-                    <div className="my-4">
-                      <p className="d-flex align-items-center justify-content-center gap-2">
+                    <div className="auth-top-text-link otp-resend-text">
+                      <p>
                         Did not receive it?
-                        <NavLink
-                          className="text-link text-primary justify-content-center fw-600"
-                          to={""}
+                        <NavLink to={""}
                         >
                           Resend
                         </NavLink>
@@ -262,11 +258,11 @@ const Registeration = (props) => {
                       <Button variant="primary" className="w-100 mb-4">
                         Verify Email
                       </Button>
-                      <p className="d-flex align-items-center justify-content-center gap-2 ">
+                    </div>
+                    <div className="auth-bottom-text-link">
+                      <p>
                         Don’t have an email address
-                        <NavLink
-                          className="text-link text-primary justify-content-center fw-600"
-                          to={""}
+                        <NavLink to={""}
                         >
                           Use Another Email
                         </NavLink>

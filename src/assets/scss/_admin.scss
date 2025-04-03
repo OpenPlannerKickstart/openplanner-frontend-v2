@@ -5,8 +5,8 @@ $side_menu_primary_light_color: $bg_light;
 
 $menuTilte_color: #8E96B9;
 
-$main_sidebar_bg_color: #21263C;
-$main_sidebar_top_bg_color: #13172E;
+$main_sidebar_bg_color: #00222E;
+$main_sidebar_top_bg_color: #012E3F;
 $main_nav_bg_color: $bg_light;
 
 
@@ -28,7 +28,7 @@ $searchHeight: 38px;
 
 
 /* -------------------------- Sidebar Height Width -------------------------- */
-$sidebarWidth: 250px;
+$sidebarWidth: 260px;
 $sm_sidebarWidth: 70px;
 $sm_sidebar_home_link_width: 270px;
 
@@ -41,7 +41,7 @@ $sm_sidebar_home_link_width: 270px;
     right: 0;
     left: 0;
     z-index: 1002;
-    background-color: $main_nav_bg_color;
+    background-color: $white_color;
     box-shadow: unset;
     -webkit-transition: all .1s ease-out;
     transition: all .1s ease-out;
@@ -72,6 +72,20 @@ $sm_sidebar_home_link_width: 270px;
         display: flex;
         align-items: center;
         gap: 0 15px;
+        .notification-button{
+            padding-right:14px;
+            position: relative;
+            &::before{
+                content: "";
+                position: absolute;
+                top: 50%;
+                right: 0;
+                transform: translateY(-50%);
+                height: 60%;
+                width: 1px;
+                background: #E9F7FB;
+            }
+        }
     }
 
     /* ------------------------- Profile Dropdown Start ------------------------- */
@@ -89,7 +103,7 @@ $sm_sidebar_home_link_width: 270px;
                 width: 44px;
                 height: 44px;
                 object-fit: contain;
-                border: 1px solid $secondary_color;
+                border: 1px solid $primary_color;
             }
 
             .text-start {
@@ -118,7 +132,8 @@ $sm_sidebar_home_link_width: 270px;
                 content: "\e935";
                 position: absolute;
                 right: 0;
-                top: 50%;
+                top: 13px;
+                font-size: 16px;
                 transform: translateY(-50%);
                 font-family: "techhive" !important;
             }
@@ -195,7 +210,7 @@ $sm_sidebar_home_link_width: 270px;
     }
 
     .navbar-sidemenu {
-        padding: 20px 10px 10px 10px;
+        padding: 24px 10px 10px 10px;
     }
 
     .navbar-nav {
@@ -242,7 +257,7 @@ $sm_sidebar_home_link_width: 270px;
 
                 &:hover {
                     color: $side_menu_text_active_color;
-                    background-color: $side_menu_primary_light_color;
+                    background-color: $primary_bg_color;
                 }
 
                 &[data-bs-toggle=collapse] {
@@ -465,6 +480,8 @@ $sm_sidebar_home_link_width: 270px;
     .sidebar-footer {
         display: none;
     }
+
+    
 }
 
 /* -------------------------- SM Slidebar on Navbar ------------------------- */
@@ -485,3 +502,28 @@ $sm_sidebar_home_link_width: 270px;
 /* -------------------------------------------------------------------------- */
 /*                                 Sidebar End                                */
 /* -------------------------------------------------------------------------- */
+
+
+.add-event-button{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    gap:15px 10px;
+    padding:17px;
+    border-radius:10px;
+    border:1px solid #FFFFFF33;
+    background-color: #193842;
+    color:$white_color;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    width: 100%;
+    margin-bottom:19px;
+    i{
+        font-size:20px;
+        line-height:20px;
+    }
+}

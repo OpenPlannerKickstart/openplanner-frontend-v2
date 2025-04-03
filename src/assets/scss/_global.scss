@@ -299,38 +299,6 @@ img {
 }
 
 
-.page-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 19px 16px;
-    border-bottom: 1px solid $stock_light;
-
-    .page-title-left {
-        display: flex;
-        align-items: center;
-        gap: 0 10px;
-
-        .page-title-text {
-            h2 {
-                margin-bottom: 0px;
-                font-size: 16px;
-                font-weight: 600;
-                line-height: 20.8px;
-                text-align: left;
-                color: $text_black_color;
-            }
-        }
-    }
-
-    .page-title-right {
-        display: flex;
-        align-items: center;
-        gap: 0 10px;
-    }
-}
-
-
 .inner-title {
     h3 {
         font-size: 14px;

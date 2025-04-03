@@ -71,7 +71,7 @@ const Login = (props) => {
                                         <Form.Group className='form-group required'>
                                             <Form.Label>Password</Form.Label>
                                             <div className="form-group-icon-start form-group-password">
-                                                <i className="th th-outline-lock"></i>
+                                                <i className="th th-outline-lock-1"></i>
                                                 <Form.Control type={eyeToggle ? "text" : "password"} placeholder='Enter Password' />
                                                 <button onClick={() => setEyeToggle(!eyeToggle)} className='btn-password'> <i className={` ${eyeToggle ? "th-outline-eye" : "th-outline-eye-slash"}`}></i></button>
                                             </div>
@@ -82,7 +82,7 @@ const Login = (props) => {
 
                                         <div className="btn-full-group">
                                             
-                                            <NavLink className="text-link text-primary justify-content-center fw-600 w-100 d-block text-end mt-4" to={ENUMFORROUTES.FORGOTPASSWORD}>Forgot Password?</NavLink>
+                                            <NavLink className="auth-top-text-link text-link text-primary fw-500" to={ENUMFORROUTES.FORGOTPASSWORD}>Forgot Password?</NavLink>
                                             <Button variant='primary' className='w-100 mt-4' onClick={() => {
                
                                                 callLogin()
@@ -91,7 +91,7 @@ const Login = (props) => {
                                         </div>
 
                                         <div className="auth-bottom-text-link">
-                                            <p>Don’t have an account? <NavLink className="text-link text-primary justify-content-center fw-600" to={ENUMFORROUTES.REGISTRATION}>Registration</NavLink></p>
+                                            <p>Don’t have an account? <NavLink to={ENUMFORROUTES.REGISTRATION}>Registration</NavLink></p>
                                         </div>
 
                                     </Card.Body>

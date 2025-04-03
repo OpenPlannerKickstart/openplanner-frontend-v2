@@ -1,1 +1,99 @@
-test {}
+.page-title-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    background-color: $white_color;
+    border-bottom: 1px solid $stock_light;
+    padding: 12px 20px;
+    min-height: 70px;
+
+    h4 {
+        font-weight: 600;
+        font-size: 20px;
+        letter-spacing: 0px;        
+        color: $text_black_color;
+        margin-bottom: 0px;
+    }
+
+    h3{
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 23.4px;
+        color: $primary_color;
+        margin-bottom: 0px;
+    }
+    p{
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 23px;
+        text-align: left;
+        color: $text_black_color;
+        margin-bottom: 0px;
+
+    }
+
+    .page-title-left,
+    .page-title-right {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 7px;
+    }
+
+    &.page-title-with-tab {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+    .page-title-details{
+        display: inline-flex;
+        flex-direction: column;
+        p{
+            font-size: 12px;
+            margin-bottom: 0;
+            color: $text_black_color;
+        }
+        span{
+            font-size: 10px;
+        }
+    }
+}
+
+.page-title-wrapper-sub {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    background-color: $white_color;
+    border-bottom: 1px solid $stock_light;
+    padding: 10px;
+
+    .page-title-sub-left {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 7px;
+    }
+
+    h4 {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 20.8px;
+        color: #13172E;
+        margin: 0;
+    }
+
+    .page-title-sub-right {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 7px;
+    }
+    .form-group{
+        margin-bottom: 0 !important;
+    }
+}

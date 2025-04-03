@@ -33,6 +33,9 @@
                 border-color: $bg_grey !important
             }
         }
+        &::placeholder{
+            color: #777F90;
+        }
     }
 
     .otp-group {
@@ -51,10 +54,10 @@
             border: 1px solid $stock_light;
             color: $text_black_color;
             text-align: center;
-            border-radius: 10px;
+            border-radius: 5px;
             background-color: transparent;
-            width: 55px !important;
-            min-height: 55px;
+            width: 46px !important;
+            min-height: 51px;
             font-size: 21px;
             font-weight: 600;
             line-height: 27.3px;
@@ -168,6 +171,7 @@
             display: flex;
             align-items: center;
             font-size: 16px;
+            color:#777F90;
         }
     }
 

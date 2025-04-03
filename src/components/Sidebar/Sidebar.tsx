@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import sidebarLogoLg from "../../assets/images/sidebar-logo-lg.svg";
-import sidebarLogosm from "../../assets/images/auth-logo.svg";
+import sidebarLogosm from "../../assets/images/sidebar-logo-sm.svg";
 import { NavLink } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
@@ -43,7 +43,37 @@ export const Sidebar = () => {
           <div className="container-fluid">
             <div className="navbar-sidemenu">
               <ul className="navbar-nav" id="navbar-nav">
-                <li className="menu-title"><span data-key="t-menu">MAIN HOME</span></li>
+                {/* <li className="menu-title"><span data-key="t-menu">MAIN HOME</span></li> */}
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="/dashboard">
+                    <i className="th-outline-home"></i> <span data-key="t-widgets">Home</span>
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="">
+                    <i className="th-outline-calendar-1"></i> <span data-key="t-widgets">Calendar</span>
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="/courses">
+                    <i className="th-outline-book"></i> <span data-key="t-widgets">Courses</span>
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="">
+                    <i className="th-outline-task-square"></i> <span data-key="t-widgets">Task List</span>
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="">
+                    <i className="th-outline-info-circle"></i> <span data-key="t-widgets">Help</span>
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="">
+                    <i className="th-outline-setting-2"></i> <span data-key="t-widgets">Settings</span>
+                  </NavLink>
+                </li>
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="/page-component">
                     <i className="th-outline-home-1"></i> <span data-key="t-widgets">Components</span>
@@ -54,7 +84,7 @@ export const Sidebar = () => {
             </div>
 
             <div className="navbar-bottom navbar-sidemenu">
-              <ul className="navbar-nav" id="navbar-nav">
+              {/* <ul className="navbar-nav" id="navbar-nav">
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="/settings">
                     <i className="th-outline-setting-2"></i> <span data-key="t-widgets">Settings</span>
@@ -69,9 +99,13 @@ export const Sidebar = () => {
                     <i className="th-outline-logout"></i> <span data-key="t-widgets">Logout</span>
                   </NavLink>
                 </li>
-              </ul>
+              </ul> */}
+              <button className="add-event-button">
+                  <i className='th th-outline-add-circle'></i>
+                  Add New Event/Syllabus
+              </button>
               <div className="sidebar-footer">
-                <p>© 2024 PureCharity</p>
+                <p>© 2025 Open Planner</p>
               </div>
             </div>
           </div>

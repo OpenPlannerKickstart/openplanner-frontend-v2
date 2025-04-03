@@ -37,33 +37,22 @@ const Navbar = () => {
               {/* <!-- LOGO --> */}
 
 
-              <Button variant='primary' className="btn-icon" id="topnav-hamburger-icon" onClick={toogleMenu}>
+              <Button variant='primary' className="btn-icon btn-secondary-two" id="topnav-hamburger-icon" onClick={toogleMenu}>
                 <i className='th th-outline-menu-1'></i>
               </Button>
 
               {/* <!-- App Search--> */}
 
 
-              <form className=" d-none d-md-block">
-                <Form.Group className="form-group mb-0">
-                  <div className="form-group-icon-start">
-                    <i className='th th-outline-search-normal-1'></i>
-                    <Form.Control
-                      type="text"
-                      placeholder="Search here ..."
-                      className=""
-                    />
-                  </div>
-                </Form.Group>
-              </form>
+              <div className="header-item navbar-add-btn">
+                <Button variant='primary' className='btn-icon-text btn-secondary-two'> <i className='th th-outline-add-circle'></i> Add New Event/Syllabus</Button>
+              </div>
             </div>
 
             <div className="navbar-header-right d-flex align-items-center">
-              <div className="header-item navbar-add-btn">
-                <Button variant='primary' className='btn-icon-text'> <i className='th th-outline-add-circle'></i> Add New</Button>
-              </div>
-              <div className="dropdown topbar-head-dropdown  header-item" id="notificationDropdown">
-                <button type="button" className="btn btn-outline-white btn-icon" >
+             
+              <div className="dropdown topbar-head-dropdown notification-button header-item" id="notificationDropdown">
+                <button type="button" className="btn btn-lg btn-outline-white btn-icon rounded-pill " >
                   <i className="th-outline-notification"></i>
                 </button>
               </div>

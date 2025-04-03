@@ -33,6 +33,7 @@ export const ENUMFORSTATUS = {
     PAGE_COMPONENT: "/page-component",
     ACCESS_DENIED: "/access-denied",
     USER_MANGEMNET: "/user-mangemnet",
+    COURSES: "/courses",
   
   }
   

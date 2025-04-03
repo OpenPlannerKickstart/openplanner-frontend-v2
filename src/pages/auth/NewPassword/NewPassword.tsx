@@ -37,7 +37,7 @@ const NewPassword = (props) => {
                     <Form.Group className="form-group required">
                       <Form.Label>New Password</Form.Label>
                       <div className="form-group-icon-start form-group-password">
-                        <i className="th th-outline-lock"></i>
+                        <i className="th th-outline-lock-1"></i>
                         <Form.Control
                           type={eyeToggle ? "text" : "password"}
                           placeholder="Enter Password"
@@ -60,7 +60,7 @@ const NewPassword = (props) => {
                     <Form.Group className="form-group required">
                       <Form.Label>Confirm Password</Form.Label>
                       <div className="form-group-icon-start form-group-password">
-                        <i className="th th-outline-lock"></i>
+                        <i className="th th-outline-lock-1"></i>
                         <Form.Control
                           type={eyeToggle ? "text" : "password"}
                           placeholder="Enter Password"
@@ -85,8 +85,8 @@ const NewPassword = (props) => {
                         Update Password
                       </Button>
                     </div>
-                    <div className="btn-full-group">
-                        <p className='d-flex align-items-center justify-content-center gap-2'>Go back to<NavLink className="text-link text-primary justify-content-center fw-600" to={ENUMFORROUTES.LOGIN}>Log In</NavLink></p>
+                    <div className="auth-bottom-text-link btn-full-group">
+                        <p>Go back to <NavLink className="text-link text-primary fw-600" to={ENUMFORROUTES.LOGIN}>Log In</NavLink></p>
                     </div>
                   </Card.Body>
                 </Card>

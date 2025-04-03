@@ -20,6 +20,7 @@ import PageComponent from './pages/Customer/PageComponent/PageComponent';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
 import NewPassword from './pages/auth/NewPassword/NewPassword';
 import Registration from './pages/auth/Registration/Registration';
+import Courses from './pages/Customer/Courses/Courses';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -34,6 +35,12 @@ const privateRoutes: RouterProps[] = [
     component: <PageComponent />,
     caseSensitive: true,
     url: ENUMFORROUTES.PAGE_COMPONENT,
+  },
+  {
+    path: ENUMFORROUTES.COURSES,
+    component: <Courses />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.COURSES,
   },
   
 
