@@ -1,4 +1,7 @@
 import React from "react";
+import { Form } from "react-bootstrap";
+
+import DatePicker from "react-datepicker";
 import { connect } from "react-redux";
 
 const Courses = (props) => {
@@ -18,6 +21,29 @@ const Courses = (props) => {
           </div>
         </div>
         <div className="page-filters p-3 mb-0">
+          <div className="page-filters-left">
+            <Form.Group className="form-group form-group-sm form-group-inline-control">
+              <div className="form-control-wrapper">
+                <div className="form-group-icon-start">
+                  <i className="th th-outline-search-normal"></i>
+                  <Form.Control type="text" placeholder="Search" />
+                </div>
+              </div>
+            </Form.Group>
+            <Form.Group className="form-group required">
+              <div className="react-datepicker-container form-group-icon-end">
+                <i className="th th-outline-calendar"></i>
+                <DatePicker                  
+                  dropdownMode="select"
+                  isClearable={true}
+                  dateFormat="dd/MM/yyyy"
+                  className="form-control"
+                  popperProps={{ strategy: "fixed" }}
+                  placeholderText="Date Range"
+                />
+              </div>              
+            </Form.Group>
+          </div>
           <div className="page-filters-right">
             <div className="dropdown export-dropdown">
               <button
