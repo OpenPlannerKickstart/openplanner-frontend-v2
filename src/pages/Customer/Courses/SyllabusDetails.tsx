@@ -56,6 +56,39 @@ const SyllabusDetails = (props) => {
                 </div>
             </div>
         </Form.Group>
+        <div className="Reminder-box">
+          <div className="title-with-switch">
+            <div className="title-text"><h4>Reminder (Notify me before start date)</h4></div>
+            <div className="switch-box ">
+                <label className="switch" htmlFor="switch">
+                    <input type="checkbox" id='switch'/>
+                    <div className="slider round"></div>
+                </label>
+            </div>
+          </div>
+          <div className="remider-fields">
+            <Form.Group className='form-group'>
+              <Form.Label>Unit</Form.Label>
+              <Select
+                      placeholder={<div>Days</div>}
+                      menuPosition="fixed"
+                      className="react-select-container"
+                  />
+            </Form.Group>
+             <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                <Form.Label>Value</Form.Label>
+                <Form.Select aria-label="Default select example">
+                    <option>5</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </Form.Select>
+            </Form.Group>
+            <button type="button" className="btn btn-light-white">
+              Clear
+            </button>
+          </div>
+        </div>
         <Form.Group className="form-group">
           <Form.Label>Class Time</Form.Label>
           <div className="form-group-icon-start">
@@ -63,7 +96,6 @@ const SyllabusDetails = (props) => {
             <Form.Control type="text" placeholder="MM-DD-YY" />
           </div>
         </Form.Group>
-
         <Form.Group
           className="form-group"
           controlId="exampleForm.ControlInput1"
@@ -75,13 +107,13 @@ const SyllabusDetails = (props) => {
           </div>
         </Form.Group>
         <Form.Group className='form-group'>
-            <Form.Label>React Select</Form.Label>
+            <Form.Label>Course Color</Form.Label>
             <Select
-                    placeholder={<div>Select Work Space</div>}
+                    placeholder={<div>#5485452</div>}
                     menuPosition="fixed"
                     className="react-select-container"
                 />
-        </Form.Group>
+        </Form.Group>       
       </div>
     </>
   );

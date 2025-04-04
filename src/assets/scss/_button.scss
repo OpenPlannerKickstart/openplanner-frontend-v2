@@ -865,3 +865,31 @@
         border-color: $stock_dark;
     }
 }
+
+.btn-close {
+    background: 0;
+    font-size: 20px;
+    color: $text_color;
+    opacity: 1;
+    box-shadow: none;
+    border: 0;
+    padding: 0;
+    height: 31px;
+    width: 31px;
+
+    i {
+        display: inline-block;
+        transition: 0.70s;
+        -webkit-text-stroke: 0.5px;
+    }
+
+    &:hover {
+        background-color: #F4F5F6;
+        color: $black_color;
+
+        i {
+            transform: rotate(90deg);
+        }
+    }
+}
+

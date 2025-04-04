@@ -1201,6 +1201,207 @@
 /*                                 Switch End                                 */
 /* -------------------------------------------------------------------------- */
 
+
+/* -------------------------------------------------------------------------- */
+/*                             React Select Start                             */
+/* -------------------------------------------------------------------------- */
+.react-select-container {
+
+    .css-13cymwt-control,
+    .css-t3ipsp-control,
+    div[class*="-control"] {
+        border-color: $stock_light;
+        border-radius: 6px;
+
+        &:hover {
+            border-color: $primary_color;
+        }
+
+        
+        .css-15lsz6c-indicatorContainer,
+        .css-1xc3v61-indicatorContainer{
+          
+            width: 20px;
+            height: 20px;
+            background-size: 20px 11px;
+            background-repeat: no-repeat;
+            background-position: center center;
+            padding: 0 !important;
+            cursor: pointer;
+
+            .css-tj5bde-Svg{
+                fill: $primary_color;
+                width: 15px;
+            }
+        }
+
+
+        
+
+    }
+
+    .react-select__control {
+        -webkit-box-align: center;
+        align-items: center;
+        cursor: default;
+        display: flex;
+        flex-wrap: wrap;
+        -webkit-box-pack: justify;
+        justify-content: space-between;
+        position: relative;
+        transition: 100ms;
+        background-color: rgb(255, 255, 255);
+        border-radius: 6px;
+        box-sizing: border-box;
+        outline: 0px !important;
+    }
+
+    .css-1ydredp {
+        z-index: 999;
+    }
+
+    .css-t3ipsp-control,
+    div[class*="-control"] {
+        box-shadow: none;
+    }
+
+    .css-1u9des2-indicatorSeparator {
+        display: none;
+
+       
+    }
+
+    .css-3w2yfm-ValueContainer {
+        .css-1p3m7a8-multiValue {
+            background-color: #E9F1FE;
+
+            .css-wsp0cs-MultiValueGeneric {
+                color: $primary_color;
+            }
+
+            .css-12a83d4-MultiValueRemove {
+                svg {
+                    path {
+                        color: $primary_color;
+                    }
+                }
+
+                &:hover {
+                    background-color: transparent;
+                    color: $danger_color;
+
+                    svg {
+                        path {
+                            color: $danger_color;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .react-select__menu-portal,
+    div[class*="-MenuPortal"] {
+        z-index: 9999 !important;
+
+        .css-tr4s17-option {
+            background-color: $primary_color;
+        }
+
+        .css-d7l1ni-option,
+        .css-10wo9uf-option:active,
+        .css-d7l1ni-option:active {
+            background-color: #E9F1FE;
+            color: $primary_color;
+        }
+    }
+
+    &.react-select--is-disabled {
+
+        .css-olqui2-singleValue {
+            color: #cfcfcf !important;
+        }
+
+        .react-select__indicator-separator {
+            background-color: transparent;
+        }
+    }
+
+
+}
+
+body {
+    div[class*="-MenuPortal"] {
+        z-index: 9999;
+    }
+}
+
+
+.react-select-container>div:nth-child(4) {
+    z-index: 100;
+}
+
+
+.form-group {
+    .react-select-container {
+
+        .css-13cymwt-control,
+        .css-t3ipsp-control,
+        div[class*="-control"] {
+            min-height: 38px;
+        }
+    }
+}
+
+.form-group {
+    &.form-group-sm {
+
+        .form-group-icon-start,
+        .form-group-icon-end {
+            .control-icon {
+                z-index: 1;
+            }
+        }
+
+        .form-group-icon-start {
+            .react-select-container {
+
+                .css-13cymwt-control,
+                .css-t3ipsp-control {
+                    padding-left: 22px;
+
+                    
+                }
+            }
+        }
+
+        .react-select-container {
+            font-size: 0.875rem;
+            ;
+
+            .css-13cymwt-control,
+            .css-t3ipsp-control {
+                min-height: 31px;
+                font-size: 14px;
+                &>div{
+                    padding-top: 0px;
+                    padding-bottom: 0px;
+                }
+            }
+
+            .css-1xc3v61-indicatorContainer,
+            .css-15lsz6c-indicatorContainer {
+                padding: 0px 8px;
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              React Select End                              */
+/* -------------------------------------------------------------------------- */
+
+
 /* -------------------------------------------------------------------------- */
 /*                              Datepicker Start                              */
 /* -------------------------------------------------------------------------- */

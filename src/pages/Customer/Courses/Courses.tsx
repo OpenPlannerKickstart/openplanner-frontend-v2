@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Button, Card, Col, Form, Offcanvas, Row, Table } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Offcanvas,
+  Row,
+  Table,
+} from "react-bootstrap";
 import gridCardImg from "/assets/images/grid-card-img.svg";
 import DatePicker from "react-datepicker";
 import { connect } from "react-redux";
@@ -7,7 +15,6 @@ import SyllabusDetails from "./SyllabusDetails";
 import Events from "./Events";
 
 const Courses = (props) => {
-
   const [showCourse, setShowCourse] = useState(false);
 
   const handleCloseCourse = () => setShowCourse(false);
@@ -72,7 +79,6 @@ const Courses = (props) => {
 
         <div className="content-area ">
           <div className="page-content-wrapper h-100">
-            
             <div className="list-view-layout">
               <div className="table-responsive mb-5">
                 <Table className="table-theme table-bordered">
@@ -126,7 +132,10 @@ const Courses = (props) => {
                       <td>13-03-2025 - 04:50 PM</td>
                       <td className="tbl-action">
                         <div className="tbl-action-group">
-                          <button className="btn btn-xs btn-icon btn-transparent" onClick={toggleShowCourse}>
+                          <button
+                            className="btn btn-xs btn-icon btn-transparent"
+                            onClick={toggleShowCourse}
+                          >
                             {" "}
                             <i className="th th-outline-edit"></i>
                           </button>
@@ -211,7 +220,10 @@ const Courses = (props) => {
                                   </p>
                                 </div>
                                 <div className="action-button">
-                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm" onClick={toggleShowCourse}>
+                                  <button
+                                    className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm"
+                                    onClick={toggleShowCourse}
+                                  >
                                     <i className="th th-outline-edit"></i>
                                   </button>
                                   <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
@@ -407,52 +419,112 @@ const Courses = (props) => {
             {/***** Grid layout end *****/}
 
             {/***** Offcanvas start *****/}
-            <div className="edit-course-canvas">            
-              <Offcanvas className="edit-course-canvas" show={showCourse} placement={"end"} onHide={handleCloseCourse}>
-                <Offcanvas.Header closeButton>
-                  <Offcanvas.Title>Edit <span>Project Management</span></Offcanvas.Title>
+            <div className="edit-course-canvas">
+              <Offcanvas
+                className="edit-course-canvas"
+                show={showCourse}
+                placement={"end"}
+                onHide={handleCloseCourse}
+              >
+                <Offcanvas.Header>
+                  <Offcanvas.Title>
+                    Edit <span>Project Management</span>
+                  </Offcanvas.Title>
+                  <button type="button" className="btn-close" onClick={handleCloseCourse}>
+                      <i className='th th-close'></i>
+                  </button>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                   <div className="edit-course-wrapper">
-                    <Row>
-                      <Col md={6}>
+                    <div className="course-edit-container">
+                      <div className="syllabus-tab-wrapper">
                         <div className="course-detail-box">
-                          <div className='nav-tabs-outer nav-tabs-style2'>
+                          <div className="nav-tabs-outer nav-tabs-style2">
                             <nav>
-                                <div className="nav nav-tabs" id="nav-tab" role="tablist">
-                                    <button className="nav-link active" id="nav-SyllabusDetails-tab" data-bs-toggle="tab"
-                                        data-bs-target="#nav-SyllabusDetails" type="button" role="tab" aria-controls="nav-SyllabusDetails"
-                                        aria-selected="true"> Syllabus Details</button>
+                              <div
+                                className="nav nav-tabs"
+                                id="nav-tab"
+                                role="tablist"
+                              >
+                                <button
+                                  className="nav-link active"
+                                  id="nav-SyllabusDetails-tab"
+                                  data-bs-toggle="tab"
+                                  data-bs-target="#nav-SyllabusDetails"
+                                  type="button"
+                                  role="tab"
+                                  aria-controls="nav-SyllabusDetails"
+                                  aria-selected="true"
+                                >
+                                  {" "}
+                                  Syllabus Details
+                                </button>
 
-                                    <button className="nav-link" id="nav-Events-tab" data-bs-toggle="tab"
-                                        data-bs-target="#nav-Events" type="button" role="tab" aria-controls="nav-Events"
-                                        aria-selected="false">Events</button>
-
-                                </div>
+                                <button
+                                  className="nav-link"
+                                  id="nav-Events-tab"
+                                  data-bs-toggle="tab"
+                                  data-bs-target="#nav-Events"
+                                  type="button"
+                                  role="tab"
+                                  aria-controls="nav-Events"
+                                  aria-selected="false"
+                                >
+                                  Events
+                                </button>
+                              </div>
                             </nav>
                             <div className="tab-content" id="nav-tabContent">
-                                <div className="tab-pane fade show active" id="nav-SyllabusDetails" role="tabpanel"
-                                    aria-labelledby="nav-SyllabusDetails-tab">
-                                    <SyllabusDetails />
+                              <div
+                                className="tab-pane fade show active"
+                                id="nav-SyllabusDetails"
+                                role="tabpanel"
+                                aria-labelledby="nav-SyllabusDetails-tab"
+                              >
+                                <div className="tab-content-container">
+                                  <SyllabusDetails />
+                                  <div className="bottom-button-group">
+                                    <button type="button" className="btn btn-light-white me-auto">
+                                      Cancel
+                                    </button>
+                                    <button type="button" className="btn btn-light-danger">
+                                      Delete Syllabus
+                                    </button>
+                                    <button type="button" className="btn btn-primary">
+                                      Save
+                                    </button>
+                                  </div>
                                 </div>
-                                <div className="tab-pane fade" id="nav-Events" role="tabpanel" aria-labelledby="nav-Events-tab">
-                                    <Events/>
-                                </div>
+                              </div>
+                              <div
+                                className="tab-pane fade"
+                                id="nav-Events"
+                                role="tabpanel"
+                                aria-labelledby="nav-Events-tab"
+                              >
+                                <Events />
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </Col>
-                      <Col md={6}>
-                      
-                      </Col>
-                    </Row>
+                      </div>
+                      <div className="syllabus-pdf-container">
+                        <div className="syllabus-preview-wrapper">
+                          <div className="title-text">
+                            <h4>Syllabus Preview</h4>
+                            <a className="hide-btn">Hide Preview</a>
+                          </div>
+                          <div className="syllabus-view-box">
+                            
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </Offcanvas.Body>
               </Offcanvas>
             </div>
             {/***** Offcanvas end *****/}
-
-
           </div>
         </div>
       </div>
