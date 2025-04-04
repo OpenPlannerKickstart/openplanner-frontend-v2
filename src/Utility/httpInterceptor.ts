@@ -8,6 +8,7 @@ import {
   getRefreshToken,
   setCookieByName,
   removeCookieByName,
+  deleteAllCookies,
   // getClientId,
 } from "./Helper"; // Importing utility functions related to server validation, token retrieval, exclusion list, and refresh tokens
 import { te, ts } from "./Toaster"; // Importing functions related to displaying toasts or messages
@@ -276,9 +277,9 @@ const logoutFromSystem = (objBody = {}) => {
   // Display an unauthorized message
   te("Unauthorized user");
   /**Clear token-related data from local storage  */
-
-  removeCookieByName("token");
-  removeCookieByName("accessToken");
+  deleteAllCookies();
+  // removeCookieByName("token");
+  // removeCookieByName("accessToken");
 };
 
 /**

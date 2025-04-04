@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { Button, Form } from 'react-bootstrap';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Card } from 'react-bootstrap';
 import authLogo from "/assets/images/auth-logo.svg";
 import authTextBG from "/assets/images/signup-bg.svg";
@@ -12,20 +12,25 @@ import authBGImage3 from "/assets/images/auth-bg-image3.svg";
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
 import { CODE_IS_REQUIRED } from '../../../Utility/Validation_Message';
-import { verifySignupEmailOtp } from '../../../redux/Service/auth/signup';
+import { sendSignupEmailOtp, verifySignupEmailOtp } from '../../../redux/Service/auth/signup';
 import { AppDispatch } from '../../../redux/store';
 import { renderError } from '../../../Utility/Helper';
 import OTPInput from 'react-otp-input';
-const VerifySignupOtp = () => {
+import { ENUMFORROUTES } from '../../../interfaces/enum';
+const VerifySignupOtp = (props) => {
+    const { otpDetailsObj } = props;
     const dispatch: AppDispatch = useDispatch();
     const { state } = useLocation();
-    useEffect(() => {
-        console.log(state, "state");
-
-        return () => {
-
+    const navigate = useNavigate();
+    const navigateToRelatedScreen = (route: any, val?: any) => {
+        if (val) {
+            navigate(route, { state: val })
         }
-    }, [state])
+        else {
+            navigate(route);
+        }
+
+    } 
 
     const [otpData, setOtpData] = useState("");
     const handleOtpInput = (otp) => {
@@ -34,16 +39,39 @@ const VerifySignupOtp = () => {
     };
     const handleverifyCodeSubmit = async () => {
 
+        if(otpData?.length !==6){
+            return ;
+        }
 
         const reqBody = {
-            email: state?.email,
+            email: otpDetailsObj?.isFromLogin? `${otpDetailsObj?.detailsObj?.email}`:`${otpDetailsObj?.detailsObj?.first_name}_${otpDetailsObj?.detailsObj?.last_name}`,
             code: otpData.toString()
         }
         const verifyResponse = await dispatch(verifySignupEmailOtp(reqBody));
         if (verifyResponse) {
+            if (otpDetailsObj?.isFromLogin) {
+                props?.handleLoginData();
+            } else {
+                navigate(ENUMFORROUTES.LOGIN)
+            }
             console.log(verifyResponse, "verify response");
         }
     }
+
+    console.log(otpDetailsObj?.isFromLogin)
+    /* ------------------------- handle Resend Otp Start ------------------------ */
+
+    const handleResendOtp = async() => {
+        const sendEmailOtpReqBody = {
+            email:  otpDetailsObj?.isFromLogin? `${otpDetailsObj?.detailsObj?.email}`:`${otpDetailsObj?.detailsObj?.first_name}_${otpDetailsObj?.detailsObj?.last_name}`
+        }
+        const sendEmailOtpResponse = await dispatch(sendSignupEmailOtp(sendEmailOtpReqBody));
+        if (sendEmailOtpResponse) {
+            setOtpData("");
+
+        }
+    }
+    /* ------------------------- handle Resend Otp End ------------------------ */
 
 
     return (
@@ -87,9 +115,9 @@ const VerifySignupOtp = () => {
                                     </div>
                                     <h2 className="">Check your Email!</h2>
                                     <p className="text-center mt-4">
-                                        We have sent a 4-digit code to your email
+                                        We have sent a 6-digit code to your email
                                         <br />
-                                        <span className="text-warning">robertdowney@gmail.com</span>
+                                        <span className="text-warning">{otpDetailsObj?.detailsObj?.email || ""}</span>
                                     </p>
                                 </div>
                                 <Card className="admin-auth-card">
@@ -112,10 +140,11 @@ const VerifySignupOtp = () => {
                                         <div className="auth-top-text-link otp-resend-text">
                                             <p>
                                                 Did not receive it?
-                                                <NavLink to={""}
+                                                <button className='btn btn-link'
+                                                    onClick={() => { handleResendOtp();}}
                                                 >
                                                     Resend
-                                                </NavLink>
+                                                </button>
                                             </p>
                                         </div>
 
@@ -127,10 +156,11 @@ const VerifySignupOtp = () => {
                                         <div className="auth-bottom-text-link">
                                             <p>
                                                 Don’t have an email address
-                                                <NavLink to={""}
+                                                <button className='btn btn-link'
+                                                onClick={()=>{props.setOtpDetailsObj({} as any)}}
                                                 >
                                                     Use Another Email
-                                                </NavLink>
+                                                </button>
                                             </p>
                                         </div>
                                     </Card.Body>

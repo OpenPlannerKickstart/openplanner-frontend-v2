@@ -19,9 +19,7 @@ export const Sidebar = () => {
   };
   const dispatch: AppDispatch = useDispatch();
   const callLogout = async () => {
-    setTimeout(() => {
-      removeCookieByName("token");
-    }, 2000);
+    
     await dispatch(logoutFromSystem());
   };
   return (

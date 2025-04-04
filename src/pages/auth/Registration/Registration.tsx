@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import authLogo from "/assets/images/auth-logo.svg";
 import authTextBG from "/assets/images/signup-bg.svg";
@@ -13,8 +13,9 @@ import { SignUpData } from "../../../interfaces/interface";
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from "formik";
 import * as yup from "yup";
 import { EMAIL_INVALID, EMAIL_REQUIRED, FIRST_NAME_REQUIRED, LAST_NAME_REQUIRED, PASSWORD_REQUIRED, UNIVERSITY_NAME_REQUIRED } from "../../../Utility/Validation_Message";
-import { customJsonInclude, renderError } from "../../../Utility/Helper";
+import { customJsonInclude, isEmptyObjectOrNullUndefiend, renderError } from "../../../Utility/Helper";
 import { sendSignupEmailOtp, signupToSystem } from "../../../redux/Service/auth/signup";
+import VerifySignupOtp from "./VerifySignupOtp";
 
 const Registeration = (props) => {
   const [eyeToggle, setEyeToggle] = useState<boolean>(false);
@@ -31,26 +32,29 @@ const Registeration = (props) => {
   }
   const [otp, setOtp] = useState("");
 
+  const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
+
   /* ------------------------- Signup Form Validation ------------------------- */
   const initSignUpValues: SignUpData = {
-  
 
-    // first_name: "",
-    // last_name: "",
-    // university_name: "",
-    // email: "",
-    // password: "",
-    
-      "first_name": "Test",
-      "last_name": "Teshhive",
-      "university_name": "Teshhive",
-      "email": "youttauseiddumoi-9760@yopmail.com",
-      "password": "Test@123"
-  
+
+    first_name: "",
+    last_name: "",
+    university_name: "",
+    email: "",
+    password: "",
+
+    // "first_name": "Test",
+    // "last_name": "Teshhive",
+    // "university_name": "Teshhive",
+    // "email": "youttauseiddumoi-9760@yopmail.com",
+    // "password": "Test@123"
+
 
 
   }
 
+  const [savesignUpFormData,setSaveSignUpFormData]=useState(initSignUpValues);
 
   const onSubmitForSignUp = async (values, onSubmitProps) => {
 
@@ -75,7 +79,7 @@ const Registeration = (props) => {
       .required(PASSWORD_REQUIRED),
   });
   const signUpFormData = useFormik({
-    initialValues: initSignUpValues,
+    initialValues: savesignUpFormData||initSignUpValues,
     // onubmit:onSubmitForLogin,
     onSubmit: onSubmitForSignUp,
     validationSchema: validationSchemaForSignUp,
@@ -128,19 +132,40 @@ const Registeration = (props) => {
       }
       const sendEmailOtpResponse = await dispatch(sendSignupEmailOtp(sendEmailOtpReqBody));
       if (sendEmailOtpResponse) {
-        navigateToRelatedScreen(ENUMFORROUTES.VERIFY_SIGNUP_OTP,{
-          isFromLogin: false,
-          email: `${reqBody?.first_name}_${reqBody?.last_name}`
-        })
+       
+        setOtpDetailsObj(
+          {
+            isFromLogin: false,
+            detailsObj:{
+              ...reqBody
+            }
+          }
+        )
+
       }
 
     }
   }
 
+  useEffect(() => {
+    if(!isEmptyObjectOrNullUndefiend(otpDetailsObj?.detailsObj)){
+      setSaveSignUpFormData(otpDetailsObj?.detailsObj);
+    }
+    
+  
+    return () => {
+      
+    }
+  }, [otpDetailsObj])
+  
+
 
   /* ------------------------- Signup Form Validation ------------------------- */
   return (
     <>
+    {
+      isEmptyObjectOrNullUndefiend(otpDetailsObj)?
+
       <div className="admin-auth-wrapper admin-registration-wrapper admin-auth-side-image">
         <div className="admin-auth-inner-wrapper">
           <div className="admin-auth-row">
@@ -327,7 +352,7 @@ const Registeration = (props) => {
 
                     <div className="btn-full-group">
                       <Button variant="primary" className="w-100 mt-4"
-                      onClick={()=>{handleSignUpData();}}
+                        onClick={() => { handleSignUpData(); }}
                       >
                         Gert started
                       </Button>
@@ -348,7 +373,13 @@ const Registeration = (props) => {
             </div>
           </div>
         </div>
-      </div>
+      </div>:
+      <VerifySignupOtp
+      otpDetailsObj={otpDetailsObj}
+      setOtpDetailsObj={setOtpDetailsObj}
+     
+      />
+    }
 
     </>
   );
