@@ -1,10 +1,18 @@
-import React from "react";
-import { Button, Card, Col, Form, Row, Table } from "react-bootstrap";
-import gridCardImg from '/assets/images/grid-card-img.svg'
+import React, { useState } from "react";
+import { Button, Card, Col, Form, Offcanvas, Row, Table } from "react-bootstrap";
+import gridCardImg from "/assets/images/grid-card-img.svg";
 import DatePicker from "react-datepicker";
 import { connect } from "react-redux";
+import SyllabusDetails from "./SyllabusDetails";
+import Events from "./Events";
 
 const Courses = (props) => {
+
+  const [showCourse, setShowCourse] = useState(false);
+
+  const handleCloseCourse = () => setShowCourse(false);
+  const toggleShowCourse = () => setShowCourse((s) => !s);
+
   return (
     <>
       <div className="page-content">
@@ -64,6 +72,7 @@ const Courses = (props) => {
 
         <div className="content-area ">
           <div className="page-content-wrapper h-100">
+            
             <div className="list-view-layout">
               <div className="table-responsive mb-5">
                 <Table className="table-theme table-bordered">
@@ -117,7 +126,7 @@ const Courses = (props) => {
                       <td>13-03-2025 - 04:50 PM</td>
                       <td className="tbl-action">
                         <div className="tbl-action-group">
-                          <button className="btn btn-xs btn-icon btn-transparent">
+                          <button className="btn btn-xs btn-icon btn-transparent" onClick={toggleShowCourse}>
                             {" "}
                             <i className="th th-outline-edit"></i>
                           </button>
@@ -168,31 +177,282 @@ const Courses = (props) => {
               </div>
             </div>
 
-            {/* <div className="gird-view-layout">
+            {/***** Grid layout start *****/}
+            <div className="gird-view-layout">
               <div className="course-wrapper">
-                <Row>
+                <Row className="course-container">
                   <Col md={"4"}>
-                    <Card>
+                    <Card className="card-style-1">
                       <Card.Body>
+                        <div className="corse-card">
                           <div className="card-main-img">
                             <img src={gridCardImg} alt="" />
                           </div>
                           <div className="card-details-wrapper">
-                              <div className="card-title">
-                                <h3>Project Management</h3>
+                            <div className="card-title">
+                              <h3>Project Management</h3>
+                            </div>
+                            <div className="selected-date-with-color">
+                              <div className="selected-date">
+                                <i className="th th-outline-calendar-1"></i>
+                                <p>12-03-2025 - 12:30 PM</p>
                               </div>
-                              <div className="selected-date-with-color">
-                                <div className="selected-date"><p>12-03-2025 - 12:30 PM</p></div>
-                                <div className="selected-color"><p>#545455</p></div>
-                              </div>                               
+                              <div className="selected-color">
+                                <span className="color-code"></span>
+                                <p>#545455</p>
+                              </div>
+                            </div>
+                            <div className="card-bottom">
+                              <div className="event-with-action">
+                                <div className="event">
+                                  <p>
+                                    <i className="th th-outline-cup"></i> Event:{" "}
+                                    <span className="event-nub">10</span>
+                                  </p>
+                                </div>
+                                <div className="action-button">
+                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm" onClick={toggleShowCourse}>
+                                    <i className="th th-outline-edit"></i>
+                                  </button>
+                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
+                                    <i className="th th-outline-trash"></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
                           </div>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={"4"}>
+                    <Card className="card-style-1">
+                      <Card.Body>
+                        <div className="corse-card">
+                          <div className="card-main-img">
+                            <img src={gridCardImg} alt="" />
+                          </div>
+                          <div className="card-details-wrapper">
+                            <div className="card-title">
+                              <h3>Project Management</h3>
+                            </div>
+                            <div className="selected-date-with-color">
+                              <div className="selected-date">
+                                <i className="th th-outline-calendar-1"></i>
+                                <p>12-03-2025 - 12:30 PM</p>
+                              </div>
+                              <div className="selected-color">
+                                <span className="color-code"></span>
+                                <p>#545455</p>
+                              </div>
+                            </div>
+                            <div className="card-bottom">
+                              <div className="event-with-action">
+                                <div className="event">
+                                  <p>
+                                    <i className="th th-outline-cup"></i> Event:{" "}
+                                    <span className="event-nub">10</span>
+                                  </p>
+                                </div>
+                                <div className="action-button">
+                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
+                                    <i className="th th-outline-edit"></i>
+                                  </button>
+                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
+                                    <i className="th th-outline-trash"></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={"4"}>
+                    <Card className="card-style-1">
+                      <Card.Body>
+                        <div className="corse-card">
+                          <div className="card-main-img">
+                            <img src={gridCardImg} alt="" />
+                          </div>
+                          <div className="card-details-wrapper">
+                            <div className="card-title">
+                              <h3>Project Management</h3>
+                            </div>
+                            <div className="selected-date-with-color">
+                              <div className="selected-date">
+                                <i className="th th-outline-calendar-1"></i>
+                                <p>12-03-2025 - 12:30 PM</p>
+                              </div>
+                              <div className="selected-color">
+                                <span className="color-code"></span>
+                                <p>#545455</p>
+                              </div>
+                            </div>
+                            <div className="card-bottom">
+                              <div className="event-with-action">
+                                <div className="event">
+                                  <p>
+                                    <i className="th th-outline-cup"></i> Event:{" "}
+                                    <span className="event-nub">10</span>
+                                  </p>
+                                </div>
+                                <div className="action-button">
+                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
+                                    <i className="th th-outline-edit"></i>
+                                  </button>
+                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
+                                    <i className="th th-outline-trash"></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={"4"}>
+                    <Card className="card-style-1">
+                      <Card.Body>
+                        <div className="corse-card">
+                          <div className="card-main-img">
+                            <img src={gridCardImg} alt="" />
+                          </div>
+                          <div className="card-details-wrapper">
+                            <div className="card-title">
+                              <h3>Project Management</h3>
+                            </div>
+                            <div className="selected-date-with-color">
+                              <div className="selected-date">
+                                <i className="th th-outline-calendar-1"></i>
+                                <p>12-03-2025 - 12:30 PM</p>
+                              </div>
+                              <div className="selected-color">
+                                <span className="color-code"></span>
+                                <p>#545455</p>
+                              </div>
+                            </div>
+                            <div className="card-bottom">
+                              <div className="event-with-action">
+                                <div className="event">
+                                  <p>
+                                    <i className="th th-outline-cup"></i> Event:{" "}
+                                    <span className="event-nub">10</span>
+                                  </p>
+                                </div>
+                                <div className="action-button">
+                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
+                                    <i className="th th-outline-edit"></i>
+                                  </button>
+                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
+                                    <i className="th th-outline-trash"></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={"4"}>
+                    <Card className="card-style-1">
+                      <Card.Body>
+                        <div className="corse-card">
+                          <div className="card-main-img">
+                            <img src={gridCardImg} alt="" />
+                          </div>
+                          <div className="card-details-wrapper">
+                            <div className="card-title">
+                              <h3>Project Management</h3>
+                            </div>
+                            <div className="selected-date-with-color">
+                              <div className="selected-date">
+                                <i className="th th-outline-calendar-1"></i>
+                                <p>12-03-2025 - 12:30 PM</p>
+                              </div>
+                              <div className="selected-color">
+                                <span className="color-code"></span>
+                                <p>#545455</p>
+                              </div>
+                            </div>
+                            <div className="card-bottom">
+                              <div className="event-with-action">
+                                <div className="event">
+                                  <p>
+                                    <i className="th th-outline-cup"></i> Event:{" "}
+                                    <span className="event-nub">10</span>
+                                  </p>
+                                </div>
+                                <div className="action-button">
+                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
+                                    <i className="th th-outline-edit"></i>
+                                  </button>
+                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
+                                    <i className="th th-outline-trash"></i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </Card.Body>
                     </Card>
                   </Col>
                 </Row>
               </div>
+            </div>
+            {/***** Grid layout end *****/}
 
-            </div> */}
+            {/***** Offcanvas start *****/}
+            <div className="edit-course-canvas">            
+              <Offcanvas className="edit-course-canvas" show={showCourse} placement={"end"} onHide={handleCloseCourse}>
+                <Offcanvas.Header closeButton>
+                  <Offcanvas.Title>Edit <span>Project Management</span></Offcanvas.Title>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                  <div className="edit-course-wrapper">
+                    <Row>
+                      <Col md={6}>
+                        <div className="course-detail-box">
+                          <div className='nav-tabs-outer nav-tabs-style2'>
+                            <nav>
+                                <div className="nav nav-tabs" id="nav-tab" role="tablist">
+                                    <button className="nav-link active" id="nav-SyllabusDetails-tab" data-bs-toggle="tab"
+                                        data-bs-target="#nav-SyllabusDetails" type="button" role="tab" aria-controls="nav-SyllabusDetails"
+                                        aria-selected="true"> Syllabus Details</button>
+
+                                    <button className="nav-link" id="nav-Events-tab" data-bs-toggle="tab"
+                                        data-bs-target="#nav-Events" type="button" role="tab" aria-controls="nav-Events"
+                                        aria-selected="false">Events</button>
+
+                                </div>
+                            </nav>
+                            <div className="tab-content" id="nav-tabContent">
+                                <div className="tab-pane fade show active" id="nav-SyllabusDetails" role="tabpanel"
+                                    aria-labelledby="nav-SyllabusDetails-tab">
+                                    <SyllabusDetails />
+                                </div>
+                                <div className="tab-pane fade" id="nav-Events" role="tabpanel" aria-labelledby="nav-Events-tab">
+                                    <Events/>
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                      
+                      </Col>
+                    </Row>
+                  </div>
+                </Offcanvas.Body>
+              </Offcanvas>
+            </div>
+            {/***** Offcanvas end *****/}
+
+
           </div>
         </div>
       </div>

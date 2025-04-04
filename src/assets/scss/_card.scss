@@ -1,1 +1,17 @@
-test {}
+.card{
+    border: 1px solid $stock_light;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    .card-body{
+        padding: 14px;
+    }
+
+
+
+    &.card-style-1{   
+        .card-body{
+            padding: 0;
+        }
+    }
+}
