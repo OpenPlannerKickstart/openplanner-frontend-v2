@@ -797,7 +797,7 @@
 
 .btn-light-white {
     background-color: $bg_grey;
-    color: $text_color;
+    color: #374151;
     border-color: $bg_grey;
 
     &:hover,
@@ -852,3 +852,44 @@
 }
 
 /* --------------------------------- White -------------------------------- */
+
+.btn-transparent,
+.btn-trasparent {
+    background-color: transparent;
+    color: $text_color;
+    border-color: transparent;
+
+    &:hover {
+        color: $black_color;
+        background-color: $white_color;
+        border-color: $stock_dark;
+    }
+}
+
+.btn-close {
+    background: 0;
+    font-size: 20px;
+    color: $text_color;
+    opacity: 1;
+    box-shadow: none;
+    border: 0;
+    padding: 0;
+    height: 31px;
+    width: 31px;
+
+    i {
+        display: inline-block;
+        transition: 0.70s;
+        -webkit-text-stroke: 0.5px;
+    }
+
+    &:hover {
+        background-color: #F4F5F6;
+        color: $black_color;
+
+        i {
+            transform: rotate(90deg);
+        }
+    }
+}
+

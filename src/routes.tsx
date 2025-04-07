@@ -21,6 +21,7 @@ import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
 import NewPassword from './pages/auth/NewPassword/NewPassword';
 import Registration from './pages/auth/Registration/Registration';
 import Courses from './pages/Customer/Courses/Courses';
+import Task from './pages/Customer/Task/Task';
 import VerifySignupOtp from './pages/auth/Registration/VerifySignupOtp';
 
 /** Define private  routes */
@@ -42,6 +43,12 @@ const privateRoutes: RouterProps[] = [
     component: <Courses />,
     caseSensitive: true,
     url: ENUMFORROUTES.COURSES,
+  },
+  {
+    path: ENUMFORROUTES.TASK,
+    component: <Task />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.TASK,
   },
   
 

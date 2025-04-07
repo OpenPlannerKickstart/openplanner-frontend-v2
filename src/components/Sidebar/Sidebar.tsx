@@ -58,7 +58,7 @@ export const Sidebar = () => {
                   </NavLink>
                 </li>
                 <li className="nav-item">
-                  <NavLink className="nav-link menu-link " to="">
+                  <NavLink className="nav-link menu-link " to="/task">
                     <i className="th-outline-task-square"></i> <span data-key="t-widgets">Task List</span>
                   </NavLink>
                 </li>
