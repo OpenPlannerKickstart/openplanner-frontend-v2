@@ -1,69 +1,166 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card, Form } from "react-bootstrap";
 import authLogo from "/assets/images/auth-logo.svg";
 import authBGImage from "/assets/images/auth-bg-image.svg";
 import authBGImage3 from "/assets/images/auth-bg-image3.svg";
 import { NavLink, useNavigate } from "react-router-dom";
 
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import OTPInput from "react-otp-input";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 
+import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
+import * as yup from 'yup';
+import { AppDispatch } from "../../../redux/store";
+import { sendForgotPasswordEmailOtp } from "../../../redux/Service/auth/forgotPassword";
+import { isEmptyObjectOrNullUndefiend, renderError } from "../../../Utility/Helper";
+import NewPassword from "../NewPassword/NewPassword";
+import { PATTERN_EMAIL } from "../../../Utility/Validation_Helper";
+import { EMAIL_INVALID, EMAIL_REQUIRED } from "../../../Utility/Validation_Message";
 const ForgotPassword = (props) => {
-  const [otp, setOtp] = useState("");
+  const dispatch: AppDispatch = useDispatch();
+  const [emailDetailObj, setEmailDetailObj] = useState({} as any);
+  /* ------------------------ Send Email Otp Data start ----------------------- */
+
+  const initEmailData = {
+    email: ""
+  }
+  const [savedEmailFormData, setSavedEmailFormData] = useState<any>(initEmailData);
+  const onSubmit = (values) => {
+  
+  }
+  const validationSchema = yup.object({
+    email: yup.string()
+    // .trim()
+    // .matches(PATTERN_EMAIL, EMAIL_INVALID)    
+    // .required(EMAIL_REQUIRED),
+  })
+  const emailFormData = useFormik({
+    initialValues: savedEmailFormData || initEmailData,
+    onSubmit,
+    validationSchema,
+    enableReinitialize: true,
+  })
+  const handleEmailSubmit = async () => {
+    emailFormData.handleSubmit();
+    const emailFormDataErrors = await emailFormData.validateForm();
+    if (Object.keys(emailFormDataErrors).length > 0) {
+      emailFormData.setTouched(
+        setNestedObjectValues<
+          FormikTouched<FormikValues>
+        >(emailFormDataErrors, true))
+      return;
+    }
+
+    const reqBody = {
+      email: emailFormData.values.email
+    }
+    const response = await dispatch(sendForgotPasswordEmailOtp(reqBody))
+    if (response) {
+      setEmailDetailObj(emailFormData?.values);
+    }
+  }
+  const handleKeyPress = (event) => {
+
+    if (event.keyCode === 13) {
+      event.preventDefault();
+      handleEmailSubmit();
+
+    }
+
+  };
+  const handleBlurValueUpdate = (key) => {
+    emailFormData.setFieldValue(key, emailFormData.values[key].trim());
+    setTimeout(() => {
+
+      emailFormData.setFieldTouched(key, true);
+    }, 100);
+
+  }
+  useEffect(() => {
+    if(!isEmptyObjectOrNullUndefiend(emailDetailObj)){
+      setSavedEmailFormData(emailDetailObj)
+    }
+    else{
+      emailFormData.resetForm();
+      setSavedEmailFormData(initEmailData);
+    }
+    
+  
+    return () => {
+      
+    }
+  }, [emailDetailObj])
+  
+  /* ------------------------ Send Email Otp Data End ----------------------- */
   return (
     <>
-      <div className="admin-auth-wrapper admin-auth-side-image">
-        <div className={`admin-auth-inner-wrapper`}>
-          <div className="admin-auth-row">
-            <div className="admin-auth-col admin-auth-left">
-              <div className="admin-auth-logo">
-                <img src={authLogo} alt="OpenPlanner" />
-              </div>
+      {
+        isEmptyObjectOrNullUndefiend(emailDetailObj) ?
 
-              <div className="auth-image">
-                <img src={authBGImage} alt="OpenPlanner" />
-              </div>
-            </div>
-            <div className="admin-auth-col admin-auth-right">
-              <div className="admin-auth-from">
-                <div className="admin-auth-card-title">
-                  <div className="box-icon box-light-primary wh-70px">
-                    <i className="th th-outline-lock-1"></i>
+          <div className="admin-auth-wrapper admin-auth-side-image">
+            <div className={`admin-auth-inner-wrapper`}>
+              <div className="admin-auth-row">
+                <div className="admin-auth-col admin-auth-left">
+                  <div className="admin-auth-logo">
+                    <img src={authLogo} alt="OpenPlanner" />
                   </div>
-                  <h2 className="mb-0">Forgot Password</h2>
-                </div>
-                <Card className="admin-auth-card">
-                  <Card.Body>
-                    <Form.Group className="form-group required">
-                      <Form.Label>Email Address</Form.Label>
-                      <div className="form-group-icon-start">
-                        <i className="th-outline-sms"></i>
-                        <Form.Control type="email" placeholder="Enter Email" />
-                      </div>
-                    </Form.Group>
 
-                    <div className="btn-full-group mt-4">
-                      <Button variant="primary" className="w-100">
-                        Continue
-                      </Button>
+                  <div className="auth-image">
+                    <img src={authBGImage} alt="OpenPlanner" />
+                  </div>
+                </div>
+                <div className="admin-auth-col admin-auth-right">
+                  <div className="admin-auth-from">
+                    <div className="admin-auth-card-title">
+                      <div className="box-icon box-light-primary wh-70px">
+                        <i className="th th-outline-lock-1"></i>
+                      </div>
+                      <h2 className="mb-0">Forgot Password</h2>
                     </div>
-                    <div className="auth-bottom-text-link">
-                      <p>
-                        Go back to
-                        <NavLink to={ENUMFORROUTES.LOGIN}
-                        >
-                          Log In
-                        </NavLink>
-                      </p>
-                    </div>
-                  </Card.Body>
-                </Card>
+                    <Card className="admin-auth-card">
+                      <Card.Body>
+                        <Form.Group className="form-group required">
+                          <Form.Label>Email Address</Form.Label>
+                          <div className="form-group-icon-start">
+                            <i className="th-outline-sms"></i>
+                            <Form.Control type="email" placeholder="Enter Email"
+                              {...emailFormData.getFieldProps("email")}
+                              onKeyDown={(event) => { handleKeyPress(event) }}
+                              onBlur={() => {
+                                handleBlurValueUpdate("email");
+                              }}
+                            />
+                          </div>
+                          {emailFormData.touched.email &&
+                            emailFormData.errors.email
+                            ? renderError(emailFormData.errors.email as any)
+                            : null}
+                        </Form.Group>
+
+                        <div className="btn-full-group mt-4">
+                          <Button variant="primary" className="w-100"
+                            onClick={() => { handleEmailSubmit(); }}
+                          >
+                            Continue
+                          </Button>
+                        </div>
+                        <div className="auth-bottom-text-link">
+                          <p>
+                            Go back to
+                            <NavLink to={ENUMFORROUTES.LOGIN}
+                            >
+                              Log In
+                            </NavLink>
+                          </p>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-        <div className={`admin-auth-inner-wrapper`}>
+            {/* <div className={`admin-auth-inner-wrapper`}>
           <div className="admin-auth-row">
             <div className="admin-auth-col admin-auth-left">
               <div className="admin-auth-logo">
@@ -131,8 +228,12 @@ const ForgotPassword = (props) => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </div> */}
+          </div> :
+          <NewPassword emailDetailObj={emailDetailObj}
+            setEmailDetailObj={setEmailDetailObj}
+          />
+      }
     </>
   );
 };

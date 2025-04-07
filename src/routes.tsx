@@ -22,6 +22,7 @@ import NewPassword from './pages/auth/NewPassword/NewPassword';
 import Registration from './pages/auth/Registration/Registration';
 import Courses from './pages/Customer/Courses/Courses';
 import Task from './pages/Customer/Task/Task';
+import VerifySignupOtp from './pages/auth/Registration/VerifySignupOtp';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -72,16 +73,21 @@ const publicRoutes: RouterProps[] = [
     component: <ForgotPassword />,
     caseSensitive: true,
   },
-  {
-    path: ENUMFORROUTES.NEWPASSWORD,
-    component: <NewPassword />,
-    caseSensitive: true,
-  },
+  // {
+  //   path: ENUMFORROUTES.NEWPASSWORD,
+  //   component: <NewPassword />,
+  //   caseSensitive: true,
+  // },
   {
     path: ENUMFORROUTES.REGISTRATION,
     component: <Registration />,
     caseSensitive: true,
   },
+  // {
+  //   path: ENUMFORROUTES.VERIFY_SIGNUP_OTP,
+  //   component: <VerifySignupOtp />,
+  //   caseSensitive: true,
+  // },
 
   // {
   //     path: "/access-denied",
