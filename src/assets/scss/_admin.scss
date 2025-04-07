@@ -1122,3 +1122,25 @@ $sm_sidebar_home_link_width: 270px;
         }
     }
 }
+
+// TASK 
+// All task
+
+.task-content-area{
+    padding: 0 !important;
+    .all-task-container{
+        .page-filters{
+            padding: 0px 20px !important;
+            margin-bottom: 0;
+            .nav-link{
+                padding: 17px !important;
+                color: #4B5563;
+            }
+        }
+        .tab-content{
+           .tab-pane{
+            padding: 20px;
+           } 
+        }
+    }    
+}
