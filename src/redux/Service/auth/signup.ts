@@ -1,5 +1,6 @@
 import { GET_REGISTER_DATA_API, GET_RESEND_USER_OTP_DATA_API, GET_VERIFY_USER_OTP_DATA_API } from "../../../Utility/ApiList";
 import { post } from "../../../Utility/httpInterceptor";
+import { ts } from "../../../Utility/Toaster";
 import { getSignupFailure, getSignupSuccess, sendSignUpEmailOtpFailure, sendSignUpEmailOtpSuccess, verfiySignUpEmailOtpFailure, verfiySignUpEmailOtpSuccess } from "../../auth/Signup/signupSlice";
 import { setLoading } from "../../Loader/LoaderSlice";
 import { AppDispatch } from "../../store";
@@ -47,7 +48,8 @@ export const sendSignupEmailOtp =
    
     try {
       const response: any = await post(GET_RESEND_USER_OTP_DATA_API, objBody);
-      if (!response.data.error) {       
+      if (!response.data.error) {   
+        ts(response.data?.message) ;  
         return  dispatch(sendSignUpEmailOtpSuccess(response.data.data));
       } else {
         dispatch(sendSignUpEmailOtpFailure());
