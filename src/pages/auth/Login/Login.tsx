@@ -26,42 +26,18 @@ import VerifySignupOtp from "../Registration/VerifySignupOtp";
  * @returns {JSX.Element} JSX element representing the Login component
  */
 
-const Login = (props) => {
-    const AppDispatch: AppDispatch = useDispatch();
-    const callLogin = async () => {
-        setTimeout(() => {
-            setCookieByName("token", "hii");
-        }, 2000);
-        await dispatch(loginToSystem());
-    };
+const Login = (props) => {  
 
     const [eyeToggle, setEyeToggle] = useState<boolean>(false);
     const dispatch: AppDispatch = useDispatch();
     const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
     /* ------------------------- Login Form Validation ------------------------- */
-    const initLoginValues: LoginData = {
-
-
-        // first_name: "",
-        // last_name: "",
-        // university_name: "",
+    const initLoginValues: LoginData = {        
         email: "",
         password: "",
-
-
-        //   "email": "youttauseiddumoi-9760@yopmail.com",
-        //   "password": "Test@123"
-
-
-
     }
-
     const [savedLoginFormData, setSavedLoginFormData] = useState(initLoginValues);
-    const onSubmitForLogin = async (values, onSubmitProps) => {
-
-
-
-    };
+    const onSubmitForLogin = async (values, onSubmitProps) => { };
 
 
     const validationSchemaForLogin = yup.object({
@@ -85,7 +61,6 @@ const Login = (props) => {
     const handleBlurValueUpdate = (key) => {
         loginFormData.setFieldValue(key, loginFormData.values[key].trim());
         setTimeout(() => {
-
             loginFormData.setFieldTouched(key, true);
         }, 100);
 
@@ -156,6 +131,15 @@ const Login = (props) => {
     }
   }, [otpDetailsObj])
 
+  const handleKeyPress = (event) => {
+
+    if (event.keyCode === 13) {
+      event.preventDefault();
+        handleLoginData();
+
+    }
+
+  };
     /* ------------------------- Login Form Validation ------------------------- */
 
     return (
@@ -194,6 +178,7 @@ const Login = (props) => {
                                                         <Form.Control type="text" placeholder="Enter Email"
                                                             {...loginFormData.getFieldProps("email")}
                                                             maxLength={MAX_50}
+                                                            onKeyDown={(event) => { handleKeyPress(event) }}
                                                             onBlur={() => {
                                                                 handleBlurValueUpdate("email");
                                                             }}
@@ -213,6 +198,7 @@ const Login = (props) => {
                                                         <Form.Control type={eyeToggle ? "text" : "password"} placeholder='Enter Password'
                                                             {...loginFormData.getFieldProps("password")}
                                                             maxLength={MAX_50}
+                                                            onKeyDown={(event) => { handleKeyPress(event) }}
                                                         />
                                                         <button onClick={() => setEyeToggle(!eyeToggle)} className='btn-password'> <i className={` ${eyeToggle ? "th-outline-eye" : "th-outline-eye-slash"}`}></i></button>
                                                     </div>

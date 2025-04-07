@@ -66,21 +66,21 @@ const publicRoutes: RouterProps[] = [
     component: <ForgotPassword />,
     caseSensitive: true,
   },
-  {
-    path: ENUMFORROUTES.NEWPASSWORD,
-    component: <NewPassword />,
-    caseSensitive: true,
-  },
+  // {
+  //   path: ENUMFORROUTES.NEWPASSWORD,
+  //   component: <NewPassword />,
+  //   caseSensitive: true,
+  // },
   {
     path: ENUMFORROUTES.REGISTRATION,
     component: <Registration />,
     caseSensitive: true,
   },
-  {
-    path: ENUMFORROUTES.VERIFY_SIGNUP_OTP,
-    component: <VerifySignupOtp />,
-    caseSensitive: true,
-  },
+  // {
+  //   path: ENUMFORROUTES.VERIFY_SIGNUP_OTP,
+  //   component: <VerifySignupOtp />,
+  //   caseSensitive: true,
+  // },
 
   // {
   //     path: "/access-denied",

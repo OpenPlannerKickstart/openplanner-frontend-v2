@@ -314,7 +314,7 @@
                     align-items: center;
                     gap: 8px;
                     margin: 40px 0;
-                    a{
+                    a,button{
                         font-weight: 500;
                         font-size: 16px;
                         color:$primary_color;
@@ -333,7 +333,7 @@
                     font-weight: 400;
                     font-size: 16px;
                     line-height: normal;
-                    a{
+                    a,button{
                         font-weight: 500;
                         font-size: 16px;
                         color:$primary_color;

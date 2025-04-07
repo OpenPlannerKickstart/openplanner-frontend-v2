@@ -114,7 +114,7 @@ const Registeration = (props) => {
         >(signUpFormDataErrors, true))
       return;
     }
-    console.log(signUpFormDataErrors);
+ 
 
     const reqBody = {
       first_name: signUpFormData.values.first_name,
@@ -125,7 +125,7 @@ const Registeration = (props) => {
     }
     customJsonInclude(reqBody);
     const response = await dispatch(signupToSystem(reqBody));
-    console.log(response);
+
     if (response) {
       const sendEmailOtpReqBody = {
         email: `${reqBody?.first_name}_${reqBody?.last_name}`

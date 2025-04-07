@@ -54,11 +54,11 @@ const VerifySignupOtp = (props) => {
             } else {
                 navigate(ENUMFORROUTES.LOGIN)
             }
-            console.log(verifyResponse, "verify response");
+
         }
     }
 
-    console.log(otpDetailsObj?.isFromLogin)
+   
     /* ------------------------- handle Resend Otp Start ------------------------ */
 
     const handleResendOtp = async() => {
