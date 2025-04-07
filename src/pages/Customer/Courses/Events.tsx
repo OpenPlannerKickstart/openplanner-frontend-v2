@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { Button, Collapse, Table } from 'react-bootstrap'
+import { Badge, Button, Collapse, Table } from 'react-bootstrap'
 import { connect } from 'react-redux'
 
 const Events = (props) => {
   const [open, setOpen] = useState(false);
   return (
     <>
+    <div className="tab-body-container">    
       <div className="event-main-wrapper">
         <div className="event-card">
           <div className="due-event-box">
@@ -27,10 +28,8 @@ const Events = (props) => {
                       <td>
                         <div className="event-name-tooltip">
                             <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
-                            <div className="event-tool">
-                              <button type="button" className="btn btn-icon-text btn-light-danger btn-xs">
-                              <i className="th th-outline-book"></i>TCU Academic Calendar
-                              </button>
+                            <div className="event-tool">                                                         
+                              <Badge bg="danger-bg"><i className="th th-outline-book"></i>TCU Academic Calendar</Badge>
                             </div>
                         </div>
                       </td>                      
@@ -38,7 +37,7 @@ const Events = (props) => {
                       <td className="tbl-action">
                         <div className="tbl-action-group">
                           <button
-                            className="btn btn-xs btn-icon btn-transparent"
+                            className="btn btn-xs btn-icon btn-transparent check-icon"
                           >
                             {" "}
                             <i className="th th-outline-tick-circle"></i>
@@ -50,14 +49,12 @@ const Events = (props) => {
                         </div>
                       </td>
                     </tr>
-                    <tr>                      
+                    <tr className='active-table'>                      
                       <td>
                         <div className="event-name-tooltip">
                             <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                             <div className="event-tool">
-                              <button type="button" className="btn btn-icon-text btn-light-white text-primary btn-xs">
-                              <i className="th th-outline-book"></i>TCU Academic Calendar
-                              </button>
+                              <Badge bg="primary-bg"><i className="th th-outline-book"></i>History Unfolded</Badge>
                             </div>
                         </div>
                       </td>                      
@@ -65,7 +62,7 @@ const Events = (props) => {
                       <td className="tbl-action">
                         <div className="tbl-action-group">
                           <button
-                            className="btn btn-xs btn-icon btn-transparent"
+                            className="btn btn-xs btn-icon btn-transparent check-icon"
                           >
                             {" "}
                             <i className="th th-outline-tick-circle"></i>
@@ -104,9 +101,7 @@ const Events = (props) => {
                         <div className="event-name-tooltip">
                             <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                             <div className="event-tool">
-                              <button type="button" className="btn btn-icon-text btn-light-white text-primary btn-xs">
-                              <i className="th th-outline-book"></i>TCU Academic Calendar
-                              </button>
+                            <Badge bg="danger-bg"><i className="th th-outline-book"></i>TCU Academic Calendar</Badge>
                             </div>
                         </div>
                       </td>                      
@@ -114,7 +109,7 @@ const Events = (props) => {
                       <td className="tbl-action">
                         <div className="tbl-action-group">
                           <button
-                            className="btn btn-xs btn-icon btn-transparent"
+                            className="btn btn-xs btn-icon btn-transparent check-icon"
                           >
                             {" "}
                             <i className="th th-outline-tick-circle"></i>
@@ -126,14 +121,12 @@ const Events = (props) => {
                         </div>
                       </td>
                     </tr>
-                    <tr>                      
+                    <tr className='active-table'>                      
                       <td>
                         <div className="event-name-tooltip">
                             <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                             <div className="event-tool">
-                              <button type="button" className="btn btn-icon-text btn-light-danger btn-xs">
-                              <i className="th th-outline-book"></i>TCU Academic Calendar
-                              </button>
+                            <Badge bg="primary-bg"><i className="th th-outline-book"></i>History Unfolded</Badge>
                             </div>
                         </div>
                       </td>                      
@@ -141,7 +134,7 @@ const Events = (props) => {
                       <td className="tbl-action">
                         <div className="tbl-action-group">
                           <button
-                            className="btn btn-xs btn-icon btn-transparent"
+                            className="btn btn-xs btn-icon btn-transparent check-icon"
                           >
                             {" "}
                             <i className="th th-outline-tick-circle"></i>
@@ -160,7 +153,7 @@ const Events = (props) => {
           </div>
         </div>
         <div className="event-card">
-          <div className="due-event-box">
+          <div className="due-event-box post-event">
             <div className="card-title">
               <Button className='event-collapes-btn'
                   onClick={() => setOpen(!open)}
@@ -168,7 +161,7 @@ const Events = (props) => {
                   aria-expanded={open}
                 >
                   Past Events
-                  <button className="btn btn-sm btn-icon btn-outline-white"><i className="th th-outline-add-circle"></i></button>
+                  <button className="btn btn-xs btn-icon btn-transparent collapes-btn"><i className="th th-outline-arrow-right-3"></i></button>
               </Button>
             </div>
             <div className="card-body">
@@ -184,14 +177,12 @@ const Events = (props) => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>                      
+                        <tr className='active-table'>                      
                           <td>
                             <div className="event-name-tooltip">
                                 <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                                 <div className="event-tool">
-                                  <button type="button" className="btn btn-icon-text btn-light-white text-primary btn-xs">
-                                  <i className="th th-outline-book"></i>TCU Academic Calendar
-                                  </button>
+                                <Badge bg="primary-bg"><i className="th th-outline-book"></i>History Unfolded</Badge>
                                 </div>
                             </div>
                           </td>                      
@@ -199,7 +190,7 @@ const Events = (props) => {
                           <td className="tbl-action">
                             <div className="tbl-action-group">
                               <button
-                                className="btn btn-xs btn-icon btn-transparent"
+                                className="btn btn-xs btn-icon btn-transparent check-icon"
                               >
                                 {" "}
                                 <i className="th th-outline-tick-circle"></i>
@@ -216,9 +207,7 @@ const Events = (props) => {
                             <div className="event-name-tooltip">
                                 <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                                 <div className="event-tool">
-                                  <button type="button" className="btn btn-icon-text btn-light-danger btn-xs">
-                                  <i className="th th-outline-book"></i>TCU Academic Calendar
-                                  </button>
+                                <Badge bg="danger-bg"><i className="th th-outline-book"></i>TCU Academic Calendar</Badge>
                                 </div>
                             </div>
                           </td>                      
@@ -226,7 +215,7 @@ const Events = (props) => {
                           <td className="tbl-action">
                             <div className="tbl-action-group">
                               <button
-                                className="btn btn-xs btn-icon btn-transparent"
+                                className="btn btn-xs btn-icon btn-transparent check-icon"
                               >
                                 {" "}
                                 <i className="th th-outline-tick-circle"></i>
@@ -247,6 +236,7 @@ const Events = (props) => {
           </div>
         </div>
       </div>
+    </div>
     </>
   )
 }

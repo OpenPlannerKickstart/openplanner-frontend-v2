@@ -4,6 +4,7 @@ import {
   Card,
   Col,
   Form,
+  Modal,
   Offcanvas,
   Row,
   Table,
@@ -13,12 +14,29 @@ import DatePicker from "react-datepicker";
 import { connect } from "react-redux";
 import SyllabusDetails from "./SyllabusDetails";
 import Events from "./Events";
+import AddSyllabusEvents from "../../../common/AddSyllabusEvents/AddSyllabusEvents";
 
 const Courses = (props) => {
   const [showCourse, setShowCourse] = useState(false);
+  const [showEvent, setShowEvent] = useState(false);
 
   const handleCloseCourse = () => setShowCourse(false);
   const toggleShowCourse = () => setShowCourse((s) => !s);
+
+
+  console.log(showEvent)
+  // Add syllabus event offcanvas
+  const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
+  
+  const handleCloseAddSyllabusEvents = () => setShowAddSyllabusEvents(false);
+  const toggleShowAddSyllabusEvents = () => setShowAddSyllabusEvents((s) => !s);
+
+
+  // Close modal
+    const [deleteShow, setDeleteShow] = useState(false);
+    const handleDeleteClose = () => setDeleteShow(false);
+    const handleDeleteShow = () => setDeleteShow(true);
+
 
   return (
     <>
@@ -30,7 +48,7 @@ const Courses = (props) => {
             </div>
           </div>
           <div className="page-title-right">
-            <button type="button" className="btn btn-primary">
+            <button type="button" className="btn btn-primary"onClick={()=>{setShowEvent(true)}}>
               Add Syllabus{" "}
             </button>
           </div>
@@ -139,7 +157,7 @@ const Courses = (props) => {
                             {" "}
                             <i className="th th-outline-edit"></i>
                           </button>
-                          <button className="btn btn-xs btn-icon btn-transparent">
+                          <button className="btn btn-xs btn-icon btn-transparent" onClick={handleDeleteShow}>
                             {" "}
                             <i className="th th-outline-trash"></i>
                           </button>
@@ -174,7 +192,7 @@ const Courses = (props) => {
                             {" "}
                             <i className="th th-outline-edit"></i>
                           </button>
-                          <button className="btn btn-xs btn-icon btn-transparent">
+                          <button className="btn btn-xs btn-icon btn-transparent" onClick={handleDeleteShow}>
                             {" "}
                             <i className="th th-outline-trash"></i>
                           </button>
@@ -419,7 +437,7 @@ const Courses = (props) => {
             {/***** Grid layout end *****/}
 
             {/***** Offcanvas start *****/}
-            <div className="edit-course-canvas">
+            <div className="edit-course-canvas-wrapper">
               <Offcanvas
                 className="edit-course-canvas"
                 show={showCourse}
@@ -472,6 +490,9 @@ const Courses = (props) => {
                                 >
                                   Events
                                 </button>
+
+
+                                <Button variant="primary" size="sm" className="ms-auto">Add New Event</Button>
                               </div>
                             </nav>
                             <div className="tab-content" id="nav-tabContent">
@@ -484,15 +505,15 @@ const Courses = (props) => {
                                 <div className="tab-content-container">
                                   <SyllabusDetails />
                                   <div className="bottom-button-group">
-                                    <button type="button" className="btn btn-light-white me-auto">
+                                    <Button type="button" className="btn btn-light-white me-auto">
                                       Cancel
-                                    </button>
-                                    <button type="button" className="btn btn-light-danger">
+                                    </Button>
+                                    <Button type="button" className="btn btn-light-danger">
                                       Delete Syllabus
-                                    </button>
-                                    <button type="button" className="btn btn-primary">
+                                    </Button>
+                                    <Button type="button" className="btn btn-primary">
                                       Save
-                                    </button>
+                                    </Button>
                                   </div>
                                 </div>
                               </div>
@@ -503,6 +524,17 @@ const Courses = (props) => {
                                 aria-labelledby="nav-Events-tab"
                               >
                                 <Events />
+                                <div className="bottom-button-group">
+                                    <Button type="button" className="btn btn-light-white me-auto">
+                                      Cancel
+                                    </Button>
+                                    <Button type="button" className="btn btn-light-danger">
+                                      Delete Syllabus
+                                    </Button>
+                                    <Button type="button" className="btn btn-primary">
+                                      Save
+                                    </Button>
+                                  </div>
                               </div>
                             </div>
                           </div>
@@ -514,6 +546,7 @@ const Courses = (props) => {
                             <h4>Syllabus Preview</h4>
                             <a className="hide-btn">Hide Preview</a>
                           </div>
+                          {/* pdf viewer */}
                           <div className="syllabus-view-box">
                             
                           </div>
@@ -525,6 +558,39 @@ const Courses = (props) => {
               </Offcanvas>
             </div>
             {/***** Offcanvas end *****/}
+
+            <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent}/>
+
+
+
+             {/* Delete Modal */}
+              <Modal className='modal-theme modal-confirmation modal-reject' show={deleteShow} onHide={handleDeleteClose} centered>
+                  <Modal.Header >
+                        <h4 className="modal-title">Delete Task</h4>
+                      <button type="button" className="btn-close" onClick={handleDeleteClose}>
+                          <i className='th th-close'></i>
+                      </button>
+                  </Modal.Header>
+                  <Modal.Body>
+                      <div className="modal-confirmation-container">
+                          <div className="modal-confirmation-icon">
+                              <i className="th th-bold-trash"></i>
+                          </div>
+                          <div className="modal-confirmation-content">
+                              <h5>Want to Delete?</h5>
+                              <p>You want to Delete <b>{'Selected Reacord'}</b> ?</p>
+                          </div>
+                      </div>
+                      <div className="modal-button-group modal-full-width-btn modal-footer-button">
+                          <Button variant='light-white' className="btn-md" onClick={handleDeleteClose}> No, Change My Mind</Button>
+                          <Button variant='danger' className='btn-icon-text btn-md' onClick={handleDeleteClose}>
+                              Delete
+                          </Button>
+                      </div>
+                  </Modal.Body>
+              </Modal>
+          {/* Delete Modal */}
+
           </div>
         </div>
       </div>

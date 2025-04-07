@@ -613,6 +613,21 @@
     }
 }
 
+.file-notification{
+    margin-top: 15px;
+    padding: 8px 12px;
+    background-color: #FFFBE5;
+    border: 1px solid #FFF2B3;
+    border-radius: 10px;
+    p{
+        font-weight: 500;
+        font-size: 12px;
+        line-height: normal;
+        letter-spacing: 0.2px;
+        margin-bottom: 0;
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 /*                        Attachments - File Upload End                       */
 /* -------------------------------------------------------------------------- */
@@ -1349,6 +1364,15 @@ body {
         .css-t3ipsp-control,
         div[class*="-control"] {
             min-height: 38px;
+        }
+    }
+}
+
+.form-group{
+    .form-group-icon-start,
+    .form-group-icon-end {
+        .control-icon {
+            z-index: 1;
         }
     }
 }

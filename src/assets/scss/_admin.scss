@@ -770,6 +770,9 @@ $sm_sidebar_home_link_width: 270px;
             .nav-tabs-style2 {
                 .nav-tabs {
                     padding: 0 20px;
+                    display: flex;
+                    align-items: center;
+                    border-width: 2px;
                     .nav-link{
                         padding: 17px;
                         letter-spacing: 0.2px;
@@ -777,99 +780,147 @@ $sm_sidebar_home_link_width: 270px;
                 }
                 .tab-pane{
                     padding: 15px 0px 0;
-                    .tab-content-container{                        
-                        .syllabus-details-box{
-                            height: calc(100vh - 197px);
+                    .tab-content-container{   
+                        .tab-body-container{
+                            height: calc(100vh - 198px);
                             overflow-y: auto;
                             padding: 0 20px;
-                            .Reminder-box{
-                                background: #E9F7FB;
-                                border-radius: 10px;
-                                padding: 14px;
-                                margin-bottom: 14px;
-                                .title-with-switch{
-                                    display: flex;
-                                    justify-content: space-between;
-                                    gap: 5px;
-                                    flex-wrap: wrap;
-                                    margin-bottom: 5px;
-                                    .title-text{
+                            .syllabus-details-box{
+                                .Reminder-box{
+                                    background: #E9F7FB;
+                                    border-radius: 10px;
+                                    padding: 14px;
+                                    margin-bottom: 14px;
+                                    .title-with-switch{
+                                        display: flex;
+                                        justify-content: space-between;
+                                        gap: 5px;
+                                        flex-wrap: wrap;
+                                        margin-bottom: 15px;
+                                        .title-text{
+                                            h4{
+                                                font-size: 16px;
+                                                line-height: normal;
+                                                letter-spacing: 0.2px;
+                                                margin-bottom: 0;                                               
+                                                font-weight: 500;
+                                            }
+                                        }                                    
+                                    }
+                                    .remider-fields{
+                                        display: flex;
+                                        width: 100%;
+                                        align-items: flex-end;
+                                        gap: 15px;
+                                        .form-group{
+                                            margin-bottom: 0;
+                                            width: 100%;
+                                        }
+                                    }
+                                }                           
+                            }                   
+                        }                        
+                    }
+                    .tab-body-container{
+                        height: calc(100vh - 198px);
+                        overflow-y: auto;
+                        padding: 0 20px;
+                        .event-main-wrapper{
+                            .event-card{
+                                &:last-child{
+                                    border-bottom: none;
+                                }
+                                table{
+                                    .active-table{
+                                        td{
+                                            background-color: $success_bg_color;
+                                            .check-icon{
+                                                i{
+                                                    color: $success_color;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            .event-card{
+                                padding-bottom: 16px;
+                                border-bottom: 1px solid $stock_light;
+                                margin-bottom: 16px;                            
+                                .due-event-box{
+                                    .card-title{
+                                        padding: 14px;
+                                        background: #E9F7FB;
+                                        border-radius: 10px;
+                                        margin-bottom: 8px;
                                         h4{
+                                            margin-bottom: 0;
                                             font-size: 16px;
                                             line-height: normal;
                                             letter-spacing: 0.2px;
-                                            margin-bottom: 15px;
                                         }
-                                    }                                    
-                                }
-                                .remider-fields{
-                                    display: flex;
-                                    width: 100%;
-                                    align-items: flex-end;
-                                    gap: 15px;
-                                    .form-group{
-                                        margin-bottom: 0;
-                                        width: 100%;
+                                        .event-collapes-btn{
+                                            width: 100%;
+                                            min-height: fit-content;
+                                            background: transparent;
+                                            color: #292D32;
+                                            display: flex;
+                                            justify-content: space-between;
+                                            border: none;
+                                            padding: 0;
+                                            font-size: 16px;
+                                            line-height: normal;
+                                            letter-spacing: 0.2px;
+                                            .collapes-btn {
+                                                padding: 0 !important;
+                                                border: transparent;
+                                                height: fit-content !important;
+                                                background: transparent !important; 
+                                                color: #4B5563 !important;            
+                                                &:hover{
+                                                    background-color: transparent;
+                                                    border: transparent;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .event-name-tooltip{
+                                        .enevt-name{
+                                            h3{
+                                                font-size: 14px;
+                                                line-height: 160%;
+                                                letter-spacing: 0.2px;
+                                                margin-bottom: 4px;
+                                                font-weight: 500 ;
+                                            }
+                                        }
+                                    }
+                                    &.post-event{
+                                        .card-title{
+                                            background-color: $bg_light;
+                                            border:1px solid $stock_light ;
+                                            .event-collapes-btn[aria-expanded="true"]{
+                                               .collapes-btn{
+                                                i{
+                                                    transform: rotate(90deg);
+                                                }
+                                               } 
+                                            }
+                                        }   
                                     }
                                 }
                             }
-                        }
-                        .bottom-button-group{
-                            display: flex;
-                            justify-content: flex-end;
-                            align-items: center;
-                            gap: 10px;
-                            flex-wrap: wrap;
-                            width: 100%;
-                            padding: 15px 20px;
-                            border-top: 1px solid $stock_light;
                         }
                     }
-                    .event-main-wrapper{
+                    .bottom-button-group{
+                        display: flex;
+                        justify-content: flex-end;
+                        align-items: center;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                        width: 100%;
                         padding: 15px 20px;
-                        .event-card{
-                            &:last-child{
-                                border-bottom: none;
-                            }
-                        }
-                        .event-card{
-                            padding-bottom: 16px;
-                            border-bottom: 1px solid $stock_light;
-                            margin-bottom: 16px;                            
-                            .due-event-box{
-                                .card-title{
-                                    padding: 14px;
-                                    background: #E9F7FB;
-                                    border-radius: 10px;
-                                    margin-bottom: 8px;
-                                    h4{
-                                        margin-bottom: 0;
-                                        font-size: 16px;
-                                        line-height: normal;
-                                        letter-spacing: 0.2px;
-                                    }
-                                    .event-collapes-btn{
-                                        width: 100%;
-                                        background: transparent;
-                                        color: #292D32;
-                                        display: flex;
-                                        justify-content: space-between;
-                                        border: none;
-                                        padding: 0;
-                                    }
-                                }
-                                .event-name-tooltip{
-                                    .enevt-name{
-                                        h3{
-                                            font-size: 14px;
-                                            line-height: 160%;
-                                            letter-spacing: 0.2px;
-                                            margin-bottom: 0;
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        border-top: 1px solid $stock_light;
                     }
                 }
             }
@@ -887,7 +938,7 @@ $sm_sidebar_home_link_width: 270px;
                 gap: 5px;
                 flex-wrap: wrap;
                 padding: 11px 14px;
-                border-bottom: 1px solid $stock_light;
+                border-bottom: 2px solid $stock_light;
                 h4{
                     margin: 0;
                     font-size: 20px;
@@ -900,6 +951,7 @@ $sm_sidebar_home_link_width: 270px;
                     letter-spacing: 0.2px;
                     text-decoration: underline;
                     color: $primary_color;
+                    cursor: pointer;
                 }
             }
             .syllabus-view-box {
@@ -915,6 +967,156 @@ $sm_sidebar_home_link_width: 270px;
                 .syllabus-tab-wrapper,.syllabus-pdf-container {
                     width: 100%;
                     max-width: 50%;
+                }
+            }
+        }
+    }
+}
+
+// Add syllabus event offcanvas
+.add-syllabus-event{
+    width: 100% !important;
+    border-top-left-radius: 17px;
+    max-width: 648px;
+    .add-syllabus-container{
+        .main-title{
+            padding: 15px 20px 34px; 
+            border-bottom: 1px solid $stock_light;
+            .title-text{
+                h4{
+                    font-weight: 400;
+                    font-size: 16px;
+                    line-height: normal;
+                    letter-spacing: 0.2px;     
+                    margin-bottom: 15px;               
+                }
+            }
+            .title-with-img{
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 11px;
+                width: 100%;
+               .add-syllabus-event-btn{
+                display: flex;
+                align-items: stretch;
+                border: 1px solid #D1D5DB;
+                border-radius: 10px;
+                min-width: 298px;
+                width: 100%;
+                overflow: hidden;
+                .event-img{
+                    background-color: #D8EDFB;
+                    padding: 13px 23px;
+                    min-width: 97px;
+                    img{
+                        width: 51px;
+                        height: 45px;
+                    }
+                }
+                .syllabus-title-with-check{
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 5px;     
+                    padding: 14px 22px;  
+                    width: 100%;             
+                    h4{
+                        margin: 0;
+                    }
+                    .check-icon{
+                        img{
+                            opacity: 0;
+                            visibility: hidden;
+                            width: 20px;
+                            height: 20px;
+                            object-fit: contain;
+                            margin-left: 12px;
+                            transition: all 0.3s;
+                        }
+                    }
+                }
+                &.active{
+                    border-color: $primary_color;
+                    .syllabus-title-with-check{
+                        h4{
+                            color: $primary_color;
+                        }
+                        .check-icon{
+                            img{
+                                visibility: visible;
+                                opacity: 1;
+                            }
+                        }
+                    }
+                }
+               }
+            }
+        }
+        .main-syllabus-container{
+            padding: 0px;
+            .syllabus-details-container{   
+                .detail-body-container{
+                    height: calc(100vh - 292px);
+                    overflow-y: auto;
+                    padding: 30px 20px;
+                    .Reminder-box{
+                        background: #E9F7FB;
+                        border-radius: 10px;
+                        padding: 14px;
+                        margin-bottom: 14px;
+                        .title-with-switch{
+                            display: flex;
+                            justify-content: space-between;
+                            gap: 5px;
+                            flex-wrap: wrap;
+                            margin-bottom: 15px;
+                            .title-text{
+                                h4{
+                                    font-size: 16px;
+                                    line-height: normal;
+                                    letter-spacing: 0.2px;
+                                    margin-bottom: 0px;
+                                    font-weight: 500;
+                                }
+                            }                                    
+                        }
+                        .remider-fields{
+                            display: flex;
+                            width: 100%;
+                            align-items: flex-end;
+                            gap: 15px;
+                            .form-group{
+                                margin-bottom: 0;
+                                width: 100%;
+                            }
+                        }
+                    } 
+                    .syllabus-detail-body{
+                        .title-text{
+                            h4{
+                                font-size: 20px;
+                                line-height: normal;
+                                letter-spacing: 0px;
+                                margin-bottom: 24px;
+                            }
+                        }
+                        .form-label{
+                            font-size: 16px;
+                            letter-spacing: 0.2px;
+                        }
+                    }
+                }
+                .bottom-button-group{
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: center;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                    width: 100%;
+                    padding: 15px 20px;
+                    border-top: 1px solid $stock_light;
                 }
             }
         }

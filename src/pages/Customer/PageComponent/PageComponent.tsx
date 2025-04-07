@@ -1,9 +1,34 @@
-import React from 'react'
-import { Badge, Button, Col, Dropdown, DropdownButton, Form, InputGroup, Nav, Row, Table } from 'react-bootstrap'
+import React, { useState } from 'react'
+import { Badge, Button, Col, Dropdown, DropdownButton, Form, InputGroup, Modal, Nav, Row, Table } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import DefaultAvtar from '../../../assets/images/avatar-default.svg'
 
 const PageComponent = (props) => {
+
+    
+    const [deleteShow, setDeleteShow] = useState(false);
+    const handleDeleteClose = () => setDeleteShow(false);
+    const handleDeleteShow = () => setDeleteShow(true);
+
+
+    const [DemoShow, setDemoShow] = useState(false);
+    const handleDemoClose = () => setDemoShow(false);
+    const handleDemoShow = () => setDemoShow(true);
+
+
+    const [SuccessShow, setSuccessShow] = useState(false);
+    const handleSuccessClose = () => setSuccessShow(false);
+    const handleSuccessShow = () => setSuccessShow(true);
+
+    const [WarningShow, setWarningShow] = useState(false);
+    const handleWarningClose = () => setWarningShow(false);
+    const handleWarningShow = () => setWarningShow(true);
+
+
+    const [WarningTwoShow, setWarningTwoShow] = useState(false);
+    const handleWarningTwoClose = () => setWarningTwoShow(false);
+    const handleWarningTwoShow = () => setWarningTwoShow(true);
+
     return (
         <>
             <div className="page-content">
@@ -15,7 +40,179 @@ const PageComponent = (props) => {
                     </div>
                     <div className="page-title-right"></div>
                 </div>
-                <div className="content-area content-area-title ">
+                <div className="content-area content-area-title ">.
+
+                <div className="card mt-5">
+            <div className="card-body">
+                <h2 className="mb-3">Modals</h2>
+                <div className="button-group">
+                    <Button variant="primary" onClick={handleDemoShow}>
+                        Demo
+                    </Button>
+                    <Button variant="danger" onClick={handleDeleteShow}>
+                        Delete
+                    </Button>
+                    <Button variant="success" onClick={handleSuccessShow}>
+                    Success
+                    </Button>
+                    <Button variant="warning" onClick={handleWarningShow}>
+                        Warning
+                    </Button>
+                    <Button variant="secondary-two" onClick={handleWarningTwoShow}>
+                        Warning Two
+                    </Button>
+                </div>
+
+                {/* Demo Modal */}
+
+                <Modal className='modal-theme' show={DemoShow} onHide={handleDemoClose} centered>
+                        <Modal.Header >
+                            <h5 className="modal-title">Modal title</h5>
+                            <button type="button" className="btn-close" onClick={handleDemoClose}>
+                                <i className='th th-close'></i>
+                            </button>
+                        </Modal.Header>
+                        <Modal.Body>
+
+                            <Form.Group className='form-group'>
+                                <Form.Label>Reminder Name</Form.Label>
+                                <Form.Control type="text" placeholder="Enter reminder name" required />
+                            </Form.Group>
+                            <Form.Group className='form-group'>
+                                <Form.Label>Enter message</Form.Label>
+                                <Form.Control as="textarea"  placeholder="Enter message" rows={3} />
+                            </Form.Group>
+                            
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="primary" onClick={handleDeleteClose}>Save Changes</Button>
+                            <Button variant="outline-whitepx" className='btn-icon-text' onClick={handleDeleteClose}>Close</Button>
+                        </Modal.Footer>
+                </Modal>
+
+                {/* Demo Modal */}
+
+
+                {/* Delete Modal */}
+                    <Modal className='modal-theme modal-confirmation modal-reject' show={deleteShow} onHide={handleDeleteClose} centered>
+                        <Modal.Header >
+                            <button type="button" className="btn-close" onClick={handleDeleteClose}>
+                                <i className='th th-close'></i>
+                            </button>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <div className="modal-confirmation-container">
+                                <div className="modal-confirmation-icon">
+                                    <i className="th th-bold-trash"></i>
+                                </div>
+                                <div className="modal-confirmation-content">
+                                    <h5>Are You Sure?</h5>
+                                    <p>You want to Delete <b>{'SelectedReacord'}</b> Associated Item.</p>
+                                </div>
+                            </div>
+                            <div className="modal-button-group modal-full-width-btn">
+                                <Button variant='outline-white' onClick={handleDeleteClose}> Cancel</Button>
+                                <Button variant='primary' className='btn-icon-text' onClick={handleDeleteClose}>
+                                    <i className="th th-outline-tick-circle"></i> Delete
+                                </Button>
+                            </div>
+                        </Modal.Body>
+                        {/* <Modal.Footer>
+                            <Button variant="secondary" onClick={handleDeleteClose}>
+                                Close
+                            </Button>
+                            <Button variant="primary" onClick={handleDeleteClose}>
+                                Save Changes
+                            </Button>
+                        </Modal.Footer> */}
+                    </Modal>
+                {/* Delete Modal */}
+
+                {/* Success Modal */}
+                    <Modal className='modal-theme modal-confirmation modal-approve' show={SuccessShow} onHide={handleSuccessClose} centered>
+                        <Modal.Header >
+                            <button type="button" className="btn-close" onClick={handleSuccessClose}>
+                                <i className='th th-close'></i>
+                            </button>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <div className="modal-confirmation-container">
+                                <div className="modal-confirmation-icon">
+                                    <i className="th th-bold-tick-circle"></i>
+                                </div>
+                                <div className="modal-confirmation-content">
+                                    <h5>Are You Sure?</h5>
+                                    <p>You want to Success <b>{'SelectedReacord'}</b> Associated Item.</p>
+                                </div>
+                            </div>
+                            <div className="modal-button-group modal-full-width-btn">
+                                <Button variant='outline-white' onClick={handleSuccessClose}> Cancel</Button>
+                                <Button variant='primary' className='btn-icon-text' onClick={handleSuccessClose}>
+                                    <i className="th th-outline-tick-circle"></i> Success
+                                </Button>
+                            </div>
+                        </Modal.Body>
+                    </Modal>
+                {/* Success Modal */}
+
+
+                {/* Warning Modal */}
+                    <Modal className='modal-theme modal-confirmation modal-warning' show={WarningShow} onHide={handleWarningClose} centered>
+                        <Modal.Header >
+                            <button type="button" className="btn-close" onClick={handleWarningClose}>
+                                <i className='th th-close'></i>
+                            </button>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <div className="modal-confirmation-container">
+                                <div className="modal-confirmation-icon">
+                                    <i className="th th-bold-info-circle"></i>
+                                </div>
+                                <div className="modal-confirmation-content">
+                                    <h5>Are You Sure?</h5>
+                                    <p>You want to Warning <b>{'SelectedReacord'}</b> Associated Item.</p>
+                                </div>
+                            </div>
+                            <div className="modal-button-group modal-full-width-btn">
+                                <Button variant='outline-white' onClick={handleWarningClose}> Cancel</Button>
+                                <Button variant='primary' className='btn-icon-text' onClick={handleWarningClose}>
+                                    <i className="th th-outline-tick-circle"></i> Warning
+                                </Button>
+                            </div>
+                        </Modal.Body>
+                    </Modal>
+                {/* Warning Modal */}
+
+                {/* WarningTwo Modal */}
+                    <Modal className='modal-theme modal-confirmation modal-warning-two' show={WarningTwoShow} onHide={handleWarningTwoClose} centered>
+                        <Modal.Header >
+                            <button type="button" className="btn-close" onClick={handleWarningTwoClose}>
+                                <i className='th th-close'></i>
+                            </button>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <div className="modal-confirmation-container">
+                                <div className="modal-confirmation-icon">
+                                    <i className="th th-bold-info-circle"></i>
+                                </div>
+                                <div className="modal-confirmation-content">
+                                    <h5>Are You Sure?</h5>
+                                    <p>You want to WarningTwo <b>{'SelectedReacord'}</b> Associated Item.</p>
+                                </div>
+                            </div>
+                            <div className="modal-button-group modal-full-width-btn">
+                                <Button variant='outline-white' onClick={handleWarningTwoClose}> Cancel</Button>
+                                <Button variant='primary' className='btn-icon-text' onClick={handleWarningTwoClose}>
+                                    <i className="th th-outline-tick-circle"></i> WarningTwo
+                                </Button>
+                            </div>
+                        </Modal.Body>
+                    </Modal>
+                {/* WarningTwo Modal */}
+                
+            </div>
+        </div>
+
                     <div className="mb-4">
                         <div className="inner-title">
                             <div className="inner-title-left">

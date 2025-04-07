@@ -12,7 +12,7 @@
             font-size: 14px;
             white-space: nowrap;
             font-weight: 400;
-            color: #535862;
+            color: #1F2937;
             border: 0;
 
             &:first-child{
@@ -35,6 +35,14 @@
                     padding: 10px 12px;
                     background-color: $bg_grey;
 
+                }
+            }
+        }
+
+        tr{
+            &:first-child{
+                th{
+                    border-top-left-radius: 5px;
                 }
             }
         }
