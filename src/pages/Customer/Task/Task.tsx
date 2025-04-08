@@ -46,7 +46,7 @@ const Task = () => {
           </div>
         </div>
 
-        <div className="content-area task-content-area">
+        <div className="content-area task-content-area content-area-title-filter">
             <div className="page-content-wrapper h-100">
             <div className="all-task-container">
 
@@ -89,14 +89,14 @@ const Task = () => {
                                 <Form.Group className="form-group form-group-sm form-group-inline-control">
                                 <div className="form-control-wrapper">
                                     <div className="form-group-icon-start">
-                                    <i className="th th-outline-search-normal"></i>
+                                    <i className="material-symbols-outlined">search</i>
                                     <Form.Control type="text" placeholder="Search" />
                                     </div>
                                 </div>
                                 </Form.Group>
                                 <Form.Group className="form-group form-group-sm">
                                 <div className="react-datepicker-container form-group-icon-end">
-                                    <i className="th th-outline-calendar-1 control-icon"></i>
+                                    <i className="material-symbols-outlined control-icon">date_range</i>
                                     <DatePicker
                                     dropdownMode="select"
                                     isClearable={true}
@@ -150,7 +150,7 @@ const Task = () => {
                   Add New <span>Task</span>
                   </Offcanvas.Title>
                   <button type="button" className="btn-close" onClick={handleCloseAddNewCourse}>
-                      <i className='th th-close'></i>
+                  <i className='material-symbols-outlined'>close</i>
                   </button>
                 </Offcanvas.Header>
                 <Offcanvas.Body>   
@@ -161,15 +161,14 @@ const Task = () => {
                               controlId="exampleForm.ControlInput1"
                             >
                               <Form.Label>Task Name</Form.Label>
-                              <div className="form-group-icon-start">
-                                <i className="th th-outline-book"></i>
+                              <div className="form-group">
                                 <Form.Control type="text" placeholder="Enter task name" />
                               </div>
                             </Form.Group>
                             <Form.Group className="form-group">
                               <Form.Label>Due Date</Form.Label>
                               <div className="react-datepicker-container form-group-icon-end">
-                                <i className="th th-outline-calendar-1 control-icon"></i>
+                                <i className="material-symbols-outlined control-icon">calendar_month</i>
                                 <DatePicker
                                   dropdownMode="select"
                                   isClearable={true}
@@ -218,7 +217,7 @@ const Task = () => {
                                     </Form.Select>
                                 </Form.Group>
                                 <button type="button" className="btn btn-light-danger">
-                                  <i className="th th-bold-trash"></i>
+                                  <i className="material-symbols-outlined">delete</i>
                                 </button>
                               </div>
                               <div className="remider-fields">
@@ -240,11 +239,11 @@ const Task = () => {
                                     </Form.Select>
                                 </Form.Group>
                                 <button type="button" className="btn btn-light-danger">
-                                  <i className="th th-bold-trash"></i>
+                                  <i className="material-symbols-outlined">delete</i>
                                 </button>
                               </div>
                               <div className="add-remider-filed-button">
-                                <Button variant='warning' className='btn-icon btn-icon-text'> <i className='th th-outline-add-circle'></i></Button>
+                                <Button variant='warning' className='btn-icon btn-icon-text'> <i className="material-symbols-outlined">add</i></Button>
                               </div>
                             </div>
                         </div>
@@ -280,13 +279,13 @@ const Task = () => {
                   className="btn-close"
                   onClick={handleDeleteClose}
                 >
-                  <i className="th th-close"></i>
+                  <i className='material-symbols-outlined'>close</i>
                 </button>
               </Modal.Header>
               <Modal.Body>
                 <div className="modal-confirmation-container">
                   <div className="modal-confirmation-icon">
-                    <i className="th th-bold-trash"></i>
+                    <i className="material-symbols-outlined">delete</i>
                   </div>
                   <div className="modal-confirmation-content">
                     <h5>Want to Delete?</h5>
@@ -330,13 +329,13 @@ const Task = () => {
                   className="btn-close"
                   onClick={handleSuccessDeleteClose}
                 >
-                  <i className="th th-close"></i>
+                  <i className='material-symbols-outlined'>close</i>
                 </button>
               </Modal.Header>
               <Modal.Body>
                 <div className="modal-confirmation-container">
                   <div className="modal-confirmation-icon">
-                    <i className="th th-bold-trash"></i>
+                    <i className="material-symbols-outlined">delete</i>
                   </div>
                   <div className="modal-confirmation-content">
                     <h5>You have successfully
@@ -365,13 +364,13 @@ const Task = () => {
                     <Modal.Header >
                         <h4 className="modal-title">Task Completed!</h4>
                         <button type="button" className="btn-close" onClick={handleSuccessClose}>
-                            <i className='th th-close'></i>
+                        <i className='material-symbols-outlined'>close</i>
                         </button>
                     </Modal.Header>
                     <Modal.Body>
                         <div className="modal-confirmation-container">
                             <div className="modal-confirmation-icon">
-                                <i className="th th-bold-tick-circle"></i>
+                                <i className="material-symbols-outlined">check_circle</i>
                             </div>
                             <div className="modal-confirmation-content">
                                 <h5>You have successfully

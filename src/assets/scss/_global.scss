@@ -290,8 +290,12 @@ img {
             max-height: calc(100vh - 80px);
 
             &.content-area-title {
-                max-height: calc(100vh - 120px);
-                min-height: calc(100vh - 120px);
+                max-height: calc(100vh - 130px);
+                min-height: calc(100vh - 130px);
+            }
+            &.content-area-title-filter {
+                max-height: calc(100vh - 188px);
+                min-height: calc(100vh - 188px);
             }
         }
 

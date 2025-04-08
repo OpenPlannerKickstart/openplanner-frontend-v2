@@ -70,11 +70,11 @@ const Open = () => {
                                 className="btn btn-xs btn-icon btn-transparent check-icon"
                             >
                                 {" "}
-                                <i className="th th-outline-tick-circle"></i>
+                                <i className="material-symbols-outlined">check_circle</i>
                             </button>
-                            <button className="btn btn-xs btn-icon btn-transparent" onClick={handleDeleteShow}>
+                            <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
                                 {" "}
-                                <i className="th th-outline-trash"></i>
+                                <i className="material-symbols-outlined">delete</i>
                             </button>
                             </div>
                         </td>
@@ -106,11 +106,11 @@ const Open = () => {
                                 className="btn btn-xs btn-icon btn-transparent check-icon"
                             >
                                 {" "}
-                                <i className="th th-outline-tick-circle"></i>
+                                <i className="material-symbols-outlined">check_circle</i>
                             </button>
-                            <button className="btn btn-xs btn-icon btn-transparent" onClick={handleDeleteShow}>
+                            <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
                                 {" "}
-                                <i className="th th-outline-trash"></i>
+                                <i className="material-symbols-outlined">delete</i>
                             </button>
                             </div>
                         </td>
@@ -142,11 +142,11 @@ const Open = () => {
                                 className="btn btn-xs btn-icon btn-transparent check-icon"
                             >
                                 {" "}
-                                <i className="th th-outline-tick-circle"></i>
+                                <i className="material-symbols-outlined">check_circle</i>
                             </button>
-                            <button className="btn btn-xs btn-icon btn-transparent" onClick={handleDeleteShow}>
+                            <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
                                 {" "}
-                                <i className="th th-outline-trash"></i>
+                                <i className="material-symbols-outlined">delete</i>
                             </button>
                             </div>
                         </td>
@@ -170,13 +170,13 @@ const Open = () => {
                 className="btn-close"
                 onClick={handleDeleteClose}
             >
-                <i className="th th-close"></i>
+                <i className="material-symbols-outlined">close</i>
             </button>
             </Modal.Header>
             <Modal.Body>
             <div className="modal-confirmation-container">
                 <div className="modal-confirmation-icon">
-                <i className="th th-bold-trash"></i>
+                <i className="material-symbols-outlined">delete</i>
                 </div>
                 <div className="modal-confirmation-content">
                 <h5>Want to Delete?</h5>
@@ -220,13 +220,13 @@ const Open = () => {
                 className="btn-close"
                 onClick={handleSuccessDeleteClose}
             >
-                <i className="th th-close"></i>
+                <i className="material-symbols-outlined">close</i>
             </button>
             </Modal.Header>
             <Modal.Body>
             <div className="modal-confirmation-container">
                 <div className="modal-confirmation-icon">
-                <i className="th th-bold-trash"></i>
+                <i className="material-symbols-outlined">delete</i>
                 </div>
                 <div className="modal-confirmation-content">
                 <h5>You have successfully
@@ -255,13 +255,13 @@ const Open = () => {
                 <Modal.Header >
                     <h4 className="modal-title">Task Completed!</h4>
                     <button type="button" className="btn-close" onClick={handleSuccessClose}>
-                        <i className='th th-close'></i>
+                    <i className="material-symbols-outlined">close</i>
                     </button>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="modal-confirmation-container">
                         <div className="modal-confirmation-icon">
-                            <i className="th th-bold-tick-circle"></i>
+                        <i className="material-symbols-outlined">check_circle</i>
                         </div>
                         <div className="modal-confirmation-content">
                             <h5>You have successfully

@@ -111,7 +111,7 @@ const VerifySignupOtp = (props) => {
                             <div className="admin-auth-from">
                                 <div className="admin-auth-card-title">
                                     <div className="box-icon box-light-primary wh-70px">
-                                        <i className="th th-outline-sms-notification"></i>
+                                        <i className="material-symbols-outlined">mark_email_unread</i>
                                     </div>
                                     <h2 className="">Check your Email!</h2>
                                     <p className="text-center mt-4">
