@@ -14,8 +14,8 @@ import { customJsonInclude, isEmptyObjectOrNullUndefiend, renderError, setCookie
 import { NavLink } from "react-router-dom";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { LoginData } from "../../../interfaces";
-import { MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_PASSWORD_NEW } from "../../../Utility/Validation_Helper";
-import { EMAIL_INVALID, EMAIL_REQUIRED, PASSWORD_REQUIRED } from "../../../Utility/Validation_Message";
+import { MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_EMAIL_OR_USERNAME, PATTERN_FOR_PASSWORD_NEW } from "../../../Utility/Validation_Helper";
+import { EMAIL_INVALID, EMAIL_REQUIRED, PASSWORD_REQUIRED, USERNAME_EMAIL_IS_REQUIRED, USERNAME_EMAIL_VALIDATION } from "../../../Utility/Validation_Message";
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from "formik";
 import { sendSignupEmailOtp } from "../../../redux/Service/auth/signup";
 import * as yup from "yup";
@@ -33,7 +33,7 @@ const Login = (props) => {
     const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
     /* ------------------------- Login Form Validation ------------------------- */
     const initLoginValues: LoginData = {        
-        email: "",
+        identifier: "",
         password: "",
     }
     const [savedLoginFormData, setSavedLoginFormData] = useState(initLoginValues);
@@ -41,11 +41,11 @@ const Login = (props) => {
 
 
     const validationSchemaForLogin = yup.object({
-        email: yup.string()
+        identifier: yup.string()
             .trim()
-            // .matches(PATTERN_EMAIL, EMAIL_INVALID)
+            .matches(PATTERN_FOR_EMAIL_OR_USERNAME, USERNAME_EMAIL_VALIDATION)
             // .email("Please Enter a valid Email.")
-            .required(EMAIL_REQUIRED),
+            .required(USERNAME_EMAIL_IS_REQUIRED),
 
         password: yup
             .string()
@@ -90,7 +90,7 @@ const Login = (props) => {
 
 
         const reqBody = {
-            email: loginFormData.values.email,
+            identifier: loginFormData.values.identifier,
             password: loginFormData.values.password,
         }
         customJsonInclude(reqBody);
@@ -100,7 +100,7 @@ const Login = (props) => {
 
             if (!response?.payload?.isVerify) {
                 const sendEmailOtpReqBody = {
-                    email: `${reqBody.email}`
+                    username: `${reqBody.identifier}`
                 }
                 const sendEmailOtpResponse = await dispatch(sendSignupEmailOtp(sendEmailOtpReqBody));
                 if (sendEmailOtpResponse) {
@@ -172,21 +172,21 @@ const Login = (props) => {
                                             <Card.Body>
 
                                                 <Form.Group className="form-group required" >
-                                                    <Form.Label>Email Address</Form.Label>
+                                                    <Form.Label>UserName/Email </Form.Label>
                                                     <div className="form-group-icon-start">
                                                         <i className='th-outline-user'></i>
-                                                        <Form.Control type="text" placeholder="Enter Email"
-                                                            {...loginFormData.getFieldProps("email")}
+                                                        <Form.Control type="text" placeholder="Enter Your UserName"
+                                                            {...loginFormData.getFieldProps("identifier")}
                                                             maxLength={MAX_50}
                                                             onKeyDown={(event) => { handleKeyPress(event) }}
                                                             onBlur={() => {
-                                                                handleBlurValueUpdate("email");
+                                                                handleBlurValueUpdate("identifier");
                                                             }}
                                                         />
                                                     </div>
-                                                    {loginFormData.touched.email &&
-                                                        loginFormData.errors.email
-                                                        ? renderError(loginFormData.errors.email)
+                                                    {loginFormData.touched.identifier &&
+                                                        loginFormData.errors.identifier
+                                                        ? renderError(loginFormData.errors.identifier)
                                                         : null}
                                                 </Form.Group>
 

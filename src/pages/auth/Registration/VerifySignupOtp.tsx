@@ -44,7 +44,7 @@ const VerifySignupOtp = (props) => {
         }
 
         const reqBody = {
-            email: otpDetailsObj?.isFromLogin? `${otpDetailsObj?.detailsObj?.email}`:`${otpDetailsObj?.detailsObj?.first_name}_${otpDetailsObj?.detailsObj?.last_name}`,
+            username: otpDetailsObj?.isFromLogin? `${otpDetailsObj?.detailsObj?.identifier}`:`${otpDetailsObj?.detailsObj?.username}`,
             code: otpData.toString()
         }
         const verifyResponse = await dispatch(verifySignupEmailOtp(reqBody));
@@ -63,7 +63,7 @@ const VerifySignupOtp = (props) => {
 
     const handleResendOtp = async() => {
         const sendEmailOtpReqBody = {
-            email:  otpDetailsObj?.isFromLogin? `${otpDetailsObj?.detailsObj?.email}`:`${otpDetailsObj?.detailsObj?.first_name}_${otpDetailsObj?.detailsObj?.last_name}`
+            username: otpDetailsObj?.isFromLogin? `${otpDetailsObj?.detailsObj?.identifier}`:`${otpDetailsObj?.detailsObj?.username}`
         }
         const sendEmailOtpResponse = await dispatch(sendSignupEmailOtp(sendEmailOtpReqBody));
         if (sendEmailOtpResponse) {
@@ -153,7 +153,7 @@ const VerifySignupOtp = (props) => {
                                                 Verify Email
                                             </Button>
                                         </div>
-                                        <div className="auth-bottom-text-link">
+                                        {/* <div className="auth-bottom-text-link">
                                             <p>
                                                 Don’t have an email address
                                                 <button className='btn btn-link'
@@ -162,7 +162,7 @@ const VerifySignupOtp = (props) => {
                                                     Use Another Email
                                                 </button>
                                             </p>
-                                        </div>
+                                        </div> */}
                                     </Card.Body>
                                 </Card>
                             </div>

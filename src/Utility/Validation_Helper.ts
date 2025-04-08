@@ -299,6 +299,8 @@ export const PATTERN_FOR_IFSC_CODE = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 It enforces a pattern of digits with a length between 9 and 18. Customize as needed. */
 export const PATTERN_FOR_ACCOUNT_NUMBER = /^\d{9,18}$/;
 
+export const PATTERN_FOR_MOBILE_NO=/^\+?\d{10,15}$/;
+
 
 
 

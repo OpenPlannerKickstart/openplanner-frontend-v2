@@ -23,14 +23,14 @@ const ForgotPassword = (props) => {
   /* ------------------------ Send Email Otp Data start ----------------------- */
 
   const initEmailData = {
-    email: ""
+    username: ""
   }
   const [savedEmailFormData, setSavedEmailFormData] = useState<any>(initEmailData);
   const onSubmit = (values) => {
   
   }
   const validationSchema = yup.object({
-    email: yup.string()
+    username: yup.string()
     // .trim()
     // .matches(PATTERN_EMAIL, EMAIL_INVALID)    
     // .required(EMAIL_REQUIRED),
@@ -53,7 +53,7 @@ const ForgotPassword = (props) => {
     }
 
     const reqBody = {
-      email: emailFormData.values.email
+      username: emailFormData.values.username
     }
     const response = await dispatch(sendForgotPasswordEmailOtp(reqBody))
     if (response) {
@@ -121,20 +121,20 @@ const ForgotPassword = (props) => {
                     <Card className="admin-auth-card">
                       <Card.Body>
                         <Form.Group className="form-group required">
-                          <Form.Label>Email Address</Form.Label>
+                          <Form.Label>Enter UserName</Form.Label>
                           <div className="form-group-icon-start">
                             <i className="th-outline-sms"></i>
-                            <Form.Control type="email" placeholder="Enter Email"
-                              {...emailFormData.getFieldProps("email")}
+                            <Form.Control type="email" placeholder="Enter UserName"
+                              {...emailFormData.getFieldProps("username")}
                               onKeyDown={(event) => { handleKeyPress(event) }}
                               onBlur={() => {
-                                handleBlurValueUpdate("email");
+                                handleBlurValueUpdate("username");
                               }}
                             />
                           </div>
-                          {emailFormData.touched.email &&
-                            emailFormData.errors.email
-                            ? renderError(emailFormData.errors.email as any)
+                          {emailFormData.touched.username &&
+                            emailFormData.errors.username
+                            ? renderError(emailFormData.errors.username as any)
                             : null}
                         </Form.Group>
 

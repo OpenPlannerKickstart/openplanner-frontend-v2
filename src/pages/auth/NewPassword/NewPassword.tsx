@@ -57,7 +57,7 @@ const NewPassword = (props) => {
 
       return;
     }
-    const reqBody = { ...resetPasswordForm.values,email:emailDetailObj?.email };
+    const reqBody = { ...resetPasswordForm.values,username:emailDetailObj?.username };
     delete reqBody.confirm_password;
     const response = await dispatch(sendNewPasswordDataAPI(reqBody));
 
