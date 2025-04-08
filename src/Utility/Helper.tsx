@@ -89,11 +89,12 @@ export const decrypted = (obj) => {
 // get token of loggedIn user
 /** Function to get the token of the logged-in user from local storage. */
 export const getToken = (): returnTypeForString => {
-  return getCookieByName("token");
+  return getCookieByName("planner_token");
 };
+
 /** Function to get the refresh token of the logged-in user from local storage. */
 export const getRefreshToken = (): returnTypeForString => {
-  return getCookieByName("refreshToken");
+  return getCookieByName("planner_refreshToken");
 };
 // get clientId of loggedIn user
 /** Function to get the clientId of the logged-in user from local storage. */
@@ -145,6 +146,20 @@ export const setUniqueNumber = (): void => {
   return setCookieByName("unique_number", uniqueNumber.toString());
 };
 
+/**
+ * Function to set a Token.
+ */
+export const setPlannerToken = (val): void => {
+ 
+  return setCookieByName("planner_token", val);
+};
+/**
+ * Function to set a Token.
+ */
+export const setPlannerRefreshToken = (val): void => {
+ 
+  return setCookieByName("planner_refreshToken", val);
+};
 // get role of loggedIn user
 /**
  * Function to get the role of the logged-in user from local storage.
