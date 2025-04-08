@@ -1,21 +1,31 @@
 import React, { useState } from "react";
-import { Badge, Button, Form, Modal, Table } from "react-bootstrap";
+import { Badge, Button, Form, Modal, Offcanvas } from "react-bootstrap";
 import DatePicker from "react-datepicker";
+import Select, { components, ControlProps } from "react-select";
+import Open from "./Open";
+import Complete from "./Complete";
 
 const Task = () => {
-     // Deleted modal
-        const [deleteShow, setDeleteShow] = useState(false);
-        const handleDeleteClose = () => setDeleteShow(false);
-        const handleDeleteShow = () => setDeleteShow(true);
+    // Deleted modal
+    const [deleteShow, setDeleteShow] = useState(false);
+    const handleDeleteClose = () => setDeleteShow(false);
+    const handleDeleteShow = () => setDeleteShow(true);
   
     // Compated Deleted modal
     const [SuccessDeleteShow, setSuccessDeleteShow] = useState(false);
     const handleSuccessDeleteClose = () => setSuccessDeleteShow(false);
     const handleSuccessDeleteShow = () => setSuccessDeleteShow(true);
 
+    // Success modal
     const [SuccessShow, setSuccessShow] = useState(false);
-        const handleSuccessClose = () => setSuccessShow(false);
-        const handleSuccessShow = () => setSuccessShow(true);
+    const handleSuccessClose = () => setSuccessShow(false);
+    const handleSuccessShow = () => setSuccessShow(true);
+
+    // ADD new task offcanvas
+    const [showAddNewCourse, setShowAddNewCourse] = useState(false);
+    const handleCloseAddNewCourse = () => setShowAddNewCourse(false);
+    const toggleShowAddNewCourse = () => setShowAddNewCourse(true);
+
   return (
     <>
       <div className="page-content">
@@ -29,24 +39,10 @@ const Task = () => {
             <button
               type="button"
               className="btn btn-primary"
-              
+              onClick={toggleShowAddNewCourse}
             >
               Add Task{" "}
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleSuccessDeleteShow}
-            >
-              Task Deleted! 
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handleSuccessShow}
-            >
-              Task Completed!
-            </button>
+            </button>            
           </div>
         </div>
 
@@ -121,145 +117,8 @@ const Task = () => {
                         role="tabpanel"
                         aria-labelledby="nav-opentask-tab"
                         >
-                            <div className="tab-content-container">
-
-                                <div className="table-responsive mb-5">
-                                    <Table className="table-theme table-bordered">
-                                        <thead className="border-less">
-                                            <tr>
-                                            <th className="">
-                                                <div className="d-flex align-items-center gap-2">
-                                                <div className=" checkbox checkbox-primary checkbox-small">
-                                                    <input
-                                                    type="checkbox"
-                                                    id="tbl-checkbox"
-                                                    className="material-inputs filled-in"
-                                                    />
-                                                    <label htmlFor="tbl-checkbox"></label>
-                                                </div>
-                                                #
-                                                </div>
-                                            </th>
-                                            <th>Task Name</th>
-                                            <th>Note</th>
-                                            <th>Last Update Date</th>
-                                            <th className="text-center">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td className="tbl-user">
-                                                    <div className="tbl-user-checkbox-srno">
-                                                    <div className="checkbox checkbox-primary checkbox-small">
-                                                        <input
-                                                        type="checkbox"
-                                                        id="tbl-checkbox1"
-                                                        className="material-inputs filled-in"
-                                                        />
-                                                        <label htmlFor="tbl-checkbox1"></label>
-                                                    </div>
-                                                    <span>01.</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    Science Lab Experiment Report
-                                                </td>
-                                                <td>
-                                                    Loream ipsum is simply dummy text
-                                                </td>
-                                                <td>13-03-2025 - 04:50 PM</td>
-                                                <td className="tbl-action">
-                                                <div className="tbl-action-group">
-                                                    <button
-                                                        className="btn btn-xs btn-icon btn-transparent check-icon"
-                                                    >
-                                                        {" "}
-                                                        <i className="th th-outline-tick-circle"></i>
-                                                    </button>
-                                                    <button className="btn btn-xs btn-icon btn-transparent" onClick={handleDeleteShow}>
-                                                        {" "}
-                                                        <i className="th th-outline-trash"></i>
-                                                    </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td className="tbl-user">
-                                                    <div className="tbl-user-checkbox-srno">
-                                                    <div className="checkbox checkbox-primary checkbox-small">
-                                                        <input
-                                                        type="checkbox"
-                                                        id="tbl-checkbox1"
-                                                        className="material-inputs filled-in"
-                                                        />
-                                                        <label htmlFor="tbl-checkbox1"></label>
-                                                    </div>
-                                                    <span>02.</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    Weekly Vocabulary Builder
-                                                </td>
-                                                <td>
-                                                    Loream ipsum is simply dummy text
-                                                </td>
-                                                <td>13-03-2025 - 04:50 PM</td>
-                                                <td className="tbl-action">
-                                                <div className="tbl-action-group">
-                                                    <button
-                                                        className="btn btn-xs btn-icon btn-transparent check-icon"
-                                                    >
-                                                        {" "}
-                                                        <i className="th th-outline-tick-circle"></i>
-                                                    </button>
-                                                    <button className="btn btn-xs btn-icon btn-transparent" onClick={handleDeleteShow}>
-                                                        {" "}
-                                                        <i className="th th-outline-trash"></i>
-                                                    </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td className="tbl-user">
-                                                    <div className="tbl-user-checkbox-srno">
-                                                    <div className="checkbox checkbox-primary checkbox-small">
-                                                        <input
-                                                        type="checkbox"
-                                                        id="tbl-checkbox1"
-                                                        className="material-inputs filled-in"
-                                                        />
-                                                        <label htmlFor="tbl-checkbox1"></label>
-                                                    </div>
-                                                    <span>03.</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    Current Affairs Research Task
-                                                </td>
-                                                <td>
-                                                    Loream ipsum is simply dummy text
-                                                </td>
-                                                <td>26-03-2025 - 11:30 PM</td>
-                                                <td className="tbl-action">
-                                                <div className="tbl-action-group">
-                                                    <button
-                                                        className="btn btn-xs btn-icon btn-transparent check-icon"
-                                                    >
-                                                        {" "}
-                                                        <i className="th th-outline-tick-circle"></i>
-                                                    </button>
-                                                    <button className="btn btn-xs btn-icon btn-transparent" onClick={handleDeleteShow}>
-                                                        {" "}
-                                                        <i className="th th-outline-trash"></i>
-                                                    </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            
-                                        </tbody>
-                                    </Table>
-                                </div>
-
+                            <div className="tab-content-container">                                
+                                <Open/>
                             </div>
                         </div>
                         <div
@@ -268,13 +127,143 @@ const Task = () => {
                         role="tabpanel"
                         aria-labelledby="nav-complatetask-tab"
                         >
-                        
+                          <div className="tab-content-container">
+                            <Complete/>
+                          </div>
                         </div>
                     </div>
                 </div>
             </div>
 
 
+
+           {/***** Offcanvas start *****/}
+           <div className="add-syllabus-event-wrapper">
+              <Offcanvas
+                className="op-offcanvas style-1"
+                show={showAddNewCourse}
+                placement={"end"}
+                onHide={handleCloseAddNewCourse}
+              >
+                <Offcanvas.Header>
+                  <Offcanvas.Title>
+                  Add New <span>Task</span>
+                  </Offcanvas.Title>
+                  <button type="button" className="btn-close" onClick={handleCloseAddNewCourse}>
+                      <i className='th th-close'></i>
+                  </button>
+                </Offcanvas.Header>
+                <Offcanvas.Body>   
+                    <div className="Add-new-task-container">
+                        <div className="op-offcanvas-body-container">
+                            <Form.Group
+                              className="form-group"
+                              controlId="exampleForm.ControlInput1"
+                            >
+                              <Form.Label>Task Name</Form.Label>
+                              <div className="form-group-icon-start">
+                                <i className="th th-outline-book"></i>
+                                <Form.Control type="text" placeholder="Enter task name" />
+                              </div>
+                            </Form.Group>
+                            <Form.Group className="form-group">
+                              <Form.Label>Due Date</Form.Label>
+                              <div className="react-datepicker-container form-group-icon-end">
+                                <i className="th th-outline-calendar-1 control-icon"></i>
+                                <DatePicker
+                                  dropdownMode="select"
+                                  isClearable={true}
+                                  dateFormat="dd/MM/yyyy"
+                                  className="form-control"
+                                  popperProps={{ strategy: "fixed" }}
+                                  placeholderText="10-03-2025 12:17 AM"
+                                />
+                              </div>
+                            </Form.Group>
+                            <Form.Group
+                              className="form-group"
+                              controlId="exampleForm.ControlInput1"
+                            >
+                              <Form.Label>Note</Form.Label>
+                              <div className="form-group">
+                                <Form.Control as="textarea" rows={3} placeholder="Enter note" />
+                              </div>
+                            </Form.Group>
+                            <div className="Reminder-box">
+                              <div className="title-with-switch">
+                                <div className="title-text"><h4>Reminder (Notify me before start date)</h4></div>
+                                <div className="switch-box ">
+                                    <label className="switch" htmlFor="switch">
+                                        <input type="checkbox" id='switch'/>
+                                        <div className="slider round"></div>
+                                    </label>
+                                </div>
+                              </div>
+                              <div className="remider-fields">
+                                <Form.Group className='form-group'>
+                                  <Form.Label>Unit</Form.Label>
+                                  <Select
+                                          placeholder={<div>Days</div>}
+                                          menuPosition="fixed"
+                                          className="react-select-container"
+                                      />
+                                </Form.Group>
+                                  <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                                    <Form.Label>Value</Form.Label>
+                                    <Form.Select aria-label="Default select example">
+                                        <option>5</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                    </Form.Select>
+                                </Form.Group>
+                                <button type="button" className="btn btn-light-danger">
+                                  <i className="th th-bold-trash"></i>
+                                </button>
+                              </div>
+                              <div className="remider-fields">
+                                <Form.Group className='form-group'>
+                                  <Form.Label>Unit</Form.Label>
+                                  <Select
+                                          placeholder={<div>Hours</div>}
+                                          menuPosition="fixed"
+                                          className="react-select-container"
+                                      />
+                                </Form.Group>
+                                  <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                                    <Form.Label>Value</Form.Label>
+                                    <Form.Select aria-label="Default select example">
+                                        <option>1</option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                    </Form.Select>
+                                </Form.Group>
+                                <button type="button" className="btn btn-light-danger">
+                                  <i className="th th-bold-trash"></i>
+                                </button>
+                              </div>
+                              <div className="add-remider-filed-button">
+                                <Button variant='warning' className='btn-icon btn-icon-text'> <i className='th th-outline-add-circle'></i></Button>
+                              </div>
+                            </div>
+                        </div>
+                        <div className="bottom-button-group">
+                          <Button type="button" className="btn btn-light-white me-auto">
+                              Cancel
+                          </Button>
+                          <Button type="button" className="btn btn-light-white">
+                            Clear
+                          </Button>
+                          <Button type="button" className="btn btn-primary">
+                              Save
+                          </Button>
+                        </div>
+                    </div>
+                </Offcanvas.Body>
+              </Offcanvas>
+            </div>
+            {/***** Offcanvas end *****/}
 
 
             {/* Delete Modal */}
@@ -335,7 +324,7 @@ const Task = () => {
               centered
             >
               <Modal.Header>
-                <h4 className="modal-title">Task Completed!</h4>
+                <h4 className="modal-title">Task Deleted!</h4>
                 <button
                   type="button"
                   className="btn-close"
@@ -347,10 +336,11 @@ const Task = () => {
               <Modal.Body>
                 <div className="modal-confirmation-container">
                   <div className="modal-confirmation-icon">
-                    <i className="th th-bold-tick"></i>
+                    <i className="th th-bold-trash"></i>
                   </div>
                   <div className="modal-confirmation-content">
-                    <h5>You have successfully completed  Task!</h5>
+                    <h5>You have successfully
+                    deleted Task!</h5>
                     <p>
                     Get back to task page to add or complete the other task
                     </p>
@@ -389,10 +379,9 @@ const Task = () => {
                                 <p>Get back to task page to add or complete the other task</p>
                             </div>
                         </div>
-                        <div className="modal-button-group modal-full-width-btn">
-                            <Button variant='outline-white' onClick={handleSuccessClose}> Cancel</Button>
-                            <Button variant='primary' className='btn-icon-text' onClick={handleSuccessClose}>
-                                <i className="th th-outline-tick-circle"></i> Done
+                        <div className="modal-button-group modal-full-width-btn modal-footer-button">                            
+                            <Button variant="success"
+                            className="btn-icon-text btn-md" onClick={handleSuccessClose}> Done
                             </Button>
                         </div>
                     </Modal.Body>

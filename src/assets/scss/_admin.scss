@@ -504,6 +504,8 @@ $sm_sidebar_home_link_width: 270px;
 /* -------------------------------------------------------------------------- */
 
 
+
+
 .add-event-button{
     display:flex;
     align-items:center;
@@ -1143,4 +1145,51 @@ $sm_sidebar_home_link_width: 270px;
            } 
         }
     }    
+}
+
+// Successe reject modal
+
+.modal-confirmation{
+    &.modal-reject{
+        .modal-confirmation-icon{
+            color: $danger_color;
+        }       
+    }
+}
+
+// Add new task Offcanvas css
+.Add-new-task-container{
+    .Reminder-box{
+        background: #E9F7FB;
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 14px;
+        .title-with-switch{
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            .title-text{
+                h4{
+                    font-size: 16px;
+                    line-height: normal;
+                    letter-spacing: 0.2px;
+                    margin-bottom: 0px;
+                    font-weight: 500;
+                }
+            }                                    
+        }
+        .remider-fields{
+            display: flex;
+            width: 100%;
+            align-items: flex-end;
+            gap: 15px;
+            margin: 15px 0;
+            .form-group{
+                margin-bottom: 0;
+                width: 100%;
+            }
+        }
+    } 
 }
