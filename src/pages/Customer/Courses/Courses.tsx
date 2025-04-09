@@ -58,14 +58,14 @@ const Courses = (props) => {
             <Form.Group className="form-group form-group-sm form-group-inline-control">
               <div className="form-control-wrapper">
                 <div className="form-group-icon-start">
-                  <i className="th th-outline-search-normal"></i>
+                  <i className="material-symbols-outlined">search</i>
                   <Form.Control type="text" placeholder="Search" />
                 </div>
               </div>
             </Form.Group>
             <Form.Group className="form-group form-group-sm">
               <div className="react-datepicker-container form-group-icon-end">
-                <i className="th th-outline-calendar-1 control-icon"></i>
+                <i className="material-symbols-outlined control-icon">date_range</i>
                 <DatePicker
                   dropdownMode="select"
                   isClearable={true}
@@ -82,12 +82,12 @@ const Courses = (props) => {
               <ul className="list-view-wrapper">
                 <li className="active">
                   <a className="">
-                    <i className="th th-list"></i>
+                    <i className="material-symbols-outlined">menu</i>
                   </a>
                 </li>
                 <li>
                   <a className="">
-                    <i className="th th-outline-grid-1"></i>
+                    <i className="material-symbols-outlined">grid_on</i>
                   </a>
                 </li>
               </ul>
@@ -95,7 +95,7 @@ const Courses = (props) => {
           </div>
         </div>
 
-        <div className="content-area ">
+        <div className="content-area  content-area-title-filter">
           <div className="page-content-wrapper h-100">
             <div className="list-view-layout">
               <div className="table-responsive mb-5">
@@ -155,11 +155,11 @@ const Courses = (props) => {
                             onClick={toggleShowCourse}
                           >
                             {" "}
-                            <i className="th th-outline-edit"></i>
+                            <i className="material-symbols-outlined">edit</i>
                           </button>
-                          <button className="btn btn-xs btn-icon btn-transparent" onClick={handleDeleteShow}>
+                          <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
                             {" "}
-                            <i className="th th-outline-trash"></i>
+                            <i className="material-symbols-outlined">delete</i>
                           </button>
                         </div>
                       </td>
@@ -190,11 +190,11 @@ const Courses = (props) => {
                         <div className="tbl-action-group">
                           <button className="btn btn-xs btn-icon btn-transparent">
                             {" "}
-                            <i className="th th-outline-edit"></i>
+                            <i className="material-symbols-outlined">edit</i>
                           </button>
-                          <button className="btn btn-xs btn-icon btn-transparent" onClick={handleDeleteShow}>
+                          <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
                             {" "}
-                            <i className="th th-outline-trash"></i>
+                            <i className="material-symbols-outlined">delete</i>
                           </button>
                         </div>
                       </td>
@@ -213,7 +213,7 @@ const Courses = (props) => {
                       <Card.Body>
                         <div className="corse-card">
                           <div className="card-main-img">
-                            <img src={gridCardImg} alt="" />
+                            <img src={gridCardImg} alt="Open Planer" />
                           </div>
                           <div className="card-details-wrapper">
                             <div className="card-title">
@@ -221,7 +221,7 @@ const Courses = (props) => {
                             </div>
                             <div className="selected-date-with-color">
                               <div className="selected-date">
-                                <i className="th th-outline-calendar-1"></i>
+                                <i className="material-symbols-outlined">calendar_month</i>
                                 <p>12-03-2025 - 12:30 PM</p>
                               </div>
                               <div className="selected-color">
@@ -233,7 +233,7 @@ const Courses = (props) => {
                               <div className="event-with-action">
                                 <div className="event">
                                   <p>
-                                    <i className="th th-outline-cup"></i> Event:{" "}
+                                    <i className="material-symbols-outlined">trophy</i> Event:{" "}
                                     <span className="event-nub">10</span>
                                   </p>
                                 </div>
@@ -242,54 +242,10 @@ const Courses = (props) => {
                                     className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm"
                                     onClick={toggleShowCourse}
                                   >
-                                    <i className="th th-outline-edit"></i>
+                                    <i className="material-symbols-outlined">edit</i>
                                   </button>
-                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
-                                    <i className="th th-outline-trash"></i>
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                  <Col md={"4"}>
-                    <Card className="card-style-1">
-                      <Card.Body>
-                        <div className="corse-card">
-                          <div className="card-main-img">
-                            <img src={gridCardImg} alt="" />
-                          </div>
-                          <div className="card-details-wrapper">
-                            <div className="card-title">
-                              <h3>Project Management</h3>
-                            </div>
-                            <div className="selected-date-with-color">
-                              <div className="selected-date">
-                                <i className="th th-outline-calendar-1"></i>
-                                <p>12-03-2025 - 12:30 PM</p>
-                              </div>
-                              <div className="selected-color">
-                                <span className="color-code"></span>
-                                <p>#545455</p>
-                              </div>
-                            </div>
-                            <div className="card-bottom">
-                              <div className="event-with-action">
-                                <div className="event">
-                                  <p>
-                                    <i className="th th-outline-cup"></i> Event:{" "}
-                                    <span className="event-nub">10</span>
-                                  </p>
-                                </div>
-                                <div className="action-button">
-                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
-                                    <i className="th th-outline-edit"></i>
-                                  </button>
-                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
-                                    <i className="th th-outline-trash"></i>
+                                  <button className="btn-icon btn-light-danger btn-icon-text btn btn-danger btn-sm">
+                                  <i className="material-symbols-outlined">delete</i>
                                   </button>
                                 </div>
                               </div>
@@ -304,7 +260,7 @@ const Courses = (props) => {
                       <Card.Body>
                         <div className="corse-card">
                           <div className="card-main-img">
-                            <img src={gridCardImg} alt="" />
+                            <img src={gridCardImg} alt="Open Planer" />
                           </div>
                           <div className="card-details-wrapper">
                             <div className="card-title">
@@ -312,7 +268,7 @@ const Courses = (props) => {
                             </div>
                             <div className="selected-date-with-color">
                               <div className="selected-date">
-                                <i className="th th-outline-calendar-1"></i>
+                                <i className="material-symbols-outlined">calendar_month</i>
                                 <p>12-03-2025 - 12:30 PM</p>
                               </div>
                               <div className="selected-color">
@@ -324,16 +280,16 @@ const Courses = (props) => {
                               <div className="event-with-action">
                                 <div className="event">
                                   <p>
-                                    <i className="th th-outline-cup"></i> Event:{" "}
+                                    <i className="material-symbols-outlined">trophy</i> Event:{" "}
                                     <span className="event-nub">10</span>
                                   </p>
                                 </div>
                                 <div className="action-button">
                                   <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
-                                    <i className="th th-outline-edit"></i>
+                                  <i className="material-symbols-outlined">edit</i>
                                   </button>
-                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
-                                    <i className="th th-outline-trash"></i>
+                                  <button className="btn-icon btn-light-danger btn-icon-text btn btn-danger btn-sm">
+                                  <i className="material-symbols-outlined">delete</i>
                                   </button>
                                 </div>
                               </div>
@@ -348,7 +304,7 @@ const Courses = (props) => {
                       <Card.Body>
                         <div className="corse-card">
                           <div className="card-main-img">
-                            <img src={gridCardImg} alt="" />
+                            <img src={gridCardImg} alt="Open Planer" />
                           </div>
                           <div className="card-details-wrapper">
                             <div className="card-title">
@@ -356,7 +312,7 @@ const Courses = (props) => {
                             </div>
                             <div className="selected-date-with-color">
                               <div className="selected-date">
-                                <i className="th th-outline-calendar-1"></i>
+                                <i className="material-symbols-outlined">calendar_month</i>
                                 <p>12-03-2025 - 12:30 PM</p>
                               </div>
                               <div className="selected-color">
@@ -368,16 +324,16 @@ const Courses = (props) => {
                               <div className="event-with-action">
                                 <div className="event">
                                   <p>
-                                    <i className="th th-outline-cup"></i> Event:{" "}
+                                  <i className="material-symbols-outlined">trophy</i> Event:{" "}
                                     <span className="event-nub">10</span>
                                   </p>
                                 </div>
                                 <div className="action-button">
                                   <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
-                                    <i className="th th-outline-edit"></i>
+                                  <i className="material-symbols-outlined">edit</i>
                                   </button>
-                                  <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
-                                    <i className="th th-outline-trash"></i>
+                                  <button className="btn-icon btn-light-danger btn-icon-text btn btn-danger btn-sm">
+                                  <i className="material-symbols-outlined">delete</i>
                                   </button>
                                 </div>
                               </div>
@@ -392,7 +348,7 @@ const Courses = (props) => {
                       <Card.Body>
                         <div className="corse-card">
                           <div className="card-main-img">
-                            <img src={gridCardImg} alt="" />
+                            <img src={gridCardImg} alt="Open Planer" />
                           </div>
                           <div className="card-details-wrapper">
                             <div className="card-title">
@@ -400,7 +356,7 @@ const Courses = (props) => {
                             </div>
                             <div className="selected-date-with-color">
                               <div className="selected-date">
-                                <i className="th th-outline-calendar-1"></i>
+                                <i className="material-symbols-outlined">calendar_month</i>
                                 <p>12-03-2025 - 12:30 PM</p>
                               </div>
                               <div className="selected-color">
@@ -412,16 +368,60 @@ const Courses = (props) => {
                               <div className="event-with-action">
                                 <div className="event">
                                   <p>
-                                    <i className="th th-outline-cup"></i> Event:{" "}
+                                  <i className="material-symbols-outlined">trophy</i> Event:{" "}
                                     <span className="event-nub">10</span>
                                   </p>
                                 </div>
                                 <div className="action-button">
                                   <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
-                                    <i className="th th-outline-edit"></i>
+                                  <i className="material-symbols-outlined">edit</i>
                                   </button>
+                                  <button className="btn-icon btn-light-danger btn-icon-text btn btn-danger btn-sm">
+                                  <i className="material-symbols-outlined">delete</i>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                  <Col md={"4"}>
+                    <Card className="card-style-1">
+                      <Card.Body>
+                        <div className="corse-card">
+                          <div className="card-main-img">
+                            <img src={gridCardImg} alt="Open Planer" />
+                          </div>
+                          <div className="card-details-wrapper">
+                            <div className="card-title">
+                              <h3>Project Management</h3>
+                            </div>
+                            <div className="selected-date-with-color">
+                              <div className="selected-date">
+                                <i className="material-symbols-outlined">calendar_month</i>
+                                <p>12-03-2025 - 12:30 PM</p>
+                              </div>
+                              <div className="selected-color">
+                                <span className="color-code"></span>
+                                <p>#545455</p>
+                              </div>
+                            </div>
+                            <div className="card-bottom">
+                              <div className="event-with-action">
+                                <div className="event">
+                                  <p>
+                                    <i className="material-symbols-outlined">trophy</i> Event:{" "}
+                                    <span className="event-nub">10</span>
+                                  </p>
+                                </div>
+                                <div className="action-button">
                                   <button className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm">
-                                    <i className="th th-outline-trash"></i>
+                                  <i className="material-symbols-outlined">edit</i>
+                                  </button>
+                                  <button className="btn-icon btn-light-danger btn-icon-text btn btn-danger btn-sm">
+                                  <i className="material-symbols-outlined">delete</i>
                                   </button>
                                 </div>
                               </div>
@@ -449,7 +449,7 @@ const Courses = (props) => {
                     Edit <span>Project Management</span>
                   </Offcanvas.Title>
                   <button type="button" className="btn-close" onClick={handleCloseCourse}>
-                      <i className='th th-close'></i>
+                      <i className='material-symbols-outlined'>close</i>
                   </button>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
@@ -568,13 +568,13 @@ const Courses = (props) => {
                   <Modal.Header >
                         <h4 className="modal-title">Delete Task</h4>
                       <button type="button" className="btn-close" onClick={handleDeleteClose}>
-                          <i className='th th-close'></i>
+                          <i className='material-symbols-outlined'>close</i>
                       </button>
                   </Modal.Header>
                   <Modal.Body>
                       <div className="modal-confirmation-container">
                           <div className="modal-confirmation-icon">
-                              <i className="th th-bold-trash"></i>
+                              <i className="material-symbols-outlined">delete</i>
                           </div>
                           <div className="modal-confirmation-content">
                               <h5>Want to Delete?</h5>

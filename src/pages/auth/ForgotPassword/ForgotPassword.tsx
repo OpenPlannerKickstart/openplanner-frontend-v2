@@ -114,7 +114,7 @@ const ForgotPassword = (props) => {
                   <div className="admin-auth-from">
                     <div className="admin-auth-card-title">
                       <div className="box-icon box-light-primary wh-70px">
-                        <i className="th th-outline-lock-1"></i>
+                        <i className="material-symbols-outlined">lock</i>
                       </div>
                       <h2 className="mb-0">Forgot Password</h2>
                     </div>
@@ -123,7 +123,7 @@ const ForgotPassword = (props) => {
                         <Form.Group className="form-group required">
                           <Form.Label>Enter UserName</Form.Label>
                           <div className="form-group-icon-start">
-                            <i className="th-outline-sms"></i>
+                          <i className="material-symbols-outlined">mail</i>
                             <Form.Control type="email" placeholder="Enter UserName"
                               {...emailFormData.getFieldProps("username")}
                               onKeyDown={(event) => { handleKeyPress(event) }}

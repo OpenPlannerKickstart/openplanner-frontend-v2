@@ -164,7 +164,7 @@ const Login = (props) => {
                                     <div className="admin-auth-from">
                                         <div className="admin-auth-card-title">
                                             <div className="box-icon box-light-primary wh-70px">
-                                                <i className='th th-outline-user'></i>
+                                                <i className='material-symbols-outlined'>person</i>
                                             </div>
                                             <h2 className='mb-0'>Log in to Open Planner</h2>
                                         </div>
@@ -174,7 +174,7 @@ const Login = (props) => {
                                                 <Form.Group className="form-group required" >
                                                     <Form.Label>UserName/Email </Form.Label>
                                                     <div className="form-group-icon-start">
-                                                        <i className='th-outline-user'></i>
+                                                    <i className='material-symbols-outlined'>person</i>
                                                         <Form.Control type="text" placeholder="Enter Your UserName"
                                                             {...loginFormData.getFieldProps("identifier")}
                                                             maxLength={MAX_50}
@@ -194,13 +194,17 @@ const Login = (props) => {
                                                 <Form.Group className='form-group required'>
                                                     <Form.Label>Password</Form.Label>
                                                     <div className="form-group-icon-start form-group-password">
-                                                        <i className="th th-outline-lock-1"></i>
+                                                        <i className="material-symbols-outlined">lock</i>
                                                         <Form.Control type={eyeToggle ? "text" : "password"} placeholder='Enter Password'
                                                             {...loginFormData.getFieldProps("password")}
                                                             maxLength={MAX_50}
                                                             onKeyDown={(event) => { handleKeyPress(event) }}
                                                         />
-                                                        <button onClick={() => setEyeToggle(!eyeToggle)} className='btn-password'> <i className={` ${eyeToggle ? "th-outline-eye" : "th-outline-eye-slash"}`}></i></button>
+                                                        <button onClick={() => setEyeToggle(!eyeToggle)} className='btn-password'> 
+                                                            {/* <i className={` ${eyeToggle ? "th-outline-eye" : "th-outline-eye-slash"}`}></i> */}
+                                                        
+                                                        <i className="material-symbols-outlined">{eyeToggle ? "visibility" : "visibility_off"}</i>
+                                                        </button>
                                                     </div>
                                                     {loginFormData.touched.password &&
                                                         loginFormData.errors.password

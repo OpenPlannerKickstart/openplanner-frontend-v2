@@ -2,6 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import './assets/css/bootstrap-icons.css';
+import './assets/css/material-icon.css';
 import "./assets/css/icon.css";
 import "./assets/css/fonts.css";
 import { Toaster } from 'react-hot-toast';
