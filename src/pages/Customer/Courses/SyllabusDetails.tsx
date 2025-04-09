@@ -15,7 +15,7 @@ const SyllabusDetails = (props) => {
           >
             <Form.Label>Course Title</Form.Label>
             <div className="form-group-icon-start">
-              <i className="th th-outline-book"></i>
+              <i className="material-symbols-outlined">menu_book</i>
               <Form.Control type="text" placeholder="Project Management" />
             </div>
           </Form.Group>
@@ -35,7 +35,7 @@ const SyllabusDetails = (props) => {
                               <div className='attachments-image'>
                                   <img src={DefaultAvtar} alt="DefaultAvtar" />
                               </div>
-                              <button className="btn-close"><i className='th th-close'></i></button>
+                              <button className="btn-close"><i className='material-symbols-outlined'>close</i></button>
                           </div>
                       </div>
                       <div className='attachments-upload-col'>
@@ -43,7 +43,7 @@ const SyllabusDetails = (props) => {
                               <div className='attachments-image'>
                                   <img src={DefaultAvtar} alt="DefaultAvtar" />
                               </div>
-                              <button className="btn-close"><i className='th th-close'></i></button>
+                              <button className="btn-close"><i className='material-symbols-outlined'>close</i></button>
                           </div>
                       </div>
                       <div className='attachments-upload-col'>
@@ -51,7 +51,7 @@ const SyllabusDetails = (props) => {
                               <div className='attachments-image'>
                                   <img src={DefaultAvtar} alt="DefaultAvtar" />
                               </div>
-                              <button className="btn-close"><i className='th th-close'></i></button>
+                              <button className="btn-close"><i className='material-symbols-outlined'>close</i></button>
                           </div>
                       </div>
                   </div>
@@ -97,7 +97,7 @@ const SyllabusDetails = (props) => {
           <Form.Group className="form-group">
             <Form.Label>Class Time</Form.Label>
             <div className="form-group-icon-start">
-              <i className="th th-outline-calendar"></i>
+              <i className="material-symbols-outlined">menu_book</i>
               <Form.Control type="text" placeholder="MM-DD-YY" />
             </div>
           </Form.Group>
@@ -107,7 +107,7 @@ const SyllabusDetails = (props) => {
           >
             <Form.Label>Professor Name</Form.Label>
             <div className="form-group-icon-start">
-              <i className="th th-outline-user"></i>
+              <i className="material-symbols-outlined">person</i>
               <Form.Control type="text" placeholder="Enter Professor Name" />
             </div>
           </Form.Group>

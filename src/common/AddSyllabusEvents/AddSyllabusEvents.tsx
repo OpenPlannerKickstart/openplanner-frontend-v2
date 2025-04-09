@@ -41,7 +41,7 @@ const AddSyllabusEvents = (props) => {
                   Add New <span>Syllabus</span> / <span>Event</span>
                   </Offcanvas.Title>
                   <button type="button" className="btn-close" onClick={handleCloseAddSyllabusEvents}>
-                      <i className='th th-close'></i>
+                  <i className="material-symbols-outlined">close</i>
                   </button>
                 </Offcanvas.Header>
                 <Offcanvas.Body>                  
@@ -52,23 +52,23 @@ const AddSyllabusEvents = (props) => {
                                 <div className="title-with-img">
                                     <div className="add-syllabus-event-btn active">
                                         <div className="event-img">
-                                          <img src={syllabustitleLogo} alt="" />
+                                          <img src={syllabustitleLogo} alt="Open Planer" />
                                         </div>
                                         <div className="syllabus-title-with-check">
                                           <h4>Add Syllabus</h4>
                                           <div className="check-icon">
-                                            <img src={checktitleLogo} alt="" />
+                                            <img src={checktitleLogo} alt="Open Planer" />
                                           </div>
                                         </div>
                                     </div>
                                     <div className="add-syllabus-event-btn">
                                         <div className="event-img">
-                                          <img src={eventtitleLogo} alt="" />
+                                          <img src={eventtitleLogo} alt="Open Planer" />
                                         </div>
                                         <div className="syllabus-title-with-check">
                                           <h4>Add Event</h4>
                                           <div className="check-icon">
-                                            <img src={checktitleLogo} alt="" />
+                                            <img src={checktitleLogo} alt="Open Planer" />
                                           </div>
                                         </div>
                                     </div>
@@ -88,7 +88,7 @@ const AddSyllabusEvents = (props) => {
                                     >
                                       <Form.Label>Course Title</Form.Label>
                                       <div className="form-group-icon-start">
-                                        <i className="th th-outline-book"></i>
+                                        <i className="material-symbols-outlined">menu_book</i>
                                         <Form.Control type="text" placeholder="Enter Course Title" />
                                       </div>
                                     </Form.Group>
@@ -108,7 +108,7 @@ const AddSyllabusEvents = (props) => {
                                                     <div className='attachments-image'>
                                                         <img src={DefaultAvtar} alt="DefaultAvtar" />
                                                     </div>
-                                                    <button className="btn-close"><i className='th th-close'></i></button>
+                                                    <button className="btn-close"><i className="material-symbols-outlined">close</i></button>
                                                 </div>
                                             </div>
                                             <div className='attachments-upload-col'>
@@ -116,7 +116,7 @@ const AddSyllabusEvents = (props) => {
                                                     <div className='attachments-image'>
                                                         <img src={DefaultAvtar} alt="DefaultAvtar" />
                                                     </div>
-                                                    <button className="btn-close"><i className='th th-close'></i></button>
+                                                    <button className="btn-close"><i className="material-symbols-outlined">close</i></button>
                                                 </div>
                                             </div>
                                             <div className='attachments-upload-col'>
@@ -124,7 +124,7 @@ const AddSyllabusEvents = (props) => {
                                                     <div className='attachments-image'>
                                                         <img src={DefaultAvtar} alt="DefaultAvtar" />
                                                     </div>
-                                                    <button className="btn-close"><i className='th th-close'></i></button>
+                                                    <button className="btn-close"><i className="material-symbols-outlined">close</i></button>
                                                 </div>
                                             </div>
                                         </div>
@@ -172,7 +172,7 @@ const AddSyllabusEvents = (props) => {
                                           <Form.Group className="form-group">
                                             <Form.Label>Class Time</Form.Label>
                                             <div className="form-group-icon-start">
-                                              <i className="th th-outline-calendar"></i>
+                                              <i className="material-symbols-outlined">menu_book</i>
                                               <Form.Control type="text" placeholder="MM-DD-YY" />
                                             </div>
                                           </Form.Group>
@@ -184,7 +184,7 @@ const AddSyllabusEvents = (props) => {
                                           >
                                             <Form.Label>Professor Name</Form.Label>
                                             <div className="form-group-icon-start">
-                                              <i className="th th-outline-user"></i>
+                                              <i className="material-symbols-outlined">person</i>
                                               <Form.Control type="text" placeholder="Enter Professor Name" />
                                             </div>
                                           </Form.Group>
@@ -211,7 +211,7 @@ const AddSyllabusEvents = (props) => {
                                         <Form.Group className="form-group">
                                           <Form.Label>Start Date</Form.Label>
                                           <div className="react-datepicker-container form-group-icon-end">
-                                            <i className="th th-outline-calendar-1 control-icon"></i>
+                                            <i className="material-symbols-outlined control-icon">calendar_month</i>
                                             <DatePicker
                                               dropdownMode="select"
                                               isClearable={true}
@@ -227,7 +227,7 @@ const AddSyllabusEvents = (props) => {
                                         <Form.Group className="form-group">
                                           <Form.Label>End Date</Form.Label>
                                           <div className="react-datepicker-container form-group-icon-end">
-                                            <i className="th th-outline-calendar-1 control-icon"></i>
+                                            <i className="material-symbols-outlined control-icon">calendar_month</i>
                                             <DatePicker
                                               dropdownMode="select"
                                               isClearable={true}

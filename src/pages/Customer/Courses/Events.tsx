@@ -29,7 +29,7 @@ const Events = (props) => {
                         <div className="event-name-tooltip">
                             <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                             <div className="event-tool">                                                         
-                              <Badge bg="danger-bg"><i className="th th-outline-book"></i>TCU Academic Calendar</Badge>
+                              <Badge bg="danger-bg"><i className="material-symbols-outlined">book_2</i>TCU Academic Calendar</Badge>
                             </div>
                         </div>
                       </td>                      
@@ -40,11 +40,11 @@ const Events = (props) => {
                             className="btn btn-xs btn-icon btn-transparent check-icon"
                           >
                             {" "}
-                            <i className="th th-outline-tick-circle"></i>
+                            <i className="material-symbols-outlined">check_circle</i>
                           </button>
                           <button className="btn btn-xs btn-icon btn-transparent">
                             {" "}
-                            <i className="th th-outline-trash"></i>
+                            <i className="material-symbols-outlined">delete</i>
                           </button>
                         </div>
                       </td>
@@ -54,7 +54,7 @@ const Events = (props) => {
                         <div className="event-name-tooltip">
                             <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                             <div className="event-tool">
-                              <Badge bg="primary-bg"><i className="th th-outline-book"></i>History Unfolded</Badge>
+                              <Badge bg="primary-bg"><i className="material-symbols-outlined">book_2</i>History Unfolded</Badge>
                             </div>
                         </div>
                       </td>                      
@@ -65,11 +65,11 @@ const Events = (props) => {
                             className="btn btn-xs btn-icon btn-transparent check-icon"
                           >
                             {" "}
-                            <i className="th th-outline-tick-circle"></i>
+                            <i className="material-symbols-outlined">check_circle</i>
                           </button>
                           <button className="btn btn-xs btn-icon btn-transparent">
                             {" "}
-                            <i className="th th-outline-trash"></i>
+                            <i className="material-symbols-outlined">delete</i>
                           </button>
                         </div>
                       </td>
@@ -101,7 +101,7 @@ const Events = (props) => {
                         <div className="event-name-tooltip">
                             <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                             <div className="event-tool">
-                            <Badge bg="danger-bg"><i className="th th-outline-book"></i>TCU Academic Calendar</Badge>
+                            <Badge bg="danger-bg"><i className="material-symbols-outlined">book_2</i>TCU Academic Calendar</Badge>
                             </div>
                         </div>
                       </td>                      
@@ -112,11 +112,11 @@ const Events = (props) => {
                             className="btn btn-xs btn-icon btn-transparent check-icon"
                           >
                             {" "}
-                            <i className="th th-outline-tick-circle"></i>
+                            <i className="material-symbols-outlined">check_circle</i>
                           </button>
                           <button className="btn btn-xs btn-icon btn-transparent">
                             {" "}
-                            <i className="th th-outline-trash"></i>
+                            <i className="material-symbols-outlined">delete</i>
                           </button>
                         </div>
                       </td>
@@ -126,7 +126,7 @@ const Events = (props) => {
                         <div className="event-name-tooltip">
                             <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                             <div className="event-tool">
-                            <Badge bg="primary-bg"><i className="th th-outline-book"></i>History Unfolded</Badge>
+                            <Badge bg="primary-bg"><i className="material-symbols-outlined">book_2</i>History Unfolded</Badge>
                             </div>
                         </div>
                       </td>                      
@@ -137,11 +137,11 @@ const Events = (props) => {
                             className="btn btn-xs btn-icon btn-transparent check-icon"
                           >
                             {" "}
-                            <i className="th th-outline-tick-circle"></i>
+                            <i className="material-symbols-outlined">check_circle</i>
                           </button>
                           <button className="btn btn-xs btn-icon btn-transparent">
                             {" "}
-                            <i className="th th-outline-trash"></i>
+                            <i className="material-symbols-outlined">delete</i>
                           </button>
                         </div>
                       </td>
@@ -161,7 +161,7 @@ const Events = (props) => {
                   aria-expanded={open}
                 >
                   Past Events
-                  <button className="btn btn-xs btn-icon btn-transparent collapes-btn"><i className="th th-outline-arrow-right-3"></i></button>
+                  <button className="btn btn-xs btn-icon btn-transparent collapes-btn"><i className="material-symbols-outlined">keyboard_arrow_right</i></button>
               </Button>
             </div>
             <div className="card-body">
@@ -182,7 +182,7 @@ const Events = (props) => {
                             <div className="event-name-tooltip">
                                 <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                                 <div className="event-tool">
-                                <Badge bg="primary-bg"><i className="th th-outline-book"></i>History Unfolded</Badge>
+                                <Badge bg="primary-bg"><i className="material-symbols-outlined">book_2</i>History Unfolded</Badge>
                                 </div>
                             </div>
                           </td>                      
@@ -193,11 +193,11 @@ const Events = (props) => {
                                 className="btn btn-xs btn-icon btn-transparent check-icon"
                               >
                                 {" "}
-                                <i className="th th-outline-tick-circle"></i>
+                                <i className="material-symbols-outlined">check_circle</i>
                               </button>
                               <button className="btn btn-xs btn-icon btn-transparent">
                                 {" "}
-                                <i className="th th-outline-trash"></i>
+                                <i className="material-symbols-outlined">delete</i>
                               </button>
                             </div>
                           </td>
@@ -207,7 +207,7 @@ const Events = (props) => {
                             <div className="event-name-tooltip">
                                 <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
                                 <div className="event-tool">
-                                <Badge bg="danger-bg"><i className="th th-outline-book"></i>TCU Academic Calendar</Badge>
+                                <Badge bg="danger-bg"><i className="material-symbols-outlined">book_2</i>TCU Academic Calendar</Badge>
                                 </div>
                             </div>
                           </td>                      
@@ -218,11 +218,11 @@ const Events = (props) => {
                                 className="btn btn-xs btn-icon btn-transparent check-icon"
                               >
                                 {" "}
-                                <i className="th th-outline-tick-circle"></i>
+                                <i className="material-symbols-outlined">check_circle</i>
                               </button>
                               <button className="btn btn-xs btn-icon btn-transparent">
                                 {" "}
-                                <i className="th th-outline-trash"></i>
+                                <i className="material-symbols-outlined">delete</i>
                               </button>
                             </div>
                           </td>

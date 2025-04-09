@@ -36,14 +36,14 @@ const Navbar = () => {
 
 
               <Button variant='primary' className="btn-icon btn-secondary-two" id="topnav-hamburger-icon" onClick={toogleMenu}>
-                <i className='th th-outline-menu-1'></i>
+                <i className='material-symbols-outlined'>menu</i>
               </Button>
 
               {/* <!-- App Search--> */}
 
 
               <div className="header-item navbar-add-btn">
-                <Button variant='primary' className='btn-icon-text btn-secondary-two'> <i className='th th-outline-add-circle'></i> Add New Event/Syllabus</Button>
+                <Button variant='primary' className='btn-icon-text btn-secondary-two'> <i className='material-symbols-outlined'>add_circle</i> Add New Event/Syllabus</Button>
               </div>
             </div>
 
@@ -51,7 +51,7 @@ const Navbar = () => {
              
               <div className="dropdown topbar-head-dropdown notification-button header-item" id="notificationDropdown">
                 <button type="button" className="btn btn-lg btn-outline-white btn-icon rounded-pill " >
-                  <i className="th-outline-notification"></i>
+                  <i className="material-symbols-outlined">notifications</i>
                 </button>
               </div>
               <div className="dropdown header-item topbar-user">

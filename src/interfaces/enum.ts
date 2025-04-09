@@ -35,6 +35,7 @@ export const ENUMFORSTATUS = {
     USER_MANGEMNET: "/user-mangemnet",
     COURSES: "/courses",
     TASK: "/task",
+    CALENDAR: "/calendar",
     VERIFY_SIGNUP_OTP:"/verify-user-otp"
   
   }

@@ -23,6 +23,7 @@ import Registration from './pages/auth/Registration/Registration';
 import Courses from './pages/Customer/Courses/Courses';
 import Task from './pages/Customer/Task/Task';
 import VerifySignupOtp from './pages/auth/Registration/VerifySignupOtp';
+import Calendar from './pages/Customer/Calendar/Calendar';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -49,6 +50,12 @@ const privateRoutes: RouterProps[] = [
     component: <Task />,
     caseSensitive: true,
     url: ENUMFORROUTES.TASK,
+  },
+  {
+    path: ENUMFORROUTES.CALENDAR,
+    component: <Calendar />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.CALENDAR,
   },
   
 

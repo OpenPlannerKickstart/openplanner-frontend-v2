@@ -79,17 +79,17 @@ const NewPassword = (props) => {
           <div className="admin-auth-row">
             <div className="admin-auth-col admin-auth-left">
               <div className="admin-auth-logo">
-                <img src={authLogo} alt="CaddyPay" />
+                <img src={authLogo} alt="Open Planer" />
               </div>
               <div className="auth-image">
-                <img src={authBGImage4} alt="CaddyPay" />
+                <img src={authBGImage4} alt="Open Planer" />
               </div>
             </div>
             <div className="admin-auth-col admin-auth-right">
               <div className="admin-auth-from">
                 <div className="admin-auth-card-title">
                   <div className="box-icon box-light-primary wh-70px">
-                    <i className="th th-outline-key"></i>
+                    <i className="material-symbols-outlined">key</i>
                   </div>
                   <h2 className="mb-0">Set New Password</h2>
                 </div>
@@ -98,7 +98,7 @@ const NewPassword = (props) => {
                     <Form.Group className="form-group required">
                       <Form.Label>Email Code</Form.Label>
                       <div className="form-group-icon-start">
-                        <i className="th-outline-sms"></i>
+                        <i className="material-symbols-outlined">password</i>
                         <Form.Control type="email" placeholder="Enter Email Code"
                           {...resetPasswordForm.getFieldProps("code")}                       
                         
@@ -112,7 +112,7 @@ const NewPassword = (props) => {
                     <Form.Group className="form-group required">
                       <Form.Label>New Password</Form.Label>
                       <div className="form-group-icon-start form-group-password">
-                        <i className="th th-outline-lock-1"></i>
+                        <i className="material-symbols-outlined">lock</i>
                         <Form.Control
                           type={eyeToggle ? "text" : "password"}
                           placeholder="Enter Password"
@@ -123,12 +123,13 @@ const NewPassword = (props) => {
                           className="btn-password"
                         >
                           
-                          <i
+                          {/* <i
                             className={` ${eyeToggle
                                 ? "th-outline-eye"
                                 : "th-outline-eye-slash"
                               }`}
-                          ></i>
+                          ></i> */}
+                          <i className="material-symbols-outlined">{eyeToggle ? "visibility" : "visibility_off"}</i>
                         </button>
                       </div>
                       {resetPasswordForm.touched.new_password &&
@@ -139,7 +140,7 @@ const NewPassword = (props) => {
                     <Form.Group className="form-group required">
                       <Form.Label>Confirm Password</Form.Label>
                       <div className="form-group-icon-start form-group-password">
-                        <i className="th th-outline-lock-1"></i>
+                        <i className="material-symbols-outlined">lock</i>
                         <Form.Control
                           type={eyeConfirmToggle ? "text" : "password"}
                           placeholder="Enter Confirm Password"
@@ -150,12 +151,13 @@ const NewPassword = (props) => {
                           className="btn-password"
                         >
                           {" "}
-                          <i
+                          {/* <i
                             className={` ${eyeConfirmToggle
                                 ? "th-outline-eye"
                                 : "th-outline-eye-slash"
                               }`}
-                          ></i>
+                          ></i> */}
+                          <i className="material-symbols-outlined">{eyeConfirmToggle ? "visibility" : "visibility_off"}</i>
                         </button>
                       </div>
                       {resetPasswordForm.touched.confirm_password &&

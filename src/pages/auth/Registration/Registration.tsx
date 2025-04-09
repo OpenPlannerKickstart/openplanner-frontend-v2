@@ -39,21 +39,21 @@ const Registeration = (props) => {
   const initSignUpValues: SignUpData = {
 
 
-    // first_name: "",
-    // last_name: "",
-    // university_name: "",
-    // email: "",
-    // password: "",
-    // username: "",
-    // mobile: "+1"
+    first_name: "",
+    last_name: "",
+    university_name: "",
+    email: "",
+    password: "",
+    username: "",
+    mobile: "+1"
 
-    "first_name": "Test",
-    "last_name": "Teshhive",
-    "university_name": "Teshhive",
-    "email": "youttauseiddumoi-9760@yopmail.com",
-    "password": "Test@123",
-  username: "TestTechhive",
-    mobile: "+195854785415"
+  //   "first_name": "Test",
+  //   "last_name": "Teshhive",
+  //   "university_name": "Teshhive",
+  //   "email": "youttauseiddumoi-9760@yopmail.com",
+  //   "password": "Test@123",
+  // username: "TestTechhive",
+  //   mobile: "+195854785415"
 
 
   }
@@ -247,7 +247,7 @@ const Registeration = (props) => {
                             <Form.Group className="form-group required">
                               <Form.Label>First Name</Form.Label>
                               <div className="form-group-icon-start">
-                                <i className="th-outline-user"></i>
+                              <i className="material-symbols-outlined">person</i>
                                 <Form.Control
                                   type="text"
                                   placeholder="Enter First Name"
@@ -268,7 +268,7 @@ const Registeration = (props) => {
                             <Form.Group className="form-group required">
                               <Form.Label>Last Name</Form.Label>
                               <div className="form-group-icon-start">
-                                <i className="th-outline-user"></i>
+                              <i className="material-symbols-outlined">person</i>
                                 <Form.Control
                                   type="text"
                                   placeholder="Enter Last Name"
@@ -290,7 +290,7 @@ const Registeration = (props) => {
                         <Form.Group className="form-group required">
                           <Form.Label>User Name</Form.Label>
                           <div className="form-group-icon-start">
-                            <i className="th-outline-sms"></i>
+                          <i className="material-symbols-outlined">mail</i>
                             <Form.Control type="text" placeholder="Enter User Name"
                               {...signUpFormData.getFieldProps("username")}
                               maxLength={MAX_50}
@@ -307,7 +307,7 @@ const Registeration = (props) => {
                         <Form.Group className="form-group required">
                           <Form.Label>Email Address</Form.Label>
                           <div className="form-group-icon-start">
-                            <i className="th-outline-sms"></i>
+                          <i className="material-symbols-outlined">mail</i>
                             <Form.Control type="email" placeholder="Enter Email"
                               {...signUpFormData.getFieldProps("email")}
                               maxLength={MAX_50}
@@ -351,7 +351,7 @@ const Registeration = (props) => {
                         <Form.Group className="form-group required">
                           <Form.Label>University Name</Form.Label>
                           <div className="form-group-icon-start">
-                            <i className="th-outline-buildings"></i>
+                          <i className="material-symbols-outlined">home_work</i>
                             <Form.Control
                               type="text"
                               placeholder="Enter University Name"
@@ -371,7 +371,7 @@ const Registeration = (props) => {
                         <Form.Group className="form-group required">
                           <Form.Label>Password</Form.Label>
                           <div className="form-group-icon-start form-group-password">
-                            <i className="th th-outline-lock"></i>
+                          <i className="material-symbols-outlined">lock</i>
                             <Form.Control
                               type={eyeToggle ? "text" : "password"}
                               placeholder="Enter Password"
@@ -382,12 +382,13 @@ const Registeration = (props) => {
                               onClick={() => setEyeToggle(!eyeToggle)}
                               className="btn-password"
                             >
-                              <i
+                              {/* <i
                                 className={` ${eyeToggle
                                   ? "th-outline-eye"
                                   : "th-outline-eye-slash"
                                   }`}
-                              ></i>
+                              ></i> */}
+                                      <i className="material-symbols-outlined">{eyeToggle ? "visibility" : "visibility_off"}</i>
                             </button>
                           </div>
                           {signUpFormData.touched.password &&

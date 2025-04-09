@@ -44,40 +44,34 @@ export const Sidebar = () => {
                 {/* <li className="menu-title"><span data-key="t-menu">MAIN HOME</span></li> */}
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="/dashboard">
-                    <i className="th-outline-home"></i> <span data-key="t-widgets">Home</span>
+                  <i className="material-symbols-outlined">cottage</i> <span data-key="t-widgets">Home</span>
                   </NavLink>
                 </li>
                 <li className="nav-item">
-                  <NavLink className="nav-link menu-link " to="">
-                    <i className="th-outline-calendar-1"></i> <span data-key="t-widgets">Calendar</span>
+                  <NavLink className="nav-link menu-link " to="/calendar">
+                  <i className="material-symbols-outlined">calendar_month</i> <span data-key="t-widgets">Calendar</span>
                   </NavLink>
                 </li>
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="/courses">
-                    <i className="th-outline-book"></i> <span data-key="t-widgets">Courses</span>
+                  <i className="material-symbols-outlined">book_2</i> <span data-key="t-widgets">Courses</span>
                   </NavLink>
                 </li>
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="/task">
-                    <i className="th-outline-task-square"></i> <span data-key="t-widgets">Task List</span>
+                    <i className="material-symbols-outlined">ballot</i> <span data-key="t-widgets">Task List</span>
                   </NavLink>
                 </li>
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="">
-                    <i className="th-outline-info-circle"></i> <span data-key="t-widgets">Help</span>
+                    <i className="material-symbols-outlined">info</i> <span data-key="t-widgets">Help</span>
                   </NavLink>
                 </li>
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="">
-                    <i className="th-outline-setting-2"></i> <span data-key="t-widgets">Settings</span>
+                    <i className="material-symbols-outlined">settings</i> <span data-key="t-widgets">Settings</span>
                   </NavLink>
                 </li>
-                <li className="nav-item">
-                  <NavLink className="nav-link menu-link " to="/page-component">
-                    <i className="th-outline-home-1"></i> <span data-key="t-widgets">Components</span>
-                  </NavLink>
-                </li>
-
               </ul>
             </div>
 
@@ -99,7 +93,7 @@ export const Sidebar = () => {
                 </li>
               </ul> */}
               <button className="add-event-button">
-                  <i className='th th-outline-add-circle'></i>
+                  <i className='material-symbols-outlined'>add_circle</i>
                   Add New Event/Syllabus
               </button>
               <div className="sidebar-footer">
