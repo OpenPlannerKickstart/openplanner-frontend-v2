@@ -219,6 +219,8 @@
                 left: unset;
                 right: unset;
                 position: relative;
+                display: flex;
+                align-items: center ;
             }
 
             &:hover {

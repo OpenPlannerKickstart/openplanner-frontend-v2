@@ -61,13 +61,13 @@ const Navbar = () => {
                     <img className="rounded-circle header-profile-user"
                       src={defaultAvatar} alt="Header Avatar" />
                     <span className="text-start">
-                      <span className="d-none d-xl-inline-block  user-name-text">Meet Parmar</span>
-                      <span className="d-none d-xl-block  user-name-sub-text">Founder</span>
+                      <span className="d-none d-xl-inline-block  user-name-text">Clair Wilson</span>
+                      <span className="d-none d-xl-block  user-name-sub-text">Student</span>
                     </span>
                   </span>
                 </button>
                 <div className="dropdown-menu dropdown-menu-end">
-                  <h6 className="dropdown-header">Welcome Meet Parmar!</h6>
+                  <h6 className="dropdown-header">Welcome Clair Wilson!</h6>
                   <a className="dropdown-item">
                     <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                     <span className="align-middle" >Profile</span>
