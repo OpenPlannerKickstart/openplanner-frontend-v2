@@ -297,6 +297,10 @@ img {
                 max-height: calc(100vh - 188px);
                 min-height: calc(100vh - 188px);
             }
+            &.content-area-title-pera {
+                max-height: calc(100vh - 139px);
+                min-height: calc(100vh - 139px);
+            }
         }
 
     }

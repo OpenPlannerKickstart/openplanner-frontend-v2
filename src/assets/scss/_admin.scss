@@ -1329,3 +1329,162 @@ $sm_sidebar_home_link_width: 270px;
         }
     }
 }
+
+
+// DASHBOARD css
+
+.dashboard-main{
+    .page-title-wrapper{
+        border-bottom: none;
+        padding: 0;
+        padding-bottom: 19px;
+    }
+    .dashboard-main-wrapper{
+        .chart-main-box{
+            .card-body{
+                padding: 0;
+                .card-title-dropdown{
+                    padding: 7px 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    background: #F3F4F6;
+                    gap: 5px;
+                    .title-text{
+                        h3{
+                            font-size: 14px;
+                            line-height: normal;
+                            letter-spacing: 0.2px;
+                            margin-bottom: 0;
+                        }
+                    }
+                    .title-dropdown{
+                        .form-group{
+                            margin-bottom: 0;
+                        }
+                    }
+                }
+                .chart-with-details {
+                    padding: 14px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    .chart-box{
+                        width: auto;
+                        max-width: 96px;
+                        min-width: 96px;
+                        height: 100%;
+                        max-height: 96px;
+                        min-height: 96px;
+                        padding: 10px;
+                        img{
+                            width: 100%;
+                            max-width: 100%;
+                            object-fit: contain;
+                        }
+                    }
+                    .chart-details {
+                        border: 1px solid $stock_light;
+                        border-radius: 10px;
+                        width: 100%;
+                        .event-deta{
+                            padding: 8px 12px;  
+                            &.total-event {
+                                border-bottom: 1px solid $stock_light; 
+                            }                         
+                            .event-title {
+                                margin-bottom: 6px;
+                                h4 {
+                                    font-weight: 500;
+                                    font-size: 12px;
+                                    line-height: normal;
+                                    letter-spacing: 0.2px;
+                                    margin-bottom: 0;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 4px;
+                                    span{
+                                        width: 15px;
+                                        height: 15px;                                        
+                                        display: inline-block;
+                                        padding-right: 4px;
+                                        border-radius: 50%;
+                                    }
+                                }
+                            }
+                            .event-nub{
+                                h4{
+                                    font-weight: 700;
+                                    font-size: 16px;
+                                    line-height: normal;
+                                    letter-spacing: 0.2px;
+                                    margin-bottom: 0;
+                                }
+                            }                            
+                        }
+                    }
+                    &.primary-chart{
+                        .total-event {
+                            .event-title{
+                                h4{
+                                    span{
+                                        background-color: $primary_light_color;
+                                    }
+                                }
+                            }
+                        }
+                        .complet-event{
+                            .event-title{
+                                h4{
+                                    span{
+                                        background-color: $primary_color;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    &.success-chart{
+                        .total-event {
+                            .event-title{
+                                h4{
+                                    span{
+                                        background-color: $success_bg_color;
+                                    }
+                                }
+                            }
+                        }
+                        .complet-event{
+                            .event-title{
+                                h4{
+                                    span{
+                                        background-color: $success_color;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    &.warning-chart{
+                        .total-event {
+                            .event-title{
+                                h4{
+                                    span{
+                                        background-color: $warning_bg_color;
+                                    }
+                                }
+                            }
+                        }
+                        .complet-event{
+                            .event-title{
+                                h4{
+                                    span{
+                                        background-color: $warning_color;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
