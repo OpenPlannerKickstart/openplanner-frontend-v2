@@ -39,21 +39,21 @@ const Registeration = (props) => {
   const initSignUpValues: SignUpData = {
 
 
-    // first_name: "",
-    // last_name: "",
-    // university_name: "",
-    // email: "",
-    // password: "",
-    // username: "",
-    // mobile: "+1"
+    first_name: "",
+    last_name: "",
+    university_name: "",
+    email: "",
+    password: "",
+    username: "",
+    mobile: "+1"
 
-    "first_name": "Test",
-    "last_name": "Teshhive",
-    "university_name": "Teshhive",
-    "email": "youttauseiddumoi-9760@yopmail.com",
-    "password": "Test@123",
-  username: "TestTechhive",
-    mobile: "+195854785415"
+  //   "first_name": "Test",
+  //   "last_name": "Teshhive",
+  //   "university_name": "Teshhive",
+  //   "email": "youttauseiddumoi-9760@yopmail.com",
+  //   "password": "Test@123",
+  // username: "TestTechhive",
+  //   mobile: "+195854785415"
 
 
   }
