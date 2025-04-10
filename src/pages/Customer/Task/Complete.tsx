@@ -19,9 +19,9 @@ const Complete = () => {
 
   return (
     <>
-        <div className="table-responsive mb-5">
-            <Table className="table-theme table-bordered">
-                <thead className="border-less">
+        <div className="table-responsive">
+            <Table className="table-theme">
+                <thead>
                     <tr>
                     <th className="">
                         <div className="d-flex align-items-center gap-2">
@@ -261,7 +261,7 @@ const Complete = () => {
                     <Modal.Body>
                         <div className="modal-confirmation-container">
                             <div className="modal-confirmation-icon">
-                            <i className="material-symbols-outlined">check_circle</i>
+                            <i className="material-symbols-outlined">mood</i>
                             </div>
                             <div className="modal-confirmation-content">
                                 <h5>You have successfully

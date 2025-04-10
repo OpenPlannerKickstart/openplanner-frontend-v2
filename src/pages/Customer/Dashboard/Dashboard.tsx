@@ -1,9 +1,13 @@
 import React from 'react'
-import { Card, Col, Form, Row } from 'react-bootstrap';
+import { Badge, Card, Col, Form, Row } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import eventChart1 from "/assets/images/chart-1.svg";
 import eventChart2 from "/assets/images/chart-2.svg";
 import eventChart3 from "/assets/images/chart-3.svg";
+import PendingEvents from './PendingEvents';
+import CompletEvents from './CompletEvents';
+import PendingTasks from './PendingTasks';
+import CompletTasks from './CompletTasks';
 
 const Dashboard = () => {
   return (
@@ -35,6 +39,7 @@ const Dashboard = () => {
             </div>
                 <div className="page-content-wrapper h-100">
                     <div className="dashboard-main-wrapper">
+                      {/* chart box section */}
                       <div className="chart-main-box">
                         <Row>
                           <Col md={4}>
@@ -158,6 +163,117 @@ const Dashboard = () => {
                             </Card>
                           </Col>
                         </Row>
+                      </div>
+                      {/* data-table section */}
+                      <div className="weekly-data-container">
+                        <div className="main-title">
+                          <h4>My Week</h4>
+                        </div>
+                        <div className="weekly-content-box">
+                          <div className="nav-tabs-outer nav-tabs-style2">
+                            <nav>
+                                <div className="nav nav-tabs" id="nav-tab" role="tablist">
+                                    <div className="button-group">
+                                        <button
+                                            className="nav-link active"
+                                            id="nav-pendingevent-tab"
+                                            data-bs-toggle="tab"
+                                            data-bs-target="#nav-pendingevent"
+                                            type="button"
+                                            role="tab"
+                                            aria-controls="nav-pendingevent"
+                                            aria-selected="true"
+                                        >
+                                            {" "}
+                                            Pending Events <Badge bg="light-grey" className='rounded-pill'>5</Badge>
+                                        </button>
+                                        <button
+                                            className="nav-link"
+                                            id="nav-completevent-tab"
+                                            data-bs-toggle="tab"
+                                            data-bs-target="#nav-completevent"
+                                            type="button"
+                                            role="tab"
+                                            aria-controls="nav-completevent"
+                                            aria-selected="false"
+                                        >
+                                            Completed Events <Badge bg="light-grey" className='rounded-pill'>3</Badge>
+                                        </button>
+                                        <button
+                                            className="nav-link"
+                                            id="nav-pendingtask-tab"
+                                            data-bs-toggle="tab"
+                                            data-bs-target="#nav-pendingtask"
+                                            type="button"
+                                            role="tab"
+                                            aria-controls="nav-pendingtask"
+                                            aria-selected="false"
+                                        >
+                                            Pending Tasks <Badge bg="light-grey" className='rounded-pill'>4</Badge>
+                                        </button>
+                                        <button
+                                            className="nav-link"
+                                            id="nav-complettask-tab"
+                                            data-bs-toggle="tab"
+                                            data-bs-target="#nav-complettask"
+                                            type="button"
+                                            role="tab"
+                                            aria-controls="nav-complettask"
+                                            aria-selected="false"
+                                        >
+                                            Completed Tasks <Badge bg="light-grey" className='rounded-pill'>2</Badge>
+                                        </button>
+                                    </div>
+                                </div>
+                            </nav>
+                          </div>
+                          <div className="dash-data-table">
+                            <div>                            
+                              <div className="tab-content" id="nav-tabContent">
+                                  <div
+                                  className="tab-pane fade show active"
+                                  id="nav-pendingevent"
+                                  role="tabpanel"
+                                  aria-labelledby="nav-pendingevent-tab"
+                                  >
+                                      <div className="tab-content-container">  
+                                          <PendingEvents/>
+                                      </div>
+                                  </div>
+                                  <div
+                                  className="tab-pane fade"
+                                  id="nav-completevent"
+                                  role="tabpanel"
+                                  aria-labelledby="nav-completevent-tab"
+                                  >
+                                      <div className="tab-content-container">
+                                          <CompletEvents/>
+                                      </div>
+                                  </div>
+                                  <div
+                                  className="tab-pane fade"
+                                  id="nav-pendingtask"
+                                  role="tabpanel"
+                                  aria-labelledby="nav-pendingtask-tab"
+                                  >
+                                      <div className="tab-content-container">
+                                          <PendingTasks/>
+                                      </div>
+                                  </div>
+                                  <div
+                                  className="tab-pane fade"
+                                  id="nav-complettask"
+                                  role="tabpanel"
+                                  aria-labelledby="nav-complettask-tab"
+                                  >
+                                      <div className="tab-content-container">
+                                        <CompletTasks/>
+                                      </div>
+                                  </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                 </div>

@@ -540,8 +540,7 @@ $sm_sidebar_home_link_width: 270px;
             .list-view-group{
                 ul.list-view-wrapper{
                     list-style: none;
-                    display: flex
-                ;
+                    display: flex;
                     align-items: center;
                     padding: 0;
                     margin: 0;
@@ -1138,6 +1137,15 @@ $sm_sidebar_home_link_width: 270px;
             .nav-link{
                 padding: 17px !important;
                 color: #4B5563;
+                .badge{
+                    padding: 6px 8px;
+                }
+                &.active{
+                    .badge {
+                        background-color: $success_bg_color !important;
+                        color: $primary_color;
+                    }
+                }
             }
         }
         .tab-content{
@@ -1341,144 +1349,209 @@ $sm_sidebar_home_link_width: 270px;
     }
     .dashboard-main-wrapper{
         .chart-main-box{
-            .card-body{
-                padding: 0;
-                .card-title-dropdown{
-                    padding: 7px 14px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    background: #F3F4F6;
-                    gap: 5px;
-                    .title-text{
-                        h3{
-                            font-size: 14px;
-                            line-height: normal;
-                            letter-spacing: 0.2px;
-                            margin-bottom: 0;
+            .event-main-card {
+                margin-bottom: 27px;
+                .card-body{
+                    padding: 0;
+                    .card-title-dropdown{
+                        padding: 7px 14px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        background: #F3F4F6;
+                        gap: 5px;
+                        .title-text{
+                            h3{
+                                font-size: 14px;
+                                line-height: normal;
+                                letter-spacing: 0.2px;
+                                margin-bottom: 0;
+                            }
+                        }
+                        .title-dropdown{
+                            .form-group{
+                                margin-bottom: 0;
+                                .form-select{
+                                    font-size: 14px;
+                                }
+                            }
                         }
                     }
-                    .title-dropdown{
-                        .form-group{
-                            margin-bottom: 0;
+                    .chart-with-details {
+                        padding: 14px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        .chart-box{
+                            width: auto;
+                            max-width: 96px;
+                            min-width: 96px;
+                            height: 100%;
+                            max-height: 96px;
+                            min-height: 96px;
+                            padding: 10px;
+                            img{
+                                width: 100%;
+                                max-width: 100%;
+                                object-fit: contain;
+                            }
+                        }
+                        .chart-details {
+                            border: 1px solid $stock_light;
+                            border-radius: 10px;
+                            width: 100%;
+                            .event-deta{
+                                padding: 8px 12px;  
+                                &.total-event {
+                                    border-bottom: 1px solid $stock_light; 
+                                }                         
+                                .event-title {
+                                    margin-bottom: 6px;
+                                    h4 {
+                                        font-weight: 500;
+                                        font-size: 12px;
+                                        line-height: normal;
+                                        letter-spacing: 0.2px;
+                                        margin-bottom: 0;
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 4px;
+                                        span{
+                                            width: 15px;
+                                            height: 15px;                                        
+                                            display: inline-block;
+                                            padding-right: 4px;
+                                            border-radius: 50%;
+                                        }
+                                    }
+                                }
+                                .event-nub{
+                                    h4{
+                                        font-weight: 700;
+                                        font-size: 16px;
+                                        line-height: normal;
+                                        letter-spacing: 0.2px;
+                                        margin-bottom: 0;
+                                    }
+                                }                            
+                            }
+                        }
+                        &.primary-chart{
+                            .total-event {
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $primary_light_color;
+                                        }
+                                    }
+                                }
+                            }
+                            .complet-event{
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $primary_color;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        &.success-chart{
+                            .total-event {
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $success_bg_color;
+                                        }
+                                    }
+                                }
+                            }
+                            .complet-event{
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $success_color;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        &.warning-chart{
+                            .total-event {
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $warning_bg_color;
+                                        }
+                                    }
+                                }
+                            }
+                            .complet-event{
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $warning_color;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                .chart-with-details {
-                    padding: 14px;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    .chart-box{
-                        width: auto;
-                        max-width: 96px;
-                        min-width: 96px;
-                        height: 100%;
-                        max-height: 96px;
-                        min-height: 96px;
-                        padding: 10px;
-                        img{
-                            width: 100%;
-                            max-width: 100%;
-                            object-fit: contain;
+            }
+        }
+        .weekly-data-container{
+            .main-title{
+                h4{
+                    font-size: 20px;
+                    line-height: 28px;
+                    color: $text_black_color;                
+                    margin-bottom: 0;
+                }
+                margin-bottom: 10px;
+            }
+            .weekly-content-box{
+                .nav-tabs{
+                    margin-bottom: 17px;
+                    .nav-link{
+                        padding: 10px 4px;
+                        .badge{
+                            border: 1px solid $stock_light;
+                            padding: 6px 8px;
                         }
-                    }
-                    .chart-details {
-                        border: 1px solid $stock_light;
-                        border-radius: 10px;
-                        width: 100%;
-                        .event-deta{
-                            padding: 8px 12px;  
-                            &.total-event {
-                                border-bottom: 1px solid $stock_light; 
-                            }                         
-                            .event-title {
-                                margin-bottom: 6px;
-                                h4 {
-                                    font-weight: 500;
-                                    font-size: 12px;
-                                    line-height: normal;
-                                    letter-spacing: 0.2px;
-                                    margin-bottom: 0;
-                                    display: flex;
-                                    align-items: center;
-                                    gap: 4px;
-                                    span{
-                                        width: 15px;
-                                        height: 15px;                                        
-                                        display: inline-block;
-                                        padding-right: 4px;
-                                        border-radius: 50%;
-                                    }
-                                }
-                            }
-                            .event-nub{
-                                h4{
-                                    font-weight: 700;
-                                    font-size: 16px;
-                                    line-height: normal;
-                                    letter-spacing: 0.2px;
-                                    margin-bottom: 0;
-                                }
-                            }                            
-                        }
-                    }
-                    &.primary-chart{
-                        .total-event {
-                            .event-title{
-                                h4{
-                                    span{
-                                        background-color: $primary_light_color;
-                                    }
-                                }
+                        &.active{
+                            color: #DC6803;
+                            border-color: #DC6803;
+                            .badge {
+                                background-color: #FFFBF5 !important;
+                                color: #DC6803;
+                                border-color: #DC6803 !important;
                             }
                         }
-                        .complet-event{
-                            .event-title{
-                                h4{
-                                    span{
-                                        background-color: $primary_color;
-                                    }
+                        &:hover{
+                            color: #DC6803;
+                        }
+                    }
+                }
+                .tab-content-container{
+                    .tab-top-filter{
+                        margin-bottom: 17px;
+                        .form-group {
+                            margin-bottom: 0;
+                            &.form-group-sm{
+                                .form-select{
+                                    font-size: 14px;
                                 }
                             }
                         }
                     }
-                    &.success-chart{
-                        .total-event {
-                            .event-title{
-                                h4{
-                                    span{
-                                        background-color: $success_bg_color;
-                                    }
-                                }
-                            }
-                        }
-                        .complet-event{
-                            .event-title{
-                                h4{
-                                    span{
-                                        background-color: $success_color;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    &.warning-chart{
-                        .total-event {
-                            .event-title{
-                                h4{
-                                    span{
-                                        background-color: $warning_bg_color;
-                                    }
-                                }
-                            }
-                        }
-                        .complet-event{
-                            .event-title{
-                                h4{
-                                    span{
-                                        background-color: $warning_color;
-                                    }
+                    table{
+                        .active-table{
+                            td{
+                                background-color: $success_bg_color;
+                                a{
+                                    color: $primary_color;
+                                    text-decoration: underline;
                                 }
                             }
                         }

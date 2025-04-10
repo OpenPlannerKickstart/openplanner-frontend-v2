@@ -77,8 +77,7 @@ const Settings = () => {
             <div className="content-area profile-content-area content-area-title-filter">
                 <div className="page-content-wrapper h-100">
                     <div className="setting-main-wrapper">
-                        <div className="">
-                            
+                        <div>                            
                             <div className="tab-content" id="nav-tabContent">
                                 <div
                                 className="tab-pane fade show active"
