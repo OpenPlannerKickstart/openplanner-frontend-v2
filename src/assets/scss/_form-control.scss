@@ -219,6 +219,8 @@
                 left: unset;
                 right: unset;
                 position: relative;
+                display: flex;
+                align-items: center ;
             }
 
             &:hover {
@@ -411,6 +413,10 @@
             font-size: 14px;
         }
 
+        .form-select {
+          padding-right: 25px
+        }
+
         .form-group-icon-start,
         .form-group-icon-end {
             i {
@@ -455,7 +461,45 @@
     }
 }
 
-
+.form-group{
+    .react-tel-input {
+        .form-control {
+            width: 100%;
+            box-shadow: none !important;
+            outline: 0 !important;
+            background-color: $white_color;
+            border-color: $stock_light;
+            border-radius: 6px;
+            color: $text_black_color;
+            padding-left: 45px;
+            min-height: 38px;
+            &:hover,
+            &:focus {
+                border-color: $primary_color !important;
+            }
+        }
+        .flag-dropdown {
+            border: none;
+            background-color: transparent;
+            border-radius: 6px 0 0 6px;      
+            border-right: 1px solid $stock_light; 
+            .selected-flag{
+                &:hover,
+                &:focus {
+                    background-color: transparent !important;
+                }    
+            }
+            &.open{
+                .selected-flag{
+                    background-color: transparent !important;
+                    border-radius: 6px 0 0 0;
+                    border: 1px solid $primary_color;
+                    border-right: none;
+                }
+            }
+        }
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /*                       Attachments - File Upload Start                      */
