@@ -110,6 +110,11 @@
         background-color: $danger_light_color !important;
         color: $danger_color;
     }
+    &.bg-light-grey,
+    &.badge-light-grey {
+        background-color: $bg_grey !important;
+        color: $text_color;
+    }
 
 
 

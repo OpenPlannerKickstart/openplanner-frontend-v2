@@ -98,7 +98,9 @@ $sm_sidebar_home_link_width: 270px;
             padding: 0;
             border: 0px;
             padding-right: 27px;
-
+            @media (max-width:1366px){
+                padding-right: 20px;
+            }
             img {
                 width: 44px;
                 height: 44px;
@@ -538,8 +540,7 @@ $sm_sidebar_home_link_width: 270px;
             .list-view-group{
                 ul.list-view-wrapper{
                     list-style: none;
-                    display: flex
-                ;
+                    display: flex;
                     align-items: center;
                     padding: 0;
                     margin: 0;
@@ -1129,13 +1130,22 @@ $sm_sidebar_home_link_width: 270px;
 
 .task-content-area{
     padding: 0 !important;
-    .all-task-container{
+    &.content-area-title-filter{
         .page-filters{
             padding: 0px 20px !important;
             margin-bottom: 0;
             .nav-link{
                 padding: 17px !important;
                 color: #4B5563;
+                .badge{
+                    padding: 6px 8px;
+                }
+                &.active{
+                    .badge {
+                        background-color: $success_bg_color !important;
+                        color: $primary_color;
+                    }
+                }
             }
         }
         .tab-content{
@@ -1143,7 +1153,7 @@ $sm_sidebar_home_link_width: 270px;
             padding: 20px;
            } 
         }
-    }    
+    }   
 }
 
 // Successe reject modal
@@ -1191,4 +1201,363 @@ $sm_sidebar_home_link_width: 270px;
             }
         }
     } 
+}
+// Settings
+.profile-content{
+    .page-filters{
+        padding: 0px 20px !important;
+        .nav-tabs{
+            border-bottom: none !important;
+            .nav-link{
+                padding: 17px !important;
+                color: #4B5563;
+                
+            }
+        }
+    }
+}
+.profile-content-area{
+    padding: 0 !important;
+    max-height: calc(100vh - 202px) !important;
+    min-height: calc(100vh - 202px) !important;
+    &.content-area-title-filter{
+        .page-filters{
+            padding: 0px 20px !important;
+            margin-bottom: 0;
+            .nav-link{
+                padding: 17px !important;
+                color: #4B5563;
+            }
+        }
+        .tab-content{
+           .tab-pane{
+            padding: 20px;
+           } 
+        }
+    }   
+    .profile-main-wrapper{
+        width: 100%;
+        max-width: 600px;
+        .card{
+            .card-body{
+                padding: 27px;
+                @media (max-width:1366px) {
+                    padding:20px 27px;
+                }
+                .setting-main-title{
+                    margin-bottom: 27px;
+                    @media (max-width:1366px){
+                        margin-bottom: 15px;
+                    }
+                    h2{
+                        font-size: 24px;
+                        line-height: normal;
+                        letter-spacing: 0.2px;
+                        @media (max-width:1366px){
+                            font-size: 22px;
+                            margin-bottom: 5px;
+                        }
+                    }
+                    p{
+                        font-weight: 400;
+                        font-size: 16px;
+                        line-height: normal;
+                        letter-spacing: 0.2px;  
+                        color: $text_color;   
+                        @media (max-width:1366px){
+                            font-size: 14px;
+                        }                   
+                    }
+                }
+                .profile-upload,.main-form-wrapper{
+                    margin-bottom: 27px;
+                }
+                .notifiction-wrapper{
+                    .notifiction-box{                      
+                        padding: 0 0 15px;
+                        margin-bottom: 15px;
+                        border-bottom: 1px solid $stock_light;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                        .title-text{
+                            h2{
+                                font-size: 16px;
+                                line-height: normal;
+                                letter-spacing: 0.2px;
+                                margin-bottom: 3px;
+                            }
+                            p{
+                                font-weight: 400;
+                                font-size: 14px;
+                                line-height: normal;
+                                letter-spacing: 0.2px;
+                                text-align: center;
+                                margin-bottom: 0;
+                            }
+                        }
+                        &:last-child{
+                            border: none;
+                            margin: 0;
+                            padding: 0;
+                        }
+                    }                   
+                }
+            }
+        }
+    }
+}
+// Profile
+.profile-upload{
+    display: flex;
+    align-items: center;
+    gap: 0 21px;
+    .profile-image{
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 1px solid $primary_color;
+        background-color: $primary_bg_color;
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+    .profile-text{
+        h6{
+            font-size: 16px;
+            line-height: normal;
+            letter-spacing: 0.2px;
+            color: #292D32;
+            margin-bottom: 12px;
+        }
+    }
+}
+
+
+// DASHBOARD css
+
+.dashboard-main{
+    .page-title-wrapper{
+        border-bottom: none;
+        padding: 0;
+        padding-bottom: 19px;
+    }
+    .dashboard-main-wrapper{
+        .chart-main-box{
+            .event-main-card {
+                margin-bottom: 27px;
+                .card-body{
+                    padding: 0;
+                    .card-title-dropdown{
+                        padding: 7px 14px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        background: #F3F4F6;
+                        gap: 5px;
+                        .title-text{
+                            h3{
+                                font-size: 14px;
+                                line-height: normal;
+                                letter-spacing: 0.2px;
+                                margin-bottom: 0;
+                            }
+                        }
+                        .title-dropdown{
+                            .form-group{
+                                margin-bottom: 0;
+                                .form-select{
+                                    font-size: 14px;
+                                }
+                            }
+                        }
+                    }
+                    .chart-with-details {
+                        padding: 14px;
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        .chart-box{
+                            width: auto;
+                            max-width: 96px;
+                            min-width: 96px;
+                            height: 100%;
+                            max-height: 96px;
+                            min-height: 96px;
+                            padding: 10px;
+                            img{
+                                width: 100%;
+                                max-width: 100%;
+                                object-fit: contain;
+                            }
+                        }
+                        .chart-details {
+                            border: 1px solid $stock_light;
+                            border-radius: 10px;
+                            width: 100%;
+                            .event-deta{
+                                padding: 8px 12px;  
+                                &.total-event {
+                                    border-bottom: 1px solid $stock_light; 
+                                }                         
+                                .event-title {
+                                    margin-bottom: 6px;
+                                    h4 {
+                                        font-weight: 500;
+                                        font-size: 12px;
+                                        line-height: normal;
+                                        letter-spacing: 0.2px;
+                                        margin-bottom: 0;
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 4px;
+                                        span{
+                                            width: 15px;
+                                            height: 15px;                                        
+                                            display: inline-block;
+                                            padding-right: 4px;
+                                            border-radius: 50%;
+                                        }
+                                    }
+                                }
+                                .event-nub{
+                                    h4{
+                                        font-weight: 700;
+                                        font-size: 16px;
+                                        line-height: normal;
+                                        letter-spacing: 0.2px;
+                                        margin-bottom: 0;
+                                    }
+                                }                            
+                            }
+                        }
+                        &.primary-chart{
+                            .total-event {
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $primary_light_color;
+                                        }
+                                    }
+                                }
+                            }
+                            .complet-event{
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $primary_color;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        &.success-chart{
+                            .total-event {
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $success_bg_color;
+                                        }
+                                    }
+                                }
+                            }
+                            .complet-event{
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $success_color;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        &.warning-chart{
+                            .total-event {
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $warning_bg_color;
+                                        }
+                                    }
+                                }
+                            }
+                            .complet-event{
+                                .event-title{
+                                    h4{
+                                        span{
+                                            background-color: $warning_color;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .weekly-data-container{
+            .main-title{
+                h4{
+                    font-size: 20px;
+                    line-height: 28px;
+                    color: $text_black_color;                
+                    margin-bottom: 0;
+                }
+                margin-bottom: 10px;
+            }
+            .weekly-content-box{
+                .nav-tabs{
+                    margin-bottom: 17px;
+                    .nav-link{
+                        padding: 10px 4px;
+                        .badge{
+                            border: 1px solid $stock_light;
+                            padding: 6px 8px;
+                        }
+                        &.active{
+                            color: #DC6803;
+                            border-color: #DC6803;
+                            .badge {
+                                background-color: #FFFBF5 !important;
+                                color: #DC6803;
+                                border-color: #DC6803 !important;
+                            }
+                        }
+                        &:hover{
+                            color: #DC6803;
+                        }
+                    }
+                }
+                .tab-content-container{
+                    .tab-top-filter{
+                        margin-bottom: 17px;
+                        .form-group {
+                            margin-bottom: 0;
+                            &.form-group-sm{
+                                .form-select{
+                                    font-size: 14px;
+                                }
+                            }
+                        }
+                    }
+                    table{
+                        .active-table{
+                            td{
+                                background-color: $success_bg_color;
+                                a{
+                                    color: $primary_color;
+                                    text-decoration: underline;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

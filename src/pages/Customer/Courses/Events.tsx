@@ -1,9 +1,24 @@
 import React, { useState } from 'react'
-import { Badge, Button, Collapse, Table } from 'react-bootstrap'
+import { Badge, Button, Collapse, Modal, OverlayTrigger, Table, Tooltip } from 'react-bootstrap'
 import { connect } from 'react-redux'
 
 const Events = (props) => {
   const [open, setOpen] = useState(false);
+
+  // Deleted modal
+  const [deleteShow, setDeleteShow] = useState(false);
+  const handleDeleteClose = () => setDeleteShow(false);
+  const handleDeleteShow = () => setDeleteShow(true);
+  
+  // Compated Deleted modal
+  const [SuccessDeleteShow, setSuccessDeleteShow] = useState(false);
+  const handleSuccessDeleteClose = () => setSuccessDeleteShow(false);
+  const handleSuccessDeleteShow = () => setSuccessDeleteShow(true);
+
+  const [SuccessShow, setSuccessShow] = useState(false);
+  const handleSuccessClose = () => setSuccessShow(false);
+  const handleSuccessShow = () => setSuccessShow(true);
+
   return (
     <>
     <div className="tab-body-container">    
@@ -15,7 +30,7 @@ const Events = (props) => {
             </div>
             <div className="card-body">
             <div className="table-responsive">
-                <Table className="table-theme table-bordered">
+                <Table className="table-theme">
                   <thead className="border-less">
                     <tr>                      
                       <th>Event Name</th>
@@ -36,16 +51,28 @@ const Events = (props) => {
                       <td>4:40 PM - 4:40 PM</td>
                       <td className="tbl-action">
                         <div className="tbl-action-group">
-                          <button
-                            className="btn btn-xs btn-icon btn-transparent check-icon"
-                          >
-                            {" "}
-                            <i className="material-symbols-outlined">check_circle</i>
-                          </button>
-                          <button className="btn btn-xs btn-icon btn-transparent">
-                            {" "}
-                            <i className="material-symbols-outlined">delete</i>
-                          </button>
+                            <OverlayTrigger
+                                trigger={["hover", "hover"]}
+                                placement="bottom"
+                                overlay={<Tooltip>Add User</Tooltip>}
+                            >
+                                <button
+                                    className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
+                                >
+                                    {" "}
+                                    <i className="material-symbols-outlined">check_circle</i>
+                                </button>
+                            </OverlayTrigger>
+                            <OverlayTrigger
+                                trigger={["hover", "hover"]}
+                                placement="bottom"
+                                overlay={<Tooltip>Add User</Tooltip>}
+                            >
+                                <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
+                                {" "}
+                                    <i className="material-symbols-outlined">delete</i>
+                                </button>
+                            </OverlayTrigger>                             
                         </div>
                       </td>
                     </tr>
@@ -61,16 +88,28 @@ const Events = (props) => {
                       <td>4:40 PM - 4:40 PM</td>
                       <td className="tbl-action">
                         <div className="tbl-action-group">
-                          <button
-                            className="btn btn-xs btn-icon btn-transparent check-icon"
+                          <OverlayTrigger
+                              trigger={["hover", "hover"]}
+                              placement="bottom"
+                              overlay={<Tooltip>Add User</Tooltip>}
                           >
-                            {" "}
-                            <i className="material-symbols-outlined">check_circle</i>
-                          </button>
-                          <button className="btn btn-xs btn-icon btn-transparent">
-                            {" "}
-                            <i className="material-symbols-outlined">delete</i>
-                          </button>
+                              <button
+                                  className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
+                              >
+                                  {" "}
+                                  <i className="material-symbols-outlined">check_circle</i>
+                              </button>
+                          </OverlayTrigger>
+                          <OverlayTrigger
+                              trigger={["hover", "hover"]}
+                              placement="bottom"
+                              overlay={<Tooltip>Add User</Tooltip>}
+                          >
+                              <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
+                              {" "}
+                                  <i className="material-symbols-outlined">delete</i>
+                              </button>
+                          </OverlayTrigger>                             
                         </div>
                       </td>
                     </tr>
@@ -87,7 +126,7 @@ const Events = (props) => {
             </div>
             <div className="card-body">
             <div className="table-responsive">
-                <Table className="table-theme table-bordered">
+                <Table className="table-theme">
                   <thead className="border-less">
                     <tr>                      
                       <th>Event Name</th>
@@ -108,16 +147,28 @@ const Events = (props) => {
                       <td>4:40 PM - 4:40 PM</td>
                       <td className="tbl-action">
                         <div className="tbl-action-group">
-                          <button
-                            className="btn btn-xs btn-icon btn-transparent check-icon"
-                          >
-                            {" "}
-                            <i className="material-symbols-outlined">check_circle</i>
-                          </button>
-                          <button className="btn btn-xs btn-icon btn-transparent">
-                            {" "}
-                            <i className="material-symbols-outlined">delete</i>
-                          </button>
+                            <OverlayTrigger
+                                trigger={["hover", "hover"]}
+                                placement="bottom"
+                                overlay={<Tooltip>Add User</Tooltip>}
+                            >
+                                <button
+                                    className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
+                                >
+                                    {" "}
+                                    <i className="material-symbols-outlined">check_circle</i>
+                                </button>
+                            </OverlayTrigger>
+                            <OverlayTrigger
+                                trigger={["hover", "hover"]}
+                                placement="bottom"
+                                overlay={<Tooltip>Add User</Tooltip>}
+                            >
+                                <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
+                                {" "}
+                                    <i className="material-symbols-outlined">delete</i>
+                                </button>
+                            </OverlayTrigger>                             
                         </div>
                       </td>
                     </tr>
@@ -133,16 +184,28 @@ const Events = (props) => {
                       <td>4:40 PM - 4:40 PM</td>
                       <td className="tbl-action">
                         <div className="tbl-action-group">
-                          <button
-                            className="btn btn-xs btn-icon btn-transparent check-icon"
-                          >
-                            {" "}
-                            <i className="material-symbols-outlined">check_circle</i>
-                          </button>
-                          <button className="btn btn-xs btn-icon btn-transparent">
-                            {" "}
-                            <i className="material-symbols-outlined">delete</i>
-                          </button>
+                            <OverlayTrigger
+                                trigger={["hover", "hover"]}
+                                placement="bottom"
+                                overlay={<Tooltip>Add User</Tooltip>}
+                            >
+                                <button
+                                    className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
+                                >
+                                    {" "}
+                                    <i className="material-symbols-outlined">check_circle</i>
+                                </button>
+                            </OverlayTrigger>
+                            <OverlayTrigger
+                                trigger={["hover", "hover"]}
+                                placement="bottom"
+                                overlay={<Tooltip>Add User</Tooltip>}
+                            >
+                                <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
+                                {" "}
+                                    <i className="material-symbols-outlined">delete</i>
+                                </button>
+                            </OverlayTrigger>                             
                         </div>
                       </td>
                     </tr>
@@ -168,7 +231,7 @@ const Events = (props) => {
               <Collapse in={open}>
                 <div id="example-collapse-text">
                   <div className="table-responsive">
-                    <Table className="table-theme table-bordered">
+                    <Table className="table-theme">
                       <thead className="border-less">
                         <tr>                      
                           <th>Event Name</th>
@@ -189,16 +252,28 @@ const Events = (props) => {
                           <td>4:40 PM - 4:40 PM</td>
                           <td className="tbl-action">
                             <div className="tbl-action-group">
-                              <button
-                                className="btn btn-xs btn-icon btn-transparent check-icon"
-                              >
-                                {" "}
-                                <i className="material-symbols-outlined">check_circle</i>
-                              </button>
-                              <button className="btn btn-xs btn-icon btn-transparent">
-                                {" "}
-                                <i className="material-symbols-outlined">delete</i>
-                              </button>
+                                <OverlayTrigger
+                                    trigger={["hover", "hover"]}
+                                    placement="bottom"
+                                    overlay={<Tooltip>Add User</Tooltip>}
+                                >
+                                    <button
+                                        className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
+                                    >
+                                        {" "}
+                                        <i className="material-symbols-outlined">check_circle</i>
+                                    </button>
+                                </OverlayTrigger>
+                                <OverlayTrigger
+                                    trigger={["hover", "hover"]}
+                                    placement="bottom"
+                                    overlay={<Tooltip>Add User</Tooltip>}
+                                >
+                                    <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
+                                    {" "}
+                                        <i className="material-symbols-outlined">delete</i>
+                                    </button>
+                                </OverlayTrigger>                             
                             </div>
                           </td>
                         </tr>
@@ -214,16 +289,28 @@ const Events = (props) => {
                           <td>4:40 PM - 4:40 PM</td>
                           <td className="tbl-action">
                             <div className="tbl-action-group">
-                              <button
-                                className="btn btn-xs btn-icon btn-transparent check-icon"
-                              >
-                                {" "}
-                                <i className="material-symbols-outlined">check_circle</i>
-                              </button>
-                              <button className="btn btn-xs btn-icon btn-transparent">
-                                {" "}
-                                <i className="material-symbols-outlined">delete</i>
-                              </button>
+                                <OverlayTrigger
+                                    trigger={["hover", "hover"]}
+                                    placement="bottom"
+                                    overlay={<Tooltip>Add User</Tooltip>}
+                                >
+                                    <button
+                                        className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
+                                    >
+                                        {" "}
+                                        <i className="material-symbols-outlined">check_circle</i>
+                                    </button>
+                                </OverlayTrigger>
+                                <OverlayTrigger
+                                    trigger={["hover", "hover"]}
+                                    placement="bottom"
+                                    overlay={<Tooltip>Add User</Tooltip>}
+                                >
+                                    <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
+                                    {" "}
+                                        <i className="material-symbols-outlined">delete</i>
+                                    </button>
+                                </OverlayTrigger>                             
                             </div>
                           </td>
                         </tr>
@@ -235,6 +322,128 @@ const Events = (props) => {
             </div>
           </div>
         </div>
+
+         {/* Delete Modal */}
+         <Modal
+            className="modal-theme modal-confirmation modal-reject"
+            show={deleteShow}
+            onHide={handleDeleteClose}
+            centered
+        >
+            <Modal.Header>
+            <h4 className="modal-title">Delete Task</h4>
+            <button
+                type="button"
+                className="btn-close"
+                onClick={handleDeleteClose}
+            >
+                <i className="material-symbols-outlined">close</i>
+            </button>
+            </Modal.Header>
+            <Modal.Body>
+            <div className="modal-confirmation-container">
+                <div className="modal-confirmation-icon">
+                <i className="material-symbols-outlined">delete</i>
+                </div>
+                <div className="modal-confirmation-content">
+                <h5>Want to Delete?</h5>
+                <p>
+                Are you sure, you want to delete this task ? 
+                </p>
+                </div>
+            </div>
+            <div className="modal-button-group modal-full-width-btn modal-footer-button">
+                <Button
+                variant="light-white"
+                className="btn-md"
+                onClick={handleDeleteClose}
+                >
+                {" "}
+                No, Change My Mind
+                </Button>
+                <Button
+                variant="danger"
+                className="btn-icon-text btn-md"
+                onClick={handleDeleteClose}
+                >
+                Delete
+                </Button>
+            </div>
+            </Modal.Body>
+        </Modal>
+        {/* Delete Modal */} 
+        
+        {/* Compated Delete Modal */}
+        <Modal
+            className="modal-theme modal-confirmation modal-reject"
+            show={SuccessDeleteShow}
+            onHide={handleSuccessDeleteClose}
+            centered
+        >
+            <Modal.Header>
+            <h4 className="modal-title">Task Deleted!</h4>
+            <button
+                type="button"
+                className="btn-close"
+                onClick={handleSuccessDeleteClose}
+            >
+                <i className="material-symbols-outlined">close</i>
+            </button>
+            </Modal.Header>
+            <Modal.Body>
+            <div className="modal-confirmation-container">
+                <div className="modal-confirmation-icon">
+                <i className="material-symbols-outlined">delete</i>
+                </div>
+                <div className="modal-confirmation-content">
+                <h5>You have successfully
+                deleted Task!</h5>
+                <p>
+                Get back to task page to add or complete the other task
+                </p>
+                </div>
+            </div>
+            <div className="modal-button-group modal-full-width-btn modal-footer-button">
+                <Button
+                variant="success"
+                className="btn-icon-text btn-md"
+                onClick={handleSuccessDeleteClose}
+                >
+                Done
+                </Button>
+            </div>
+            </Modal.Body>
+        </Modal>
+        {/* Delete Modal */} 
+
+
+        {/* Success Modal */}
+        <Modal className='modal-theme modal-confirmation modal-approve' show={SuccessShow} onHide={handleSuccessClose} centered>
+            <Modal.Header >
+                <h4 className="modal-title">Task Completed!</h4>
+                <button type="button" className="btn-close" onClick={handleSuccessClose}>
+                <i className="material-symbols-outlined">close</i>
+                </button>
+            </Modal.Header>
+            <Modal.Body>
+                <div className="modal-confirmation-container">
+                    <div className="modal-confirmation-icon">
+                    <i className="material-symbols-outlined">mood</i>
+                    </div>
+                    <div className="modal-confirmation-content">
+                        <h5>You have successfully
+                        completed  Task!</h5>
+                        <p>Get back to task page to add or complete the other task</p>
+                    </div>
+                </div>
+                <div className="modal-button-group modal-full-width-btn modal-footer-button">                            
+                    <Button variant="success"
+                    className="btn-icon-text btn-md" onClick={handleSuccessClose}> Done
+                    </Button>
+                </div>
+            </Modal.Body>
+        </Modal>
+        {/* Success Modal */}
       </div>
     </div>
     </>

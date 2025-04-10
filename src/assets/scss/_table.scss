@@ -14,13 +14,7 @@
             font-weight: 400;
             color: #1F2937;
             border: 0;
-
-            &:first-child{
-                border-left: 1px solid #E6EAEE;
-            }
-            &:last-child{
-                border-right: 1px solid #E6EAEE;
-            }
+            border-bottom: 1px solid $stock_light;           
         }
 
         tr {
@@ -40,9 +34,17 @@
         }
 
         tr{
-            &:first-child{
-                th{
-                    border-top-left-radius: 5px;
+            &:last-child{
+                td{
+                    border-bottom: none;
+                }
+            }
+            th{
+                &:first-child{
+                    border-top-left-radius: 6px;
+                }
+                &:last-child{
+                    border-top-right-radius: 6px;
                 }
             }
         }
@@ -288,7 +290,10 @@
         }
     }
 
-
+    .tbl-srno {
+        width: 70px;
+        max-width: 70px;
+    }
 
 
     .tbl-user {
@@ -615,7 +620,8 @@
 }
 
 .table-responsive {
-    border-radius: 0px;
+    border-radius: 6px;
+    border: 1px solid $stock_light; 
 }
 
 /* -------------------------------------------------------------------------- */

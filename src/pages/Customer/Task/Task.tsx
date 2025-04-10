@@ -69,7 +69,7 @@ const Task = () => {
                                     aria-selected="true"
                                 >
                                     {" "}
-                                    open  <Badge bg="primary-bg">24</Badge>
+                                    open  <Badge bg="light-grey">24</Badge>
                                 </button>
 
                                 <button
@@ -370,7 +370,7 @@ const Task = () => {
                     <Modal.Body>
                         <div className="modal-confirmation-container">
                             <div className="modal-confirmation-icon">
-                                <i className="material-symbols-outlined">check_circle</i>
+                                <i className="material-symbols-outlined">mood</i>
                             </div>
                             <div className="modal-confirmation-content">
                                 <h5>You have successfully
