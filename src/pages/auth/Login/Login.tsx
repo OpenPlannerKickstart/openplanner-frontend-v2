@@ -26,13 +26,13 @@ import VerifySignupOtp from "../Registration/VerifySignupOtp";
  * @returns {JSX.Element} JSX element representing the Login component
  */
 
-const Login = (props) => {  
+const Login = (props) => {
 
     const [eyeToggle, setEyeToggle] = useState<boolean>(false);
     const dispatch: AppDispatch = useDispatch();
     const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
     /* ------------------------- Login Form Validation ------------------------- */
-    const initLoginValues: LoginData = {        
+    const initLoginValues: LoginData = {
         identifier: "",
         password: "",
     }
@@ -95,12 +95,12 @@ const Login = (props) => {
         }
         customJsonInclude(reqBody);
         const response = await dispatch(loginToSystem(reqBody));
-       
+
         if (response) {
 
             if (!response?.payload?.isVerify) {
                 const sendEmailOtpReqBody = {
-                    username: `${reqBody.identifier}`
+                    username: `${response?.payload?.username}`
                 }
                 const sendEmailOtpResponse = await dispatch(sendSignupEmailOtp(sendEmailOtpReqBody));
                 if (sendEmailOtpResponse) {
@@ -108,10 +108,11 @@ const Login = (props) => {
                     setOtpDetailsObj(
                         {
                             isFromLogin: true,
-                            detailsObj:{
-                                ...reqBody
-                              }
-                           
+                            detailsObj: {
+                                ...reqBody,
+                                username: `${response?.payload?.username}`
+                            }
+
                         }
                     )
 
@@ -120,26 +121,26 @@ const Login = (props) => {
 
         }
     }
- useEffect(() => {
-    if(!isEmptyObjectOrNullUndefiend(otpDetailsObj?.detailsObj)){
-      setSavedLoginFormData(otpDetailsObj?.detailsObj);
-    }
-    
-  
-    return () => {
-      
-    }
-  }, [otpDetailsObj])
+    useEffect(() => {
+        if (!isEmptyObjectOrNullUndefiend(otpDetailsObj?.detailsObj)) {
+            setSavedLoginFormData(otpDetailsObj?.detailsObj);
+        }
 
-  const handleKeyPress = (event) => {
 
-    if (event.keyCode === 13) {
-      event.preventDefault();
-        handleLoginData();
+        return () => {
 
-    }
+        }
+    }, [otpDetailsObj])
 
-  };
+    const handleKeyPress = (event) => {
+
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            handleLoginData();
+
+        }
+
+    };
     /* ------------------------- Login Form Validation ------------------------- */
 
     return (
@@ -174,7 +175,7 @@ const Login = (props) => {
                                                 <Form.Group className="form-group required" >
                                                     <Form.Label>UserName/Email </Form.Label>
                                                     <div className="form-group-icon-start">
-                                                    <i className='material-symbols-outlined'>person</i>
+                                                        <i className='material-symbols-outlined'>person</i>
                                                         <Form.Control type="text" placeholder="Enter Your UserName"
                                                             {...loginFormData.getFieldProps("identifier")}
                                                             maxLength={MAX_50}
@@ -200,10 +201,10 @@ const Login = (props) => {
                                                             maxLength={MAX_50}
                                                             onKeyDown={(event) => { handleKeyPress(event) }}
                                                         />
-                                                        <button onClick={() => setEyeToggle(!eyeToggle)} className='btn-password'> 
+                                                        <button onClick={() => setEyeToggle(!eyeToggle)} className='btn-password'>
                                                             {/* <i className={` ${eyeToggle ? "th-outline-eye" : "th-outline-eye-slash"}`}></i> */}
-                                                        
-                                                        <i className="material-symbols-outlined">{eyeToggle ? "visibility" : "visibility_off"}</i>
+
+                                                            <i className="material-symbols-outlined">{eyeToggle ? "visibility" : "visibility_off"}</i>
                                                         </button>
                                                     </div>
                                                     {loginFormData.touched.password &&

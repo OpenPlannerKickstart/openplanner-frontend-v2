@@ -36,6 +36,7 @@ export const ENUMFORROUTES = {
   COURSES: "/courses",
   TASK: "/task",
   CALENDAR: "/calendar",
+  SETTINGS: "/settings",
   VERIFY_SIGNUP_OTP: "/verify-user-otp"
 
 }

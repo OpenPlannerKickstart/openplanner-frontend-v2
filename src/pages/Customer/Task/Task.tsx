@@ -722,7 +722,7 @@ const Task = (props) => {
               <Modal.Body>
                 <div className="modal-confirmation-container">
                   <div className="modal-confirmation-icon">
-                    <i className="material-symbols-outlined">check_circle</i>
+                    <i className="material-symbols-outlined">mood</i>
                   </div>
                   <div className="modal-confirmation-content">
                     <h5>You have successfully

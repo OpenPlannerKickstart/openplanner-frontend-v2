@@ -44,11 +44,11 @@ const VerifySignupOtp = (props) => {
         }
 
         const reqBody = {
-            username: otpDetailsObj?.isFromLogin? `${otpDetailsObj?.detailsObj?.identifier}`:`${otpDetailsObj?.detailsObj?.username}`,
+            username:`${otpDetailsObj?.detailsObj?.username}`,
             code: otpData.toString()
         }
         const verifyResponse = await dispatch(verifySignupEmailOtp(reqBody));
-        if (verifyResponse) {
+        if (verifyResponse) {   
             if (otpDetailsObj?.isFromLogin) {
                 props?.handleLoginData();
             } else {
@@ -63,7 +63,7 @@ const VerifySignupOtp = (props) => {
 
     const handleResendOtp = async() => {
         const sendEmailOtpReqBody = {
-            username: otpDetailsObj?.isFromLogin? `${otpDetailsObj?.detailsObj?.identifier}`:`${otpDetailsObj?.detailsObj?.username}`
+            username: `${otpDetailsObj?.detailsObj?.username}`
         }
         const sendEmailOtpResponse = await dispatch(sendSignupEmailOtp(sendEmailOtpReqBody));
         if (sendEmailOtpResponse) {
@@ -117,7 +117,7 @@ const VerifySignupOtp = (props) => {
                                     <p className="text-center mt-4">
                                         We have sent a 6-digit code to your email
                                         <br />
-                                        <span className="text-warning">{otpDetailsObj?.detailsObj?.email || ""}</span>
+                                        <span className="text-warning">{otpDetailsObj?.isFromLogin?otpDetailsObj?.detailsObj?.identifier :otpDetailsObj?.detailsObj?.email || ""}</span>
                                     </p>
                                 </div>
                                 <Card className="admin-auth-card">

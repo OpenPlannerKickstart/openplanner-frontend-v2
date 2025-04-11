@@ -98,8 +98,8 @@ const Courses = (props) => {
         <div className="content-area  content-area-title-filter">
           <div className="page-content-wrapper h-100">
             <div className="list-view-layout">
-              <div className="table-responsive mb-5">
-                <Table className="table-theme table-bordered">
+              <div className="table-responsive mb-3">
+                <Table className="table-theme">
                   <thead className="border-less">
                     <tr>
                       <th className="">
