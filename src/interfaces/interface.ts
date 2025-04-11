@@ -134,8 +134,31 @@ export interface SignUpData {
   university_name: string;
   email: string;
   password: string;
-  mobile:string;
-  username:string;
- 
+  mobile: string;
+  username: string;
+
 }
 
+
+export interface Task {
+  id: number;
+  user_id: string;
+  task_name: string;
+  due_date: string;
+  note: string;
+  is_reminder?: boolean;
+  status?: string;
+  isactive?: boolean;
+  isdeleted?: boolean;
+  created_at?: string;
+  created_by?: string;
+  updated_at?: string;
+  updated_by?: string;
+  reminder?: Reminder[];
+  task_id?: any;
+}
+
+export interface Reminder {
+  unit: string
+  value: string;
+}

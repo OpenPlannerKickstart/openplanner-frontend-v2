@@ -22,3 +22,13 @@ export const GET_CITY_DATA_API = "city";
 export const GET_STATE_DATA_API = "state";
 /**API endpoint for fetching country data  */
 export const GET_COUNTRY_DATA_API = "country";
+
+
+/**API endpoint for fetching task list data */
+export const GET_TASK_LIST_DATA_API = "taskListing";
+/**API endpoint for adding/editing task data */
+export const ADD_EDIT_TASK_DATA_API = "addEditTask";
+/**API endpoint for updating task status */
+export const UPDATE_TASK_STATUS_DATA_API = "updateTaskStatus";
+/**API endpoint for deleting task data */
+export const DELETE_TASK_DATA_API = "deleteTask";
