@@ -23,7 +23,7 @@ import Registration from './pages/auth/Registration/Registration';
 import Courses from './pages/Customer/Courses/Courses';
 import Task from './pages/Customer/Task/Task';
 import VerifySignupOtp from './pages/auth/Registration/VerifySignupOtp';
-import Calendar from './pages/Customer/Calendar/Calendar';
+import Calendar from './pages/Customer/Calendar/CalendarEvent';
 import Settings from './pages/Customer/Settings/Settings';
 
 /** Define private  routes */
@@ -64,7 +64,7 @@ const privateRoutes: RouterProps[] = [
     caseSensitive: true,
     url: ENUMFORROUTES.SETTINGS,
   },
-  
+
 
 
 

@@ -22,3 +22,6 @@ export const GET_CITY_DATA_API = "city";
 export const GET_STATE_DATA_API = "state";
 /**API endpoint for fetching country data  */
 export const GET_COUNTRY_DATA_API = "country";
+
+/**API endpoint for fetching calender data */
+export const GET_CALENDER_DATA = "getCalenderData";

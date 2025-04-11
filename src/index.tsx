@@ -13,6 +13,7 @@ import {
 import { WEB_SOCKET_CONNECTION_URL } from './Utility/Config';
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-phone-input-2/lib/style.css'
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

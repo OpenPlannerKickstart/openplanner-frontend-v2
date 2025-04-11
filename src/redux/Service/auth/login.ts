@@ -3,7 +3,7 @@ import { GET_LOGIN_DATA_API } from "../../../Utility/ApiList";
 import { AppDispatch } from "../../store";
 import { getLoginFailure, getLoginSuccess } from "../../auth/Login/loginSlice";
 import { setLoading } from "../../Loader/LoaderSlice";
-import { deleteAllCookies, setPlannerToken } from "../../../Utility/Helper";
+import { deleteAllCookies, setPlannerRefreshToken, setPlannerToken } from "../../../Utility/Helper";
 
 /**
  * Login
@@ -14,28 +14,28 @@ import { deleteAllCookies, setPlannerToken } from "../../../Utility/Helper";
  */
 export const loginToSystem =
   (objBody: any = undefined) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setLoading(true));
-    // setTimeout(() => {
-    //   dispatch(setLoading(false));
-    // }, 2000);
-    try {
-      const response: any = await post(GET_LOGIN_DATA_API, objBody);
-      if (!response.data.error) {
-        if(response.data.data.isVerify){
-          setPlannerToken(response.data.data?.AccessToken);
-          setPlannerToken(response.data.data?.RefreshToken);
+    async (dispatch: AppDispatch) => {
+      dispatch(setLoading(true));
+      // setTimeout(() => {
+      //   dispatch(setLoading(false));
+      // }, 2000);
+      try {
+        const response: any = await post(GET_LOGIN_DATA_API, objBody);
+        if (!response.data.error) {
+          if (response.data.data.isVerify) {
+            setPlannerToken(response.data.data?.AccessToken);
+            setPlannerRefreshToken(response.data.data?.RefreshToken);
+          }
+          return dispatch(getLoginSuccess(response.data.data));
+        } else {
+          dispatch(getLoginFailure());
         }
-        return dispatch(getLoginSuccess(response.data.data));
-      } else {
+      } catch (err) {
         dispatch(getLoginFailure());
+      } finally {
+        dispatch(setLoading(false));
       }
-    } catch (err) {
-      dispatch(getLoginFailure());
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+    };
 
 /**
  * Logout
