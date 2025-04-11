@@ -25,3 +25,5 @@ export const GET_COUNTRY_DATA_API = "country";
 
 /**API endpoint for fetching calender data */
 export const GET_CALENDER_DATA = "getCalenderData";
+/**API endpoint for fetching calender data */
+export const GET_SYLLABUS_DROPDOWN_DATA_API = "getSyllabusDropDown";

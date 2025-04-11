@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
+import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import moment from 'moment';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import { AppDispatch } from '../../../redux/store';
 import { connect, useDispatch } from 'react-redux';
-import { getCalenderDataAPI } from '../../../redux/Service/calender';
+import { getCalenderDataAPI, getSyllabusDropDownDataAPI } from '../../../redux/Service/calender';
 import DatePicker from 'react-datepicker';
 
 const localizer: any = momentLocalizer(moment);
@@ -68,9 +68,8 @@ const CalenderEvent = () => {
     /** ----------------------get CalenderData Start----------------------*/
     const [searchByStartDate, setSearchByStartDate] = useState<any>(null);
     const [searchByEndDate, setSearchByEndDate] = useState<any>(null);
-    const [calenderData, setCalenderData] = useState<any>([
-
-    ])
+    const [syllabusId, setSyllabusId] = useState<any>([]);
+    const [calenderData, setCalenderData] = useState<any>([])
     function formatDate(dateStr) {
         const date = moment(dateStr).utc();
 
@@ -86,12 +85,16 @@ const CalenderEvent = () => {
     }
 
     const handleGetCalenderData = async () => {
-        console.log(searchByStartDate)
-        const reqBody = {
-            start_date: searchByStartDate,
-            end_date: searchByEndDate,
-
+        let reqBody: any = {
+            syllabus_id: syllabusId
         };
+        customJsonInclude(reqBody);
+        if (!isNullUndefinedOrBlank(searchByStartDate)) {
+            reqBody.start_date = getDate(searchByStartDate, "yyyy-MM-DD")
+        }
+        if (!isNullUndefinedOrBlank(searchByStartDate)) {
+            reqBody.end_date = getDate(searchByEndDate, "yyyy-MM-DD")
+        }
         const response = await dispatch(getCalenderDataAPI(reqBody));
         if (!isNullUndefinedOrBlank(response?.payload)) {
             const eventData = response?.payload?.map((item) => {
@@ -107,12 +110,34 @@ const CalenderEvent = () => {
 
     useEffect(() => {
         handleGetCalenderData();
-    }, [searchByStartDate, searchByEndDate])
+    }, [searchByStartDate, searchByEndDate, syllabusId])
 
     /** ----------------------get CalenderData End----------------------*/
 
 
     /** ---------------------get syllabus dropdown Start-----------------------*/
+    const [syllabusDropDownData, setSyllabusDropDownData] = useState<any>([])
+    const handleGetDropDownData = async () => {
+
+        const response = await dispatch(getSyllabusDropDownDataAPI());
+        if (!isNullUndefinedOrBlank(response?.payload)) {
+            setSyllabusDropDownData(response?.payload);
+        }
+    };
+
+    useEffect(() => {
+        handleGetDropDownData()
+    }, []);
+
+    const handleCheckSyllabusID = (id) => {
+        let newSyllabusId = [...syllabusId]
+        if (syllabusId.includes(id)) {
+            newSyllabusId = syllabusId.filter((data) => data !== id)
+        } else {
+            newSyllabusId = [...syllabusId, id]
+        }
+        setSyllabusId(newSyllabusId)
+    }
 
     /** ---------------------get syllabus dropdown End-----------------------*/
 
@@ -144,6 +169,26 @@ const CalenderEvent = () => {
                             popperProps={{ strategy: "fixed" }}
                             placeholderText="Select a Date"
                         />
+                        <div>
+
+                            {!isEmptyObjectOrNullUndefiend(syllabusDropDownData) &&
+                                syllabusDropDownData?.map((item, index) => {
+                                    return (
+                                        <>
+                                            <div>
+                                                <input type="checkbox" name={`syllabus-${item.value}`} id="" onChange={() => {
+                                                    handleCheckSyllabusID(item.value)
+                                                }}
+                                                    checked={syllabusId.includes(item.value)}
+                                                />
+                                                <span>{item.label}</span>
+                                            </div>
+                                        </>
+                                    )
+                                }
+                                )
+                            }
+                        </div>
                         <button
                             type="button"
                             className="btn btn-primary"
@@ -193,7 +238,8 @@ const CalenderEvent = () => {
 const mapStateToProps = (state) => ({})
 
 const mapDispatchToProps = {
-    getCalenderDataAPI
+    getCalenderDataAPI,
+    getSyllabusDropDownDataAPI
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(CalenderEvent)
