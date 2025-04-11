@@ -6,45 +6,104 @@ import { AppDispatch } from '../../../redux/store';
 import { connect, useDispatch } from 'react-redux';
 import { getCalenderDataAPI, getSyllabusDropDownDataAPI } from '../../../redux/Service/calender';
 import DatePicker from 'react-datepicker';
+import { Button } from 'react-bootstrap';
 
 const localizer: any = momentLocalizer(moment);
 const CalenderEvent = () => {
     const dispatch: AppDispatch = useDispatch()
 
-    const customToolbar = ({ date, onNavigate }) => {
+    // const customToolbar = ({ date, onNavigate }) => {
+    //     const goToBack = () => {
+    //         onNavigate("PREV");
+    //     };
+    //     const goToNext = () => {
+    //         onNavigate("NEXT");
+    //     };
+
+    //     const goToToday = () => {
+    //         onNavigate("TODAY");
+    //     };
+    //     return (
+    //         <div className='calendar-header'>
+    //             <div className="rbc-toolbar">
+    //                 <div className="calendar-month">
+    //                     <button onClick={() => { goToToday() }}>
+    //                         Today
+    //                     </button>
+    //                     <button onClick={() => { goToBack() }}>
+    //                         {'<'}
+    //                     </button>
+    //                     <span>{formatedDate(date, 'MMMM YYYY')}</span>
+    //                     {/* <span>{`${moment(toolbar.date)}`}</span> */}
+    //                     <button onClick={() => { goToNext() }}>
+    //                         {'>'}
+    //                     </button>
+    //                 </div>
+
+    //             </div>
+
+    //         </div>
+    //     );
+    // };
+
+    const customToolbar = ({ date, onNavigate, onView, view }) => {
         const goToBack = () => {
             onNavigate("PREV");
         };
         const goToNext = () => {
             onNavigate("NEXT");
         };
-
         const goToToday = () => {
             onNavigate("TODAY");
         };
+    
+        const changeView = (newView) => {
+            onView(newView);
+        };
+    
         return (
             <div className='calendar-header'>
-                <div className="rbc-toolbar">
-                    <div className="calendar-month">
-                        <button onClick={() => { goToToday() }}>
-                            Today
+                <div className="rbc-toolbar">                    
+                    <div className="calendar-views">
+                        <button className='btn btn-sm today-btn' onClick={goToToday}>Today</button>
+                        <button
+                            className="{view === 'month' ? 'active' : ''} btn btn-sm"
+                            onClick={() => changeView('month')}
+                        >
+                            Month
                         </button>
-                        <button onClick={() => { goToBack() }}>
-                            {'<'}
+                        <button
+                            className="{view === 'week' ? 'active' : ''} btn btn-sm"
+                            onClick={() => changeView('week')}
+                        >
+                            Week
                         </button>
-                        <span>{formatedDate(date, 'MMMM YYYY')}</span>
-                        {/* <span>{`${moment(toolbar.date)}`}</span> */}
-                        <button onClick={() => { goToNext() }}>
-                            {'>'}
+                        <button
+                            className="{view === 'day' ? 'active' : ''} btn btn-sm"
+                            onClick={() => changeView('day')}
+                        >
+                            Day
+                        </button>
+                        <button
+                            className="{view === 'agenda' ? 'active' : ''} btn btn-sm"
+                            onClick={() => changeView('agenda')}
+                        >
+                            Agenda
                         </button>
                     </div>
-
+                    <div className="calendar-month">                       
+                        <button className='btn btn-sm' onClick={goToBack}>{'<'}</button>
+                        <span>{formatedDate(date, 'MMMM YYYY')}</span>
+                        <button className='btn btn-sm' onClick={goToNext}>{'>'}</button>
+                    </div>
                 </div>
-
+                <div className="hide-filter-button">
+                    <Button variant='outline-white' className='btn-icon-text '> <i className='material-symbols-outlined btn-outline'>menu</i>Hide Filter</Button>
+                </div>
             </div>
         );
     };
-
+    
     const handleSelectEvent = (event) => {
         console.log(event)
     }
@@ -209,7 +268,7 @@ const CalenderEvent = () => {
                 </div>
 
 
-                <div className="content-area  content-area-title">
+                <div className="content-area  content-area-title calender-content-area">
                     <div className="page-content-wrapper h-100">
 
                         <Calendar
@@ -225,7 +284,7 @@ const CalenderEvent = () => {
 
                             components={{
                                 event: customEventView,
-                                // toolbar: customToolbar,
+                                toolbar: customToolbar,
                             }}
                             popup
                         />
