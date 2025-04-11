@@ -5,6 +5,7 @@ import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } fr
 import { connect, useDispatch } from 'react-redux';
 import { deleteTaskAPI, upadteTaskStatusAPI } from '../../../redux/Service/task';
 import { AppDispatch } from '../../../redux/store';
+import notVoucherFound from "/assets/images/not-voucher-found.svg";
 
 const Open = (props) => {
     let dispatch: AppDispatch = useDispatch()
@@ -94,7 +95,7 @@ const Open = (props) => {
     return (
         <>
             <div className="table-responsive mb-5">
-                <Table className="table-theme table-bordered">
+                <Table className="table-theme">
                     <thead className="border-less">
                         <tr>
                             <th className="">
@@ -119,10 +120,10 @@ const Open = (props) => {
                     </thead>
                     <tbody>
                         {
-                            !isEmptyObjectOrNullUndefiend(taskList) ? taskList?.map((taskItem, taskIndex) => {
+                            !isEmptyObjectOrNullUndefiend(taskList) && taskList?.map((taskItem, taskIndex) => {
                                 return (
                                     <tr key={taskIndex}>
-                                        <td className="tbl-user">
+                                        <td className="tbl-user tbl-srno">
                                             <div className="tbl-user-checkbox-srno">
                                                 <div className="checkbox checkbox-primary checkbox-small">
                                                     <input
@@ -152,7 +153,7 @@ const Open = (props) => {
                                                 >
                                                     <i className="material-symbols-outlined">check_circle</i>
                                                 </button>
-                                                <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleUpdateTask(taskItem) }}>
+                                                <button className="btn btn-xs btn-icon btn-transparent" onClick={() => { handleUpdateTask(taskItem) }}>
                                                     <i className="material-symbols-outlined">Edit</i>
                                                 </button>
                                                 <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow([...deleteTaskData, taskItem]) }}>
@@ -162,14 +163,28 @@ const Open = (props) => {
                                         </td>
                                     </tr>
                                 )
-                            }) :
-                                <>No Data Found</>
+                            })                                
                         }
 
 
 
                     </tbody>
                 </Table>
+                {isEmptyObjectOrNullUndefiend(taskList)
+        &&
+
+                  <>
+                    <div className="no-records-found no-records-found-inner h-100">
+                        <div className="no-records-found-image">
+                            <img src={notVoucherFound} alt="OpenPlaner" />
+                        </div>
+                        <div className="no-records-found-text">
+                            <h6>No data found!</h6>
+                        </div>
+                    </div> 
+
+                  </>
+        }
             </div>
 
             {/* Delete Modal */}

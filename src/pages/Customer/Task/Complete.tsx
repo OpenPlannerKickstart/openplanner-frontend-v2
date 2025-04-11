@@ -5,6 +5,7 @@ import { connect, useDispatch } from 'react-redux';
 import { Task } from '../../../interfaces/interface';
 import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import { deleteTaskAPI } from '../../../redux/Service/task';
+import notVoucherFound from "/assets/images/not-voucher-found.svg";
 
 const Complete = (props) => {
 
@@ -56,7 +57,7 @@ const Complete = (props) => {
   return (
     <>
       <div className="table-responsive mb-5">
-        <Table className="table-theme table-bordered">
+        <Table className="table-theme">
           <thead className="border-less">
             <tr>
               <th className="">
@@ -81,7 +82,7 @@ const Complete = (props) => {
           </thead>
           <tbody>
             {
-              !isEmptyObjectOrNullUndefiend(taskList) ? taskList?.map((taskItem, taskIndex) => {
+              !isEmptyObjectOrNullUndefiend(taskList) && taskList?.map((taskItem, taskIndex) => {
                 return (
                   <tr key={taskIndex}>
                     <td className="tbl-user">
@@ -121,14 +122,29 @@ const Complete = (props) => {
                     </td>
                   </tr>
                 )
-              }) :
-                <>No Data Found</>
+              }) 
+             
             }
 
 
 
           </tbody>
         </Table>
+        {isEmptyObjectOrNullUndefiend(taskList)
+        &&
+
+                  <>
+                    <div className="no-records-found no-records-found-inner h-100">
+                        <div className="no-records-found-image">
+                            <img src={notVoucherFound} alt="OpenPlaner" />
+                        </div>
+                        <div className="no-records-found-text">
+                            <h6>No data found!</h6>
+                        </div>
+                    </div> 
+
+                  </>
+        }
       </div>
 
       {/* Delete Modal */}

@@ -1147,6 +1147,14 @@ $sm_sidebar_home_link_width: 270px;
                     }
                 }
             }
+            .page-filters-right{
+                .react-datepicker-container{
+                    min-width: 240px;
+                    .react-datepicker__close-icon{
+                        right: 21px;
+                    }
+                }
+            }
         }
         .tab-content{
            .tab-pane{
@@ -1192,12 +1200,15 @@ $sm_sidebar_home_link_width: 270px;
         .remider-fields{
             display: flex;
             width: 100%;
-            align-items: flex-end;
+            align-items: flex-start;
             gap: 15px;
             margin: 15px 0;
             .form-group{
                 margin-bottom: 0;
                 width: 100%;
+            }
+            button{
+                margin-top: 24px;
             }
         }
     } 

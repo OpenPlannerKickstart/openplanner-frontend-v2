@@ -294,7 +294,7 @@ const Task = (props) => {
                         onClick={() => { onChangeTab(ENUMFORTASK.OPEN) }}
                       >
 
-                        open  <Badge bg="primary-bg">{!isNullUndefinedOrBlank(count) ? count : 0}</Badge>
+                        open  <Badge bg="light-grey">{!isNullUndefinedOrBlank(count) ? count : 0}</Badge>
                       </button>
 
                       <button
@@ -436,12 +436,12 @@ const Task = (props) => {
                             }
                             }
                           />
+                        </div>
                           {
                             taskFormData.touched.due_date && taskFormData.errors.due_date
                               ? renderError(taskFormData.errors.due_date)
                               : null
                           }
-                        </div>
                       </Form.Group>
                       <Form.Group
                         className="form-group"
@@ -456,12 +456,12 @@ const Task = (props) => {
                               handleBlurValueUpdate("note");
                             }}
                           />
-                        </div>
                         {
                           taskFormData.touched.note && taskFormData.errors.note
                             ? renderError(taskFormData.errors.note)
                             : null
                         }
+                        </div>
                       </Form.Group>
                       <div className="Reminder-box">
                         <div className="title-with-switch">
@@ -532,7 +532,7 @@ const Task = (props) => {
                                           renderError((taskFormData?.errors?.reminder?.[index] as any)?.value)}
                                       </Form.Group>
                                       {
-                                        taskFormData?.errors?.reminder?.length > 1 ?
+                                        taskFormData?.values?.reminder?.length > 1 ?
                                           <button type="button" className="btn btn-light-danger" onClick={() => { removeReminder(index) }}>
                                             <i className="material-symbols-outlined">delete</i>
                                           </button> : null
