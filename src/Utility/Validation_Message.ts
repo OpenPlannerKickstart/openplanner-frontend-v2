@@ -10,6 +10,10 @@ export const MOBILE_NO_IS_REQUIRED = 'Mobile No is Required!!';
 export const MOBILE_NO_VALIDATION_MESSAGE = 'Enter a valid phone number.';
 export const USERNAME_IS_REQUIRED = 'User Name is Required!!';
 export const CODE_IS_REQUIRED = 'Code is Required!!';
+export const SYLLABUS_TITLE_IS_REQUIRED = 'Title is Required!!';
+export const SYLLABUS_COLOR_IS_REQUIRED = ' Color is Required!!';
+export const CLASS_TIME_IS_REQUIRED = 'Class Time is Required!!';
+export const PROFESSOR_NAME_IS_REQUIRED = 'Professor Name is Required!!';
 
 export const CONFIRM_PASSWORD_REQUIRED = "Confirm Password Is Required!!";
 export const NEW_PASSWORD_REQUIRED = "New Password is Required!!";

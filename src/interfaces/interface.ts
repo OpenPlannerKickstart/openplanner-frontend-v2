@@ -139,3 +139,30 @@ export interface SignUpData {
  
 }
 
+
+export interface SyllabusResponseType{  
+  id: number;
+  user_id: string;
+  title: string;
+  doc_id: number;
+  start_date: string; 
+  end_date: string;  
+  class_time: string; 
+  professor_name: string;
+  course_color: string; 
+  is_reminder: boolean;
+  status: any;
+  updated_at: string; 
+  no_of_events: string; 
+  syllabus_doc: any; 
+
+}
+export interface addSyllabusData{  
+  id?: number;
+  title: string;   
+  class_time: string; 
+  professor_name: string;
+  course_color: string;  
+  syllabus_doc?: any; 
+
+}

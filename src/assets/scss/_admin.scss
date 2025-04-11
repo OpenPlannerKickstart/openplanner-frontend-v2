@@ -589,7 +589,6 @@ $sm_sidebar_home_link_width: 270px;
                 height: 100%;
                 min-height: 30px;
                 max-height: 30px;
-                background: red;
                 border-radius: 4px;
                 display: block;
             }
@@ -616,7 +615,7 @@ $sm_sidebar_home_link_width: 270px;
                         padding: 28px;
                         display: flex;
                         justify-content: center;
-                        align-items: center;                       
+                        align-items: center;                      
                         img{
                             width: 100%;
                             max-width: 110px;
@@ -666,7 +665,6 @@ $sm_sidebar_home_link_width: 270px;
                                     width: 17px;
                                     height: 17px;
                                     display: block;
-                                    background: #DD2590;
                                     border-radius: 4px;
                                 }
                                 p{
@@ -716,33 +714,7 @@ $sm_sidebar_home_link_width: 270px;
                 }
             }
         }
-        .course-container{
-            &>*:nth-child(5n+1){
-                .card-main-img{
-                    background: #DD25901A;
-                }
-            }
-            &>*:nth-child(5n+2){
-                .card-main-img{
-                    background: #F79B541A;
-                }
-            }
-            &>*:nth-child(5n+3){
-                .card-main-img{
-                    background: #3F51B51A;
-                }
-            }
-            &>*:nth-child(5n+4){
-                .card-main-img{
-                    background: #97DAF71A;
-                }
-            }
-            &>*:nth-child(5n+5){
-                .card-main-img{
-                    background: #41C01A1A;
-                }
-            }
-        }
+        
     }
 }
 

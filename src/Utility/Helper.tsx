@@ -91,10 +91,28 @@ export const decrypted = (obj) => {
 export const getToken = (): returnTypeForString => {
   return getCookieByName("planner_token");
 };
-
+//decode Token
+export const getDecodeToken = (): any => {
+  const token: any = getToken();
+  if (token) {
+    const decodeToken: any = jwtDecode(token);
+    console.log(decodeToken,"decodes");
+    return decodeToken;
+  }
+};
+export const getDecodeIDToken = (): any => {
+  const token: any = getIDToken();
+  if (token) {
+    const decodeIDToken: any = jwtDecode(token);    
+    return decodeIDToken;
+  }
+};
 /** Function to get the refresh token of the logged-in user from local storage. */
 export const getRefreshToken = (): returnTypeForString => {
   return getCookieByName("planner_refreshToken");
+};
+export const getIDToken = (): returnTypeForString => {
+  return getCookieByName("planner_ID_Token");
 };
 // get clientId of loggedIn user
 /** Function to get the clientId of the logged-in user from local storage. */
@@ -103,9 +121,10 @@ export const getClientId = (): returnTypeForString => {
 };
 // get token of loggedIn user
 /** Function to get the name of the logged-in user from local storage. */
-export const getName = (): returnTypeForString => {
+export const getUserName = (): returnTypeForString => {
   return getCookieByName("userName");
 };
+
 // get token of loggedIn user
 /** Function to get the role name of the logged-in user from local storage. */
 export const getRoleName = (): returnTypeForString => {
@@ -138,6 +157,14 @@ export const getIP = (): returnTypeForString => {
 export const getUniqueNumber = (): returnTypeForString => {
   return getCookieByName("unique_number");
 };
+
+
+export const getUserFirstLastName=()=>{
+    const decodeToken = getDecodeIDToken();
+  return `${decodeToken?.family_name||""} ${decodeToken?.given_name||""}`
+   
+  
+}
 /**
  * Function to set a unique number in local storage based on the current timestamp.
  */
@@ -159,6 +186,11 @@ export const setPlannerToken = (val): void => {
 export const setPlannerRefreshToken = (val): void => {
  
   return setCookieByName("planner_refreshToken", val);
+};
+
+export const setPlannerIDToken = (val): void => {
+ 
+  return setCookieByName("planner_ID_Token", val);
 };
 // get role of loggedIn user
 /**
@@ -1279,11 +1311,4 @@ export const deleteAllCookies = () => {
   });
 };
 
-//decode Token
-export const getDecodeToken = (): any => {
-  const token: any = getToken();
-  if (token) {
-    const decodeToken: any = jwtDecode(token);
-    return decodeToken;
-  }
-};
+

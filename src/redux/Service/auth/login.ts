@@ -3,7 +3,7 @@ import { GET_LOGIN_DATA_API } from "../../../Utility/ApiList";
 import { AppDispatch } from "../../store";
 import { getLoginFailure, getLoginSuccess } from "../../auth/Login/loginSlice";
 import { setLoading } from "../../Loader/LoaderSlice";
-import { deleteAllCookies, setPlannerToken } from "../../../Utility/Helper";
+import { deleteAllCookies, setPlannerIDToken, setPlannerRefreshToken, setPlannerToken } from "../../../Utility/Helper";
 
 /**
  * Login
@@ -24,7 +24,8 @@ export const loginToSystem =
       if (!response.data.error) {
         if(response.data.data.isVerify){
           setPlannerToken(response.data.data?.AccessToken);
-          setPlannerToken(response.data.data?.RefreshToken);
+          setPlannerIDToken(response.data.data?.IdToken);
+          setPlannerRefreshToken(response.data.data?.RefreshToken);
         }
         return dispatch(getLoginSuccess(response.data.data));
       } else {

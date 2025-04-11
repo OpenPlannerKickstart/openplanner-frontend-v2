@@ -16,7 +16,7 @@ export const SEND_EMAIL_OTP_FOR_NEW_PASSWORD_DATA_API = "forgotPasswordOtpGenera
 /** API endpoint for New Password */
 export const SEND_NEW_PASSWORD_DATA_API = "resetPassword";
 /** API endpoint for Courses API Start */
-export const GET_COURSES_LIST_DATA_API = "courseListing";
+export const GET_COURSES_LIST_DATA_API = "syllabusListing";
 export const GET_EVENT_LIST_DATA_API = "eventListing";
 export const ADD_EDIT_SYLLABUS_DATA_API = "addEditSyllabus";
 export const ADD_EDIT_EVENT_DATA_API = "addEditEvent";

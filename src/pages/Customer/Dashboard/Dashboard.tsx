@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Badge, Card, Col, Form, Row } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import eventChart1 from "/assets/images/chart-1.svg";
@@ -8,8 +8,10 @@ import PendingEvents from './PendingEvents';
 import CompletEvents from './CompletEvents';
 import PendingTasks from './PendingTasks';
 import CompletTasks from './CompletTasks';
+import { getDecodeIDToken } from '../../../Utility/Helper';
 
-const Dashboard = () => {
+const Dashboard = () => { 
+  
   return (
     <>
        <div className="page-content dashboard-main">

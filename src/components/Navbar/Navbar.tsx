@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import defaultAvatar from "../../assets/images/avatar-default.svg";
 import { Button, Form } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
-import { removeCookieByName } from '../../Utility/Helper';
+import { getUserFirstLastName, removeCookieByName } from '../../Utility/Helper';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../redux/store';
 import { logoutFromSystem } from '../../redux/Service/auth/login';
@@ -61,13 +61,13 @@ const Navbar = () => {
                     <img className="rounded-circle header-profile-user"
                       src={defaultAvatar} alt="Header Avatar" />
                     <span className="text-start">
-                      <span className="d-none d-xl-inline-block  user-name-text">Clair Wilson</span>
+                      <span className="d-none d-xl-inline-block  user-name-text">{getUserFirstLastName()}</span>
                       <span className="d-none d-xl-block  user-name-sub-text">Student</span>
                     </span>
                   </span>
                 </button>
                 <div className="dropdown-menu dropdown-menu-end">
-                  <h6 className="dropdown-header">Welcome Clair Wilson!</h6>
+                  <h6 className="dropdown-header">Welcome {getUserFirstLastName()}!</h6>
                   <a className="dropdown-item">
                     <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                     <span className="align-middle" >Profile</span>

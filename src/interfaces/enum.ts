@@ -51,3 +51,9 @@ export const ENUMFORSTATUS = {
     UPDATE_PASSWORD: "Update Password"
   
   } as const;
+
+  export const ENUM_FOR_DISPLAY_VIEW = {
+   LIST_VIEW:"List View",
+   GRID_VIEW:"Grid View"
+  
+  } as const;
