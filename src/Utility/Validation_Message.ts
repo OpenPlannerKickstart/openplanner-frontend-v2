@@ -16,3 +16,8 @@ export const NEW_PASSWORD_REQUIRED = "New Password is Required!!";
 export const PASSWORD_INVALID = 'Should contains 8+ chars, 1 uppercase, 1 lowercase, 1 digit, 1 special (*,@,$)';
 export const CONFIRM_PASSWORD_NOT_MATCHED = 'Password and Confirm password not equal.';
 export const EMAIL_CODE_IS_REQUIRED = 'Email Code Is Required!!';
+
+export const OLD_PASSWORD_IS_REQUIRED = "Old Password is Required!!";
+export const NEW_PASSWORD_IS_REQUIRED = "New Password is Required!!";
+
+export const REASON_IS_REQUIRED = "Old Password is Required!!";

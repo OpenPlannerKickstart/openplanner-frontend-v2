@@ -17,6 +17,7 @@ import {
 } from "../Settings/settingsSlice"; // Adjust path based on your folder structure
 import { setLoading } from "../Loader/LoaderSlice";
 import { AppDispatch } from "../store";
+import { ts } from "../../Utility/Toaster";
 
 /**
  * Fetch User Data
@@ -82,6 +83,7 @@ export const deleteUserAPI =
             try {
                 const response: any = await post(DELETE_USER_API, objBody);
                 if (!response.data.error) {
+                    ts(response?.data.message)
                     return dispatch(deleteUserSuccess(response.data.data));
                 } else {
                     dispatch(deleteUserFailure());
@@ -107,6 +109,7 @@ export const changePasswordAPI =
             try {
                 const response: any = await post(CHANGE_PASSWORD_API, objBody);
                 if (!response.data.error) {
+                    ts(response?.data?.message)
                     return dispatch(changePasswordSuccess(response.data.data));
                 } else {
                     dispatch(changePasswordFailure());

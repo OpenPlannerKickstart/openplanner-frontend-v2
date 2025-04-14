@@ -25,17 +25,8 @@ const MyProfile = (props) => {
         firstname: "",
         university_name: "",
         sub: "",
-        profile_image: yup.mixed()
-            .nullable()
-            .notRequired()
-            .test("FILE_SIZE", 'Uploaded file is too big.',
-                (value: any) =>
-                    !value || (value && value?.size <= FILE_SIZE)
-            )
-            .test("FILE_FORMAT", "Uploaded file has unsupported format.",
-                (value: any) => !value || (value && SUPPORTED_FORMATS.includes(value.type))
-            ),
-        picture: ""
+        profile_image: "",
+        file: null
 
     };
 
@@ -55,7 +46,18 @@ const MyProfile = (props) => {
             .trim()
             .required(LAST_NAME_REQUIRED),
         university_name: yup.string().trim().min(5, "Minimum 5 letters Required.").
-            required(UNIVERSITY_NAME_REQUIRED)
+            required(UNIVERSITY_NAME_REQUIRED),
+        file: yup.mixed()
+            .nullable()
+            .notRequired()
+            .test("FILE_SIZE", 'Uploaded file is too big.',
+                (value: any) =>
+                    !value || (value && value?.size <= FILE_SIZE)
+            )
+            .test("FILE_FORMAT", "Uploaded file has unsupported format.",
+                (value: any) => !value || (value && SUPPORTED_FORMATS.includes(value.type))
+            ),
+
     });
 
     // onSubmit function
@@ -92,11 +94,13 @@ const MyProfile = (props) => {
         }
 
         const reqBody = { ...formData.values };
-        let params = new FormData();
+        let params: any = new FormData();
         params.set("userData", JSON.stringify(reqBody));
-
+        if (!isNullUndefinedOrBlank(reqBody.profile_image)) {
+            params.append("profile_image", reqBody?.profile_image)
+        }
         // customJsonInclude(reqBody);
-        const response = await dispatch(updateUserAPI(reqBody));
+        const response = await dispatch(updateUserAPI(params));
 
         if (response) {
             // Handle successful response
@@ -118,14 +122,40 @@ const MyProfile = (props) => {
     const handleFileChange = async (e: any) => {
         const file = e.target?.files[0];
         if (file) {
-            const url = URL.createObjectURL(file);
-            await formData.setFieldValue("picture", url);
-            await formData.setFieldValue("profile_image", file);
-
+            await formData.setFieldValue("file", file);
         }
     };
-    console.log(formData.values)
 
+    const handleFileDelete = async () => {
+        await formData.setFieldValue("file", null);
+        await formData.setFieldValue("profile_image", null);
+        imageRef.current.value = null;
+
+    };
+
+    useEffect(() => {
+        if (!isNullUndefinedOrBlank(formData.errors.file)) {
+            const url: any = URL.createObjectURL(formData.values.file as any);
+            formData.setFieldValue("profile_image", url);
+        } else {
+            formData.setFieldValue("profile_image", "");
+        }
+        return () => {
+        }
+    }, [formData.values.file])
+
+    /** --------------------file Change start------------------------*/
+
+
+    /** ----------------------on cancel start----------------------*/
+    const handleCancel = async () => {
+        if (!isNullUndefinedOrBlank(props.userData)) {
+            formData.setValues(props.userData)
+
+        }
+    }
+
+    /** ----------------------on cancel End----------------------*/
     return (
         <>
             <div className="profile-main-wrapper">
@@ -136,8 +166,9 @@ const MyProfile = (props) => {
                         </div>
                         <div className="profile-upload">
                             <div className="profile-image">
-                                <img src={!isNullUndefinedOrBlank(formData?.values?.picture) ? formData?.values?.picture : ""} alt="OpenPlaner" />
+                                <img src={!isNullUndefinedOrBlank(formData?.values?.profile_image) ? formData?.values?.profile_image : UserProfile} alt="OpenPlaner" />
                             </div>
+
                             <div className="profile-text">
                                 <h6>{!isNullUndefinedOrBlank(savedFormData) ? savedFormData?.username : ""}</h6>
                                 <div className="button-group">
@@ -151,11 +182,16 @@ const MyProfile = (props) => {
 
                                             }} />
                                     </Button>
-                                    <Button className="btn btn-white btn-fileupload btn-outline-white btn-sm">
+                                    <Button className="btn btn-white btn-fileupload btn-outline-white btn-sm" onClick={() => { handleFileDelete() }}>
                                         <i className="material-symbols-outlined">delete</i>Delete
                                     </Button>
                                 </div>
                             </div>
+                            {
+                                formData.errors.file
+                                    ? renderError(formData.errors.file)
+                                    : null
+                            }
                         </div>
                         <div className="main-form-wrapper">
                             <Row>
@@ -244,7 +280,9 @@ const MyProfile = (props) => {
                             <Button variant="primary" className="btn-icon-text" onClick={() => { handleSubmitFormData() }}>
                                 <i className="material-symbols-outlined">person</i> Update Profile
                             </Button>
-                            <Button variant="outline-white">
+                            <Button variant="outline-white" onClick={() => {
+                                handleCancel()
+                            }}>
                                 Cancel
                             </Button>
                         </div>
