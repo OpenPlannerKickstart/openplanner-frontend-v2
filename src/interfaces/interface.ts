@@ -164,5 +164,6 @@ export interface addSyllabusData{
   professor_name: string;
   course_color: string;  
   syllabus_doc?: any; 
+  syllabus_doc_name?: any; 
 
 }

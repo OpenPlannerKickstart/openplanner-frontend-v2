@@ -57,3 +57,8 @@ export const ENUMFORSTATUS = {
    GRID_VIEW:"Grid View"
   
   } as const;
+  export const ENUM_FOR_SYLLABUS_TAB = {
+   SYLLABUS_DETAILS:"Syllabus Details",
+   EVENT_DETAILS:"Event Details",
+  
+  } as const;

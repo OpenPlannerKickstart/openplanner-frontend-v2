@@ -47,8 +47,10 @@ axiosInstance.interceptors.response.use(
           /**   Refresh the access token using the refresh token */
 
           const refreshToken = getRefreshToken(); // Retrieve the refresh token from wherever it is stored
-          const response = await axiosInstance.post(`${API_URL}refreshToken`, {
-            refreshToken,
+          const response = await axiosInstance.post(`${API_URL}refreshToken`,null, {
+            headers: {
+              refreshToken: `Bearer ${refreshToken}`,
+          },
           });
 
           const newAccessToken = response.data.data.AccessToken;

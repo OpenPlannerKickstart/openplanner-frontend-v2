@@ -14,6 +14,8 @@ export const SYLLABUS_TITLE_IS_REQUIRED = 'Title is Required!!';
 export const SYLLABUS_COLOR_IS_REQUIRED = ' Color is Required!!';
 export const CLASS_TIME_IS_REQUIRED = 'Class Time is Required!!';
 export const PROFESSOR_NAME_IS_REQUIRED = 'Professor Name is Required!!';
+export const FILE_SIZE_VALIDATION = 'Uploaded file is too big.';
+export const FILE_FORMATE_VALIDATION = 'Uploaded file has unsupported format.';
 
 export const CONFIRM_PASSWORD_REQUIRED = "Confirm Password Is Required!!";
 export const NEW_PASSWORD_REQUIRED = "New Password is Required!!";

@@ -1,4 +1,4 @@
-import { ADD_EDIT_EVENT_DATA_API, ADD_EDIT_SYLLABUS_DATA_API, DELETE_EVENT_DATA_API, DELETE_SYLLABUS_DATA_API, GET_COURSES_LIST_DATA_API, GET_SYLLABUS_DROP_DOWN_DATA_API, UPDATE_EVENT_STATUS_DATA_API, UPDATE_SYLLABUS_STATUS_DATA_API } from "../../../../Utility/ApiList";
+import { ADD_EDIT_EVENT_DATA_API, ADD_EDIT_SYLLABUS_DATA_API, DELETE_EVENT_DATA_API, DELETE_SYLLABUS_DATA_API, GET_COURSES_LIST_DATA_API, GET_EVENT_LIST_DATA_API, GET_SYLLABUS_DROP_DOWN_DATA_API, UPDATE_EVENT_STATUS_DATA_API, UPDATE_SYLLABUS_STATUS_DATA_API } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
 import { setLoading } from "../../../Loader/LoaderSlice";
 import { AppDispatch } from "../../../store";
@@ -43,7 +43,7 @@ export const getEventListDataAPI =
     dispatch(setLoading(true));
     
     try {
-      const response: any = await post(GET_COURSES_LIST_DATA_API, objBody);
+      const response: any = await post(GET_EVENT_LIST_DATA_API, objBody);
       if (!response.data.error) {       
         return  dispatch(getEventListDataSuccess(response.data.data));
       } else {

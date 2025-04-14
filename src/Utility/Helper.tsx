@@ -36,6 +36,10 @@ export const SUPPORTED_FORMATS = [
   "image/gif",
   "image/png",
 ];
+export const SUPPORTED_SYLLABUS_UPLOAD_FORMATS = [
+  "application/pdf",
+
+]
 
 /** key Genrated Base64   */
 const key = "c2tpbGxhYm91dHNwZWxsYg==";

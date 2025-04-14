@@ -17,9 +17,10 @@ import Events from "./Events";
 import AddSyllabusEvents from "../../../common/AddSyllabusEvents/AddSyllabusEvents";
 import { AppDispatch } from "../../../redux/store";
 import { getCoursesListDataAPI } from "../../../redux/Service/User/Courses/courses";
-import { SyllabusResponseType } from "../../../interfaces/interface";
+import { addSyllabusData, SyllabusResponseType } from "../../../interfaces/interface";
 import { formatedDate, isEmptyObjectOrNullUndefiend, NO_RECORD_FOUND_MSG } from "../../../Utility/Helper";
 import { ENUM_FOR_DISPLAY_VIEW } from "../../../interfaces/enum";
+import SyllabusCanvasDetails from "./SyllabusCanvasDetails";
 
 const Courses = (props) => {
   const dispatch: AppDispatch = useDispatch();
@@ -27,8 +28,16 @@ const Courses = (props) => {
   const [showCourse, setShowCourse] = useState(false);
   const [showEvent, setShowEvent] = useState(false);
 
-  const handleCloseCourse = () => setShowCourse(false);
-  const toggleShowCourse = () => setShowCourse((s) => !s);
+  const handleCloseCourse = () => {setShowCourse(false); setSelectedSyllabusObj({} as addSyllabusData);}
+  const handleShowCourse = () => setShowCourse(true);
+
+  const [selectedSyllabusObj, setSelectedSyllabusObj] = useState<addSyllabusData>({} as addSyllabusData);
+
+  const handleUpdateCourse = (syllabusObj) => {
+   handleShowCourse()
+    setSelectedSyllabusObj(syllabusObj);
+
+  }
 
 
   // Add syllabus event offcanvas
@@ -209,7 +218,7 @@ const Courses = (props) => {
                                   <div className="tbl-action-group">
                                     <button
                                       className="btn btn-xs btn-icon btn-transparent"
-                                      onClick={toggleShowCourse}
+                                      onClick={()=>{handleUpdateCourse(item)}}
                                     >
                                       <i className="material-symbols-outlined">edit</i>
                                     </button>
@@ -281,7 +290,7 @@ const Courses = (props) => {
                                     <div className="action-button">
                                       <button
                                         className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm"
-                                        onClick={toggleShowCourse}
+                                        onClick={()=>{handleUpdateCourse(item)}}
                                       >
                                         <i className="material-symbols-outlined">edit</i>
                                       </button>
@@ -307,125 +316,11 @@ const Courses = (props) => {
             {/***** Grid layout end *****/}
 
             {/***** Offcanvas start *****/}
-            <div className="edit-course-canvas-wrapper">
-              <Offcanvas
-                className="edit-course-canvas"
-                show={showCourse}
-                placement={"end"}
-                onHide={handleCloseCourse}
-              >
-                <Offcanvas.Header>
-                  <Offcanvas.Title>
-                    Edit <span>Project Management</span>
-                  </Offcanvas.Title>
-                  <button type="button" className="btn-close" onClick={handleCloseCourse}>
-                    <i className='material-symbols-outlined'>close</i>
-                  </button>
-                </Offcanvas.Header>
-                <Offcanvas.Body>
-                  <div className="edit-course-wrapper">
-                    <div className="course-edit-container">
-                      <div className="syllabus-tab-wrapper">
-                        <div className="course-detail-box">
-                          <div className="nav-tabs-outer nav-tabs-style2">
-                            <nav>
-                              <div
-                                className="nav nav-tabs"
-                                id="nav-tab"
-                                role="tablist"
-                              >
-                                <button
-                                  className="nav-link active"
-                                  id="nav-SyllabusDetails-tab"
-                                  data-bs-toggle="tab"
-                                  data-bs-target="#nav-SyllabusDetails"
-                                  type="button"
-                                  role="tab"
-                                  aria-controls="nav-SyllabusDetails"
-                                  aria-selected="true"
-                                >                                  
-                                  Syllabus Details
-                                </button>
-
-                                <button
-                                  className="nav-link"
-                                  id="nav-Events-tab"
-                                  data-bs-toggle="tab"
-                                  data-bs-target="#nav-Events"
-                                  type="button"
-                                  role="tab"
-                                  aria-controls="nav-Events"
-                                  aria-selected="false"
-                                >
-                                  Events
-                                </button>
-
-
-                                <Button variant="primary" size="sm" className="ms-auto">Add New Event</Button>
-                              </div>
-                            </nav>
-                            <div className="tab-content" id="nav-tabContent">
-                              <div
-                                className="tab-pane fade show active"
-                                id="nav-SyllabusDetails"
-                                role="tabpanel"
-                                aria-labelledby="nav-SyllabusDetails-tab"
-                              >
-                                <div className="tab-content-container">
-                                  <SyllabusDetails />
-                                  <div className="bottom-button-group">
-                                    <Button type="button" className="btn btn-light-white me-auto">
-                                      Cancel
-                                    </Button>
-                                    <Button type="button" className="btn btn-light-danger">
-                                      Delete Syllabus
-                                    </Button>
-                                    <Button type="button" className="btn btn-primary">
-                                      Save
-                                    </Button>
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                className="tab-pane fade"
-                                id="nav-Events"
-                                role="tabpanel"
-                                aria-labelledby="nav-Events-tab"
-                              >
-                                <Events />
-                                <div className="bottom-button-group">
-                                  <Button type="button" className="btn btn-light-white me-auto">
-                                    Cancel
-                                  </Button>
-                                  <Button type="button" className="btn btn-light-danger">
-                                    Delete Syllabus
-                                  </Button>
-                                  <Button type="button" className="btn btn-primary">
-                                    Save
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="syllabus-pdf-container">
-                        <div className="syllabus-preview-wrapper">
-                          <div className="title-text">
-                            <h4>Syllabus Preview</h4>
-                            <a className="hide-btn">Hide Preview</a>
-                          </div>
-                          {/* pdf viewer */}
-                          <div className="syllabus-view-box">
-
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Offcanvas.Body>
-              </Offcanvas>
-            </div>
+            <SyllabusCanvasDetails handleCloseCourse={handleCloseCourse}
+              selectedSyllabusObj={selectedSyllabusObj}
+              showCourse={showCourse}
+              handleGetCourseList={handleGetCourseList}
+            />
             {/***** Offcanvas end *****/}
 
             <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent} />
