@@ -22,3 +22,11 @@ export const GET_CITY_DATA_API = "city";
 export const GET_STATE_DATA_API = "state";
 /**API endpoint for fetching country data  */
 export const GET_COUNTRY_DATA_API = "country";
+
+export const GET_USER_API = "getUserData";
+export const UPDATE_USER_API = "updateProfile";
+export const DELETE_USER_API = "verifyPasswordAndDeleteUser";
+export const CHANGE_PASSWORD_API = "changePassword";
+
+
+
