@@ -150,14 +150,14 @@ export const setUniqueNumber = (): void => {
  * Function to set a Token.
  */
 export const setPlannerToken = (val): void => {
- 
+
   return setCookieByName("planner_token", val);
 };
 /**
  * Function to set a Token.
  */
 export const setPlannerRefreshToken = (val): void => {
- 
+
   return setCookieByName("planner_refreshToken", val);
 };
 // get role of loggedIn user
@@ -845,9 +845,9 @@ export const customStylesForDefaultLable = {
     position: "absolute",
     top:
       state.hasValue ||
-      state.isFocused ||
-      state.isDisabled ||
-      state.selectProps.inputValue
+        state.isFocused ||
+        state.isDisabled ||
+        state.selectProps.inputValue
         ? -13
         : "",
     whiteSpace: "nowrap",
@@ -1287,3 +1287,11 @@ export const getDecodeToken = (): any => {
     return decodeToken;
   }
 };
+export const hexToRgb = (hex) => {
+  hex = hex.replace('#', '');
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `${r}, ${g}, ${b}`;
+}
