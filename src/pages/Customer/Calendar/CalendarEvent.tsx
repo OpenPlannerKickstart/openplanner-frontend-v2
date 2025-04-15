@@ -147,7 +147,7 @@ const CalenderEvent = () => {
         console.log(event)
         return (
             <div key={Math.random()}>
-                <div className={`rbc-event-primary`} style={{ backgroundColor: `rgba(${hexToRgb(event.event_data.course_color)}, 0.5)`, borderColor: event.event_data.course_color }}>
+                <div className={`rbc-event-primary`} style={{ backgroundColor: `rgba(${hexToRgb(event.event_data.course_color)}, 0.2)`, borderColor: event.event_data.course_color }}>
                     <p>
                         {" "}
                         <b className="text-black">{event.title} </b>{" "}
@@ -399,7 +399,7 @@ const CalenderEvent = () => {
                                                     return (
                                                         <>
                                                             <div className="class-main">
-                                                                <div className="checkbox checkbox-primary classes-checkbox">
+                                                                <div className="checkbox checkbox-primary classes-checkbox checkbox-small">
                                                                     <input
 
                                                                         id={`${index} -checkbox`}
@@ -489,7 +489,7 @@ const CalenderEvent = () => {
                                     components={{
                                         event: customEventView,
                                         toolbar: customToolbar,
-                                        // dateCellWrapper: CustomDateCellWrapper
+                                        dateCellWrapper: CustomDateCellWrapper
 
                                     }}
                                     popup
