@@ -16,6 +16,11 @@ export const CLASS_TIME_IS_REQUIRED = 'Class Time is Required!!';
 export const PROFESSOR_NAME_IS_REQUIRED = 'Professor Name is Required!!';
 export const FILE_SIZE_VALIDATION = 'Uploaded file is too big.';
 export const FILE_FORMATE_VALIDATION = 'Uploaded file has unsupported format.';
+export const SYLLABUS_DOC_IS_REQUIRED= 'Syllabus Document is required!!.';
+export const TITLE_IS_REQUIRED = 'Title is Required!!';
+export const START_DATE_IS_REQUIRED = 'Start Date is Required!!';
+export const END_DATE_IS_REQUIRED = 'End Date is Required!!';
+
 
 export const CONFIRM_PASSWORD_REQUIRED = "Confirm Password Is Required!!";
 export const NEW_PASSWORD_REQUIRED = "New Password is Required!!";

@@ -167,3 +167,17 @@ export interface addSyllabusData{
   syllabus_doc_name?: any; 
 
 }
+
+export interface addEvenData{
+  event_id?: number;
+  title: string;   
+  start_date: any; 
+  end_date: any; 
+  note?: string;
+  is_all_day_event?: boolean;
+  is_reminder?: boolean;
+  reminder?: any;
+  syllabus_id?: number;
+  
+ 
+}

@@ -27,6 +27,7 @@ const Courses = (props) => {
 
   const [showCourse, setShowCourse] = useState(false);
   const [showEvent, setShowEvent] = useState(false);
+  const [isAddNewData,setIsAddNewData]=useState(false);
 
   const handleCloseCourse = () => {setShowCourse(false); setSelectedSyllabusObj({} as addSyllabusData);}
   const handleShowCourse = () => setShowCourse(true);
@@ -73,6 +74,21 @@ const Courses = (props) => {
       clearTimeout(delayDebounceFn);
     }
   }, [searchValue])
+  useEffect(() => {
+
+    const delayDebounceFn = setTimeout(() => {
+      if(isAddNewData){
+        handleGetCourseList();
+        setTimeout(() => {
+          setIsAddNewData(false);
+        }, 300);
+      }
+
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+  }, [isAddNewData])
 
 
   const handleGetCourseList = async () => {
@@ -323,7 +339,9 @@ const Courses = (props) => {
             />
             {/***** Offcanvas end *****/}
 
-            <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent} />
+            <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent}
+              setIsAddNewData={setIsAddNewData}
+            />
 
 
 

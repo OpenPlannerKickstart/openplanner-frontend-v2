@@ -6,15 +6,16 @@ import Select, { components, ControlProps } from "react-select";
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
 import { addSyllabusData } from "../../../interfaces/interface";
-import { CLASS_TIME_IS_REQUIRED, FILE_FORMATE_VALIDATION, FILE_SIZE_VALIDATION, PROFESSOR_NAME_IS_REQUIRED, SYLLABUS_COLOR_IS_REQUIRED, SYLLABUS_TITLE_IS_REQUIRED } from "../../../Utility/Validation_Message";
+import { CLASS_TIME_IS_REQUIRED, FILE_FORMATE_VALIDATION, FILE_SIZE_VALIDATION, PROFESSOR_NAME_IS_REQUIRED, SYLLABUS_COLOR_IS_REQUIRED, SYLLABUS_DOC_IS_REQUIRED, SYLLABUS_TITLE_IS_REQUIRED } from "../../../Utility/Validation_Message";
 import { customJsonInclude, FILE_SIZE, formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_FORMATS, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from "../../../Utility/Helper";
 import DatePicker from "react-datepicker";
 import InputColor from "react-input-color";
 import { MAX_50 } from "../../../Utility/Validation_Helper";
 import { AppDispatch } from "../../../redux/store";
 import { addEditSyllabusDataAPI } from "../../../redux/Service/User/Courses/courses";
+import GetImageIcon from "../../../common/GetImageIcon";
 const SyllabusDetails = (props) => {
-  const dispatch : AppDispatch  =useDispatch();
+  const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
     if (!isEmptyObjectOrNullUndefiend(props?.selectedSyllabusObj)) {
@@ -24,11 +25,11 @@ const SyllabusDetails = (props) => {
           ? new Date(`1970-01-01T${props?.selectedSyllabusObj?.class_time}`)
           : null,
         syllabus_doc: props?.selectedSyllabusObj?.syllabus_doc?.url,
-        syllabus_doc_name:props?.selectedSyllabusObj?.syllabus_doc?.original_name||""
+        syllabus_doc_name: props?.selectedSyllabusObj?.syllabus_doc?.original_name || ""
 
       }
 
-      setSavedSyllabusFormData(newData);    
+      setSavedSyllabusFormData(newData);
     }
 
 
@@ -55,18 +56,22 @@ const SyllabusDetails = (props) => {
     class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
     professor_name: yup.string().required(PROFESSOR_NAME_IS_REQUIRED),
     course_color: yup.string().required(SYLLABUS_COLOR_IS_REQUIRED),
-    syllabus_doc: yup.mixed().nullable()
-      .notRequired()
-      .when(([syllabus_doc]) => {
-        return typeof syllabus_doc == "object" ?
+    syllabus_doc: yup.mixed()
+      .when(([syllabus_doc]) => {       
+        return typeof syllabus_doc === "object" && syllabus_doc !== null ?
           yup.mixed().nullable()
             .test("FILE_FORMAT", FILE_FORMATE_VALIDATION,
               (value: any) => !value || (value && SUPPORTED_SYLLABUS_UPLOAD_FORMATS.includes(value[0].type))
             )
-          : yup.mixed()
-            .nullable()
-            .notRequired()
-      }),
+          :
+          !isNullUndefinedOrBlank(syllabus_doc) ?
+            yup.mixed().nullable()
+            : yup.object().required(SYLLABUS_DOC_IS_REQUIRED)
+
+      })
+
+    ,
+
   })
   const syllabusFormData = useFormik({
     initialValues: savedSyllabusFormData || initSyllabusData,
@@ -93,22 +98,22 @@ const SyllabusDetails = (props) => {
       professor_name: syllabusFormData.values.professor_name,
       doc_id: props?.selectedSyllabusObj?.doc_id,
       id: props?.selectedSyllabusObj?.id,
-      
+
     }
 
 
-   
-    if (!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc)&& typeof syllabusFormData?.values?.syllabus_doc === "object") {
+
+    if (!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) && typeof syllabusFormData?.values?.syllabus_doc === "object") {
 
       formData.append("syllabus_doc", syllabusFormData?.values?.syllabus_doc[0]);
-    }else{
+    } else {
       reqBody["url"] = syllabusFormData?.values?.syllabus_doc;
     }
 
     customJsonInclude(reqBody);
     formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
-    const response=await dispatch(addEditSyllabusDataAPI(formData));
-    if(response){
+    const response = await dispatch(addEditSyllabusDataAPI(formData));
+    if (response) {
       props.handleCloseSyllabusDetails()
       props.handleGetCourseList()
     }
@@ -121,7 +126,17 @@ const SyllabusDetails = (props) => {
     syllabusFormData.setFieldValue("syllabus_doc", null)
     syllabusFormData.setFieldValue("syllabus_doc_name", null)
     syllabusDocRef.current.value = null;
+
   }
+
+  useEffect(() => {
+
+    syllabusFormData.setFieldTouched("syllabus_doc", true);
+    return () => {
+
+    }
+  }, [syllabusFormData.values.syllabus_doc])
+
 
 
   return (
@@ -154,24 +169,29 @@ const SyllabusDetails = (props) => {
               </div>
               <input className=' ' type="file"
                 accept="application/pdf"
-               
-                onChange={(e:any) => { if(!isEmptyObjectOrNullUndefiend(e.target?.files)) {                 
-                  syllabusFormData.setFieldValue("syllabus_doc", e.target?.files as any)
-                  syllabusFormData.setFieldValue("syllabus_doc_name", e.target?.files[0]?.name as any)
-                } 
-               }}
-                  
+
+                onChange={(e: any) => {
+                  if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
+                    syllabusFormData.setFieldValue("syllabus_doc", e.target?.files as any)
+                    syllabusFormData.setFieldValue("syllabus_doc_name", e.target?.files[0]?.name as any)
+
+                  }
+                }}
+
                 ref={syllabusDocRef}
               />
             </div>
             {
-              !isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc_name) && isEmptyObjectOrNullUndefiend(syllabusFormData?.errors?.syllabus_doc) &&
+              (!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc_name) && isEmptyObjectOrNullUndefiend(syllabusFormData?.errors?.syllabus_doc)) &&
               <div className='attachments-upload-grid-container'>
                 <div className='attachments-upload-row'>
                   <div className='attachments-upload-col'>
                     <div className='card-attachments-upload'>
                       <div className='attachments-image'>
-                        <img src={DefaultAvtar} alt="DefaultAvtar" />
+                        {/* <img src={DefaultAvtar} alt="DefaultAvtar" /> */}
+                        <GetImageIcon
+                          image={syllabusFormData?.values?.syllabus_doc_name}
+                        />
                       </div>
                       <button className="btn-close"
                         onClick={() => { handleRemoveSyllabusDoc() }}
@@ -186,10 +206,10 @@ const SyllabusDetails = (props) => {
               <p>Accepted file types: pdf</p>
               <p>Please allow 1 to 2 minutes for the syllabus to be processed.</p>
             </div> */}
-            {
+            {syllabusFormData.touched.syllabus_doc &&
               syllabusFormData.errors.syllabus_doc
-                ? renderError(syllabusFormData.errors.syllabus_doc as any)
-                : null}
+              ? renderError(syllabusFormData.errors.syllabus_doc as any)
+              : null}
           </Form.Group>
           {/* <div className="Reminder-box">
             <div className="title-with-switch">
@@ -240,6 +260,10 @@ const SyllabusDetails = (props) => {
                 className="form-control"
               />
             </div>
+            {syllabusFormData.touched.class_time &&
+              syllabusFormData.errors.class_time
+              ? renderError(syllabusFormData.errors.class_time)
+              : null}
           </Form.Group>
           <Form.Group
             className="form-group"
@@ -276,7 +300,7 @@ const SyllabusDetails = (props) => {
       </div>
       <div className="bottom-button-group">
         <Button type="button" className="btn btn-light-white me-auto"
-        onClick={() => { props.handleCloseSyllabusDetails() }}
+          onClick={() => { props.handleCloseSyllabusDetails() }}
         >
           Cancel
         </Button>
@@ -284,7 +308,7 @@ const SyllabusDetails = (props) => {
           Delete Syllabus
         </Button>
         <Button type="button" className="btn btn-primary"
-        onClick={()=>{handleSyllabusSubmit()}}
+          onClick={() => { handleSyllabusSubmit() }}
         >
           Save
         </Button>
