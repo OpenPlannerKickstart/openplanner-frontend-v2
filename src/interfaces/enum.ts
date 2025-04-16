@@ -48,7 +48,9 @@ export const ENUMFORROUTES = {
  */
 export const ENUMFORACCOUNTTAB = {
   PERSONAL_DETAILS: "Personal Details",
-  UPDATE_PASSWORD: "Update Password"
+  NOTIFICATION: "Notification",
+  CHANGE_PASSWORD: "Change Password",
+  DELETE_ACCOUNT: "Delete Account"
 
 } as const;
 

@@ -32,3 +32,10 @@ export const ADD_EDIT_TASK_DATA_API = "addEditTask";
 export const UPDATE_TASK_STATUS_DATA_API = "updateTaskStatus";
 /**API endpoint for deleting task data */
 export const DELETE_TASK_DATA_API = "deleteTask";
+export const GET_USER_API = "getUserData";
+export const UPDATE_USER_API = "updateProfile";
+export const DELETE_USER_API = "verifyPasswordAndDeleteUser";
+export const CHANGE_PASSWORD_API = "changePassword";
+
+
+
