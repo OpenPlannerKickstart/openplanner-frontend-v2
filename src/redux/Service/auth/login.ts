@@ -26,17 +26,17 @@ export const loginToSystem =
           setPlannerToken(response.data.data?.AccessToken);
           setPlannerIDToken(response.data.data?.IdToken);
           setPlannerRefreshToken(response.data.data?.RefreshToken);
+          return dispatch(getLoginSuccess(response.data.data));
+        } else {
+          dispatch(getLoginFailure());
         }
-        return dispatch(getLoginSuccess(response.data.data));
-      } else {
+      } }
+      catch (err) {
         dispatch(getLoginFailure());
+      } finally {
+        dispatch(setLoading(false));
       }
-    } catch (err) {
-      dispatch(getLoginFailure());
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+    };
 
 /**
  * Logout

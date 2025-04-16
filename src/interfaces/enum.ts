@@ -48,7 +48,9 @@ export const ENUMFORSTATUS = {
    */
   export const ENUMFORACCOUNTTAB = {
     PERSONAL_DETAILS: "Personal Details",
-    UPDATE_PASSWORD: "Update Password"
+    NOTIFICATION: "Notification",
+    CHANGE_PASSWORD: "Change Password",
+    DELETE_ACCOUNT: "Delete Account"
   
   } as const;
 
@@ -62,3 +64,13 @@ export const ENUMFORSTATUS = {
    EVENT_DETAILS:"Event Details",
   
   } as const;
+
+
+/**
+ * Enum for task module
+ */
+
+export const ENUMFORTASK = {
+  OPEN: "Pending",
+  COMPLETED: "Completed"
+}
