@@ -31,41 +31,6 @@ const CalenderEvent = () => {
 
     const dispatch: AppDispatch = useDispatch();
 
-    // const customToolbar = ({ date, onNavigate }) => {
-    //     const goToBack = () => {
-    //         onNavigate("PREV");
-    //     };
-    //     const goToNext = () => {
-    //         onNavigate("NEXT");
-    //     };
-
-    //     const goToToday = () => {
-    //         onNavigate("TODAY");
-    //     };
-    //     return (
-    //         <div className='calendar-header'>
-    //             <div className="rbc-toolbar">
-    //                 <div className="calendar-month">
-    //                     <button onClick={() => { goToToday() }}>
-    //                         Today
-    //                     </button>
-    //                     <button onClick={() => { goToBack() }}>
-    //                         {'<'}
-    //                     </button>
-    //                     <span>{formatedDate(date, 'MMMM YYYY')}</span>
-    //                     {/* <span>{`${moment(toolbar.date)}`}</span> */}
-    //                     <button onClick={() => { goToNext() }}>
-    //                         {'>'}
-    //                     </button>
-    //                 </div>
-
-    //             </div>
-
-    //         </div>
-    //     );
-    // };
-
-
 
     const customToolbar = ({ date, onNavigate, onView, view }) => {
         const goToBack = () => {
@@ -144,13 +109,12 @@ const CalenderEvent = () => {
     };
 
     function customEventView({ event }) {
-        console.log(event)
         return (
             <div key={Math.random()}>
-                <div className={`rbc-event-primary`} style={{ backgroundColor: `rgba(${hexToRgb(event.event_data.course_color)}, 0.2)`, borderColor: event.event_data.course_color }}>
+                <div className={`rbc-event-primary`} style={{ backgroundColor: `rgba(${hexToRgb(event.event_data.course_color)}, 0.2)`, borderColor: `rgba(${hexToRgb(event.event_data.course_color)})` }}>
                     <p>
-                        {" "}
-                        <b className="text-black">{event.title} </b>{" "}
+
+                        <b className="text-black">{event.title} </b>
                     </p>
                 </div>
             </div>
@@ -250,44 +214,165 @@ const CalenderEvent = () => {
         }
     }
     /** ----------------- sidebar logic end---------------------------*/
-    const CustomDateCell = ({ children, className, value, onClick }) => {
-        return (
-            <div
-                className={className} // Preserve all existing classes
-                onClick={() => onClick(value)}
-                style={{ position: 'relative', overflow: 'hidden' }} // Ensure relative positioning and clipping
-            >
-                {children}
-                <button
-                    className="custom-date-button"
-                    onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering the cell click
-                        alert(`Button clicked on ${value}`);
-                    }}
-                    style={{
-                        position: 'absolute',
-                        bottom: '5px',
-                        right: '5px',
-                        zIndex: 10,
-                        padding: '4px 8px',
-                        backgroundColor: '#007BFF',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                    }}
-                >
-                    +
-                </button>
-            </div>
-        );
-    };
+    // const CustomDateCell = ({ children, className, value, onClick }) => {
+    //     return (
+    //         <div
+    //             className={className} // Preserve all existing classes
+    //             onClick={() => onClick(value)}
+    //             style={{ position: 'relative', overflow: 'hidden' }} // Ensure relative positioning and clipping
+    //         >
+    //             {children}
+    //             <button
+    //                 className="custom-date-button"
+    //                 onClick={(e) => {
+    //                     e.stopPropagation(); // Prevent triggering the cell click
+    //                     alert(`Button clicked on ${value}`);
+    //                 }}
+    //                 style={{
+    //                     position: 'absolute',
+    //                     bottom: '5px',
+    //                     right: '5px',
+    //                     zIndex: 10,
+    //                     padding: '4px 8px',
+    //                     backgroundColor: '#007BFF',
+    //                     color: 'white',
+    //                     border: 'none',
+    //                     borderRadius: '4px',
+    //                     cursor: 'pointer',
+    //                 }}
+    //             >
+    //                 +
+    //             </button>
+    //         </div>
+    //     );
+    // };
     const [currentMonth, setCurrentMonth] = useState(moment().startOf('month'));
 
     // Function to handle navigation (change of month)
     const handleNavigateEvent = (date) => {
         setCurrentMonth(moment(date).startOf('month'));
     };
+    // const CustomDateCellWrapperTest = ({ children, value }) => {
+    //     const isInCurrentMonth = moment(value).isSame(currentMonth, 'month');
+
+    //     return (
+    //         <div
+    //             style={{
+    //                 position: "relative",
+    //                 height: "100%",
+    //                 width: "100%",
+    //                 overflow: "hidden",
+    //                 // boxSizing: "border-box",
+    //                 border: "1px solid #ddd",
+    //                 // padding: "5px",
+    //                 // textAlign: "left",
+    //                 // verticalAlign: "top",
+    //             }}
+
+    //         >
+    //             <div
+    //                 className={`rbc-day-bg rbc-date-cell custom-date-cell`}
+    //                 style={{
+    //                     position: "relative",
+    //                     padding: "10px",
+    //                     opacity: isInCurrentMonth ? 1 : 0.3, // Apply opacity based on the month check
+    //                 }}
+    //             >
+    //                 {children}
+    //                 {isInCurrentMonth && ( // Only show the button for dates in the current month
+    //                     <div >
+    //                         <button
+    //                             style={{
+    //                                 position: "absolute",
+    //                                 // top: "10px",
+    //                                 right: "0px",
+    //                                 bottom: "-141px",
+    //                                 backgroundColor: "#3174ad",
+    //                                 color: "white",
+    //                                 border: "none",
+    //                                 // borderRadius: "50%",
+    //                                 // width: "20px",
+    //                                 // height: "20px",
+    //                                 textAlign: "center",
+    //                                 lineHeight: "20px",
+    //                                 fontSize: "12px",
+    //                                 cursor: "pointer",
+    //                                 zIndex: "100"
+    //                             }}
+    //                             onClick={(e) => {
+    //                                 e.stopPropagation(); // Prevents event bubbling
+    //                                 alert("Add button clicked!");
+    //                             }}
+    //                         >
+    //                             +
+    //                         </button>
+    //                     </div>
+    //                 )}
+    //             </div>
+    //         </div>
+    //     );
+    // };
+
+    // const CustomDateCellWrapper2 = ({ children, value }) => {
+    //     //
+
+    //     const [isHovered, setIsHovered] = useState(false);
+
+    //     const handleAddClick = (date) => {
+    //         console.log("Add event for date:", date);
+    //         alert(`Add event for: ${date.toDateString()}`);
+    //     };
+
+    //     return (
+    //         <div
+    //             style={{
+    //                 position: "relative",
+    //                 height: "100%",
+    //                 width: "100%",
+    //                 overflow: "hidden",
+    //                 // boxSizing: "border-box",
+    //                 // border: "1px solid #ddd",
+    //                 // padding: "5px",
+    //                 // textAlign: "left",
+    //                 // verticalAlign: "top",
+    //             }}
+
+    //         >
+
+
+
+
+    //             <button
+    //                 style={{
+    //                     position: "absolute",
+    //                     // top: "10px",
+    //                     right: "50px",
+    //                     bottom: "10px",
+    //                     backgroundColor: "#3174ad",
+    //                     color: "white",
+    //                     // border: "none",
+    //                     // borderRadius: "50%",
+    //                     // width: "20px",
+    //                     // height: "20px",
+    //                     textAlign: "center",
+    //                     lineHeight: "20px",
+    //                     fontSize: "12px",
+    //                     cursor: "pointer",
+    //                     zIndex: "100"
+    //                 }}
+    //                 onClick={(e) => {
+    //                     e.stopPropagation();
+    //                     alert(`Add event for ${value.toDateString()}`);
+    //                 }}
+    //             >
+    //                 +
+    //             </button>
+
+    //         </div>
+    //     );
+    // };
+
+
     const CustomDateCellWrapper = ({ children, value }) => {
         const isInCurrentMonth = moment(value).isSame(currentMonth, 'month');
 
@@ -317,7 +402,6 @@ const CalenderEvent = () => {
             </div>
         );
     };
-
 
     return (
         <>
@@ -489,7 +573,8 @@ const CalenderEvent = () => {
                                     components={{
                                         event: customEventView,
                                         toolbar: customToolbar,
-                                        dateCellWrapper: CustomDateCellWrapper
+
+                                        // dateCellWrapper: CustomDateCellWrapper
 
                                     }}
                                     popup
