@@ -33,7 +33,13 @@ const Task = (props) => {
 
   // ADD new task offcanvas
   const [showAddNewCourse, setShowAddNewCourse] = useState(false);
-  const handleCloseAddNewCourse = () => { setShowAddNewCourse(false); setSavedtaskFormData(null); taskFormData.resetForm() }
+  const handleCloseAddNewCourse = () => {
+    setShowAddNewCourse(false);
+    setTimeout(() => {
+      setSavedtaskFormData(null);
+      taskFormData.resetForm();
+    }, 200);
+  }
   const toggleShowAddNewCourse = () => setShowAddNewCourse(true);
 
 
@@ -50,7 +56,7 @@ const Task = (props) => {
   };
 
   // useState for saved form data
-  const [savedtaskFormData, setSavedtaskFormData] = useState<any>(initFormValues);
+  const [savedtaskFormData, setSavedtaskFormData] = useState<any>(null);
 
   // Define validation schema
   const validationSchema: any = yup.object({
@@ -163,14 +169,28 @@ const Task = (props) => {
       value: "",
     }
     let reminder: any = [...taskFormData.values.reminder];
-    reminder.push(obj);
-    taskFormData.setFieldValue("reminder", reminder);
+    if (isEmptyObjectOrNullUndefiend(taskFormData?.errors?.reminder)) {
+      reminder.push(obj);
+      taskFormData.setFieldValue("reminder", reminder);
+    }
   }
 
   const removeReminder = (index) => {
     let reminder: any = [...taskFormData.values.reminder];
     reminder.splice(index, 1);
     taskFormData.setFieldValue("reminder", reminder);
+
+    // Remove the corresponding error if it exists
+    const errors = { ...taskFormData.errors };
+    if (errors.reminder) {
+      const reminderErrors = [...(errors.reminder as any[])];
+      reminderErrors.splice(index, 1);
+      taskFormData.setErrors({
+        ...errors,
+        reminder: reminderErrors,
+      });
+
+    }
   }
 
   useEffect(() => {
@@ -294,7 +314,7 @@ const Task = (props) => {
                         onClick={() => { onChangeTab(ENUMFORTASK.OPEN) }}
                       >
 
-                        open  <Badge bg="light-grey">{!isNullUndefinedOrBlank(count) ? count : 0}</Badge>
+                        Open  <Badge bg="light-grey">{!isNullUndefinedOrBlank(count) ? count : 0}</Badge>
                       </button>
 
                       <button
@@ -429,7 +449,7 @@ const Task = (props) => {
                             // timeFormat="hh:mm aa"
                             className="form-control"
                             popperProps={{ strategy: "fixed" }}
-                            placeholderText="10-03-2025 12:17 AM"
+                            // placeholderText="10-03-2025 12:17 AM"
                             selected={taskFormData.values.due_date ? new Date(taskFormData.values.due_date) : null}
                             onChange={(date) => {
                               taskFormData.setFieldValue("due_date", date);
@@ -437,11 +457,11 @@ const Task = (props) => {
                             }
                           />
                         </div>
-                          {
-                            taskFormData.touched.due_date && taskFormData.errors.due_date
-                              ? renderError(taskFormData.errors.due_date)
-                              : null
-                          }
+                        {
+                          taskFormData.touched.due_date && taskFormData.errors.due_date
+                            ? renderError(taskFormData.errors.due_date)
+                            : null
+                        }
                       </Form.Group>
                       <Form.Group
                         className="form-group"
@@ -456,11 +476,11 @@ const Task = (props) => {
                               handleBlurValueUpdate("note");
                             }}
                           />
-                        {
-                          taskFormData.touched.note && taskFormData.errors.note
-                            ? renderError(taskFormData.errors.note)
-                            : null
-                        }
+                          {
+                            taskFormData.touched.note && taskFormData.errors.note
+                              ? renderError(taskFormData.errors.note)
+                              : null
+                          }
                         </div>
                       </Form.Group>
                       <div className="Reminder-box">

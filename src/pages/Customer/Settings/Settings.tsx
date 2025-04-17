@@ -120,7 +120,7 @@ const Settings = () => {
                                         aria-labelledby="nav-profile-tab"
                                     >
                                         <div className="tab-content-container">
-                                            <MyProfile userData={userData} />
+                                            <MyProfile userData={userData} getUserData={getUserData} />
                                         </div>
                                     </div>
                                     <div

@@ -32,9 +32,11 @@ const Complete = (props) => {
   // Deleted modal
   const [deleteShow, setDeleteShow] = useState(false);
   const handleDeleteClose = () => {
-    setDeleteShow(false)
-    setDeleteTaskData([]);
-    setDeleteSuccess(false);
+    setDeleteShow(false);
+    setTimeout(() => {
+      setDeleteTaskData([]);
+      setDeleteSuccess(false);
+    }, 300);
   }
   const handleDeleteShow = (data) => {
     setDeleteTaskData(data)
@@ -49,6 +51,7 @@ const Complete = (props) => {
     if (!isNullUndefinedOrBlank(response?.payload)) {
       setDeleteSuccess(true);
       props?.getTaskListing();
+
     }
   }
 
@@ -122,8 +125,8 @@ const Complete = (props) => {
                     </td>
                   </tr>
                 )
-              }) 
-             
+              })
+
             }
 
 
@@ -131,19 +134,19 @@ const Complete = (props) => {
           </tbody>
         </Table>
         {isEmptyObjectOrNullUndefiend(taskList)
-        &&
+          &&
 
-                  <>
-                    <div className="no-records-found no-records-found-inner h-100">
-                        <div className="no-records-found-image">
-                            <img src={notVoucherFound} alt="OpenPlaner" />
-                        </div>
-                        <div className="no-records-found-text">
-                            <h6>No data found!</h6>
-                        </div>
-                    </div> 
+          <>
+            <div className="no-records-found no-records-found-inner h-100">
+              <div className="no-records-found-image">
+                <img src={notVoucherFound} alt="OpenPlaner" />
+              </div>
+              <div className="no-records-found-text">
+                <h6>No data found!</h6>
+              </div>
+            </div>
 
-                  </>
+          </>
         }
       </div>
 

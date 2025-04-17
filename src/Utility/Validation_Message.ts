@@ -25,4 +25,4 @@ export const TASK_DATE_IS_REQUIRED = 'Task Due Date is Required.';
 export const OLD_PASSWORD_IS_REQUIRED = "Old Password is Required!!";
 export const NEW_PASSWORD_IS_REQUIRED = "New Password is Required!!";
 
-export const REASON_IS_REQUIRED = "Old Password is Required!!";
+export const REASON_IS_REQUIRED = "Reason is required!!";

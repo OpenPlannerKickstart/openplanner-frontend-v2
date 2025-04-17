@@ -63,3 +63,11 @@ export const ENUMFORTASK = {
   OPEN: "Pending",
   COMPLETED: "Completed"
 }
+
+
+export const ENUMFORDASHBORD = {
+  PENDING_EVENT: "Pending Event",
+  COMPLETED_EVENT: "Complete Event",
+  PENDING_TASK: "Pending Task",
+  COMPLETED_TASK: "Complete Task"
+}

@@ -66,8 +66,8 @@ const MyProfile = (props) => {
     };
 
     // useFormik instance
-    const formData = useFormik({
-        initialValues: savedFormData || initFormValues,
+    const formData: any = useFormik({
+        initialValues: savedFormData,
         validationSchema,
         onSubmit,
         enableReinitialize: true,
@@ -96,14 +96,14 @@ const MyProfile = (props) => {
         const reqBody = { ...formData.values };
         let params: any = new FormData();
         params.set("userData", JSON.stringify(reqBody));
-        if (!isNullUndefinedOrBlank(reqBody.profile_image)) {
-            params.append("profile_image", reqBody?.profile_image)
+        if (!isNullUndefinedOrBlank(reqBody.file)) {
+            params.append("profile_image", reqBody?.file)
         }
         // customJsonInclude(reqBody);
         const response = await dispatch(updateUserAPI(params));
 
         if (response) {
-            // Handle successful response
+            props.getUserData();
         }
     };
 
@@ -134,28 +134,29 @@ const MyProfile = (props) => {
     };
 
     useEffect(() => {
-        if (!isNullUndefinedOrBlank(formData.errors.file)) {
+        // console.log("first", formData.errors.file)
+        if (isNullUndefinedOrBlank(formData.errors.file) && !isNullUndefinedOrBlank(formData?.values?.file)) {
+            // console.log("first")
             const url: any = URL.createObjectURL(formData.values.file as any);
             formData.setFieldValue("profile_image", url);
-        } else {
-            formData.setFieldValue("profile_image", "");
         }
         return () => {
         }
-    }, [formData.values.file])
+    }, [formData?.values?.file])
 
     /** --------------------file Change start------------------------*/
 
 
     /** ----------------------on cancel start----------------------*/
-    const handleCancel = async () => {
-        if (!isNullUndefinedOrBlank(props.userData)) {
-            formData.setValues(props.userData)
-
-        }
-    }
+    // const handleCancel = async () => {
+    //     if (!isNullUndefinedOrBlank(props.userData)) {
+    //         formData.setValues(props.userData)
+    //     }
+    // }
 
     /** ----------------------on cancel End----------------------*/
+    console.log(formData.values)
+    console.log(savedFormData)
     return (
         <>
             <div className="profile-main-wrapper">
@@ -188,8 +189,8 @@ const MyProfile = (props) => {
                                 </div>
                             </div>
                             {
-                                formData.errors.file
-                                    ? renderError(formData.errors.file)
+                                formData?.errors?.file
+                                    ? renderError(formData?.errors?.file)
                                     : null
                             }
                         </div>
@@ -280,11 +281,11 @@ const MyProfile = (props) => {
                             <Button variant="primary" className="btn-icon-text" onClick={() => { handleSubmitFormData() }}>
                                 <i className="material-symbols-outlined">person</i> Update Profile
                             </Button>
-                            <Button variant="outline-white" onClick={() => {
+                            {/* <Button variant="outline-white" onClick={() => {
                                 handleCancel()
                             }}>
                                 Cancel
-                            </Button>
+                            </Button> */}
                         </div>
                     </Card.Body>
                 </Card>
