@@ -9,7 +9,7 @@ import DatePicker from "react-datepicker";
 import { AppDispatch } from '../../redux/store';
 import { useDispatch } from 'react-redux';
 import { addEvenData, addSyllabusData } from '../../interfaces/interface';
-import { CLASS_TIME_IS_REQUIRED, END_DATE_IS_REQUIRED, FILE_FORMATE_VALIDATION, PROFESSOR_NAME_IS_REQUIRED, START_DATE_IS_REQUIRED, SYLLABUS_COLOR_IS_REQUIRED, SYLLABUS_DOC_IS_REQUIRED, SYLLABUS_TITLE_IS_REQUIRED, TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
+import { CLASS_TIME_IS_REQUIRED, END_DATE_IS_REQUIRED, FILE_FORMATE_VALIDATION, PROFESSOR_NAME_IS_REQUIRED, SELECTION_IS_REQUIRED, START_DATE_IS_REQUIRED, SYLLABUS_COLOR_IS_REQUIRED, SYLLABUS_DOC_IS_REQUIRED, SYLLABUS_TITLE_IS_REQUIRED, TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
 import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from '../../Utility/Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
@@ -174,6 +174,7 @@ const AddSyllabusEvents = (props) => {
     note: "",
     is_reminder: false,
     reminder: [],
+    syllabus_id: null,
 
   }
   const [savedEventFormData, setSavedEventFormData] = useState<addEvenData>(initEventData);
@@ -182,6 +183,7 @@ const AddSyllabusEvents = (props) => {
     title: yup.string().required(TITLE_IS_REQUIRED),
     start_date: yup.string().required(START_DATE_IS_REQUIRED),
     end_date: yup.string().required(END_DATE_IS_REQUIRED),
+    syllabus_id: yup.string().required(SELECTION_IS_REQUIRED),
     is_reminder: yup.boolean(),
     reminder: yup.array()
       .of(
@@ -611,7 +613,12 @@ const AddSyllabusEvents = (props) => {
                                     dropdownMode="select"
                                     isClearable={true}
                                     selected={eventFormData.values.start_date}
-                                    onChange={(date) => eventFormData.setFieldValue("start_date", date)}
+                                    onChange={(date) => 
+                                     {
+                                      eventFormData.setFieldValue("start_date", date)
+                                      eventFormData.setFieldValue("end_date", null)
+                                     }
+                                    }
                                     showTimeSelect
                                     dateFormat="dd/MM/yyyy hh:mm aa"
                                     timeIntervals={15}
@@ -708,6 +715,9 @@ const AddSyllabusEvents = (props) => {
                               menuPosition="fixed"
                               className="react-select-container"
                             />
+                             {eventFormData.touched.syllabus_id &&
+                                eventFormData.errors.syllabus_id
+                                && renderError(eventFormData.errors.syllabus_id as any)}
                           </Form.Group>
                           <div className="Reminder-box">
                             <div className="title-with-switch">

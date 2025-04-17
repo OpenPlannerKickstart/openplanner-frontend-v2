@@ -4,6 +4,8 @@ import { connect, useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
 import { getEventListDataAPI } from '../../../redux/Service/User/Courses/courses'
 import { ENUM_FOR_SYLLABUS_TAB } from '../../../interfaces/enum'
+import { EventResponseType } from '../../../interfaces/interface'
+import { formatedDate } from '../../../Utility/Helper'
 
 const Events = (props) => {
   const dispatch: AppDispatch = useDispatch();
@@ -23,7 +25,7 @@ const Events = (props) => {
   const handleSuccessClose = () => setSuccessShow(false);
   const handleSuccessShow = () => setSuccessShow(true);
   /* ------------------ handle Get Event List Data API Start ------------------ */
-  const [eventListData,setEventListData] = useState([]);
+  const [eventListData, setEventListData] = useState<EventResponseType>({} as EventResponseType);
   useEffect(() => {
     if (props?.selectedSyllabusObj?.id && props?.selectedTab === ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS) {
       getEventListData();
@@ -40,6 +42,9 @@ const Events = (props) => {
       syllabus_id: props?.selectedSyllabusObj?.id
     }
     const response = await dispatch(getEventListDataAPI(reqBody));
+    if (response) {
+      setEventListData(response?.payload);
+    }
     console.log(response, "Event List Data Response");
   }
 
@@ -51,198 +56,83 @@ const Events = (props) => {
     <>
       <div className="tab-body-container">
         <div className="event-main-wrapper">
-          <div className="event-card">
-            <div className="due-event-box">
-              <div className="card-title">
-                <h4>Due on Friday, March 7</h4>
-              </div>
-              <div className="card-body">
-                <div className="table-responsive">
-                  <Table className="table-theme">
-                    <thead className="border-less">
-                      <tr>
-                        <th>Event Name</th>
-                        <th>Time</th>
-                        <th className="text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <div className="event-name-tooltip">
-                            <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
-                            <div className="event-tool">
-                              <Badge bg="danger-bg"><i className="material-symbols-outlined">book_2</i>TCU Academic Calendar</Badge>
-                            </div>
-                          </div>
-                        </td>
-                        <td>4:40 PM - 4:40 PM</td>
-                        <td className="tbl-action">
-                          <div className="tbl-action-group">
-                            <OverlayTrigger
-                              trigger={["hover", "hover"]}
-                              placement="bottom"
-                              overlay={<Tooltip>Add User</Tooltip>}
-                            >
-                              <button
-                                className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
-                              >
-                                {" "}
-                                <i className="material-symbols-outlined">check_circle</i>
-                              </button>
-                            </OverlayTrigger>
-                            <OverlayTrigger
-                              trigger={["hover", "hover"]}
-                              placement="bottom"
-                              overlay={<Tooltip>Add User</Tooltip>}
-                            >
-                              <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
-                                {" "}
-                                <i className="material-symbols-outlined">delete</i>
-                              </button>
-                            </OverlayTrigger>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr className='active-table'>
-                        <td>
-                          <div className="event-name-tooltip">
-                            <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
-                            <div className="event-tool">
-                              <Badge bg="primary-bg"><i className="material-symbols-outlined">book_2</i>History Unfolded</Badge>
-                            </div>
-                          </div>
-                        </td>
-                        <td>4:40 PM - 4:40 PM</td>
-                        <td className="tbl-action">
-                          <div className="tbl-action-group">
-                            <OverlayTrigger
-                              trigger={["hover", "hover"]}
-                              placement="bottom"
-                              overlay={<Tooltip>Add User</Tooltip>}
-                            >
-                              <button
-                                className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
-                              >
-                                {" "}
-                                <i className="material-symbols-outlined">check_circle</i>
-                              </button>
-                            </OverlayTrigger>
-                            <OverlayTrigger
-                              trigger={["hover", "hover"]}
-                              placement="bottom"
-                              overlay={<Tooltip>Add User</Tooltip>}
-                            >
-                              <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
-                                {" "}
-                                <i className="material-symbols-outlined">delete</i>
-                              </button>
-                            </OverlayTrigger>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </Table>
+
+          {
+            eventListData?.dueEventData ? eventListData?.dueEventData?.map((parentItem, index) => {
+              return (
+
+                <div className="event-card">
+                  <div className="due-event-box">
+                    <div className="card-title">
+                      <h4>Due on {formatedDate(parentItem?.due_date,'dddd, MMMM YYYY')}</h4>
+                    </div>
+                    <div className="card-body">
+                      <div className="table-responsive">
+                        <Table className="table-theme">
+                          <thead className="border-less">
+                            <tr>
+                              <th>Event Name</th>
+                              <th>Time</th>
+                              <th className="text-center">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+
+                           {
+                            parentItem?.eventData?.map((childItem, index) => {
+                              return(
+                                <tr>
+                                <td>
+                                  <div className="event-name-tooltip">
+                                    <div className="enevt-name"><h3>{childItem?.title||""}</h3></div>
+                                    <div className="event-tool">
+                                      <Badge style={{backgroundColor: `${childItem?.syllabus?.course_color||"#239bc266"}`,opacity:0.4 }}><i className="material-symbols-outlined">book_2</i>{childItem?.syllabus?.title||""}</Badge>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>{`${formatedDate(childItem?.start_date,"DD-MM-yyyy")||""} - ${formatedDate(childItem?.end_date,"DD-MM-yyyy")||""}`}</td>
+                                <td className="tbl-action">
+                                  <div className="tbl-action-group">
+                                    <OverlayTrigger
+                                      trigger={["hover", "hover"]}
+                                      placement="bottom"
+                                      overlay={<Tooltip>Add User</Tooltip>}
+                                    >
+                                      <button
+                                        className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
+                                      >
+                                        {" "}
+                                        <i className="material-symbols-outlined">check_circle</i>
+                                      </button>
+                                    </OverlayTrigger>
+                                    <OverlayTrigger
+                                      trigger={["hover", "hover"]}
+                                      placement="bottom"
+                                      overlay={<Tooltip>Add User</Tooltip>}
+                                    >
+                                      <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
+                                        {" "}
+                                        <i className="material-symbols-outlined">delete</i>
+                                      </button>
+                                    </OverlayTrigger>
+                                  </div>
+                                </td>
+                              </tr>
+                              )
+                           })}
+                           
+                           
+                          </tbody>
+                        </Table>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div className="event-card">
-            <div className="due-event-box">
-              <div className="card-title">
-                <h4>Due on Friday, March 7</h4>
-              </div>
-              <div className="card-body">
-                <div className="table-responsive">
-                  <Table className="table-theme">
-                    <thead className="border-less">
-                      <tr>
-                        <th>Event Name</th>
-                        <th>Time</th>
-                        <th className="text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <div className="event-name-tooltip">
-                            <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
-                            <div className="event-tool">
-                              <Badge bg="danger-bg"><i className="material-symbols-outlined">book_2</i>TCU Academic Calendar</Badge>
-                            </div>
-                          </div>
-                        </td>
-                        <td>4:40 PM - 4:40 PM</td>
-                        <td className="tbl-action">
-                          <div className="tbl-action-group">
-                            <OverlayTrigger
-                              trigger={["hover", "hover"]}
-                              placement="bottom"
-                              overlay={<Tooltip>Add User</Tooltip>}
-                            >
-                              <button
-                                className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
-                              >
-                                {" "}
-                                <i className="material-symbols-outlined">check_circle</i>
-                              </button>
-                            </OverlayTrigger>
-                            <OverlayTrigger
-                              trigger={["hover", "hover"]}
-                              placement="bottom"
-                              overlay={<Tooltip>Add User</Tooltip>}
-                            >
-                              <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
-                                {" "}
-                                <i className="material-symbols-outlined">delete</i>
-                              </button>
-                            </OverlayTrigger>
-                          </div>
-                        </td>
-                      </tr>
-                      <tr className='active-table'>
-                        <td>
-                          <div className="event-name-tooltip">
-                            <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
-                            <div className="event-tool">
-                              <Badge bg="primary-bg"><i className="material-symbols-outlined">book_2</i>History Unfolded</Badge>
-                            </div>
-                          </div>
-                        </td>
-                        <td>4:40 PM - 4:40 PM</td>
-                        <td className="tbl-action">
-                          <div className="tbl-action-group">
-                            <OverlayTrigger
-                              trigger={["hover", "hover"]}
-                              placement="bottom"
-                              overlay={<Tooltip>Add User</Tooltip>}
-                            >
-                              <button
-                                className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
-                              >
-                                {" "}
-                                <i className="material-symbols-outlined">check_circle</i>
-                              </button>
-                            </OverlayTrigger>
-                            <OverlayTrigger
-                              trigger={["hover", "hover"]}
-                              placement="bottom"
-                              overlay={<Tooltip>Add User</Tooltip>}
-                            >
-                              <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
-                                {" "}
-                                <i className="material-symbols-outlined">delete</i>
-                              </button>
-                            </OverlayTrigger>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </Table>
-                </div>
-              </div>
-            </div>
-          </div>
+              )
+            }) : <></>
+          }
+        
+       
           <div className="event-card">
             <div className="due-event-box post-event">
               <div className="card-title">

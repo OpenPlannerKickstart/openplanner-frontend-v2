@@ -20,6 +20,7 @@ export const SYLLABUS_DOC_IS_REQUIRED= 'Syllabus Document is required!!.';
 export const TITLE_IS_REQUIRED = 'Title is Required!!';
 export const START_DATE_IS_REQUIRED = 'Start Date is Required!!';
 export const END_DATE_IS_REQUIRED = 'End Date is Required!!';
+export const SELECTION_IS_REQUIRED = 'Selection is Required!!';
 
 
 export const CONFIRM_PASSWORD_REQUIRED = "Confirm Password Is Required!!";

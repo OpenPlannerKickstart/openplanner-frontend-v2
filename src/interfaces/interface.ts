@@ -177,7 +177,17 @@ export interface addEvenData{
   is_all_day_event?: boolean;
   is_reminder?: boolean;
   reminder?: any;
-  syllabus_id?: number;
+  syllabus_id?: any;
+  syllabus?:SyllabusResponseType ;
+}
+
+export interface dueEventData{
+  eventData?:Array<addEvenData>;
+  due_date?: string;
+}
+export interface EventResponseType{
+  pastEventData?:Array<dueEventData>;
+  dueEventData?:Array<dueEventData>;
 }
  
 export interface Task {
