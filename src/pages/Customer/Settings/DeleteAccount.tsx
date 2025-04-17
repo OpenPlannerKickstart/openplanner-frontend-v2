@@ -129,15 +129,20 @@ const DeleteAccount = () => {
                                         <i className="material-symbols-outlined">{eyeToggle ? "visibility" : "visibility_off"}</i>
                                     </button>
                                 </div>
+                                {
+                                    formData.touched.password && formData.errors.password
+                                        ? renderError(formData.errors.password)
+                                        : null
+                                }
                             </Form.Group>
                         </div>
                         <div className="button-group">
                             <Button variant="danger" className="btn-icon-text" onClick={() => { handleSubmitFormData() }}>
                                 <i className="material-symbols-outlined">delete</i> Delete Account
                             </Button>
-                            <Button variant="outline-white">
+                            {/* <Button variant="outline-white">
                                 Cancel
-                            </Button>
+                            </Button> */}
                         </div>
                     </Card.Body>
                 </Card>

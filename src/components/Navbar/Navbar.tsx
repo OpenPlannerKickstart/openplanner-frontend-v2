@@ -7,6 +7,7 @@ import { getUserFirstLastName, removeCookieByName } from '../../Utility/Helper';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../redux/store';
 import { logoutFromSystem } from '../../redux/Service/auth/login';
+import { ENUMFORROUTES } from '../../interfaces/enum';
 
 const Navbar = () => {
   const [SidebarSize, setSidebarSize] = useState('lg');
@@ -22,7 +23,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch: AppDispatch = useDispatch();
   const callLogout = async () => {
-   
+
     await dispatch(logoutFromSystem());
   };
 
@@ -48,7 +49,7 @@ const Navbar = () => {
             </div>
 
             <div className="navbar-header-right d-flex align-items-center">
-             
+
               <div className="dropdown topbar-head-dropdown notification-button header-item" id="notificationDropdown">
                 <button type="button" className="btn btn-lg btn-outline-white btn-icon rounded-pill " >
                   <i className="material-symbols-outlined">notifications</i>
@@ -68,16 +69,16 @@ const Navbar = () => {
                 </button>
                 <div className="dropdown-menu dropdown-menu-end">
                   <h6 className="dropdown-header">Welcome {getUserFirstLastName()}!</h6>
-                  <a className="dropdown-item">
+                  <a className="dropdown-item" onClick={() => { navigate(ENUMFORROUTES.SETTINGS) }}>
                     <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                     <span className="align-middle" >Profile</span>
                   </a>
                   <a className="dropdown-item"
-                   onClick={() => {
-                    setTimeout(() => {
-                      callLogout();
-                    }, 200);
-                  }}
+                    onClick={() => {
+                      setTimeout(() => {
+                        callLogout();
+                      }, 200);
+                    }}
                   >
                     <i className="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>
                     <span className="align-middle" data-key="t-logout">Logout</span>

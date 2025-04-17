@@ -106,7 +106,7 @@ const ChangePassword = () => {
                                         {...formData.getFieldProps("oldPassword")}
                                         maxLength={MAX_50}
                                         onBlur={() => {
-                                            handleBlurValueUpdate("identifier");
+                                            handleBlurValueUpdate("oldPassword");
                                         }}
                                         autoComplete='new password'
                                     />
@@ -178,9 +178,9 @@ const ChangePassword = () => {
                             <Button variant="primary" className="btn-icon-text" onClick={() => { handleSubmitFormData() }}>
                                 <i className="material-symbols-outlined">key</i> Change Password
                             </Button>
-                            <Button variant="outline-white">
+                            {/* <Button variant="outline-white">
                                 Cancel
-                            </Button>
+                            </Button> */}
                         </div>
                     </Card.Body>
                 </Card>

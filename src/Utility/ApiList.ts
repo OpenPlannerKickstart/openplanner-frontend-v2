@@ -1,5 +1,5 @@
 
-// const PATH_FOR_API = "/";
+// const PATH_FOR_API = "";
 // const PATH_FOR_W_O_TOKEN = "woToken/";
 // const PATH_FOR_TEST = "test/";
 
@@ -49,4 +49,11 @@ export const DELETE_USER_API = "verifyPasswordAndDeleteUser";
 export const CHANGE_PASSWORD_API = "changePassword";
 
 
+// API endpoints for dashboard-related requests
+export const DASHBOARD_LISTING_COUNT_API = "dashboardListingCount";
+export const DASHBOARD_COURSES_DATA_API = "dashboardCoursesData";
+export const DASHBOARD_TASKS_DATA_API = "dashboardTasksData";
+export const DASHBOARD_EVENTS_DATA_API = "dashboardEventsData";
+export const DASHBOARD_EVENT_LISTING_API = "dashboardEventListing";
+export const GET_SYLLABUS_DROPDOWN_API = "getSyllabusDropDown";
 
