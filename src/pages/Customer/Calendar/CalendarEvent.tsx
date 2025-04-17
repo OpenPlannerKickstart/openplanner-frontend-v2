@@ -506,13 +506,12 @@ const CalenderEvent = () => {
                                 <div className="color-box">
                                   <span
                                     style={{
-                                      backgroundColor: `${
-                                        !isNullUndefinedOrBlank(
-                                          item.other.course_color
-                                        )
-                                          ? item?.other?.course_color
-                                          : "#000000"
-                                      }`,
+                                      backgroundColor: `${!isNullUndefinedOrBlank(
+                                        item.other.course_color
+                                      )
+                                        ? item?.other?.course_color
+                                        : "#000000"
+                                        }`,
                                     }}
                                   ></span>
                                 </div>
@@ -587,14 +586,14 @@ const CalenderEvent = () => {
                   showAllEvents={true}
                   popup
                   components={{
-                    // event: customEventView,
-                    // toolbar: customToolbar,
+                    event: customEventView,
+                    toolbar: customToolbar,
 
                     // dateCellWrapper: CustomDateCellWrapper2
                     // dateCellWrapper: CustomDateCellWrapper,
-                    timeSlotWrapper: (props) => (
-                      <CustomTimeSlot {...props} onClick={handleSelectEvent} />
-                    ),
+                    // timeSlotWrapper: (props) => (
+                    //   <CustomTimeSlot {...props} onClick={handleSelectEvent} />
+                    // ),
                     // month: {
                     //   dateHeader: (props) => <DayCell {...props} />, //  this is how you control the header cell for each one in month view
                     // },
