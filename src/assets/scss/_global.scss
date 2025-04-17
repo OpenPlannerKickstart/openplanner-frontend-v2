@@ -316,3 +316,48 @@ img {
         color: $text_black_color;
     }
 }
+
+
+
+/* ------------------------- no-records-found ------------------------ */
+.no-records-found{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0;
+    padding: 35px 0;
+
+    .no-records-found-image{
+        margin-top: 15px;
+        width: auto;
+        height: auto;
+        img{
+            width: auto;
+            height: auto;
+        }
+    }
+    .no-records-found-text{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+        h6{
+            font-size: 19.16px;
+            font-weight: 600;
+            line-height: 24.91px;
+            color: $text_color;
+            margin-bottom: 0px;
+        }
+        p{
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 20.4px;
+            text-align: center;
+            color: $text_color;
+            margin-bottom: 0px;
+        }
+    }
+}
+/* ------------------------- no-records-found ------------------------ */

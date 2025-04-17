@@ -48,6 +48,37 @@ export const ENUMFORSTATUS = {
    */
   export const ENUMFORACCOUNTTAB = {
     PERSONAL_DETAILS: "Personal Details",
-    UPDATE_PASSWORD: "Update Password"
+    NOTIFICATION: "Notification",
+    CHANGE_PASSWORD: "Change Password",
+    DELETE_ACCOUNT: "Delete Account"
   
   } as const;
+
+  export const ENUM_FOR_DISPLAY_VIEW = {
+   LIST_VIEW:"List View",
+   GRID_VIEW:"Grid View"
+  
+  } as const;
+  export const ENUM_FOR_SYLLABUS_TAB = {
+   SYLLABUS_DETAILS:"Syllabus Details",
+   EVENT_DETAILS:"Event Details",
+  
+  } as const;
+
+
+/**
+ * Enum for task module
+ */
+
+export const ENUMFORTASK = {
+  OPEN: "Pending",
+  COMPLETED: "Completed"
+}
+
+
+export const ENUMFORDASHBORD = {
+  PENDING_EVENT: "Pending Event",
+  COMPLETED_EVENT: "Complete Event",
+  PENDING_TASK: "Pending Task",
+  COMPLETED_TASK: "Complete Task"
+}

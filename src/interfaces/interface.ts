@@ -134,8 +134,71 @@ export interface SignUpData {
   university_name: string;
   email: string;
   password: string;
-  mobile:string;
-  username:string;
- 
+  mobile: string;
+  username: string;
+
 }
 
+
+export interface SyllabusResponseType{  
+  id: number;
+  user_id: string;
+  title: string;
+  doc_id: number;
+  start_date: string; 
+  end_date: string;  
+  class_time: string; 
+  professor_name: string;
+  course_color: string; 
+  is_reminder: boolean;
+  status: any;
+  updated_at: string; 
+  no_of_events: string; 
+  syllabus_doc: any; 
+
+}
+export interface addSyllabusData{  
+  id?: number;
+  title: string;   
+  class_time: string; 
+  professor_name: string;
+  course_color: string;  
+  syllabus_doc?: any; 
+  syllabus_doc_name?: any; 
+
+}
+
+export interface addEvenData{
+  event_id?: number;
+  title: string;   
+  start_date: any; 
+  end_date: any; 
+  note?: string;
+  is_all_day_event?: boolean;
+  is_reminder?: boolean;
+  reminder?: any;
+  syllabus_id?: number;
+}
+ 
+export interface Task {
+  id: number;
+  user_id: string;
+  task_name: string;
+  due_date: string;
+  note: string;
+  is_reminder?: boolean;
+  status?: string;
+  isactive?: boolean;
+  isdeleted?: boolean;
+  created_at?: string;
+  created_by?: string;
+  updated_at?: string;
+  updated_by?: string;
+  reminder?: Reminder[];
+  task_id?: any;
+}
+
+export interface Reminder {
+  unit: string
+  value: string;
+}

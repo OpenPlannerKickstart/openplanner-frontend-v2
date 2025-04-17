@@ -9,6 +9,7 @@ import {
   setCookieByName,
   removeCookieByName,
   deleteAllCookies,
+  setPlannerToken,
   // getClientId,
 } from "./Helper"; // Importing utility functions related to server validation, token retrieval, exclusion list, and refresh tokens
 import { te, ts } from "./Toaster"; // Importing functions related to displaying toasts or messages
@@ -46,15 +47,17 @@ axiosInstance.interceptors.response.use(
           /**   Refresh the access token using the refresh token */
 
           const refreshToken = getRefreshToken(); // Retrieve the refresh token from wherever it is stored
-          const response = await axiosInstance.post(`${API_URL}refreshToken`, {
-            refreshToken,
+          const response = await axiosInstance.post(`${API_URL}refreshToken`,null, {
+            headers: {
+              refreshToken: `Bearer ${refreshToken}`,
+          },
           });
 
-          const newAccessToken = response.data.data.token;
+          const newAccessToken = response.data.data.AccessToken;
           /**  Update the access token in local storage or wherever it is stored */
 
-          setCookieByName("token", response.data.data.token);
-          setCookieByName("refreshToken", response.data.data.refreshToken);
+            setPlannerToken(response.data.data?.AccessToken);
+           
           /** Update the token in your application's state or wherever it is stored  */
           /**Update the access token in your storage  */
 
