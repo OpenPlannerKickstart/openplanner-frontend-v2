@@ -132,6 +132,7 @@ const SyllabusDetails = (props) => {
   useEffect(() => {
 
     syllabusFormData.setFieldTouched("syllabus_doc", true);
+    console.log(syllabusFormData.values.syllabus_doc);
     return () => {
 
     }

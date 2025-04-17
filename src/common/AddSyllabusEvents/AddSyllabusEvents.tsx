@@ -10,14 +10,15 @@ import { AppDispatch } from '../../redux/store';
 import { useDispatch } from 'react-redux';
 import { addEvenData, addSyllabusData } from '../../interfaces/interface';
 import { CLASS_TIME_IS_REQUIRED, END_DATE_IS_REQUIRED, FILE_FORMATE_VALIDATION, PROFESSOR_NAME_IS_REQUIRED, START_DATE_IS_REQUIRED, SYLLABUS_COLOR_IS_REQUIRED, SYLLABUS_DOC_IS_REQUIRED, SYLLABUS_TITLE_IS_REQUIRED, TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
-import { customJsonInclude, formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from '../../Utility/Helper';
+import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from '../../Utility/Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
 import { addEditEventDataAPI, addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
-import { MAX_50 } from '../../Utility/Validation_Helper';
+import { MAX_3, MAX_50, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import InputColor from 'react-input-color';
 import { ENUM_FOR_SYLLABUS_TAB } from '../../interfaces/enum';
 import GetImageIcon from '../GetImageIcon';
+import { reminderUnitDropDownData } from '../../Utility/staticDropDown';
 const AddSyllabusEvents = (props) => {
   const dispatch: AppDispatch = useDispatch();
 
@@ -29,7 +30,8 @@ const AddSyllabusEvents = (props) => {
 
       setSavedSyllabusFormData(initSyllabusData);
       syllabusFormData.resetForm();
-      syllabusDocRef.current.value = null;
+      eventFormData.resetForm();
+      setSavedEventFormData(initEventData);
     }, 300);
 
   }
@@ -39,6 +41,8 @@ const AddSyllabusEvents = (props) => {
       handleShowAddSyllabusEvents();
       syllabusFormData.resetForm();
       setSavedSyllabusFormData(initSyllabusData);
+      eventFormData.resetForm();
+      setSavedEventFormData(initEventData);
 
       handleGetSyllabusDropDownData();
     }
@@ -153,13 +157,13 @@ const AddSyllabusEvents = (props) => {
   /* ------------------------- Add Syllabus Data End ------------------------ */
 
   /* -------------------------- Add Event Data Start -------------------------- */
-  const [syllabusDropDownData,setSyllabusDropDownData] = useState<any>([]);
-  const handleGetSyllabusDropDownData = async() => {
+  const [syllabusDropDownData, setSyllabusDropDownData] = useState<any>([]);
+  const handleGetSyllabusDropDownData = async () => {
 
     const response = await dispatch(getSyllabusDropDownDataAPI({}));
     if (response) {
-      setSyllabusDropDownData(response?.payload||[]);
-    
+      setSyllabusDropDownData(response?.payload || []);
+
     }
   }
 
@@ -178,6 +182,54 @@ const AddSyllabusEvents = (props) => {
     title: yup.string().required(TITLE_IS_REQUIRED),
     start_date: yup.string().required(START_DATE_IS_REQUIRED),
     end_date: yup.string().required(END_DATE_IS_REQUIRED),
+    is_reminder: yup.boolean(),
+    reminder: yup.array()
+      .of(
+        yup.object().shape({
+          unit: yup
+            .string()
+            .nullable()
+            .when("is_reminder", {
+              is: (is_reminder) =>
+                eventFormData?.values?.is_reminder === true,
+              then: (schema) => schema.required("Unit is required"),
+              otherwise: (schema) => schema.notRequired(),
+            }),
+          value: yup
+            .string()
+            .matches(ONLY_NUMBERS, "Only numbers are allowed")
+            .nullable()
+            .when("is_reminder", {
+              is: (is_reminder) =>
+                eventFormData?.values?.is_reminder === true,
+              then: (schema) => schema.required("Value is required"),
+              otherwise: (schema) => schema.notRequired(),
+            })
+        })
+      )
+      .nullable()
+      .default([])
+      .when("is_reminder", {
+        is: (is_reminder) => is_reminder === true,
+        then: (schema) =>
+          schema
+            .required("Reminder is required")
+            .test("no-duplicates", "Duplicate reminders are not allowed", (reminders) => {
+              if (!Array.isArray(reminders) || reminders.length === 0) return true;
+      
+              const seen = new Set();
+              for (const reminder of reminders) {
+                const key = `${reminder.unit}-${reminder.value}`;
+                if (seen.has(key)) {
+                  return false; // Duplicate found
+                }
+                seen.add(key);
+              }
+              return true; // No duplicates
+            }),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+
   })
   const eventFormData = useFormik({
     initialValues: savedEventFormData || initEventData,
@@ -198,8 +250,8 @@ const AddSyllabusEvents = (props) => {
     }
     const reqBody = {
       title: eventFormData.values.title,
-      start_date: formatedDate(eventFormData.values.start_date, "yyyy-MM-dd"),
-      end_date: formatedDate(eventFormData.values.end_date, "yyyy-MM-dd"),
+      start_date: getDate(eventFormData.values.start_date),
+      end_date: getDate(eventFormData.values.end_date),
       note: eventFormData.values.note,
       is_reminder: eventFormData.values.is_reminder,
       reminder: eventFormData.values.reminder,
@@ -221,6 +273,69 @@ const AddSyllabusEvents = (props) => {
     }
   }
 
+  const handleChangeReminder = (is_reminder) => {
+    eventFormData.setFieldValue("is_reminder", is_reminder);
+    if (is_reminder) {
+      addReminderList()
+    } else {
+      eventFormData.setFieldValue("reminder", []);
+    }
+  }
+
+  const addReminderList = () => {
+    let obj: any = {
+      unit: "",
+      value: "",
+    }
+    const reminder: any = [...eventFormData.values.reminder];
+    const isAnyValueNull= reminder?.some((item: any) => (isNullUndefinedOrBlank(item?.unit) || isNullUndefinedOrBlank(item?.value)))
+    // console.log(!isAnyValueNull, "isAnyValueNull", reminder, eventFormData?.values?.is_reminder,(isAnyValueNull && eventFormData?.values?.is_reminder));
+    if(isAnyValueNull && eventFormData?.values?.is_reminder  ){  
+
+      reminder?.forEach((item: any, index: number) => {
+        eventFormData.setFieldTouched(`reminder.${index}.unit`, true);
+        eventFormData.setFieldTouched(`reminder.${index}.value`, true);
+      })
+      
+        return;
+     
+    }
+    const updatedData= [...reminder, obj];    
+    eventFormData.setFieldValue("reminder", updatedData);
+  }
+
+  const removeReminderList = (index) => {
+    let reminder: any = [...eventFormData.values.reminder];
+    let errors: any = typeof eventFormData.errors.reminder !=="string"? [...eventFormData.errors.reminder as any|| []]:null;
+    reminder.splice(index, 1);
+    eventFormData.setFieldValue("reminder", reminder);
+    const updatedErrors: any = eventFormData.errors.reminder
+      ? errors?.filter((_, i) => i !== index)
+      : [];
+    const updatedTouched = eventFormData.touched.reminder
+      ? errors?.filter((_, i) => i !== index)
+      : [];
+      
+      setTimeout(() => {
+        
+        eventFormData.setErrors({
+          ...eventFormData.errors,
+          reminder: updatedErrors|| null,
+        });
+    
+        eventFormData.setTouched({
+          ...eventFormData.touched,
+          reminder: updatedTouched|| null,
+        });
+        eventFormData.validateField(`reminder`);
+      }, 200);
+    
+
+  }
+
+
+ 
+ 
   /* -------------------------- Add Event Data End -------------------------- */
 
 
@@ -571,52 +686,137 @@ const AddSyllabusEvents = (props) => {
                           </Form.Group>
                           <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
                             <Form.Label>Calender</Form.Label>
-                            <Form.Select aria-label="Default select example">
-                              <option>Select</option>
-                              <option value="1">option 1</option>
-                              <option value="2">option 2</option>
-                              <option value="3">option 3</option>
-                            </Form.Select>
+                            <Select
+                              options={syllabusDropDownData}
+                              placeholder={<div>Select </div>}
+                              onChange={(selectedOption) => {
+                                eventFormData.setFieldValue("syllabus_id", selectedOption?.value ? selectedOption?.value : null);
+
+
+                              }}
+                              value={syllabusDropDownData?.filter(({ value }) => {
+                                return (
+                                  value ===
+                                  eventFormData.values.syllabus_id
+                                );
+                              })}
+                              // onBlur={() => {
+                              //     // objectiveDetailsFormData.setFieldTouched("theme_id", true)
+                              //     handleUpdateDetails()
+                              // }}
+                              isClearable
+                              menuPosition="fixed"
+                              className="react-select-container"
+                            />
                           </Form.Group>
                           <div className="Reminder-box">
                             <div className="title-with-switch">
                               <div className="title-text"><h4>Reminder (Notify me before start date)</h4></div>
                               <div className="switch-box ">
-                                <label className="switch" htmlFor="switch">
-                                  <input type="checkbox" id='switch' />
+                                <label className="switch" htmlFor="switch-for-event-reminder">
+                                  <input type="checkbox" id='switch-for-event-reminder'
+                                    checked={eventFormData?.values?.is_reminder}
+                                    onChange={() => { handleChangeReminder(!eventFormData.values.is_reminder) }}
+                                  />
                                   <div className="slider round"></div>
                                 </label>
                               </div>
                             </div>
-                            <div className="remider-fields">
-                              <Form.Group className='form-group'>
-                                <Form.Label>Unit</Form.Label>
-                                <Select
-                                  placeholder={<div>Days</div>}
-                                  menuPosition="fixed"
-                                  className="react-select-container"
-                                />
-                              </Form.Group>
-                              <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
-                                <Form.Label>Value</Form.Label>
-                                <Form.Select aria-label="Default select example">
-                                  <option>5</option>
-                                  <option value="1">1</option>
-                                  <option value="2">2</option>
-                                  <option value="3">3</option>
-                                </Form.Select>
-                              </Form.Group>
-                              <button type="button" className="btn btn-light-white btn-outline-white">
-                                Clear
-                              </button>
-                            </div>
+                            {
+                              eventFormData?.values.is_reminder && !isEmptyObjectOrNullUndefiend(eventFormData?.values.reminder) &&
+                              <>
+                                {
+                                  eventFormData?.values?.reminder?.map((item: any, index: number) => {
+                                    return (
+                                      <>
+                                        <div className="remider-fields" key={index}>
+                                          <Form.Group className='form-group'>
+                                            <Form.Label>Unit</Form.Label>
+                                            <Select
+                                              options={reminderUnitDropDownData}
+                                              placeholder={<div>Days</div>}
+                                              menuPosition="fixed"
+                                              className="react-select-container"
+                                              onChange={(selectedOption: any) => {
+                                                eventFormData.setFieldValue(
+                                                  `reminder.${index}.unit`, selectedOption.value)
+                                              }}
+                                              value={reminderUnitDropDownData?.filter(({ value }) => {
+                                                return (
+                                                  value ===
+                                                  // searchByCustomer
+                                                  eventFormData?.values?.reminder?.[index]?.unit
+                                                );
+                                              })}
+                                              onBlur={() => {
+                                                eventFormData.setFieldTouched(
+                                                  `reminder.${index}.unit`,
+                                                  true
+                                                );}}
+                                            />
+                                            {(eventFormData?.touched?.reminder?.[index]?.unit as any) &&
+                                              (eventFormData?.errors?.reminder?.[index]?.unit as any) &&
+                                              renderError(eventFormData?.errors?.reminder?.[index]?.unit as any)}
+
+
+                                          </Form.Group>
+                                          <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                                            <Form.Label>Value</Form.Label>
+                                            <Form.Control type="text" placeholder="Enter Value"
+                                              {...eventFormData.getFieldProps(`reminder.${index}.value`)}
+                                              // onChange={(e) => {
+                                              //   console.log(taskFormData.values.remider);
+                                              // }}
+                                              maxLength={MAX_3}
+                                              onBlur={() => {
+                                                eventFormData.setFieldTouched(
+                                                  `reminder.${index}.value`,
+                                                  true
+                                                );
+                                                // handleBlurValueUpdate(`reminder.${index}.value`);
+                                              }}
+
+
+                                            />
+                                            {(eventFormData?.touched?.reminder?.[index]?.value as any) &&
+                                              (eventFormData?.errors?.reminder?.[index]?.value as any) &&
+                                              renderError(eventFormData?.errors?.reminder?.[index]?.value as any)}
+                                          </Form.Group>
+                                          {
+                                            eventFormData?.values?.reminder?.length > 1 ?
+                                              <button type="button" className="btn btn-light-danger" onClick={() => { removeReminderList(index) }}>
+                                                <i className="material-symbols-outlined">delete</i>
+                                              </button> : null
+                                          }
+
+                                        </div>
+
+                                      </>
+                                    )
+                                  }
+                                  )
+                                }
+                                {(eventFormData?.touched?.reminder as any) &&
+                                  (eventFormData?.errors?.reminder as any) &&
+                                  typeof eventFormData?.errors?.reminder === "string" &&
+                                  renderError((eventFormData?.errors?.reminder as any))}
+                                < div className="add-remider-filed-button">
+                                  <Button variant='warning' className='btn-icon btn-icon-text'
+                                    disabled={!isNullUndefinedOrBlank(eventFormData?.errors?.reminder) && typeof eventFormData?.errors?.reminder === "string"}
+                                    onClick={() => { addReminderList() }}> <i className="material-symbols-outlined">add</i></Button>
+                                </div>
+                              </>
+                            }
+
                           </div>
                         </div>
                       </div> : <></>
                   }
                   {/* Add Event Body detail */}
                   <div className="bottom-button-group">
-                    <Button type="button" className="btn btn-light-white me-auto">
+                    <Button type="button" className="btn btn-light-white me-auto"
+                    
+                    >
                       Cancel
                     </Button>
                     <Button type="button" className="btn btn-light-white"
