@@ -11,7 +11,7 @@ import { AppDispatch } from '../../../redux/store';
 import { connect, useDispatch } from 'react-redux';
 import { MAX_50 } from '../../../Utility/Validation_Helper';
 import { EMAIL_REQUIRED, FIRST_NAME_REQUIRED, LAST_NAME_REQUIRED, UNIVERSITY_NAME_REQUIRED } from '../../../Utility/Validation_Message';
-
+import defaultAvatar from "/assets/images/avatar-default.svg";
 const MyProfile = (props) => {
     const dispatch: AppDispatch = useDispatch();
 
@@ -155,8 +155,6 @@ const MyProfile = (props) => {
     // }
 
     /** ----------------------on cancel End----------------------*/
-    console.log(formData.values)
-    console.log(savedFormData)
     return (
         <>
             <div className="profile-main-wrapper">
@@ -167,7 +165,7 @@ const MyProfile = (props) => {
                         </div>
                         <div className="profile-upload">
                             <div className="profile-image">
-                                <img src={!isNullUndefinedOrBlank(formData?.values?.profile_image) ? formData?.values?.profile_image : UserProfile} alt="OpenPlaner" />
+                                <img src={!isNullUndefinedOrBlank(formData?.values?.profile_image) ? formData?.values?.profile_image : defaultAvatar} alt="OpenPlaner" />
                             </div>
 
                             <div className="profile-text">

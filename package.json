@@ -11,6 +11,8 @@
     "@types/node": "^16.18.68",
     "@types/react": "^18.2.42",
     "@types/react-dom": "^18.2.17",
+    "add-to-calendar-button": "^2.8.9",
+    "add-to-calendar-button-react": "^2.8.9",
     "axios": "^1.4.0",
     "babel-plugin-react-css-modules": "^5.2.6",
     "bootstrap": "^5.3.3",

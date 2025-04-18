@@ -7,7 +7,7 @@ import { END_DATE_IS_REQUIRED, START_DATE_IS_REQUIRED, TITLE_IS_REQUIRED } from 
 import * as yup from 'yup';
 import { MAX_3, MAX_50, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
-import { customJsonInclude, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError } from '../../Utility/Helper';
+import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError } from '../../Utility/Helper';
 import { addEditEventDataAPI } from '../../redux/Service/User/Courses/courses';
 import { Button, Col, Form, Offcanvas, Row } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
@@ -17,6 +17,9 @@ import appleLogo from "/assets/images/apple-logo.svg";
 import calendarLogo from "/assets/images/calendar-logo.svg";
 import outlookLogo from "/assets/images/outlook-logo.svg";
 import moment from 'moment';
+import { AddToCalendarButton } from 'add-to-calendar-button-react';
+import 'add-to-calendar-button';
+
 
 export const AddEditEvent = (props) => {
     const dispatch: AppDispatch = useDispatch();
@@ -503,28 +506,51 @@ export const AddEditEvent = (props) => {
                                                             <div className="title-text">
                                                                 <h4>Add On Your Default Calender</h4>
                                                             </div>
+
+
+                                                            {/* <AddToCalendarButton> */}
+
+
+
+
                                                             <div className="button-group social-cal">
-                                                                <Button
+                                                                {/* <Button
                                                                     variant="outline-white"
                                                                     className="btn-icon-text "
                                                                 >
                                                                     <img src={appleLogo} alt="" />
                                                                     Apple Calendar
-                                                                </Button>
-                                                                <Button
+                                                            </Button> */}
+
+                                                                {/* <Button
                                                                     variant="outline-white"
                                                                     className="btn-icon-text "
                                                                 >
                                                                     <img src={calendarLogo} alt="" />
                                                                     Google Calendar
-                                                                </Button>
-                                                                <Button
+                                                                </Button> */}
+
+                                                                {/* <Button
                                                                     variant="outline-white"
                                                                     className="btn-icon-text "
                                                                 >
                                                                     <img src={outlookLogo} alt="" />
                                                                     Outlook
-                                                                </Button>
+                                                                </Button> */}
+                                                                <add-to-calendar-button
+                                                                    name={eventFormData?.values?.title}
+                                                                    startDate={!isNullUndefinedOrBlank(eventFormData?.values?.start_date) ? formatedDate(eventFormData?.values?.start_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
+                                                                    endDate={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
+                                                                    startTime={!isNullUndefinedOrBlank(eventFormData?.values?.start_date) ? formatedDate(eventFormData?.values?.start_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
+                                                                    endTime={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
+                                                                    timeZone="America/New_York"
+                                                                    description={!isNullUndefinedOrBlank(eventFormData?.values?.note) ? eventFormData?.values?.note : ""}
+                                                                    options="'Apple','Google','iCal','Outlook.com','Yahoo'"
+                                                                    buttonsList
+                                                                    hideTextLabelButton
+                                                                    buttonStyle="round"
+                                                                    lightMode="bodyScheme"
+                                                                ></add-to-calendar-button>
                                                             </div>
                                                         </div>
                                                         <div className="checkbox checkbox-primary all-event-checkbox">
