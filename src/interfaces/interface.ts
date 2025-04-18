@@ -179,6 +179,8 @@ export interface addEvenData{
   reminder?: any;
   syllabus_id?: any;
   syllabus?:SyllabusResponseType ;
+  id?:any;
+  status?: any;
 }
 
 export interface dueEventData{
@@ -186,7 +188,7 @@ export interface dueEventData{
   due_date?: string;
 }
 export interface EventResponseType{
-  pastEventData?:Array<dueEventData>;
+  pastEventData?:Array<addEvenData>;
   dueEventData?:Array<dueEventData>;
 }
  

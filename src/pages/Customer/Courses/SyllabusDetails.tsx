@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 import { connect, useDispatch } from "react-redux";
 import DefaultAvtar from '../../../assets/images/avatar-default.svg'
 import Select, { components, ControlProps } from "react-select";
@@ -12,7 +12,7 @@ import DatePicker from "react-datepicker";
 import InputColor from "react-input-color";
 import { MAX_50 } from "../../../Utility/Validation_Helper";
 import { AppDispatch } from "../../../redux/store";
-import { addEditSyllabusDataAPI } from "../../../redux/Service/User/Courses/courses";
+import { addEditSyllabusDataAPI, deleteSyllabusDataAPI } from "../../../redux/Service/User/Courses/courses";
 import GetImageIcon from "../../../common/GetImageIcon";
 const SyllabusDetails = (props) => {
   const dispatch: AppDispatch = useDispatch();
@@ -57,7 +57,7 @@ const SyllabusDetails = (props) => {
     professor_name: yup.string().required(PROFESSOR_NAME_IS_REQUIRED),
     course_color: yup.string().required(SYLLABUS_COLOR_IS_REQUIRED),
     syllabus_doc: yup.mixed()
-      .when(([syllabus_doc]) => {       
+      .when(([syllabus_doc]) => {
         return typeof syllabus_doc === "object" && syllabus_doc !== null ?
           yup.mixed().nullable()
             .test("FILE_FORMAT", FILE_FORMATE_VALIDATION,
@@ -132,12 +132,40 @@ const SyllabusDetails = (props) => {
   useEffect(() => {
 
     syllabusFormData.setFieldTouched("syllabus_doc", true);
-    console.log(syllabusFormData.values.syllabus_doc);
+
     return () => {
 
     }
   }, [syllabusFormData.values.syllabus_doc])
 
+
+
+  /** -------------------Delete Syllabus start-------------------------*/
+  const [deleteShow, setDeleteShow] = useState(false);
+
+  const handleDeleteClose = () => {
+    setDeleteShow(false);
+  
+  }
+  const handleDeleteShow = () => {
+    setDeleteShow(true)
+
+  }
+  const handleDeleteSyllabus = async () => {
+    const reqBody = {
+      id: [props?.selectedSyllabusObj?.id],
+    }
+    const response = await dispatch(deleteSyllabusDataAPI(reqBody));
+    if (response) {
+      props.handleCloseSyllabusDetails()
+      props.handleGetCourseList();
+
+    }
+
+
+  }
+
+  /** -------------------Delete Syllabus end-------------------------*/
 
 
   return (
@@ -305,7 +333,9 @@ const SyllabusDetails = (props) => {
         >
           Cancel
         </Button>
-        <Button type="button" className="btn btn-light-danger">
+        <Button type="button" className="btn btn-light-danger"
+        onClick={() => { handleDeleteShow() }}
+        >
           Delete Syllabus
         </Button>
         <Button type="button" className="btn btn-primary"
@@ -314,6 +344,61 @@ const SyllabusDetails = (props) => {
           Save
         </Button>
       </div>
+
+
+      {/* Delete Modal */}
+      <Modal
+        className="modal-theme modal-confirmation modal-reject"
+        show={deleteShow}
+        onHide={handleDeleteClose}
+        centered
+      >
+        <Modal.Header>
+          <h4 className="modal-title">Delete Syllabus</h4>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={handleDeleteClose}
+          >
+            <i className="material-symbols-outlined">close</i>
+          </button>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="modal-confirmation-container">
+            <div className="modal-confirmation-icon">
+              <i className="material-symbols-outlined">delete</i>
+            </div>
+            <div className="modal-confirmation-content">
+              <h5> Want to Delete?</h5>
+              <p>
+                Are you sure, you want to delete this Syllabus ?
+
+              </p>
+            </div>
+          </div>
+          <div className="modal-button-group modal-full-width-btn modal-footer-button">
+    
+              <Button
+                variant="light-white"
+                className="btn-md"
+                onClick={handleDeleteClose}
+              >
+                No, Change My Mind
+              </Button>
+            
+            <Button
+              variant={ "danger"}
+              className="btn-icon-text btn-md"
+              onClick={() => {
+                handleDeleteSyllabus()
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+      {/* Delete Modal */}
     </>
   );
 };

@@ -22,6 +22,8 @@ export const START_DATE_IS_REQUIRED = 'Start Date is Required!!';
 export const END_DATE_IS_REQUIRED = 'End Date is Required!!';
 export const SELECTION_IS_REQUIRED = 'Selection is Required!!';
 
+export const NO_START_DATE_ADDED = 'No Start Date Added';
+export const NO_END_DATE_ADDED = 'No End Date Added';
 
 export const CONFIRM_PASSWORD_REQUIRED = "Confirm Password Is Required!!";
 export const NEW_PASSWORD_REQUIRED = "New Password is Required!!";

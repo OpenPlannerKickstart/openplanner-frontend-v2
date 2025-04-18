@@ -16,7 +16,7 @@ import SyllabusDetails from "./SyllabusDetails";
 import Events from "./Events";
 import AddSyllabusEvents from "../../../common/AddSyllabusEvents/AddSyllabusEvents";
 import { AppDispatch } from "../../../redux/store";
-import { getCoursesListDataAPI } from "../../../redux/Service/User/Courses/courses";
+import { deleteSyllabusDataAPI, getCoursesListDataAPI } from "../../../redux/Service/User/Courses/courses";
 import { addSyllabusData, SyllabusResponseType } from "../../../interfaces/interface";
 import { formatedDate, isEmptyObjectOrNullUndefiend, NO_RECORD_FOUND_MSG } from "../../../Utility/Helper";
 import { ENUM_FOR_DISPLAY_VIEW } from "../../../interfaces/enum";
@@ -27,15 +27,15 @@ const Courses = (props) => {
 
   const [showCourse, setShowCourse] = useState(false);
   const [showEvent, setShowEvent] = useState(false);
-  const [isAddNewData,setIsAddNewData]=useState(false);
+  const [isAddNewData, setIsAddNewData] = useState(false);
 
-  const handleCloseCourse = () => {setShowCourse(false); setSelectedSyllabusObj({} as addSyllabusData);}
+  const handleCloseCourse = () => { setShowCourse(false); setSelectedSyllabusObj({} as addSyllabusData); }
   const handleShowCourse = () => setShowCourse(true);
 
   const [selectedSyllabusObj, setSelectedSyllabusObj] = useState<addSyllabusData>({} as addSyllabusData);
 
   const handleUpdateCourse = (syllabusObj) => {
-   handleShowCourse()
+    handleShowCourse()
     setSelectedSyllabusObj(syllabusObj);
 
   }
@@ -48,10 +48,7 @@ const Courses = (props) => {
   const toggleShowAddSyllabusEvents = () => setShowAddSyllabusEvents((s) => !s);
 
 
-  // Close modal
-  const [deleteShow, setDeleteShow] = useState(false);
-  const handleDeleteClose = () => setDeleteShow(false);
-  const handleDeleteShow = () => setDeleteShow(true);
+
   /* ------------------------ Handle Display View start ----------------------- */
   const [selectedView, setSelectedView] = useState<any>(ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW);
   const handleChangeView = (view) => {
@@ -77,7 +74,7 @@ const Courses = (props) => {
   useEffect(() => {
 
     const delayDebounceFn = setTimeout(() => {
-      if(isAddNewData){
+      if (isAddNewData) {
         handleGetCourseList();
         setTimeout(() => {
           setIsAddNewData(false);
@@ -103,6 +100,38 @@ const Courses = (props) => {
   }
 
   /* ---------------------- handle Get Course List End ---------------------- */
+  /** -------------------Delete Syllabus start-------------------------*/
+  const [deleteShow, setDeleteShow] = useState(false);
+
+  const handleDeleteClose = () => {
+    setDeleteShow(false);
+    setSelectedSyllabusObj({} as addSyllabusData);
+
+  }
+  const handleDeleteShow = (data) => {
+    if (isEmptyObjectOrNullUndefiend(data)) {
+      return;
+    }
+
+    setDeleteShow(true);
+    setSelectedSyllabusObj(data);
+
+  }
+  const handleDeleteSyllabus = async () => {
+    const reqBody = {
+      id: [selectedSyllabusObj?.id],
+    }
+    const response = await dispatch(deleteSyllabusDataAPI(reqBody));
+    if (response) {
+      handleDeleteClose()
+      handleGetCourseList();
+
+    }
+
+
+  }
+
+  /** -------------------Delete Syllabus end-------------------------*/
 
   return (
     <>
@@ -234,11 +263,11 @@ const Courses = (props) => {
                                   <div className="tbl-action-group">
                                     <button
                                       className="btn btn-xs btn-icon btn-transparent"
-                                      onClick={()=>{handleUpdateCourse(item)}}
+                                      onClick={() => { handleUpdateCourse(item) }}
                                     >
                                       <i className="material-symbols-outlined">edit</i>
                                     </button>
-                                    <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
+                                    <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow(item) }}>
                                       <i className="material-symbols-outlined">delete</i>
                                     </button>
                                   </div>
@@ -266,68 +295,70 @@ const Courses = (props) => {
 
             {/***** Grid layout start *****/}
             {
-              selectedView===ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW &&
+              selectedView === ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW &&
 
-            <div className="gird-view-layout">
-              <div className="course-wrapper">
-                <Row className="course-container">
-                  {
-                    !isEmptyObjectOrNullUndefiend(syllabusList)?syllabusList?.map((item,index)=>{
-                      return(
-                        <Col md={"4"} key={index}>
-                        <Card className="card-style-1">
-                          <Card.Body>
-                            <div className="corse-card">
-                              <div className="card-main-img" style={{ backgroundColor: `${item?.course_color||"#239bc266"}`,opacity:0.4 }}>
-                                <img src={gridCardImg} alt="Open Planer" />
-                              </div>
-                              <div className="card-details-wrapper">
-                                <div className="card-title">
-                                  <h3>{item?.title||""}</h3>
-                                </div>
-                                <div className="selected-date-with-color">
-                                  <div className="selected-date">
-                                    <i className="material-symbols-outlined">calendar_month</i>
-                                    <p> {formatedDate(item?.updated_at, " DD-MM-YYYY - hh:mm A")}</p>
+              <div className="gird-view-layout">
+                <div className="course-wrapper">
+                  <Row className="course-container">
+                    {
+                      !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {
+                        return (
+                          <Col md={"4"} key={index}>
+                            <Card className="card-style-1">
+                              <Card.Body>
+                                <div className="corse-card">
+                                  <div className="card-main-img" style={{ backgroundColor: `${item?.course_color || "#239bc266"}`, opacity: 0.4 }}>
+                                    <img src={gridCardImg} alt="Open Planer" />
                                   </div>
-                                  <div className="selected-color">
-                                    <span className="color-code"style={{ backgroundColor: `${item?.course_color||"#239bc266"}` }}></span>
-                                    <p>{item?.course_color||"#239bc266"}</p>
-                                  </div>
-                                </div>
-                                <div className="card-bottom">
-                                  <div className="event-with-action">
-                                    <div className="event">
-                                      <p>
-                                        <i className="material-symbols-outlined">trophy</i> Event:{" "}
-                                        <span className="event-nub">{item?.no_of_events||"0"}</span>
-                                      </p>
+                                  <div className="card-details-wrapper">
+                                    <div className="card-title">
+                                      <h3>{item?.title || ""}</h3>
                                     </div>
-                                    <div className="action-button">
-                                      <button
-                                        className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm"
-                                        onClick={()=>{handleUpdateCourse(item)}}
-                                      >
-                                        <i className="material-symbols-outlined">edit</i>
-                                      </button>
-                                      <button className="btn-icon btn-light-danger btn-icon-text btn btn-danger btn-sm">
-                                        <i className="material-symbols-outlined">delete</i>
-                                      </button>
+                                    <div className="selected-date-with-color">
+                                      <div className="selected-date">
+                                        <i className="material-symbols-outlined">calendar_month</i>
+                                        <p> {formatedDate(item?.updated_at, " DD-MM-YYYY - hh:mm A")}</p>
+                                      </div>
+                                      <div className="selected-color">
+                                        <span className="color-code" style={{ backgroundColor: `${item?.course_color || "#239bc266"}` }}></span>
+                                        <p>{item?.course_color || "#239bc266"}</p>
+                                      </div>
+                                    </div>
+                                    <div className="card-bottom">
+                                      <div className="event-with-action">
+                                        <div className="event">
+                                          <p>
+                                            <i className="material-symbols-outlined">trophy</i> Event:{" "}
+                                            <span className="event-nub">{item?.no_of_events || "0"}</span>
+                                          </p>
+                                        </div>
+                                        <div className="action-button">
+                                          <button
+                                            className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm"
+                                            onClick={() => { handleUpdateCourse(item) }}
+                                          >
+                                            <i className="material-symbols-outlined">edit</i>
+                                          </button>
+                                          <button className="btn-icon btn-light-danger btn-icon-text btn btn-danger btn-sm"
+                                            onClick={() => { handleDeleteShow(item) }}
+                                          >
+                                            <i className="material-symbols-outlined">delete</i>
+                                          </button>
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                      )
-                    }):<></>
-                  }
-           
-                </Row>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        )
+                      }) : <></>
+                    }
+
+                  </Row>
+                </div>
               </div>
-            </div>
             }
             {/***** Grid layout end *****/}
 
@@ -348,7 +379,7 @@ const Courses = (props) => {
             {/* Delete Modal */}
             <Modal className='modal-theme modal-confirmation modal-reject' show={deleteShow} onHide={handleDeleteClose} centered>
               <Modal.Header >
-                <h4 className="modal-title">Delete Task</h4>
+                <h4 className="modal-title">Delete Syllabus</h4>
                 <button type="button" className="btn-close" onClick={handleDeleteClose}>
                   <i className='material-symbols-outlined'>close</i>
                 </button>
@@ -365,7 +396,7 @@ const Courses = (props) => {
                 </div>
                 <div className="modal-button-group modal-full-width-btn modal-footer-button">
                   <Button variant='light-white' className="btn-md" onClick={handleDeleteClose}> No, Change My Mind</Button>
-                  <Button variant='danger' className='btn-icon-text btn-md' onClick={handleDeleteClose}>
+                  <Button variant='danger' className='btn-icon-text btn-md' onClick={() => { handleDeleteSyllabus() }}>
                     Delete
                   </Button>
                 </div>

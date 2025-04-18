@@ -1,5 +1,6 @@
 import { ADD_EDIT_EVENT_DATA_API, ADD_EDIT_SYLLABUS_DATA_API, DELETE_EVENT_DATA_API, DELETE_SYLLABUS_DATA_API, GET_COURSES_LIST_DATA_API, GET_EVENT_LIST_DATA_API, GET_SYLLABUS_DROP_DOWN_DATA_API, UPDATE_EVENT_STATUS_DATA_API, UPDATE_SYLLABUS_STATUS_DATA_API } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
+import { ts } from "../../../../Utility/Toaster";
 import { setLoading } from "../../../Loader/LoaderSlice";
 import { AppDispatch } from "../../../store";
 import { addEditEventDataFailure, addEditEventDataSuccess, addEditSyllabusDataFailure, addEditSyllabusDataSuccess, deleteEventDataFailure, deleteEventDataSuccess, deleteSyllabusDataFailure, deleteSyllabusDataSuccess, getCoursesListDataFailure, getCoursesListDataSuccess, getEventListDataFailure, getEventListDataSuccess, getSyllabusDropDownDataFailure, getSyllabusDropDownDataSuccess, updateEventStatusDataFailure, updateEventStatusDataSuccess, updateSyllabusStatusDataFailure, updateSyllabusStatusDataSuccess } from "../../../User/Courses/coursesSlice";
@@ -121,6 +122,7 @@ export const deleteSyllabusDataAPI =
     try {
       const response: any = await post(DELETE_SYLLABUS_DATA_API, objBody);
       if (!response.data.error) {       
+        ts(response.data.message);
         return  dispatch(deleteSyllabusDataSuccess(response.data.data));
       } else {
         dispatch(deleteSyllabusDataFailure());

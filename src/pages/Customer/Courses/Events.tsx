@@ -2,28 +2,23 @@ import React, { useEffect, useState } from 'react'
 import { Badge, Button, Collapse, Modal, OverlayTrigger, Table, Tooltip } from 'react-bootstrap'
 import { connect, useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
-import { getEventListDataAPI } from '../../../redux/Service/User/Courses/courses'
+import { deleteEventDataAPI, getEventListDataAPI, updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses'
 import { ENUM_FOR_SYLLABUS_TAB } from '../../../interfaces/enum'
 import { EventResponseType } from '../../../interfaces/interface'
-import { formatedDate } from '../../../Utility/Helper'
+import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, NO_RECORD_FOUND_MSG } from '../../../Utility/Helper'
+import { NO_END_DATE_ADDED, NO_START_DATE_ADDED } from '../../../Utility/Validation_Message'
 
 const Events = (props) => {
   const dispatch: AppDispatch = useDispatch();
   const [open, setOpen] = useState(false);
 
   // Deleted modal
-  const [deleteShow, setDeleteShow] = useState(false);
-  const handleDeleteClose = () => setDeleteShow(false);
-  const handleDeleteShow = () => setDeleteShow(true);
+
 
   // Compated Deleted modal
-  const [SuccessDeleteShow, setSuccessDeleteShow] = useState(false);
-  const handleSuccessDeleteClose = () => setSuccessDeleteShow(false);
-  const handleSuccessDeleteShow = () => setSuccessDeleteShow(true);
 
-  const [SuccessShow, setSuccessShow] = useState(false);
-  const handleSuccessClose = () => setSuccessShow(false);
-  const handleSuccessShow = () => setSuccessShow(true);
+
+
   /* ------------------ handle Get Event List Data API Start ------------------ */
   const [eventListData, setEventListData] = useState<EventResponseType>({} as EventResponseType);
   useEffect(() => {
@@ -45,12 +40,78 @@ const Events = (props) => {
     if (response) {
       setEventListData(response?.payload);
     }
-    console.log(response, "Event List Data Response");
+
   }
 
 
   /* ------------------ handle Get Event List Data API End ------------------ */
+  /** -------------------Delete event start-------------------------*/
+  const [deleteShow, setDeleteShow] = useState(false);
+  const [selectedEventObj, setSelectedEventObj] = useState<any>(null);
 
+  const handleDeleteClose = () => {
+    setDeleteShow(false);
+    setTimeout(() => {
+      setSelectedEventObj(null);
+      setDeleteSuccess(false);
+    }, 300);
+  }
+  const handleDeleteShow = (data) => {
+    setDeleteShow(true)
+    setSelectedEventObj(data);
+  }
+
+  const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
+
+  const handleDeleteData = async (eventId) => {
+    let event_id: any = [];
+    if (eventId instanceof Array) {
+      event_id = eventId;
+    }
+    else {
+      event_id = [eventId];
+    }
+    const reqBody = {
+      event_id: event_id,
+    }
+
+    const response = await dispatch(deleteEventDataAPI(reqBody));
+    if (!isNullUndefinedOrBlank(response?.payload)) {
+      getEventListData();
+      setDeleteSuccess(true);
+    }
+  }
+
+  /** -------------------Delete Event end-------------------------*/
+
+
+  /** -------------------Event complete Start-------------------------*/
+
+  const [successShow, setSuccessShow] = useState(false);
+  const handleSuccessClose = () => setSuccessShow(false);
+  const handleSuccessShow = () => setSuccessShow(true);
+
+  const handleEventCompleted = async (id) => {    
+    let event_id: any = [];
+    if (id instanceof Array) {
+      event_id = id;
+    }
+    else {
+      event_id = [id];
+    }
+    const reqBody = {
+      event_id: event_id,
+    }
+    let response = await dispatch(updateEventStatusDataAPI(reqBody));
+    if (!isNullUndefinedOrBlank(response?.payload)) {
+      getEventListData();
+      handleSuccessShow();
+    }
+  }
+
+
+
+  /** -------------------Event complete End-------------------------*/
 
   return (
     <>
@@ -64,7 +125,7 @@ const Events = (props) => {
                 <div className="event-card">
                   <div className="due-event-box">
                     <div className="card-title">
-                      <h4>Due on {formatedDate(parentItem?.due_date,'dddd, MMMM YYYY')}</h4>
+                      <h4>Due on {formatedDate(parentItem?.due_date, 'DD, MMMM YYYY')}</h4>
                     </div>
                     <div className="card-body">
                       <div className="table-responsive">
@@ -72,56 +133,78 @@ const Events = (props) => {
                           <thead className="border-less">
                             <tr>
                               <th>Event Name</th>
-                              <th>Time</th>
+                              <th>Start Date</th>
+                              <th>End Date</th>
                               <th className="text-center">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
 
-                           {
-                            parentItem?.eventData?.map((childItem, index) => {
-                              return(
-                                <tr>
-                                <td>
-                                  <div className="event-name-tooltip">
-                                    <div className="enevt-name"><h3>{childItem?.title||""}</h3></div>
-                                    <div className="event-tool">
-                                      <Badge style={{backgroundColor: `${childItem?.syllabus?.course_color||"#239bc266"}`,opacity:0.4 }}><i className="material-symbols-outlined">book_2</i>{childItem?.syllabus?.title||""}</Badge>
-                                    </div>
-                                  </div>
-                                </td>
-                                <td>{`${formatedDate(childItem?.start_date,"DD-MM-yyyy")||""} - ${formatedDate(childItem?.end_date,"DD-MM-yyyy")||""}`}</td>
-                                <td className="tbl-action">
-                                  <div className="tbl-action-group">
-                                    <OverlayTrigger
-                                      trigger={["hover", "hover"]}
-                                      placement="bottom"
-                                      overlay={<Tooltip>Add User</Tooltip>}
-                                    >
-                                      <button
-                                        className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
-                                      >
-                                        {" "}
-                                        <i className="material-symbols-outlined">check_circle</i>
-                                      </button>
-                                    </OverlayTrigger>
-                                    <OverlayTrigger
-                                      trigger={["hover", "hover"]}
-                                      placement="bottom"
-                                      overlay={<Tooltip>Add User</Tooltip>}
-                                    >
-                                      <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
-                                        {" "}
-                                        <i className="material-symbols-outlined">delete</i>
-                                      </button>
-                                    </OverlayTrigger>
-                                  </div>
-                                </td>
-                              </tr>
-                              )
-                           })}
-                           
-                           
+                            {
+                              parentItem?.eventData?.map((childItem, index) => {
+                                return (
+                                  <tr className={`${childItem?.status === "Completed" ? "active-table" : ""}`} key={index}>
+                                    <td>
+                                      <div className="event-name-tooltip">
+                                        <div className="enevt-name"><h3>{childItem?.title || ""}</h3></div>
+                                        <div className="event-tool">
+                                          <Badge style={{ backgroundColor: `${childItem?.syllabus?.course_color || "#239bc266"}`, opacity: 0.4 }}><i className="material-symbols-outlined">book_2</i>{childItem?.syllabus?.title || ""}</Badge>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td>{!isNullUndefinedOrBlank(childItem?.start_date) ? formatedDate(childItem?.start_date, "DD-MM-yyyy") : NO_START_DATE_ADDED}</td>
+                                    <td>{!isNullUndefinedOrBlank(childItem?.end_date) ? formatedDate(childItem?.end_date, "DD-MM-yyyy") : NO_END_DATE_ADDED}</td>
+                                    <td className="tbl-action">
+                                      <div className="tbl-action-group">
+
+
+                                        {
+                                          childItem?.status === "Completed" ?
+
+                                            <OverlayTrigger
+                                              trigger={["hover", "hover"]}
+                                              placement="bottom"
+                                              overlay={<Tooltip>Completed</Tooltip>}
+                                            >
+                                              <button
+                                                className="btn btn-xs btn-icon btn-transparent check-icon"
+                                              >
+                                                {" "}
+                                                <i className="material-symbols-outlined">check_circle</i>
+                                              </button>
+                                            </OverlayTrigger> :
+                                            <OverlayTrigger
+                                              trigger={["hover", "hover"]}
+                                              placement="bottom"
+                                              overlay={<Tooltip>Update Status</Tooltip>}
+                                            >
+                                              <button className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => {
+
+                                                handleEventCompleted(childItem?.id)
+                                              }}
+                                              >
+                                                <i className="material-symbols-outlined">check_circle</i>
+                                              </button>
+                                            </OverlayTrigger>
+
+                                        }
+                                        <OverlayTrigger
+                                          trigger={["hover", "hover"]}
+                                          placement="bottom"
+                                          overlay={<Tooltip>Delete</Tooltip>}
+                                        >
+                                          <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => handleDeleteShow(childItem)}>
+
+                                            <i className="material-symbols-outlined">delete</i>
+                                          </button>
+                                        </OverlayTrigger>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )
+                              })}
+
+
                           </tbody>
                         </Table>
                       </div>
@@ -131,115 +214,123 @@ const Events = (props) => {
               )
             }) : <></>
           }
-        
-       
-          <div className="event-card">
-            <div className="due-event-box post-event">
-              <div className="card-title">
-                <Button className='event-collapes-btn'
-                  onClick={() => setOpen(!open)}
-                  aria-controls="example-collapse-text"
-                  aria-expanded={open}
-                >
-                  Past Events
-                  <button className="btn btn-xs btn-icon btn-transparent collapes-btn"><i className="material-symbols-outlined">keyboard_arrow_right</i></button>
-                </Button>
-              </div>
-              <div className="card-body">
-                <Collapse in={open}>
-                  <div id="example-collapse-text">
-                    <div className="table-responsive">
-                      <Table className="table-theme">
-                        <thead className="border-less">
-                          <tr>
-                            <th>Event Name</th>
-                            <th>Time</th>
-                            <th className="text-center">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr className='active-table'>
-                            <td>
-                              <div className="event-name-tooltip">
-                                <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
-                                <div className="event-tool">
-                                  <Badge bg="primary-bg"><i className="material-symbols-outlined">book_2</i>History Unfolded</Badge>
-                                </div>
-                              </div>
-                            </td>
-                            <td>4:40 PM - 4:40 PM</td>
-                            <td className="tbl-action">
-                              <div className="tbl-action-group">
-                                <OverlayTrigger
-                                  trigger={["hover", "hover"]}
-                                  placement="bottom"
-                                  overlay={<Tooltip>Add User</Tooltip>}
-                                >
-                                  <button
-                                    className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
-                                  >
-                                    {" "}
-                                    <i className="material-symbols-outlined">check_circle</i>
-                                  </button>
-                                </OverlayTrigger>
-                                <OverlayTrigger
-                                  trigger={["hover", "hover"]}
-                                  placement="bottom"
-                                  overlay={<Tooltip>Add User</Tooltip>}
-                                >
-                                  <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
-                                    {" "}
-                                    <i className="material-symbols-outlined">delete</i>
-                                  </button>
-                                </OverlayTrigger>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <div className="event-name-tooltip">
-                                <div className="enevt-name"><h3>Innovative Approaches to Modern Education</h3></div>
-                                <div className="event-tool">
-                                  <Badge bg="danger-bg"><i className="material-symbols-outlined">book_2</i>TCU Academic Calendar</Badge>
-                                </div>
-                              </div>
-                            </td>
-                            <td>4:40 PM - 4:40 PM</td>
-                            <td className="tbl-action">
-                              <div className="tbl-action-group">
-                                <OverlayTrigger
-                                  trigger={["hover", "hover"]}
-                                  placement="bottom"
-                                  overlay={<Tooltip>Add User</Tooltip>}
-                                >
-                                  <button
-                                    className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
-                                  >
-                                    {" "}
-                                    <i className="material-symbols-outlined">check_circle</i>
-                                  </button>
-                                </OverlayTrigger>
-                                <OverlayTrigger
-                                  trigger={["hover", "hover"]}
-                                  placement="bottom"
-                                  overlay={<Tooltip>Add User</Tooltip>}
-                                >
-                                  <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={handleDeleteShow}>
-                                    {" "}
-                                    <i className="material-symbols-outlined">delete</i>
-                                  </button>
-                                </OverlayTrigger>
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </Table>
+
+          {
+            !isEmptyObjectOrNullUndefiend(eventListData?.pastEventData) ?
+              <>
+                <div className="event-card">
+                  <div className="due-event-box post-event">
+                    <div className="card-title">
+                      <Button className='event-collapes-btn'
+                        onClick={() => setOpen(!open)}
+                        aria-controls="example-collapse-text"
+                        aria-expanded={open}
+                      >
+                        Past Events
+                        <button className="btn btn-xs btn-icon btn-transparent collapes-btn"><i className="material-symbols-outlined">keyboard_arrow_right</i></button>
+                      </Button>
+                    </div>
+                    <div className="card-body">
+                      <Collapse in={open}>
+                        <div id="example-collapse-text">
+                          <div className="table-responsive">
+                            <Table className="table-theme">
+                              <thead className="border-less">
+                                <tr>
+                                  <th>Event Name</th>
+                                  <th>Start Date</th>
+                                  <th>End Date</th>
+                                  <th className="text-center">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+
+                                {!isEmptyObjectOrNullUndefiend(eventListData?.pastEventData) ? eventListData?.pastEventData?.map((parentItem, index) => {
+                                  return (
+
+                                    <tr className={`${parentItem?.status === "Completed" ? "active-table" : ""}`} key={index}>
+                                      <td>
+                                        <div className="event-name-tooltip">
+                                          <div className="enevt-name"><h3>{parentItem?.title || ""} </h3></div>
+                                          <div className="event-tool">
+                                            <Badge style={{ backgroundColor: `${parentItem?.syllabus?.course_color || "#239bc266"}`, opacity: 0.4 }}><i className="material-symbols-outlined">book_2</i>{parentItem?.syllabus?.title || ""}</Badge>
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td>{!isNullUndefinedOrBlank(parentItem?.start_date) ? formatedDate(parentItem?.start_date, "DD-MM-yyyy") : NO_START_DATE_ADDED}</td>
+                                      <td>{!isNullUndefinedOrBlank(parentItem?.end_date) ? formatedDate(parentItem?.end_date, "DD-MM-yyyy") : NO_END_DATE_ADDED}</td>
+                                      <td className="tbl-action">
+                                        <div className="tbl-action-group">
+
+                                          {
+                                            parentItem?.status === "Completed" ?
+
+                                              <OverlayTrigger
+                                                trigger={["hover", "hover"]}
+                                                placement="bottom"
+                                                overlay={<Tooltip>Completed</Tooltip>}
+                                              >
+                                                <button
+                                                  className="btn btn-xs btn-icon btn-transparent check-icon"
+                                                >
+                                                  {" "}
+                                                  <i className="material-symbols-outlined">check_circle</i>
+                                                </button>
+                                              </OverlayTrigger> :
+                                              <OverlayTrigger
+                                                trigger={["hover", "hover"]}
+                                                placement="bottom"
+                                                overlay={<Tooltip>Update Status</Tooltip>}
+                                              >
+                                                <button
+                                                  className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
+                                                >
+                                                  {" "}
+                                                  <i className="material-symbols-outlined">check_circle</i>
+                                                </button>
+                                              </OverlayTrigger>
+
+                                          }
+                                          <OverlayTrigger
+                                            trigger={["hover", "hover"]}
+                                            placement="bottom"
+                                            overlay={<Tooltip>Delete</Tooltip>}
+                                          >
+                                            <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => handleDeleteShow(parentItem)}>
+                                              {" "}
+                                              <i className="material-symbols-outlined">delete</i>
+                                            </button>
+                                          </OverlayTrigger>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )
+                                })
+                                  : <tr>
+                                    <td className='text-center'
+                                      colSpan={35}
+                                    >
+                                      {NO_RECORD_FOUND_MSG}
+                                    </td>
+                                  </tr>
+                                }
+                              </tbody>
+                            </Table>
+                          </div>
+                        </div>
+                      </Collapse>
                     </div>
                   </div>
-                </Collapse>
-              </div>
-            </div>
-          </div>
+
+
+
+                </div>
+              </>
+              : <></>
+          }
+
+
+
 
           {/* Delete Modal */}
           <Modal
@@ -249,7 +340,7 @@ const Events = (props) => {
             centered
           >
             <Modal.Header>
-              <h4 className="modal-title">Delete Task</h4>
+              <h4 className="modal-title">Delete Event</h4>
               <button
                 type="button"
                 className="btn-close"
@@ -264,27 +355,35 @@ const Events = (props) => {
                   <i className="material-symbols-outlined">delete</i>
                 </div>
                 <div className="modal-confirmation-content">
-                  <h5>Want to Delete?</h5>
+                  <h5> {!deleteSuccess ? "Want to Delete?" : "You have successfully deleted Event!"}</h5>
                   <p>
-                    Are you sure, you want to delete this task ?
+                    {!deleteSuccess ?
+                      "Are you sure, you want to delete this event ?" :
+                      "Get back to task page to add or complete the other event"
+                    }
+
                   </p>
                 </div>
               </div>
               <div className="modal-button-group modal-full-width-btn modal-footer-button">
+                {
+                  !deleteSuccess &&
+                  <Button
+                    variant="light-white"
+                    className="btn-md"
+                    onClick={handleDeleteClose}
+                  >
+                    No, Change My Mind
+                  </Button>
+                }
                 <Button
-                  variant="light-white"
-                  className="btn-md"
-                  onClick={handleDeleteClose}
-                >
-                  {" "}
-                  No, Change My Mind
-                </Button>
-                <Button
-                  variant="danger"
+                  variant={!deleteSuccess ? "danger" : "success"}
                   className="btn-icon-text btn-md"
-                  onClick={handleDeleteClose}
+                  onClick={() => {
+                    !deleteSuccess ? handleDeleteData(selectedEventObj?.id) : handleDeleteClose()
+                  }}
                 >
-                  Delete
+                  {!deleteSuccess ? "Delete" : "Ok"}
                 </Button>
               </div>
             </Modal.Body>
@@ -292,7 +391,7 @@ const Events = (props) => {
           {/* Delete Modal */}
 
           {/* Compated Delete Modal */}
-          <Modal
+          {/* <Modal
             className="modal-theme modal-confirmation modal-reject"
             show={SuccessDeleteShow}
             onHide={handleSuccessDeleteClose}
@@ -331,12 +430,12 @@ const Events = (props) => {
                 </Button>
               </div>
             </Modal.Body>
-          </Modal>
+          </Modal> */}
           {/* Delete Modal */}
 
 
           {/* Success Modal */}
-          <Modal className='modal-theme modal-confirmation modal-approve' show={SuccessShow} onHide={handleSuccessClose} centered>
+          <Modal className='modal-theme modal-confirmation modal-approve' show={successShow} onHide={handleSuccessClose} centered>
             <Modal.Header >
               <h4 className="modal-title">Task Completed!</h4>
               <button type="button" className="btn-close" onClick={handleSuccessClose}>
@@ -350,8 +449,8 @@ const Events = (props) => {
                 </div>
                 <div className="modal-confirmation-content">
                   <h5>You have successfully
-                    completed  Task!</h5>
-                  <p>Get back to task page to add or complete the other task</p>
+                    completed  Event!</h5>
+                  <p>Get back to Event page to add or complete the other Event</p>
                 </div>
               </div>
               <div className="modal-button-group modal-full-width-btn modal-footer-button">

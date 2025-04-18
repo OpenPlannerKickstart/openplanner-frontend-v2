@@ -8,6 +8,10 @@ const SyllabusCanvasDetails = (props) => {
     const [showDetails, setShowDetails] = useState(false);
     const handleCloseSyllabusDetails = () => { setShowDetails(false);
        props.handleCloseCourse();
+       setTimeout(() => {
+        
+           setSelectedTab(ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS);
+       }, 200);
 
      }
     const handleShowSyllabusDetails = () => setShowDetails(true);
