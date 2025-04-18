@@ -8,7 +8,7 @@ import { NEW_PASSWORD_IS_REQUIRED, OLD_PASSWORD_IS_REQUIRED } from '../../../Uti
 import { CONFIRM_PASSWORD_NOT_MATCHED, MAX_50, PASSWORD_INVALID, PATTERN_FOR_PASSWORD, PATTERN_FOR_PASSWORD_NEW } from '../../../Utility/Validation_Helper';
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
-import { changePasswordAPI } from '../../../redux/Service/settings';
+import { changePasswordAPI } from '../../../redux/Service/User/Settings/settings';
 
 const ChangePassword = () => {
     const dispatch: AppDispatch = useDispatch();

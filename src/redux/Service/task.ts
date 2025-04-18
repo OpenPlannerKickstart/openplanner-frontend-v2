@@ -6,7 +6,7 @@ import {
     deleteTaskFailure, deleteTaskSuccess,
     getTaskListFailure, getTaskListSuccess,
     updateStatusFailure, updateStatusSuccess,
-} from "../../redux/Task/taskSlice";
+} from "../User/Task/taskSlice";
 import { setLoading } from "../Loader/LoaderSlice";
 import { AppDispatch } from "../store";
 

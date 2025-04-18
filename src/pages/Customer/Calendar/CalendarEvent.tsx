@@ -18,9 +18,12 @@ import { connect, useDispatch } from "react-redux";
 import {
   getCalenderDataAPI,
   getSyllabusDropDownDataAPI,
-} from "../../../redux/Service/calender";
+} from "../../../redux/Service/User/Calender/calender";
 import DatePicker from "react-datepicker";
 import { Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
+import AddEditEvent from "../../../common/AddSyllabusEvents/AddEditEvent";
+import { addEvenData } from "../../../interfaces/interface";
+import AddEditSyllabus from "../../../common/AddSyllabusEvents/AddEditSyllabus";
 
 const localizer: any = momentLocalizer(moment);
 const CalenderEvent = () => {
@@ -31,7 +34,7 @@ const CalenderEvent = () => {
 
   const dispatch: AppDispatch = useDispatch();
 
-  const customToolbar = ({ date, onNavigate, onView, view }) => {
+  const customToolbar = ({ date, onNavigate, onView, view = "month" }) => {
     const goToBack = () => {
       onNavigate("PREV");
     };
@@ -45,7 +48,21 @@ const CalenderEvent = () => {
     const changeView = (newView) => {
       onView(newView);
     };
+    const formatDateByView = (view, date) => {
+      const momentDate = moment(date);
 
+      if (view === 'day') {
+        return momentDate.format("DD, MMMM YYYY"); // Example: 18, April 2025
+      }
+
+      if (view === 'week') {
+        const startDay = momentDate.startOf('week').format("DD MMM"); // Start of the week
+        const endDay = momentDate.endOf('week').format("DD MMM"); // End of the week
+        return `${startDay} - ${endDay}`; // Example: 14 Apr - 20 Apr 2025
+      }
+
+      return momentDate.format("MMMM YYYY"); // Default to month view: April 2025
+    };
     return (
       <div className="calendar-header">
         <div className="rbc-toolbar">
@@ -54,36 +71,37 @@ const CalenderEvent = () => {
               Today
             </button>
             <button
-              className="{view === 'month' ? 'active' : ''} btn btn-sm"
+              className={`${view === 'month' ? 'active' : ''} btn btn-sm`}
               onClick={() => changeView("month")}
             >
               Month
             </button>
             <button
-              className="{view === 'week' ? 'active' : ''} btn btn-sm"
+              className={`${view === 'week' ? 'active' : ''} btn btn-sm`}
               onClick={() => changeView("week")}
             >
               Week
             </button>
             <button
-              className="{view === 'day' ? 'active' : ''} btn btn-sm"
+              className={`${view === 'day' ? 'active' : ''} btn btn-sm`}
               onClick={() => changeView("day")}
             >
               Day
             </button>
-            <button
-              className="{view === 'agenda' ? 'active' : ''} btn btn-sm"
+            {/* <button
+              className={`${view === 'agenda' ? 'active' : ''} btn btn-sm`}
               onClick={() => changeView("agenda")}
             >
               Agenda
-            </button>
+            </button> */}
           </div>
           <div className="calendar-month">
             <button className="btn btn-sm" onClick={goToBack}>
               <i className="material-symbols-outlined">keyboard_arrow_left</i>
             </button>
             <span className="selected_month">
-              {formatedDate(date, "MMMM YYYY")}
+              {formatDateByView(view, date)}
+
             </span>
             <button className="btn btn-sm" onClick={goToNext}>
               <i className="material-symbols-outlined">keyboard_arrow_right</i>
@@ -111,20 +129,22 @@ const CalenderEvent = () => {
     );
   };
 
+  /** ---------------Edit event start-----------------------------*/
+  const [editEventFormData, setEditEventFormData] = useState<any>(null);
   const handleSelectEvent = (event) => {
-    console.log(event);
+    handleShow();
+    setEditEventFormData({ ...event?.event_data, start_date: new Date(event?.event_data?.start_date), end_date: new Date(event?.event_data?.end_date) })
   };
-
+  /** --------------------Edit event End------------------------*/
   function customEventView({ event }) {
+
     return (
       <div key={Math.random()}>
         <div
           className={`rbc-event-primary`}
           style={{
-            backgroundColor: `rgba(${hexToRgb(
-              event.event_data.course_color
-            )}, 0.2)`,
-            borderColor: `rgba(${hexToRgb(event.event_data.course_color)})`,
+            backgroundColor: event?.event_data?.course_color ? `rgba(${parseInt(event.event_data.course_color.slice(1, 3), 16)}, ${parseInt(event.event_data.course_color.slice(3, 5), 16)}, ${parseInt(event.event_data.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)',
+            borderColor: event?.event_data?.course_color,
           }}
         >
           <p>
@@ -259,12 +279,12 @@ const CalenderEvent = () => {
   //         </div>
   //     );
   // };
-  const [currentMonth, setCurrentMonth] = useState(moment().startOf("month"));
+  // const [currentMonth, setCurrentMonth] = useState(moment().startOf("month"));
 
   // Function to handle navigation (change of month)
-  const handleNavigateEvent = (date) => {
-    setCurrentMonth(moment(date).startOf("month"));
-  };
+  // const handleNavigateEvent = (date) => {
+  //   setCurrentMonth(moment(date).startOf("month"));
+  // };
   // const CustomDateCellWrapperTest = ({ children, value }) => {
   //     const isInCurrentMonth = moment(value).isSame(currentMonth, 'month');
 
@@ -326,44 +346,44 @@ const CalenderEvent = () => {
   //     );
   // };
 
-  const CustomDateCellWrapper2 = ({ children, value }) => {
-    //
-    const isInCurrentMonth = moment(value).isSame(currentMonth, "month");
-    const [isHovered, setIsHovered] = useState(false);
+  // const CustomDateCellWrapper2 = ({ children, value }) => {
+  //   //
+  //   const isInCurrentMonth = moment(value).isSame(currentMonth, "month");
+  //   const [isHovered, setIsHovered] = useState(false);
 
-    const handleAddClick = (date) => {
-      console.log("Add event for date:", date);
-      alert(`Add event for: ${date.toDateString()}`);
-    };
+  //   const handleAddClick = (date) => {
+  //     console.log("Add event for date:", date);
+  //     alert(`Add event for: ${date.toDateString()}`);
+  //   };
 
-    return (
-      <div
-        className="button-wrapper"
-        style={{
-          backgroundColor: !isInCurrentMonth ? "#F9FAFB" : "white",
-          // opacity: isInCurrentMonth ? 1 : 0.1, // Apply opacity based on the month check
+  //   return (
+  //     <div
+  //       className="button-wrapper"
+  //       style={{
+  //         backgroundColor: !isInCurrentMonth ? "#F9FAFB" : "white",
+  //         // opacity: isInCurrentMonth ? 1 : 0.1, // Apply opacity based on the month check
 
-          // boxSizing: "border-box",
-          // border: "1px solid #ddd",
-          // padding: "5px",
-          // textAlign: "left",
-          // verticalAlign: "top",
-        }}
-      >
-        {isInCurrentMonth && (
-          <button
-            className="add-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              alert(`Add event for ${value.toDateString()}`);
-            }}
-          >
-            +
-          </button>
-        )}
-      </div>
-    );
-  };
+  //         // boxSizing: "border-box",
+  //         // border: "1px solid #ddd",
+  //         // padding: "5px",
+  //         // textAlign: "left",
+  //         // verticalAlign: "top",
+  //       }}
+  //     >
+  //       {isInCurrentMonth && (
+  //         <button
+  //           className="add-button"
+  //           onClick={(e) => {
+  //             e.stopPropagation();
+  //             alert(`Add event for ${value.toDateString()}`);
+  //           }}
+  //         >
+  //           +
+  //         </button>
+  //       )}
+  //     </div>
+  //   );
+  // };
 
   // const CustomDateCellWrapper = ({ children, value }) => {
   //     const isInCurrentMonth = moment(value).isSame(currentMonth, 'month');
@@ -395,6 +415,16 @@ const CalenderEvent = () => {
   //     );
   // };
 
+  /** -----------------Add/Edit Event start---------------------------*/
+  const [show, setShow] = useState(false);
+  const handleShow = () => setShow(true);
+  /** -----------------Add/Edit Event end---------------------------*/
+
+
+  /** -----------------Add/Edit syllabus start---------------------------*/
+  const [showSyllabus, setShowSyllabus] = useState(false);
+  const handleSyllabusShow = () => setShowSyllabus(true);
+  /** -----------------Add/Edit Syllabus end---------------------------*/
   return (
     <>
       <div className="page-content">
@@ -405,19 +435,19 @@ const CalenderEvent = () => {
             </div>
           </div>
           <div className="page-title-right">
-            <button type="button" className="btn btn-primary">
+            <button type="button" className="btn btn-primary" onClick={() => { handleShow() }}>
               Add Event
             </button>
-            <button type="button" className="btn btn-warning">
+            <button type="button" className="btn btn-warning" onClick={() => { handleSyllabusShow() }}>
               Add Syllabus
             </button>
-            <button
+            {/* <button
               type="button"
               className="btn btn-primary"
               onClick={toggleShowEditEvent}
             >
               Edit Event
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -506,9 +536,7 @@ const CalenderEvent = () => {
                                 <div className="color-box">
                                   <span
                                     style={{
-                                      backgroundColor: `${!isNullUndefinedOrBlank(
-                                        item.other.course_color
-                                      )
+                                      backgroundColor: `${!isNullUndefinedOrBlank(item.other.course_color)
                                         ? item?.other?.course_color
                                         : "#000000"
                                         }`,
@@ -579,9 +607,10 @@ const CalenderEvent = () => {
                   onSelectEvent={(event) => {
                     handleSelectEvent(event);
                   }}
-                  onNavigate={(e) => {
-                    handleNavigateEvent(e);
-                  }}
+                  timeslots={2}
+                  // onNavigate={(e) => {
+                  //   handleNavigateEvent(e);
+                  // }}
                   // views={['month', '']}
                   showAllEvents={true}
                   popup
@@ -604,7 +633,7 @@ const CalenderEvent = () => {
           </div>
 
           {/* EDIT EVENT OFFCANVAS */}
-          <Offcanvas
+          {/* <Offcanvas
             className="edit-event-canvas style-1"
             show={showEditEvent}
             placement={"end"}
@@ -794,9 +823,17 @@ const CalenderEvent = () => {
                 </div>
               </div>
             </Offcanvas.Body>
-          </Offcanvas>
+          </Offcanvas> */}
         </div>
       </div>
+
+      {/* Add/Edit event Start */}
+      <AddEditEvent show={show} setShow={setShow} handleGetData={handleGetCalenderData} setEditEventFormData={setEditEventFormData} editEventFormData={editEventFormData} />
+      {/* Add/Edit event Event */}
+
+      {/* Add/Edit event Start */}
+      <AddEditSyllabus showSyllabus={showSyllabus} setShowSyllabus={setShowSyllabus} handleGetData={handleGetDropDownData} />
+      {/* Add/Edit event Event */}
     </>
   );
 };
@@ -808,48 +845,3 @@ const mapDispatchToProps = {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CalenderEvent);
-
-const CustomTimeSlot = ({ children, value, resource, onClick }) => {
-  // displaying default time from left column
-  if (resource === undefined) return children;
-  // your jsx below
-  return (
-    <div>
-      <button onClick={() => onClick({ date: value, resource })}>Vikas</button>
-    </div>
-  );
-};
-const DayCell = ({ children, value, resource, onClick }) => {
-  // displaying default time from left column
-  if (resource === undefined) return children;
-  // your jsx below
-  return (
-    <div>
-      <button onClick={() => onClick({ date: value, resource })}>Vikas</button>
-    </div>
-  );
-};
-const CustomDateCellWrapper = ({ value, children }) => {
-  return (
-    <div style={{ position: "relative" }}>
-      {children}
-      <button
-        style={{
-          position: "absolute",
-          top: 2,
-          right: 2,
-          backgroundColor: "#3498db",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          padding: "2px 6px",
-          fontSize: "10px",
-          cursor: "pointer",
-        }}
-        onClick={() => console.log("Button clicked on date:", value)}
-      >
-        +
-      </button>
-    </div>
-  );
-};

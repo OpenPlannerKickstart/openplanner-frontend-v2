@@ -5,7 +5,7 @@ import Notification from './Notification'
 import DeleteAccount from './DeleteAccount'
 import { ENUMFORACCOUNTTAB } from '../../../interfaces/enum'
 import { connect, useDispatch } from 'react-redux'
-import { getUserAPI } from '../../../redux/Service/settings'
+import { getUserAPI } from '../../../redux/Service/User/Settings/settings'
 import { AppDispatch } from '../../../redux/store'
 import { isNullUndefinedOrBlank } from '../../../Utility/Helper'
 

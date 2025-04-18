@@ -140,46 +140,48 @@ export interface SignUpData {
 }
 
 
-export interface SyllabusResponseType{  
+export interface SyllabusResponseType {
   id: number;
   user_id: string;
   title: string;
   doc_id: number;
-  start_date: string; 
-  end_date: string;  
-  class_time: string; 
+  start_date: string;
+  end_date: string;
+  class_time: string;
   professor_name: string;
-  course_color: string; 
+  course_color: string;
   is_reminder: boolean;
   status: any;
-  updated_at: string; 
-  no_of_events: string; 
-  syllabus_doc: any; 
+  updated_at: string;
+  no_of_events: string;
+  syllabus_doc: any;
 
 }
-export interface addSyllabusData{  
+export interface addSyllabusData {
   id?: number;
-  title: string;   
-  class_time: string; 
+  title: string;
+  class_time: string;
   professor_name: string;
-  course_color: string;  
-  syllabus_doc?: any; 
-  syllabus_doc_name?: any; 
+  course_color: string;
+  syllabus_doc?: any;
+  syllabus_doc_name?: any;
 
 }
 
-export interface addEvenData{
+export interface addEvenData {
   event_id?: number;
-  title: string;   
-  start_date: any; 
-  end_date: any; 
+  title: string;
+  start_date: any;
+  end_date: any;
   note?: string;
   is_all_day_event?: boolean;
   is_reminder?: boolean;
   reminder?: any;
   syllabus_id?: number;
+  id?: any;
+
 }
- 
+
 export interface Task {
   id: number;
   user_id: string;

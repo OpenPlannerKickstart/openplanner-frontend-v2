@@ -7,9 +7,9 @@ import {
     GET_SYLLABUS_DROPDOWN_API,
     DELETE_EVENT_DATA_API,
     UPDATE_EVENT_STATUS_DATA_API,
-} from "../../Utility/ApiList";
-import { get, post } from "../../Utility/httpInterceptor";
-import { ts } from "../../Utility/Toaster";
+} from "../../../../Utility/ApiList";
+import { get, post } from "../../../../Utility/httpInterceptor";
+import { ts } from "../../../../Utility/Toaster";
 import {
     dashboardListingCountSuccess,
     dashboardListingCountFailure,
@@ -27,9 +27,9 @@ import {
     deleteEventFailure,
     updateEventStatusSuccess,
     updateEventStatusFailure,
-} from "../Dashboard/dashboardSlice"; // Adjust path based on your folder structure
-import { setLoading } from "../Loader/LoaderSlice";
-import { AppDispatch } from "../store";
+} from "../../../User/Dashboard/dashboardSlice"; // Adjust path based on your folder structure
+import { setLoading } from "../../../Loader/LoaderSlice";
+import { AppDispatch } from "../../../store";
 
 /**
  * Fetch Dashboard Listing Count

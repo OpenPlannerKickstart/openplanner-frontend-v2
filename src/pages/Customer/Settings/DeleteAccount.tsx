@@ -7,7 +7,7 @@ import { customJsonInclude, renderError } from '../../../Utility/Helper';
 import { deleteAPI } from '../../../Utility/httpInterceptor';
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
-import { deleteUserAPI } from '../../../redux/Service/settings';
+import { deleteUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { MAX_200 } from '../../../Utility/Validation_Helper';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
 

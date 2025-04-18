@@ -3,7 +3,7 @@ import { Button, Card, Col, Form, Row } from 'react-bootstrap'
 import UserProfile from "/assets/images/setting-profile.svg";
 import { customJsonInclude, FILE_SIZE, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_FORMATS } from '../../../Utility/Helper';
 import { setNestedObjectValues } from 'formik';
-import { updateUserAPI } from '../../../redux/Service/settings';
+import { updateUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useState } from 'react';
