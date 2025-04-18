@@ -1,9 +1,9 @@
-import { get, post } from "../../Utility/httpInterceptor";
-import { GET_CALENDER_DATA, GET_SYLLABUS_DROPDOWN_DATA_API } from "../../Utility/ApiList";
-import { AppDispatch } from "../store";
-import { setLoading } from "../Loader/LoaderSlice";
-import { getCalendarDataFailure, getCalendarDataSuccess } from "../Calender/calenderSlice";
-import { getDropdownFailure, getDropdownSuccess } from "../Generic/genericSlice";
+import { get, post } from "../../../../Utility/httpInterceptor";
+import { GET_CALENDER_DATA, GET_SYLLABUS_DROPDOWN_DATA_API } from "../../../../Utility/ApiList";
+import { AppDispatch } from "../../../store";
+import { setLoading } from "../../../Loader/LoaderSlice";
+import { getCalendarDataFailure, getCalendarDataSuccess } from "../../../User/Calender/calenderSlice";
+import { getDropdownFailure, getDropdownSuccess } from "../../../Generic/genericSlice";
 
 
 /**

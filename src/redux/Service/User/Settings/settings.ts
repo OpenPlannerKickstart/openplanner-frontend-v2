@@ -3,8 +3,8 @@ import {
     UPDATE_USER_API,
     DELETE_USER_API,
     CHANGE_PASSWORD_API,
-} from "../../Utility/ApiList";
-import { get, post } from "../../Utility/httpInterceptor";
+} from "../../../../Utility/ApiList";
+import { get, post } from "../../../../Utility/httpInterceptor";
 import {
     getUserSuccess,
     getUserFailure,
@@ -14,10 +14,10 @@ import {
     deleteUserFailure,
     changePasswordSuccess,
     changePasswordFailure,
-} from "../Settings/settingsSlice"; // Adjust path based on your folder structure
-import { setLoading } from "../Loader/LoaderSlice";
-import { AppDispatch } from "../store";
-import { ts } from "../../Utility/Toaster";
+} from "../../../User/Settings/settingsSlice"; // Adjust path based on your folder structure
+import { setLoading } from "../../../Loader/LoaderSlice";
+import { AppDispatch } from "../../../store";
+import { ts } from "../../../../Utility/Toaster";
 
 /**
  * Fetch User Data

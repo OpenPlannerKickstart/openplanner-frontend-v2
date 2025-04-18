@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react'
 import defaultAvatar from "../../assets/images/avatar-default.svg";
 import { Button, Form } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
-import { getUserFirstLastName, removeCookieByName } from '../../Utility/Helper';
-import { useDispatch } from 'react-redux';
+import { getUserFirstLastName, isNullUndefinedOrBlank, removeCookieByName } from '../../Utility/Helper';
+import { connect, useDispatch } from 'react-redux';
 import { AppDispatch } from '../../redux/store';
 import { logoutFromSystem } from '../../redux/Service/auth/login';
 import { ENUMFORROUTES } from '../../interfaces/enum';
+import { getUserAPI } from '../../redux/Service/User/Settings/settings';
 
-const Navbar = () => {
+const Navbar = (props) => {
   const [SidebarSize, setSidebarSize] = useState('lg');
   const windowSize = document.documentElement.clientWidth;
 
@@ -26,6 +27,25 @@ const Navbar = () => {
 
     await dispatch(logoutFromSystem());
   };
+
+  const [userData, setUserData] = useState<any>(null)
+  const getUserData = async () => {
+    const response = await dispatch(getUserAPI());
+    if (response) {
+
+    }
+  }
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  useEffect(() => {
+    if (!isNullUndefinedOrBlank(props.userData)) {
+      setUserData(props.userData)
+    }
+  }, [props.userData])
+
 
   return (
     <>
@@ -60,15 +80,15 @@ const Navbar = () => {
                   aria-haspopup="true" aria-expanded="false">
                   <span className="d-flex align-items-center">
                     <img className="rounded-circle header-profile-user"
-                      src={defaultAvatar} alt="Header Avatar" />
+                      src={!isNullUndefinedOrBlank(userData?.profile_image) ? userData?.profile_image : defaultAvatar} alt="Header Avatar" />
                     <span className="text-start">
-                      <span className="d-none d-xl-inline-block  user-name-text">{getUserFirstLastName()}</span>
+                      <span className="d-none d-xl-inline-block  user-name-text">{(!isNullUndefinedOrBlank(userData?.firstname) && !isNullUndefinedOrBlank(userData?.lastname)) ? `${userData?.firstname} ${userData?.lastname}` : "User"}</span>
                       <span className="d-none d-xl-block  user-name-sub-text">Student</span>
                     </span>
                   </span>
                 </button>
                 <div className="dropdown-menu dropdown-menu-end">
-                  <h6 className="dropdown-header">Welcome {getUserFirstLastName()}!</h6>
+                  <h6 className="dropdown-header">Welcome {(!isNullUndefinedOrBlank(userData?.firstname) && !isNullUndefinedOrBlank(userData?.lastname)) ? `${userData?.firstname} ${userData?.lastname}` : "User"}!</h6>
                   <a className="dropdown-item" onClick={() => { navigate(ENUMFORROUTES.SETTINGS) }}>
                     <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                     <span className="align-middle" >Profile</span>
@@ -94,4 +114,14 @@ const Navbar = () => {
   )
 }
 
-export default Navbar 
+
+
+const mapStateToProps = (state) => ({
+  userData: state.SettingsReducer.userData
+})
+
+const mapDispatchToProps = {
+  getUserAPI
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Navbar)

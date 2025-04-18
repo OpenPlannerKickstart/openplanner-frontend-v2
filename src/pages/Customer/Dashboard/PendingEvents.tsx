@@ -3,7 +3,7 @@ import { Badge, Button, Form, Modal, OverlayTrigger, Table, Tooltip } from 'reac
 import DatePicker from "react-datepicker";
 import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
-import { deleteEventAPI, upadteEventStatusAPI } from '../../../redux/Service/dashboard';
+import { deleteEventAPI, upadteEventStatusAPI } from '../../../redux/Service/User/DashBoard/dashboard';
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
 
@@ -60,7 +60,7 @@ const PendingEvents = (props) => {
     const handleSuccessClose = () => setSuccessShow(false);
     const handleSuccessShow = () => setSuccessShow(true);
 
-    const handleTaskCompleted = async (id) => {
+    const handleEventCompleted = async (id) => {
         let response = await dispatch(upadteEventStatusAPI({ event_id: id }));
         if (!isNullUndefinedOrBlank(response?.payload)) {
             props?.handleEventListing();
@@ -175,7 +175,7 @@ const PendingEvents = (props) => {
                                                         overlay={<Tooltip>Complete</Tooltip>}
                                                     >
                                                         <button
-                                                            className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleTaskCompleted([item.id]) }}
+                                                            className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleEventCompleted([item.id]) }}
                                                         >
                                                             {" "}
                                                             <i className="material-symbols-outlined">check_circle</i>

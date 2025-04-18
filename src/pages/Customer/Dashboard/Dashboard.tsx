@@ -10,7 +10,7 @@ import PendingTasks from './PendingTasks';
 import CompletTasks from './CompletTasks';
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
-import { dashboardCoursesDataAPI, dashboardEventListingAPI, dashboardEventsDataAPI, dashboardListingCountAPI, dashboardTasksDataAPI, syllabusDropDownAPI } from '../../../redux/Service/dashboard';
+import { dashboardCoursesDataAPI, dashboardEventListingAPI, dashboardEventsDataAPI, dashboardListingCountAPI, dashboardTasksDataAPI, syllabusDropDownAPI } from '../../../redux/Service/User/DashBoard/dashboard';
 import { customJsonInclude, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import { FilterComponent } from './FilterComponent';
 import { ENUMFORDASHBORD, ENUMFORTASK } from '../../../interfaces/enum';

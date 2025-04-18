@@ -70,6 +70,37 @@ const Task = (props) => {
       .trim()
       .required(TASK_NOTE_IS_REQUIRED),
     is_reminder: yup.boolean(),
+    // reminder: yup.array()
+    //   .of(
+    //     yup.object().shape({
+    //       unit: yup
+    //         .string()
+    //         .nullable()
+    //         .when("is_reminder", {
+    //           is: (is_reminder) =>
+    //             taskFormData?.values?.is_reminder === true,
+    //           then: (schema) => schema.required("Unit is required"),
+    //           otherwise: (schema) => schema.notRequired(),
+    //         }),
+    //       value: yup
+    //         .string()
+    //         .matches(ONLY_NUMBERS, "Only numbers are allowed")
+    //         .nullable()
+    //         .when("is_reminder", {
+    //           is: (is_reminder) =>
+    //             taskFormData?.values?.is_reminder === true,
+    //           then: (schema) => schema.required("Value is required"),
+    //           otherwise: (schema) => schema.notRequired(),
+    //         })
+    //     })
+    //   )
+    //   .nullable()
+    //   .when("is_reminder", {
+    //     is: (is_reminder) =>
+    //       taskFormData?.values?.is_reminder === true,
+    //     then: (schema) => schema.required(),
+    //     otherwise: (schema) => schema.notRequired(),
+    //   }),
     reminder: yup.array()
       .of(
         yup.object().shape({
@@ -95,10 +126,25 @@ const Task = (props) => {
         })
       )
       .nullable()
+      .default([])
       .when("is_reminder", {
-        is: (is_reminder) =>
-          taskFormData?.values?.is_reminder === true,
-        then: (schema) => schema.required(),
+        is: (is_reminder) => is_reminder === true,
+        then: (schema) =>
+          schema
+            .required("Reminder is required")
+            .test("no-duplicates", "Duplicate reminders are not allowed", (reminders) => {
+              if (!Array.isArray(reminders) || reminders.length === 0) return true;
+
+              const seen = new Set();
+              for (const reminder of reminders) {
+                const key = `${reminder.unit}-${reminder.value}`;
+                if (seen.has(key)) {
+                  return false; // Duplicate found
+                }
+                seen.add(key);
+              }
+              return true; // No duplicates
+            }),
         otherwise: (schema) => schema.notRequired(),
       }),
 
@@ -157,42 +203,89 @@ const Task = (props) => {
   const addReminder = (is_reminder) => {
     taskFormData.setFieldValue("is_reminder", is_reminder);
     if (is_reminder) {
-      appendReminder()
+      addReminderList()
     } else {
       taskFormData.setFieldValue("reminder", []);
     }
   }
 
-  const appendReminder = () => {
+  // const appendReminder = () => {
+  //   let obj: any = {
+  //     unit: "",
+  //     value: "",
+  //   }
+  //   let reminder: any = [...taskFormData.values.reminder];
+  //   if (isEmptyObjectOrNullUndefiend(taskFormData?.errors?.reminder)) {
+  //     reminder.push(obj);
+  //     taskFormData.setFieldValue("reminder", reminder);
+  //   }
+  // }
+  const addReminderList = () => {
     let obj: any = {
       unit: "",
       value: "",
     }
-    let reminder: any = [...taskFormData.values.reminder];
-    if (isEmptyObjectOrNullUndefiend(taskFormData?.errors?.reminder)) {
-      reminder.push(obj);
-      taskFormData.setFieldValue("reminder", reminder);
-    }
-  }
+    const reminder: any = [...taskFormData.values.reminder];
+    const isAnyValueNull = reminder?.some((item: any) => (isNullUndefinedOrBlank(item?.unit) || isNullUndefinedOrBlank(item?.value)))
+    // console.log(!isAnyValueNull, "isAnyValueNull", reminder, eventFormData?.values?.is_reminder,(isAnyValueNull && eventFormData?.values?.is_reminder));
+    if (isAnyValueNull && taskFormData?.values?.is_reminder) {
 
-  const removeReminder = (index) => {
+      reminder?.forEach((item: any, index: number) => {
+        taskFormData.setFieldTouched(`reminder.${index}.unit`, true);
+        taskFormData.setFieldTouched(`reminder.${index}.value`, true);
+      })
+
+      return;
+
+    }
+    const updatedData = [...reminder, obj];
+    taskFormData.setFieldValue("reminder", updatedData);
+  }
+  // const removeReminder = (index) => {
+  //   let reminder: any = [...taskFormData.values.reminder];
+  //   reminder.splice(index, 1);
+  //   taskFormData.setFieldValue("reminder", reminder);
+
+  //   // Remove the corresponding error if it exists
+  //   const errors = { ...taskFormData.errors };
+  //   if (errors.reminder) {
+  //     const reminderErrors = [...(errors.reminder as any[])];
+  //     reminderErrors.splice(index, 1);
+  //     taskFormData.setErrors({
+  //       ...errors,
+  //       reminder: reminderErrors,
+  //     });
+
+  //   }
+  // }
+  const removeReminderList = (index) => {
     let reminder: any = [...taskFormData.values.reminder];
+    let errors: any = typeof taskFormData.errors.reminder !== "string" ? [...taskFormData.errors.reminder as any || []] : null;
     reminder.splice(index, 1);
     taskFormData.setFieldValue("reminder", reminder);
+    const updatedErrors: any = taskFormData.errors.reminder
+      ? errors?.filter((_, i) => i !== index)
+      : [];
+    const updatedTouched = taskFormData.touched.reminder
+      ? errors?.filter((_, i) => i !== index)
+      : [];
 
-    // Remove the corresponding error if it exists
-    const errors = { ...taskFormData.errors };
-    if (errors.reminder) {
-      const reminderErrors = [...(errors.reminder as any[])];
-      reminderErrors.splice(index, 1);
+    setTimeout(() => {
+
       taskFormData.setErrors({
-        ...errors,
-        reminder: reminderErrors,
+        ...taskFormData.errors,
+        reminder: updatedErrors || null,
       });
 
-    }
-  }
+      taskFormData.setTouched({
+        ...taskFormData.touched,
+        reminder: updatedTouched || null,
+      });
+      taskFormData.validateField(`reminder`);
+    }, 200);
 
+
+  }
   useEffect(() => {
     const reminders = taskFormData?.values?.reminder || [];
     // Find duplicate indexes
@@ -449,7 +542,8 @@ const Task = (props) => {
                             // timeFormat="hh:mm aa"
                             className="form-control"
                             popperProps={{ strategy: "fixed" }}
-                            // placeholderText="10-03-2025 12:17 AM"
+                            placeholderText={"Select Due Date"}
+                            minDate={new Date()}
                             selected={taskFormData.values.due_date ? new Date(taskFormData.values.due_date) : null}
                             onChange={(date) => {
                               taskFormData.setFieldValue("due_date", date);
@@ -553,7 +647,7 @@ const Task = (props) => {
                                       </Form.Group>
                                       {
                                         taskFormData?.values?.reminder?.length > 1 ?
-                                          <button type="button" className="btn btn-light-danger" onClick={() => { removeReminder(index) }}>
+                                          <button type="button" className="btn btn-light-danger" onClick={() => { removeReminderList(index) }}>
                                             <i className="material-symbols-outlined">delete</i>
                                           </button> : null
                                       }
@@ -566,57 +660,15 @@ const Task = (props) => {
                               )
                             }
                             < div className="add-remider-filed-button">
-                              <Button variant='warning' className='btn-icon btn-icon-text' onClick={() => { appendReminder() }}> <i className="material-symbols-outlined">add</i></Button>
+                              <Button variant='warning'
+                                disabled={!isNullUndefinedOrBlank(taskFormData?.errors?.reminder) && typeof taskFormData?.errors?.reminder === "string"}
+                                className='btn-icon btn-icon-text'
+                                onClick={() => { addReminderList() }}> <i className="material-symbols-outlined">add</i></Button>
                             </div>
+
                           </>
                         }
-                        {/* <div className="remider-fields">
-                          <Form.Group className='form-group'>
-                            <Form.Label>Unit</Form.Label>
-                            <Select
-                              placeholder={<div>Days</div>}
-                              menuPosition="fixed"
-                              className="react-select-container"
-                            />
-                          </Form.Group>
-                          <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Value</Form.Label>
-                            <Form.Select aria-label="Default select example">
-                              <option>5</option>
-                              <option value="1">1</option>
-                              <option value="2">2</option>
-                              <option value="3">3</option>
-                            </Form.Select>
-                          </Form.Group>
-                          <button type="button" className="btn btn-light-danger">
-                            <i className="material-symbols-outlined">delete</i>
-                          </button>
-                        </div>
-                        <div className="remider-fields">
-                          <Form.Group className='form-group'>
-                            <Form.Label>Unit</Form.Label>
-                            <Select
-                              placeholder={<div>Hours</div>}
-                              menuPosition="fixed"
-                              className="react-select-container"
-                            />
-                          </Form.Group>
-                          <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Value</Form.Label>
-                            <Form.Select aria-label="Default select example">
-                              <option>1</option>
-                              <option value="1">1</option>
-                              <option value="2">2</option>
-                              <option value="3">3</option>
-                            </Form.Select>
-                          </Form.Group>
-                          <button type="button" className="btn btn-light-danger">
-                            <i className="material-symbols-outlined">delete</i>
-                          </button>
-                        </div>
-                        <div className="add-remider-filed-button">
-                          <Button variant='warning' className='btn-icon btn-icon-text'> <i className="material-symbols-outlined">add</i></Button>
-                        </div> */}
+
                       </div>
                     </div>
                     <div className="bottom-button-group">
