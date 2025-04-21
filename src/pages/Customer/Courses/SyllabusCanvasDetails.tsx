@@ -10,60 +10,12 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../redux/store';
 import { fullScreenPlugin } from '@react-pdf-viewer/full-screen';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
-import { selectionModePlugin, SelectionMode } from '@react-pdf-viewer/selection-mode';
-// import { Worker, Viewer } from "@react-pdf-viewer/core";
-// import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
-// import { toolbarPlugin, ToolbarProps, ToolbarSlot } from "@react-pdf-viewer/toolbar";
-
-// import "@react-pdf-viewer/core/lib/styles/index.css";
-// import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
 
-// import { Document, Page, pdfjs } from 'react-pdf';
-// import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.js';
-
-// pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 import { Viewer } from '@react-pdf-viewer/core';
 import { isPdfFile } from 'pdfjs-dist';
 const SyllabusCanvasDetails = (props) => {
-    // const renderToolbar = (Toolbar: (props: ToolbarProps) => ReactElement) => (
-    //     <Toolbar>
-    //         {(slots: ToolbarSlot) => {
-    //             const { ZoomOut } = slots;
-    //             return (
-    //                 <div
-    //                     style={{
-    //                         alignItems: "center",
-    //                         display: "flex"
-    //                     }}
-    //                 >
-    //                     <div style={{ padding: "0px 2px" }}>
-    //                         <ZoomOut>
-    //                             {(props) => (
-    //                                 <button
-    //                                     style={{
-    //                                         backgroundColor: "#357edd",
-    //                                         border: "none",
-    //                                         borderRadius: "4px",
-    //                                         color: "#ffffff",
-    //                                         cursor: "pointer",
-    //                                         padding: "8px"
-    //                                     }}
-    //                                     onClick={props.onClick}
-    //                                 >
-    //                                     Zoom out
-    //                                 </button>
-    //                             )}
-    //                         </ZoomOut>
-    //                     </div>
-    //                     ...
-    //                 </div>
-    //             );
-    //         }}
-    //     </Toolbar>
-    // );
 
-    // const defaultLayoutPluginInstance = defaultLayoutPlugin();
     const dispatch: AppDispatch = useDispatch();
     const [showDetails, setShowDetails] = useState(false);
     const handleCloseSyllabusDetails = () => {
@@ -119,40 +71,8 @@ const SyllabusCanvasDetails = (props) => {
 
     const [pdfPreviewLink, setPdfPreviewLink] = useState("");
     const [isShowPdf, setIsShowPdf] = useState(true)
-    // const defaultLayoutPluginInstance = defaultLayoutPlugin({
-    //     renderToolbar: (Toolbar) => (
-    //         <Toolbar>
-    //             {(slots) => {
-    //                 const {
-    //                     Open, // We will skip rendering this
-    //                     Download,
-    //                     EnterFullScreen,
-    //                     GoToNextPage,
-    //                     GoToPreviousPage,
-    //                     NumberOfPages,
-    //                     Zoom,
-    //                     CurrentPageInput,
-    //                     DownloadMenuItem
-    //                     // ... other controls
-    //                 } = slots;
-    //                 return (
-    //                     <>
 
-    //                         <GoToPreviousPage />
-    //                         <CurrentPageInput />
-    //                         <NumberOfPages />
-    //                         <GoToNextPage />
-    //                         <Zoom />
-    //                         <EnterFullScreen />
-    //                         <Download />
-    //                     </>
-    //                 );
-    //             }}
-    //         </Toolbar>
-    //     )
-    // });
-    const selectionModePluginInstance = selectionModePlugin();
-    const { SwitchSelectionModeButton } = selectionModePluginInstance;
+
     const defaultLayoutPluginInstance = defaultLayoutPlugin({
         renderToolbar: (Toolbar) => (
             <Toolbar>
@@ -166,24 +86,31 @@ const SyllabusCanvasDetails = (props) => {
                         ZoomIn,
                         EnterFullScreen,
                         Download,
+                        ShowSearchPopover,
+                        ShowProperties,
                     } = slots;
                     return (
                         <>
+                            <ShowSearchPopover />
                             <GoToPreviousPage />
                             <CurrentPageInput />
                             <NumberOfPages />
                             <GoToNextPage />
                             <ZoomOut />
                             <ZoomIn />
-                            <SwitchSelectionModeButton mode={SelectionMode.Text} />
-                            <SwitchSelectionModeButton mode={SelectionMode.Hand} />
                             <EnterFullScreen />
                             <Download />
+                            <ShowProperties />
                         </>
                     );
                 }}
             </Toolbar>
-        )
+        ),
+        sidebarTabs: (defaultTabs) => [
+        
+            defaultTabs[0], // Bookmarks tab
+            defaultTabs[1], // Thumbnails tab
+        ],
     });
 
     // console.log(props?.selectedSyllabusObj?.syllabus_doc?.url)
