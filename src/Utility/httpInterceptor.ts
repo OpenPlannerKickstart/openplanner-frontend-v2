@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { jwtDecode } from "jwt-decode";
 /**Importing API and base URLs from a configuration file  */
 import { API_URL, BASE_URL } from "./Config";
 import {
@@ -10,6 +11,8 @@ import {
   removeCookieByName,
   deleteAllCookies,
   setPlannerToken,
+  getIDToken,
+  getDecodeIDToken,
   // getClientId,
 } from "./Helper"; // Importing utility functions related to server validation, token retrieval, exclusion list, and refresh tokens
 import { te, ts } from "./Toaster"; // Importing functions related to displaying toasts or messages
@@ -46,10 +49,16 @@ axiosInstance.interceptors.response.use(
         try {
           /**   Refresh the access token using the refresh token */
 
+          const decoded: any = getDecodeIDToken();
+          console.log(decoded['cognito:username'], "!decoded?.username")
+          if (!decoded['cognito:username']) {
+            return logoutFromSystem();
+          }
           const refreshToken = getRefreshToken(); // Retrieve the refresh token from wherever it is stored
           const response = await axiosInstance.post(`${API_URL}refreshToken`, null, {
             headers: {
               refreshToken: `${refreshToken}`,
+              username: decoded['cognito:username']
             },
           });
 

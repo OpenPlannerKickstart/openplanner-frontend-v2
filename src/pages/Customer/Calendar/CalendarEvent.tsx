@@ -27,10 +27,7 @@ import AddEditSyllabus from "../../../common/AddSyllabusEvents/AddEditSyllabus";
 
 const localizer: any = momentLocalizer(moment);
 const CalenderEvent = () => {
-  // ADD new task offcanvas
-  const [showEditEvent, setShowEditEvent] = useState(false);
-  const handleCloseEditEvent = () => setShowEditEvent(false);
-  const toggleShowEditEvent = () => setShowEditEvent(true);
+
 
   const dispatch: AppDispatch = useDispatch();
 
@@ -199,7 +196,12 @@ const CalenderEvent = () => {
   };
 
   useEffect(() => {
-    handleGetCalenderData();
+    const delayDebounceFn = setTimeout(() => {
+      handleGetCalenderData();
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
   }, [searchByStartDate, searchByEndDate, syllabusId]);
 
   /** ----------------------get CalenderData End----------------------*/
@@ -214,7 +216,14 @@ const CalenderEvent = () => {
   };
 
   useEffect(() => {
-    handleGetDropDownData();
+    const delayDebounceFn = setTimeout(() => {
+      handleGetDropDownData();
+
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+
   }, []);
 
   const handleCheckSyllabusID = (id) => {

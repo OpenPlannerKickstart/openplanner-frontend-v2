@@ -37,7 +37,13 @@ const Navbar = (props) => {
   }
 
   useEffect(() => {
-    getUserData();
+    const delayDebounceFn = setTimeout(() => {
+      getUserData();
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+
   }, []);
 
   useEffect(() => {

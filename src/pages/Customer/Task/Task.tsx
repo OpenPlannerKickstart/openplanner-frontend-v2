@@ -339,16 +339,14 @@ const Task = (props) => {
   }
 
   useEffect(() => {
-    const debounceTask = () => {
-      setTimeout(() => {
-        getTaskListing();
-      }, 300);
-    }
-    debounceTask();
+
+    const delayDebounceFn = setTimeout(() => {
+      getTaskListing();
+
+    }, 300);
     return () => {
       setTaskList([]);
-
-      // setCount(0)
+      clearTimeout(delayDebounceFn);
     }
   }, [selectedTab, search, endDate, startDate])
 

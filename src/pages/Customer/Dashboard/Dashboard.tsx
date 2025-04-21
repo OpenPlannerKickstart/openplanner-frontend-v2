@@ -86,7 +86,14 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    handleGetDropDownData();
+    const delayDebounceFn = setTimeout(() => {
+      handleGetDropDownData();
+
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+
   }, [])
 
   /** --------------------get syllabus dropdown data end------------------------*/
@@ -124,7 +131,13 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    getDashboardCount();
+    const delayDebounceFn = setTimeout(() => {
+      getDashboardCount();
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+
   }, [])
 
   /** --------------------get syllabus dropdown data end------------------------*/
@@ -188,16 +201,29 @@ const Dashboard = () => {
 
 
   useEffect(() => {
-    handleSyllabusChartData();
-    handleTaskChartData();
-    handleEventChartData();
+    const delayDebounceFn = setTimeout(() => {
+      handleSyllabusChartData();
+      handleTaskChartData();
+      handleEventChartData();
+
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+
   }, [])
 
 
   useEffect(() => {
-    if (syllabusChartFilter) handleSyllabusChartData();
-    if (taskChartFilter) handleTaskChartData();
-    if (eventChartFilter) handleEventChartData();
+    const delayDebounceFn = setTimeout(() => {
+      if (syllabusChartFilter) handleSyllabusChartData();
+      if (taskChartFilter) handleTaskChartData();
+      if (eventChartFilter) handleEventChartData();
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+
   }, [eventChartFilter, taskChartFilter, syllabusChartFilter]);
 
   /** ---------------------chart data api end-----------------------*/
