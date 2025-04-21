@@ -138,7 +138,7 @@ const CompletTasks = (props) => {
                                 taskList?.map((taskItem, taskIndex) => {
                                     return (
                                         <tr key={taskIndex}>
-                                            <td className="tbl-user">
+                                            <td className="tbl-user tbl-srno">
                                                 <div className="tbl-user-checkbox-srno">
                                                     <div className="checkbox checkbox-primary checkbox-small">
                                                         <input

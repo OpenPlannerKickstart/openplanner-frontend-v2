@@ -279,7 +279,7 @@ export const AddEditEvent = (props) => {
 
                                     {
 
-                                        <div className="detail-body-container">
+                                        <div className="Add-new-task-container op-offcanvas-body-container">
                                             <div className="syllabus-detail-body">
                                                 {/* <div className="title-text">
                                                     <h4>Event Details</h4>

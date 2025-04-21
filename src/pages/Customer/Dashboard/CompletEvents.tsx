@@ -109,11 +109,11 @@ const CompletEvents = (props) => {
                                                     <span>{index + 1}.</span>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td className='tbl-title'>
                                                 {!isNullUndefinedOrBlank(item.title) ? item.title : ""}
                                             </td>
                                             <td>
-                                                <Badge bg="danger-bg"><i className="material-symbols-outlined">book_2</i>{!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"}</Badge>
+                                               <Badge bg="" style={{backgroundColor:item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)',color:item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)'}}><i className="material-symbols-outlined" style={{color:item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)'}}>book_2</i>{!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"}</Badge>
                                             </td>
                                             <td onClick={() => { props.handleShowShowNote(item.note) }}>
                                                 <a >View Notes</a>

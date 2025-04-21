@@ -294,6 +294,11 @@
         width: 70px;
         max-width: 70px;
     }
+    .tbl-title {
+        width: 420px;
+        max-width: 420px;
+        text-wrap-mode: wrap;
+    }
 
 
     .tbl-user {
@@ -444,6 +449,8 @@
             }
 
             td {
+                text-wrap-mode: wrap;
+                word-break: break-word;
                 &.tbl-bg-primary {
                     background-color: $primary_light_color;
                 }

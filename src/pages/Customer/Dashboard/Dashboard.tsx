@@ -139,8 +139,8 @@ const Dashboard = () => {
   const eventOptions = {
     pieHole: 0.4,
     is3D: false,
-    legend: { position: "bottom" },
-    colors: ["#4CAF50", "#FF9800"], // Custom colors for pie segments.
+    legend: { position: "none" },
+    colors: ["#BEE6F3", "#239BC2"], // Custom colors for pie segments.
     chartArea: { width: "90%", height: "80%" },
   };
   const handleEventChartData = async () => {
@@ -154,8 +154,8 @@ const Dashboard = () => {
   const taskOptions = {
     pieHole: 0.4,
     is3D: false,
-    legend: { position: "bottom" },
-    colors: ["#4CAF50", "#FF9800"], // Custom colors for pie segments.
+    legend: { position: "none" },
+    colors: ["#EAFCF2", "#25D076"], // Custom colors for pie segments.
     chartArea: { width: "90%", height: "80%" },
   };
   const [taskChartData, setTaskChartData] = useState<any>([]);
@@ -172,8 +172,8 @@ const Dashboard = () => {
   const syllabusOptions = {
     pieHole: 0.4,
     is3D: false,
-    legend: { position: "bottom" },
-    colors: ["#4CAF50", "#FF9800"], // Custom colors for pie segments.
+    legend: { position: "none" },
+    colors: ["#EBF9F8", "#33B3AA"], // Custom colors for pie segments.
     chartArea: { width: "90%", height: "80%" },
   };
   const [syllabusChartData, setSyllabusChartData] = useState<any>([]);
@@ -576,8 +576,8 @@ const Dashboard = () => {
                   <i className="material-symbols-outlined">close</i>
               </button>
             </Modal.Header>
-              <Modal.Body>
-                  <div className="modal-confirmation-container">                    
+              <Modal.Body className='pt-0'>
+                  <div className="modal-event-container">                    
                       <div>
                           <p>
                             {!isNullUndefinedOrBlank(noteData) ? noteData : "You have not Added any Note!!"}

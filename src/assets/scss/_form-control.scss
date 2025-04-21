@@ -215,7 +215,7 @@
             right: 20px;
             top: 0;
             bottom: 0;
-
+            display: flex;
             i {
                 left: unset;
                 right: unset;
@@ -1290,7 +1290,8 @@
             cursor: pointer;
 
             .css-tj5bde-Svg{
-                fill: $primary_color;
+                /*fill: $primary_color;*/
+                fill: #636D83;
                 width: 15px;
             }
         }
@@ -1469,7 +1470,6 @@ body {
     .form-color-picker {
         width: 100%;
         display: flex;
-
         .css-1yn2e29-InputColor {
             background-color: $white_color;
             border: 1px solid $gray_color;
@@ -1492,7 +1492,31 @@ body {
                 display: none;
             }
         }
-
+        &.color-picker-with-box{
+            display: flex;
+            align-items: center;
+            background-color: $white_color;
+            border: 1px solid $stock_light;
+            border-radius: 5px;
+            padding: 0px 15px;
+            i{
+                font-size: 22px;
+            }
+            .css-cnfek5-Popover{
+                background-color: $white_color;
+                border: 1px solid $stock_light;
+                border-radius: 5px;
+                .css-6fii2q-Arrow{
+                    display: none;
+                }
+            }
+            .css-1yn2e29-InputColor{
+                border: none;
+                padding: 0;
+                border-radius: 0;
+                min-height: 38px;
+            }
+        }
     }
 
 }
