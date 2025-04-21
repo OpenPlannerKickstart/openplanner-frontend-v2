@@ -32,12 +32,12 @@ export const Sidebar = () => {
         {/* <!-- LOGO --> */}
         < div className="navbar-brand-box" >
           <a href="index.html" className="logo logo-dark">
-            {/* <span className="logo-sm">
-                            <img src={sidebarLogosm} alt="logoSm" height="48" />
-                        </span> */}
-            <span className="logo-lg">
-              <img src={sidebarLogoLg} alt="sidebarLogoLg" height="48" />
+            <span className="logo-sm">
+              <img src={sidebarLogosm} alt="logoSm" height="48" />
             </span>
+            {/* <span className="logo-lg">
+              <img src={sidebarLogoLg} alt="sidebarLogoLg" height="48" />
+            </span> */}
           </a>
 
         </div >

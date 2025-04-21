@@ -218,7 +218,7 @@ const AddSyllabusEvents = (props) => {
             .required("Reminder is required")
             .test("no-duplicates", "Duplicate reminders are not allowed", (reminders) => {
               if (!Array.isArray(reminders) || reminders.length === 0) return true;
-      
+
               const seen = new Set();
               for (const reminder of reminders) {
                 const key = `${reminder.unit}-${reminder.value}`;
@@ -290,25 +290,25 @@ const AddSyllabusEvents = (props) => {
       value: "",
     }
     const reminder: any = [...eventFormData.values.reminder];
-    const isAnyValueNull= reminder?.some((item: any) => (isNullUndefinedOrBlank(item?.unit) || isNullUndefinedOrBlank(item?.value)))
+    const isAnyValueNull = reminder?.some((item: any) => (isNullUndefinedOrBlank(item?.unit) || isNullUndefinedOrBlank(item?.value)))
     // console.log(!isAnyValueNull, "isAnyValueNull", reminder, eventFormData?.values?.is_reminder,(isAnyValueNull && eventFormData?.values?.is_reminder));
-    if(isAnyValueNull && eventFormData?.values?.is_reminder  ){  
+    if (isAnyValueNull && eventFormData?.values?.is_reminder) {
 
       reminder?.forEach((item: any, index: number) => {
         eventFormData.setFieldTouched(`reminder.${index}.unit`, true);
         eventFormData.setFieldTouched(`reminder.${index}.value`, true);
       })
-      
-        return;
-     
+
+      return;
+
     }
-    const updatedData= [...reminder, obj];    
+    const updatedData = [...reminder, obj];
     eventFormData.setFieldValue("reminder", updatedData);
   }
 
   const removeReminderList = (index) => {
     let reminder: any = [...eventFormData.values.reminder];
-    let errors: any = typeof eventFormData.errors.reminder !=="string"? [...eventFormData.errors.reminder as any|| []]:null;
+    let errors: any = typeof eventFormData.errors.reminder !== "string" ? [...eventFormData.errors.reminder as any || []] : null;
     reminder.splice(index, 1);
     eventFormData.setFieldValue("reminder", reminder);
     const updatedErrors: any = eventFormData.errors.reminder
@@ -317,27 +317,27 @@ const AddSyllabusEvents = (props) => {
     const updatedTouched = eventFormData.touched.reminder
       ? errors?.filter((_, i) => i !== index)
       : [];
-      
-      setTimeout(() => {
-        
-        eventFormData.setErrors({
-          ...eventFormData.errors,
-          reminder: updatedErrors|| null,
-        });
-    
-        eventFormData.setTouched({
-          ...eventFormData.touched,
-          reminder: updatedTouched|| null,
-        });
-        eventFormData.validateField(`reminder`);
-      }, 200);
-    
+
+    setTimeout(() => {
+
+      eventFormData.setErrors({
+        ...eventFormData.errors,
+        reminder: updatedErrors || null,
+      });
+
+      eventFormData.setTouched({
+        ...eventFormData.touched,
+        reminder: updatedTouched || null,
+      });
+      eventFormData.validateField(`reminder`);
+    }, 200);
+
 
   }
 
 
- 
- 
+
+
   /* -------------------------- Add Event Data End -------------------------- */
 
 
@@ -581,16 +581,14 @@ const AddSyllabusEvents = (props) => {
                           </Row>
                           <Form.Group className='form-group'>
                             <Form.Label>Course Color</Form.Label>
-                            <div className="form-control-icon icon-start">
+                            <div className="form-color-picker color-picker-with-box">
                               <i className='th-bold-mouse-square' style={{ color: syllabusFormData?.values?.course_color }}></i>
-                              <div className="form-color-picker">
-                                <InputColor
-                                  initialValue={syllabusFormData?.values?.course_color || "#7209B7"}
-                                  onChange={(color) => {
-                                    syllabusFormData.setFieldValue("course_color", color.hex);
-                                  }}
-                                />
-                              </div>
+                              <InputColor
+                                initialValue={syllabusFormData?.values?.course_color || "#7209B7"}
+                                onChange={(color) => {
+                                  syllabusFormData.setFieldValue("course_color", color.hex);
+                                }}
+                              />
                             </div>
                           </Form.Group>
                         </div>
@@ -613,11 +611,10 @@ const AddSyllabusEvents = (props) => {
                                     dropdownMode="select"
                                     isClearable={true}
                                     selected={eventFormData.values.start_date}
-                                    onChange={(date) => 
-                                     {
+                                    onChange={(date) => {
                                       eventFormData.setFieldValue("start_date", date)
                                       eventFormData.setFieldValue("end_date", null)
-                                     }
+                                    }
                                     }
                                     showTimeSelect
                                     dateFormat="dd/MM/yyyy hh:mm aa"
@@ -715,9 +712,9 @@ const AddSyllabusEvents = (props) => {
                               menuPosition="fixed"
                               className="react-select-container"
                             />
-                             {eventFormData.touched.syllabus_id &&
-                                eventFormData.errors.syllabus_id
-                                && renderError(eventFormData.errors.syllabus_id as any)}
+                            {eventFormData.touched.syllabus_id &&
+                              eventFormData.errors.syllabus_id
+                              && renderError(eventFormData.errors.syllabus_id as any)}
                           </Form.Group>
                           <div className="Reminder-box">
                             <div className="title-with-switch">
@@ -762,7 +759,8 @@ const AddSyllabusEvents = (props) => {
                                                 eventFormData.setFieldTouched(
                                                   `reminder.${index}.unit`,
                                                   true
-                                                );}}
+                                                );
+                                              }}
                                             />
                                             {(eventFormData?.touched?.reminder?.[index]?.unit as any) &&
                                               (eventFormData?.errors?.reminder?.[index]?.unit as any) &&
@@ -825,7 +823,7 @@ const AddSyllabusEvents = (props) => {
                   {/* Add Event Body detail */}
                   <div className="bottom-button-group">
                     <Button type="button" className="btn btn-light-white me-auto"
-                    
+
                     >
                       Cancel
                     </Button>

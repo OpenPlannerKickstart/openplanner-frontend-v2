@@ -134,7 +134,7 @@ const CalenderEvent = () => {
   };
   /** --------------------Edit event End------------------------*/
   function customEventView({ event }) {
-
+    const isCompleted = event?.event_data?.status === "Completed" ? true : false
     return (
       <div key={Math.random()}>
         <div
@@ -145,7 +145,7 @@ const CalenderEvent = () => {
           }}
         >
           <p>
-            <b className="text-black">{event.title} </b>
+            <b className="text-black" style={{ textDecoration: isCompleted ? 'line-through' : "none" }}>{event.title} </b>
           </p>
         </div>
       </div>
@@ -622,7 +622,7 @@ const CalenderEvent = () => {
                   // }}
                   // views={['month', '']}
                   showAllEvents={true}
-                
+
                   popup
                   components={{
                     event: customEventView,
@@ -639,7 +639,7 @@ const CalenderEvent = () => {
                   }}
                 />
               </div>
-             
+
             </div>
           </div>
 

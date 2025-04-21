@@ -55,6 +55,7 @@ const Dashboard = () => {
     if (!isNullUndefinedOrBlank(response)) {
       setEventData(response?.payload);
       getDashboardCount();
+      handleEventChartData();
     }
   }
   useEffect(() => {
@@ -110,6 +111,7 @@ const Dashboard = () => {
     if (!isNullUndefinedOrBlank(response) && !isEmptyObjectOrNullUndefiend(response?.payload?.tasks)) {
       setTaskData(response?.payload?.tasks);
       getDashboardCount();
+      handleTaskChartData();
     }
   }
 
@@ -302,7 +304,7 @@ const Dashboard = () => {
                             </Form.Group>
                           </div>
                         </div>
-                        <div className="chart-with-details primary-chart">                          
+                        <div className="chart-with-details primary-chart">
                           <div className="chart-box">
                             {/* <img src={eventChart1} alt="OpenPlaner" /> */}
                             {!isEmptyObjectOrNullUndefiend(eventChartData) &&
@@ -368,7 +370,7 @@ const Dashboard = () => {
                           </div>
                         </div>
                         <div className="chart-with-details success-chart">
-                         
+
                           <div className="chart-box">
                             {/* <img src={eventChart2} alt="OpenPlaner" /> */}
                             {!isEmptyObjectOrNullUndefiend(taskChartData) &&
@@ -435,7 +437,7 @@ const Dashboard = () => {
                           </div>
                         </div>
                         <div className="chart-with-details warning-chart">
-                          
+
                           <div className="chart-box">
                             {/* <img src={eventChart3} alt="OpenPlaner" /> */}
                             {!isEmptyObjectOrNullUndefiend(syllabusChartData) &&
@@ -589,39 +591,39 @@ const Dashboard = () => {
         </div>
       </div>
 
-        {/* note modal start */}
-        <Modal
-              className="modal-theme modal-confirmation modal-reject"
-              show={showNotes}
-              onHide={handleCloseShowNote}
-              centered
-          >
-            <Modal.Header>
-              <h4 className="modal-title">Your Event Note</h4>                              
-              <button type="button" className="btn-close" onClick={handleCloseShowNote}>
-                  <i className="material-symbols-outlined">close</i>
-              </button>
-            </Modal.Header>
-              <Modal.Body className='pt-0'>
-                  <div className="modal-event-container">                    
-                      <div>
-                          <p>
-                            {!isNullUndefinedOrBlank(noteData) ? noteData : "You have not Added any Note!!"}
-                          </p>
-                      </div>
-                  </div>
-                  <div className="modal-button-group">
-                      <Button
-                          variant="danger"
-                          className="btn-icon-text btn-md ms-auto"
-                          onClick={handleCloseShowNote}
-                      >
-                          Close
-                      </Button>
-                  </div>
-              </Modal.Body>
-          </Modal>
-        {/* note modal end */}
+      {/* note modal start */}
+      <Modal
+        className="modal-theme modal-confirmation modal-reject"
+        show={showNotes}
+        onHide={handleCloseShowNote}
+        centered
+      >
+        <Modal.Header>
+          <h4 className="modal-title">Your Event Note</h4>
+          <button type="button" className="btn-close" onClick={handleCloseShowNote}>
+            <i className="material-symbols-outlined">close</i>
+          </button>
+        </Modal.Header>
+        <Modal.Body className='pt-0'>
+          <div className="modal-event-container">
+            <div>
+              <p>
+                {!isNullUndefinedOrBlank(noteData) ? noteData : "You have not Added any Note!!"}
+              </p>
+            </div>
+          </div>
+          <div className="modal-button-group">
+            <Button
+              variant="danger"
+              className="btn-icon-text btn-md ms-auto"
+              onClick={handleCloseShowNote}
+            >
+              Close
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+      {/* note modal end */}
 
     </>
   )
