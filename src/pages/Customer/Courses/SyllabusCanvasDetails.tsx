@@ -10,6 +10,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../redux/store';
 import { fullScreenPlugin } from '@react-pdf-viewer/full-screen';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import { selectionModePlugin, SelectionMode } from '@react-pdf-viewer/selection-mode';
 // import { Worker, Viewer } from "@react-pdf-viewer/core";
 // import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 // import { toolbarPlugin, ToolbarProps, ToolbarSlot } from "@react-pdf-viewer/toolbar";
@@ -23,6 +24,7 @@ import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 
 // pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 import { Viewer } from '@react-pdf-viewer/core';
+import { isPdfFile } from 'pdfjs-dist';
 const SyllabusCanvasDetails = (props) => {
     // const renderToolbar = (Toolbar: (props: ToolbarProps) => ReactElement) => (
     //     <Toolbar>
@@ -115,36 +117,66 @@ const SyllabusCanvasDetails = (props) => {
     }
 
 
-    const [numPages, setNumPages] = useState(0);
-    const [pageNumber, setPageNumber] = useState(1);
+    const [pdfPreviewLink, setPdfPreviewLink] = useState("");
+    const [isShowPdf, setIsShowPdf] = useState(true)
+    // const defaultLayoutPluginInstance = defaultLayoutPlugin({
+    //     renderToolbar: (Toolbar) => (
+    //         <Toolbar>
+    //             {(slots) => {
+    //                 const {
+    //                     Open, // We will skip rendering this
+    //                     Download,
+    //                     EnterFullScreen,
+    //                     GoToNextPage,
+    //                     GoToPreviousPage,
+    //                     NumberOfPages,
+    //                     Zoom,
+    //                     CurrentPageInput,
+    //                     DownloadMenuItem
+    //                     // ... other controls
+    //                 } = slots;
+    //                 return (
+    //                     <>
 
-    const onDocumentLoadSuccess = ({ numPages }) => {
-        console.log(numPages)
-        setNumPages(numPages);
-    };
+    //                         <GoToPreviousPage />
+    //                         <CurrentPageInput />
+    //                         <NumberOfPages />
+    //                         <GoToNextPage />
+    //                         <Zoom />
+    //                         <EnterFullScreen />
+    //                         <Download />
+    //                     </>
+    //                 );
+    //             }}
+    //         </Toolbar>
+    //     )
+    // });
+    const selectionModePluginInstance = selectionModePlugin();
+    const { SwitchSelectionModeButton } = selectionModePluginInstance;
     const defaultLayoutPluginInstance = defaultLayoutPlugin({
         renderToolbar: (Toolbar) => (
             <Toolbar>
                 {(slots) => {
                     const {
-                        Open, // We will skip rendering this
-                        Download,
-                        EnterFullScreen,
-                        GoToNextPage,
                         GoToPreviousPage,
-                        NumberOfPages,
-                        Zoom,
                         CurrentPageInput,
-                        // ... other controls
+                        NumberOfPages,
+                        GoToNextPage,
+                        ZoomOut,
+                        ZoomIn,
+                        EnterFullScreen,
+                        Download,
                     } = slots;
                     return (
                         <>
-
                             <GoToPreviousPage />
                             <CurrentPageInput />
                             <NumberOfPages />
                             <GoToNextPage />
-                            <Zoom />
+                            <ZoomOut />
+                            <ZoomIn />
+                            <SwitchSelectionModeButton mode={SelectionMode.Text} />
+                            <SwitchSelectionModeButton mode={SelectionMode.Hand} />
                             <EnterFullScreen />
                             <Download />
                         </>
@@ -221,6 +253,8 @@ const SyllabusCanvasDetails = (props) => {
                                                         <SyllabusDetails selectedSyllabusObj={props.selectedSyllabusObj}
                                                             handleGetCourseList={props.handleGetCourseList}
                                                             handleCloseSyllabusDetails={handleCloseSyllabusDetails}
+                                                            setPdfPreviewLink={setPdfPreviewLink}
+                                                            pdfPreviewLink={pdfPreviewLink}
                                                         />
 
                                                     </div>
@@ -251,39 +285,33 @@ const SyllabusCanvasDetails = (props) => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="syllabus-pdf-container">
+                                <div className={`syllabus-pdf-container `}>
                                     <div className="syllabus-preview-wrapper">
                                         <div className="title-text">
                                             <h4>Syllabus Preview</h4>
-                                            <a className="hide-btn">Hide Preview</a>
-                                        </div>
-                                        {/* pdf viewer */}
-                                        <div className="syllabus-view-box">
-                                            {/* <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.6.347/build/pdf.worker.min.js">
-                                                <div style={{ height: "720px" }}>
-                                                    <Viewer fileUrl={props.selectedSyllabusObj?.syllabus_doc?.url} plugins={[defaultLayoutPluginInstance]} />
-                                                </div>
-                                            </Worker> */}
-                                            {/* <Document
-                                                file="http://192.168.1.116:4003/images/250421_123203_VUVOSY.pdf"// Path to your PDF file
-                                                onLoadSuccess={onDocumentLoadSuccess}
-                                            >
-                                                <Page pageNumber={pageNumber} />
-                                            </Document> */}
-                                            <div
-                                                style={{
-                                                    border: '1px solid rgba(0, 0, 0, 0.3)',
-                                                    height: '100%',
-                                                    width: '100%'
-                                                }}
-                                            >
-                                                <Viewer
-                                                    fileUrl={props.selectedSyllabusObj?.syllabus_doc?.url}
-                                                    plugins={[defaultLayoutPluginInstance]}
-                                                />
-                                            </div>
+                                            <a className="hide-btn" onClick={() => { setIsShowPdf(!isShowPdf) }}>{isShowPdf ? "Hide Preview" : "View Preview"}</a>
 
                                         </div>
+                                        {/* pdf viewer */}
+                                        {!isNullUndefinedOrBlank(pdfPreviewLink) &&
+
+                                            <div className={`syllabus-view-box ${isShowPdf ? " d-block" : "d-none"}`}>
+
+                                                <div
+                                                    style={{
+                                                        border: '1px solid rgba(0, 0, 0, 0.3)',
+                                                        height: '1000px',
+                                                        width: '100%'
+                                                    }}
+                                                >
+                                                    <Viewer
+                                                        fileUrl={pdfPreviewLink}
+                                                        plugins={[defaultLayoutPluginInstance]}
+                                                    />
+                                                </div>
+
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </div>

@@ -28,6 +28,7 @@ const SyllabusDetails = (props) => {
         syllabus_doc_name: props?.selectedSyllabusObj?.syllabus_doc?.original_name || ""
 
       }
+      props?.setPdfPreviewLink(props?.selectedSyllabusObj?.syllabus_doc?.url)
 
       setSavedSyllabusFormData(newData);
     }
@@ -126,6 +127,7 @@ const SyllabusDetails = (props) => {
     syllabusFormData.setFieldValue("syllabus_doc", null)
     syllabusFormData.setFieldValue("syllabus_doc_name", null)
     syllabusDocRef.current.value = null;
+    props?.setPdfPreviewLink(null)
 
   }
 
@@ -145,7 +147,7 @@ const SyllabusDetails = (props) => {
 
   const handleDeleteClose = () => {
     setDeleteShow(false);
-  
+
   }
   const handleDeleteShow = () => {
     setDeleteShow(true)
@@ -203,7 +205,8 @@ const SyllabusDetails = (props) => {
                   if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
                     syllabusFormData.setFieldValue("syllabus_doc", e.target?.files as any)
                     syllabusFormData.setFieldValue("syllabus_doc_name", e.target?.files[0]?.name as any)
-
+                    const url: any = URL.createObjectURL(e.target?.files[0] as any);
+                    props?.setPdfPreviewLink(url)
                   }
                 }}
 
@@ -334,7 +337,7 @@ const SyllabusDetails = (props) => {
           Cancel
         </Button>
         <Button type="button" className="btn btn-light-danger"
-        onClick={() => { handleDeleteShow() }}
+          onClick={() => { handleDeleteShow() }}
         >
           Delete Syllabus
         </Button>
@@ -377,17 +380,17 @@ const SyllabusDetails = (props) => {
             </div>
           </div>
           <div className="modal-button-group modal-full-width-btn modal-footer-button">
-    
-              <Button
-                variant="light-white"
-                className="btn-md"
-                onClick={handleDeleteClose}
-              >
-                No, Change My Mind
-              </Button>
-            
+
             <Button
-              variant={ "danger"}
+              variant="light-white"
+              className="btn-md"
+              onClick={handleDeleteClose}
+            >
+              No, Change My Mind
+            </Button>
+
+            <Button
+              variant={"danger"}
               className="btn-icon-text btn-md"
               onClick={() => {
                 handleDeleteSyllabus()
