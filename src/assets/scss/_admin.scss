@@ -618,7 +618,10 @@ $sm_sidebar_home_link_width: 270px;
                     font-weight: 500;
                     font-size: 14px;
                     line-height: 20px;
-                    text-decoration: underline;
+                    cursor: pointer;
+                    &:hover{
+                        text-decoration: underline;
+                    }
                 }
             }
         }
@@ -1173,7 +1176,7 @@ $sm_sidebar_home_link_width: 270px;
                         .form-label {
                             font-size: 16px;
                             letter-spacing: 0.2px;
-                        }
+                        }                        
                     }
                 }
 
@@ -1261,7 +1264,8 @@ $sm_sidebar_home_link_width: 270px;
             justify-content: space-between;
             gap: 5px;
             flex-wrap: wrap;
-            margin-bottom: 15px;
+            margin-bottom: 0;
+            /*margin-bottom: 15px;*/
 
             .title-text {
                 h4 {
@@ -1289,6 +1293,12 @@ $sm_sidebar_home_link_width: 270px;
             button {
                 margin-top: 24px;
             }
+        }
+    }
+    .react-datepicker__time-container{
+        border: none !important;
+        .react-datepicker__header{
+            /*min-height: 64px;*/
         }
     }
 }
@@ -1492,10 +1502,16 @@ $sm_sidebar_home_link_width: 270px;
                         .title-dropdown {
                             .form-group {
                                 margin-bottom: 0;
-
-                                .form-select {
+                                &.form-group-sm{
+                                    .react-select-container {
+                                        min-width: 105px;
+                                        font-size: 14px;
+                                    }               
+                                }                 
+                                .react-select-container {
+                                    min-width: 105px;
                                     font-size: 14px;
-                                }
+                                }                                 
                             }
                         }
                     }
@@ -1508,12 +1524,12 @@ $sm_sidebar_home_link_width: 270px;
 
                         .chart-box {
                             width: auto;
-                            max-width: 96px;
-                            min-width: 96px;
+                            max-width: 110px;
+                            min-width: 110px;
                             height: 100%;
-                            max-height: 96px;
-                            min-height: 96px;
-                            padding: 10px;
+                            max-height: 140px;
+                            min-height: 140px;
+                            padding: 0px;
 
                             img {
                                 width: 100%;
@@ -1688,10 +1704,22 @@ $sm_sidebar_home_link_width: 270px;
                             margin-bottom: 0;
 
                             &.form-group-sm {
-                                .form-select {
+                                .react-select-container {
+                                    min-width: 175px;
                                     font-size: 14px;
-                                }
+                                }  
                             }
+                            .react-select-container {
+                                min-width: 175px;
+                                font-size: 14px;
+                            }  
+                            .react-datepicker-container {
+                                min-width: 240px;
+            
+                                .react-datepicker__close-icon {
+                                    right: 21px;
+                                }
+                            }             
                         }
                     }
 
@@ -1912,7 +1940,8 @@ $sm_sidebar_home_link_width: 270px;
                                 }
 
                                 &:hover,
-                                &:focus {
+                                &:focus,
+                                &.active {
                                     background-color: $primary_color;
                                     border-color: $primary_color;
                                     color: $white_color;
@@ -2230,6 +2259,7 @@ $sm_sidebar_home_link_width: 270px;
             border-bottom-right-radius: 4px;
 
             p {
+                text-wrap: auto;
                 &:nth-child(2) {
                     font-size: 14px;
                     font-weight: 600;

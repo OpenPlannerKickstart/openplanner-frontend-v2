@@ -1107,7 +1107,7 @@ const PageComponent = (props) => {
                                 <tbody>
                                     <tr>
 
-                                        <td className="tbl-user">
+                                        <td className="tbl-user tbl-srno">
                                             <div className="tbl-user-checkbox-srno">
                                                 <div className="checkbox checkbox-primary checkbox-small">
                                                     <input type="checkbox" id="tbl-checkbox2" className="material-inputs filled-in" />

@@ -174,7 +174,7 @@ export const AddEditSyllabus = (props) => {
 
                                     {
 
-                                        <div className="detail-body-container">
+                                        <div className="Add-new-task-container op-offcanvas-body-container">
                                             <div className="syllabus-detail-body">
                                                 {/* <div className="title-text">
                                                     <h4>Syllabus Details</h4>
@@ -285,8 +285,7 @@ export const AddEditSyllabus = (props) => {
                                                     <Col md={6}>
                                                         <Form.Group className="form-group">
                                                             <Form.Label>Class Time</Form.Label>
-                                                            <div className="form-group-icon-start">
-                                                                <i className="material-symbols-outlined">menu_book</i>
+                                                            <div className="react-datepicker-container">
                                                                 <DatePicker
                                                                     placeholderText="Select Class Time"
                                                                     selected={syllabusFormData.values.class_time}
@@ -328,11 +327,10 @@ export const AddEditSyllabus = (props) => {
                                                         </Form.Group>
                                                     </Col>
                                                 </Row>
-                                                <Form.Group className='form-group'>
+                                                <Form.Group className='form-group form-group-sm'>
                                                     <Form.Label>Course Color</Form.Label>
-                                                    <div className="form-control-icon icon-start">
+                                                        <div className="form-color-picker color-picker-with-box">
                                                         <i className='th-bold-mouse-square' style={{ color: syllabusFormData?.values?.course_color }}></i>
-                                                        <div className="form-color-picker">
                                                             <InputColor
                                                                 initialValue={syllabusFormData?.values?.course_color || "#7209B7"}
                                                                 onChange={(color) => {
@@ -340,7 +338,6 @@ export const AddEditSyllabus = (props) => {
                                                                 }}
                                                             />
                                                         </div>
-                                                    </div>
                                                 </Form.Group>
                                             </div>
                                         </div>

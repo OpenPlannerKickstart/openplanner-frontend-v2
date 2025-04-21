@@ -622,6 +622,7 @@ const CalenderEvent = () => {
                   // }}
                   // views={['month', '']}
                   showAllEvents={true}
+                
                   popup
                   components={{
                     event: customEventView,
@@ -638,6 +639,7 @@ const CalenderEvent = () => {
                   }}
                 />
               </div>
+             
             </div>
           </div>
 
