@@ -251,7 +251,7 @@ const Dashboard = () => {
                             <h3>Events</h3>
                           </div>
                           <div className="title-dropdown">
-                            <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                            <Form.Group className="form-group form-group-sm" controlId="exampleForm.ControlInput1">
                               {/* <Form.Select aria-label="Default select example">
                                 <option>This Week</option>
                                 <option value="1">This Week</option>
@@ -276,19 +276,18 @@ const Dashboard = () => {
                             </Form.Group>
                           </div>
                         </div>
-                        <div className="chart-with-details primary-chart">
-
-                          {!isEmptyObjectOrNullUndefiend(eventChartData) &&
-                            <Chart
-                              chartType="PieChart"
-                              height="400px"
-                              width="100%"
-                              data={eventChartData}
-                              options={eventOptions}
-                            />
-                          }
+                        <div className="chart-with-details primary-chart">                          
                           <div className="chart-box">
                             {/* <img src={eventChart1} alt="OpenPlaner" /> */}
+                            {!isEmptyObjectOrNullUndefiend(eventChartData) &&
+                              <Chart
+                                chartType="PieChart"
+                                height="140px"
+                                width="100%"
+                                data={eventChartData}
+                                options={eventOptions}
+                              />
+                            }
                           </div>
                           <div className="chart-details">
                             <div className="event-deta total-event">
@@ -316,7 +315,7 @@ const Dashboard = () => {
                             <h3>Tasks</h3>
                           </div>
                           <div className="title-dropdown">
-                            <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                            <Form.Group className="form-group form-group-sm" controlId="exampleForm.ControlInput1">
                               {/* <Form.Select aria-label="Default select example">
                                 <option>This Week</option>
                                 <option value="1">This Week</option>
@@ -343,17 +342,18 @@ const Dashboard = () => {
                           </div>
                         </div>
                         <div className="chart-with-details success-chart">
-                          {!isEmptyObjectOrNullUndefiend(taskChartData) &&
-                            <Chart
-                              chartType="PieChart"
-                              height="400px"
-                              width="100%"
-                              data={taskChartData}
-                              options={taskOptions}
-                            />
-                          }
+                         
                           <div className="chart-box">
                             {/* <img src={eventChart2} alt="OpenPlaner" /> */}
+                            {!isEmptyObjectOrNullUndefiend(taskChartData) &&
+                              <Chart
+                                chartType="PieChart"
+                                height="140px"
+                                width="100%"
+                                data={taskChartData}
+                                options={taskOptions}
+                              />
+                            }
                           </div>
                           <div className="chart-details">
                             <div className="event-deta total-event">
@@ -381,7 +381,7 @@ const Dashboard = () => {
                             <h3>Courses</h3>
                           </div>
                           <div className="title-dropdown">
-                            <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                            <Form.Group className="form-group form-group-sm" controlId="exampleForm.ControlInput1">
                               {/* <Form.Select aria-label="Default select example">
                                 <option>This Week</option>
                                 <option value="1">This Week</option>
@@ -409,17 +409,18 @@ const Dashboard = () => {
                           </div>
                         </div>
                         <div className="chart-with-details warning-chart">
-                          {!isEmptyObjectOrNullUndefiend(syllabusChartData) &&
-                            <Chart
-                              chartType="PieChart"
-                              height="400px"
-                              width="100%"
-                              data={syllabusChartData}
-                              options={syllabusOptions}
-                            />
-                          }
+                          
                           <div className="chart-box">
                             {/* <img src={eventChart3} alt="OpenPlaner" /> */}
+                            {!isEmptyObjectOrNullUndefiend(syllabusChartData) &&
+                              <Chart
+                                chartType="PieChart"
+                                height="140px"
+                                width="100%"
+                                data={syllabusChartData}
+                                options={syllabusOptions}
+                              />
+                            }
                           </div>
                           <div className="chart-details">
                             <div className="event-deta total-event">
@@ -562,19 +563,39 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* note modal start */}
-      <Modal show={showNotes} onHide={handleCloseShowNote} animation={false}>
-        <Modal.Header closeButton>
-          <Modal.Title>Your Event Note</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>{!isNullUndefinedOrBlank(noteData) ? noteData : "You have not Added any Note!!"}</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseShowNote}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      {/* note modal end */}
+        {/* note modal start */}
+        <Modal
+              className="modal-theme modal-confirmation modal-reject"
+              show={showNotes}
+              onHide={handleCloseShowNote}
+              centered
+          >
+            <Modal.Header>
+              <h4 className="modal-title">Your Event Note</h4>                              
+              <button type="button" className="btn-close" onClick={handleCloseShowNote}>
+                  <i className="material-symbols-outlined">close</i>
+              </button>
+            </Modal.Header>
+              <Modal.Body>
+                  <div className="modal-confirmation-container">                    
+                      <div>
+                          <p>
+                            {!isNullUndefinedOrBlank(noteData) ? noteData : "You have not Added any Note!!"}
+                          </p>
+                      </div>
+                  </div>
+                  <div className="modal-button-group">
+                      <Button
+                          variant="danger"
+                          className="btn-icon-text btn-md ms-auto"
+                          onClick={handleCloseShowNote}
+                      >
+                          Close
+                      </Button>
+                  </div>
+              </Modal.Body>
+          </Modal>
+        {/* note modal end */}
 
     </>
   )

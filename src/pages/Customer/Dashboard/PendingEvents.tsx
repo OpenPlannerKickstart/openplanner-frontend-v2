@@ -11,9 +11,9 @@ const PendingEvents = (props) => {
     let dispatch: AppDispatch = useDispatch();
 
     // Compated Deleted modal
-    const [SuccessDeleteShow, setSuccessDeleteShow] = useState(false);
-    const handleSuccessDeleteClose = () => setSuccessDeleteShow(false);
-    const handleSuccessDeleteShow = () => setSuccessDeleteShow(true);
+    const [PendingDeleteShow, setPendingDeleteShow] = useState(false);
+    const handlePendingDeleteClose = () => setPendingDeleteShow(false);
+    const handlePendingDeleteShow = () => setPendingDeleteShow(true);
 
 
     const [eventData, setEventData] = useState<any>([])
@@ -272,8 +272,8 @@ const PendingEvents = (props) => {
             {/* Compated Delete Modal */}
             <Modal
                 className="modal-theme modal-confirmation modal-reject"
-                show={SuccessDeleteShow}
-                onHide={handleSuccessDeleteClose}
+                show={PendingDeleteShow}
+                onHide={handlePendingDeleteClose}
                 centered
             >
                 <Modal.Header>
@@ -281,7 +281,7 @@ const PendingEvents = (props) => {
                     <button
                         type="button"
                         className="btn-close"
-                        onClick={handleSuccessDeleteClose}
+                        onClick={handlePendingDeleteClose}
                     >
                         <i className="material-symbols-outlined">close</i>
                     </button>
@@ -303,7 +303,7 @@ const PendingEvents = (props) => {
                         <Button
                             variant="success"
                             className="btn-icon-text btn-md"
-                            onClick={handleSuccessDeleteClose}
+                            onClick={handlePendingDeleteClose}
                         >
                             Done
                         </Button>

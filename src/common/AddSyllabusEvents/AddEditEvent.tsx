@@ -308,11 +308,11 @@ export const AddEditEvent = (props) => {
 
                                                                     disabled={eventFormData?.values?.is_all_day_event}
                                                                 />
+
+                                                            </div>
                                                                 {eventFormData.touched.start_date &&
                                                                     eventFormData.errors.start_date
                                                                     && renderError(eventFormData.errors.start_date as any)}
-
-                                                            </div>
                                                         </Form.Group>
                                                     </Col>
                                                     <Col md={6}>
@@ -338,10 +338,10 @@ export const AddEditEvent = (props) => {
                                                                     minDate={eventFormData?.values?.start_date}
 
                                                                 />
+                                                            </div>
                                                                 {eventFormData.touched.end_date &&
                                                                     eventFormData.errors.end_date
                                                                     && renderError(eventFormData.errors.end_date as any)}
-                                                            </div>
                                                         </Form.Group>
                                                     </Col>
                                                 </Row>
