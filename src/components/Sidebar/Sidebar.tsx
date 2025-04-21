@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../redux/store';
 import { removeCookieByName } from '../../Utility/Helper';
 import { logoutFromSystem } from '../../redux/Service/auth/login';
+import AddSyllabusEvents from '../../common/AddSyllabusEvents/AddSyllabusEvents';
 export const Sidebar = () => {
   const [SidebarSize, setSidebarSize] = useState('lg');
   const windowSize = document.documentElement.clientWidth;
@@ -19,9 +20,12 @@ export const Sidebar = () => {
   };
   const dispatch: AppDispatch = useDispatch();
   const callLogout = async () => {
-    
+
     await dispatch(logoutFromSystem());
   };
+  const [showEvent, setShowEvent] = useState(false);
+  const [isAddNewData, setIsAddNewData] = useState(false);
+
   return (
     <>
       <div className="app-menu navbar-menu" >
@@ -44,17 +48,17 @@ export const Sidebar = () => {
                 {/* <li className="menu-title"><span data-key="t-menu">MAIN HOME</span></li> */}
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="/dashboard">
-                  <i className="material-symbols-outlined">cottage</i> <span data-key="t-widgets">Home</span>
+                    <i className="material-symbols-outlined">cottage</i> <span data-key="t-widgets">Home</span>
                   </NavLink>
                 </li>
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="/calendar">
-                  <i className="material-symbols-outlined">calendar_month</i> <span data-key="t-widgets">Calendar</span>
+                    <i className="material-symbols-outlined">calendar_month</i> <span data-key="t-widgets">Calendar</span>
                   </NavLink>
                 </li>
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="/courses">
-                  <i className="material-symbols-outlined">book_2</i> <span data-key="t-widgets">Courses</span>
+                    <i className="material-symbols-outlined">book_2</i> <span data-key="t-widgets">Courses</span>
                   </NavLink>
                 </li>
                 <li className="nav-item">
@@ -92,9 +96,9 @@ export const Sidebar = () => {
                   </NavLink>
                 </li>
               </ul> */}
-              <button className="add-event-button">
-                  <i className='material-symbols-outlined'>add_circle</i>
-                  Add New Event/Syllabus
+              <button className="add-event-button" onClick={() => { setShowEvent(true) }}>
+                <i className='material-symbols-outlined'>add_circle</i>
+                Add New Event/Syllabus
               </button>
               <div className="sidebar-footer">
                 <p>© 2025 Open Planner</p>
@@ -104,6 +108,9 @@ export const Sidebar = () => {
           {/* <!-- Sidebar --> */}
         </div>
         <div className="sidebar-background"></div>
+        <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent}
+          setIsAddNewData={setIsAddNewData}
+        />
       </div >
       {/* <!-- Left Sidebar End --> */}
     </>

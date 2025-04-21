@@ -69,9 +69,9 @@ const Navbar = (props) => {
               {/* <!-- App Search--> */}
 
 
-              <div className="header-item navbar-add-btn">
+              {/* <div className="header-item navbar-add-btn">
                 <Button variant='primary' className='btn-icon-text btn-secondary-two'> <i className='material-symbols-outlined'>add_circle</i> Add New Event/Syllabus</Button>
-              </div>
+              </div> */}
             </div>
 
             <div className="navbar-header-right d-flex align-items-center">
