@@ -5,7 +5,7 @@ import { AppDispatch } from '../../../redux/store'
 import { deleteEventDataAPI, getEventListDataAPI, updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses'
 import { ENUM_FOR_SYLLABUS_TAB } from '../../../interfaces/enum'
 import { EventResponseType } from '../../../interfaces/interface'
-import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, NO_RECORD_FOUND_MSG } from '../../../Utility/Helper'
+import { formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, NO_RECORD_FOUND_MSG } from '../../../Utility/Helper'
 import { NO_END_DATE_ADDED, NO_START_DATE_ADDED } from '../../../Utility/Validation_Message'
 
 const Events = (props) => {
@@ -91,7 +91,7 @@ const Events = (props) => {
   const handleSuccessClose = () => setSuccessShow(false);
   const handleSuccessShow = () => setSuccessShow(true);
 
-  const handleEventCompleted = async (id) => {    
+  const handleEventCompleted = async (id) => {
     let event_id: any = [];
     if (id instanceof Array) {
       event_id = id;
@@ -112,6 +112,13 @@ const Events = (props) => {
 
 
   /** -------------------Event complete End-------------------------*/
+
+  useEffect(() => {
+    if (!isEmptyObjectOrNullUndefiend(props?.eventData)) {
+      setEventListData(props?.eventData)
+    }
+  }, [props?.eventData])
+
 
   return (
     <>
@@ -257,8 +264,8 @@ const Events = (props) => {
                                           </div>
                                         </div>
                                       </td>
-                                      <td>{!isNullUndefinedOrBlank(parentItem?.start_date) ? formatedDate(parentItem?.start_date, "DD-MM-yyyy") : NO_START_DATE_ADDED}</td>
-                                      <td>{!isNullUndefinedOrBlank(parentItem?.end_date) ? formatedDate(parentItem?.end_date, "DD-MM-yyyy") : NO_END_DATE_ADDED}</td>
+                                      <td>{!isNullUndefinedOrBlank(parentItem?.start_date) ? formatedDate(parentItem?.start_date?.split("T")[0], "DD-MM-yyyy") : NO_START_DATE_ADDED}</td>
+                                      <td>{!isNullUndefinedOrBlank(parentItem?.end_date) ? formatedDate(parentItem?.end_date?.split("T")[0], "DD-MM-yyyy") : NO_END_DATE_ADDED}</td>
                                       <td className="tbl-action">
                                         <div className="tbl-action-group">
 
@@ -467,7 +474,9 @@ const Events = (props) => {
   )
 }
 
-const mapStateToProps = (state) => ({})
+const mapStateToProps = (state) => ({
+  eventData: state?.CoursesReducer?.getEventListData
+})
 
 const mapDispatchToProps = {}
 

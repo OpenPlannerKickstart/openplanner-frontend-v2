@@ -41,13 +41,17 @@ export const AddEditEvent = (props) => {
         if (props?.show) {
             handleShowAddSyllabusEvents();
             eventFormData.resetForm();
-            setSavedEventFormData(initEventData);
+            if (!isNullUndefinedOrBlank(props?.selectedCourse)) {
+                setSavedEventFormData({ ...initEventData, syllabus_id: props?.selectedCourse?.id });
+            } else {
+                setSavedEventFormData(initEventData)
+            }
             handleGetSyllabusDropDownData();
         }
         return () => {
 
         }
-    }, [props?.show])
+    }, [props?.show, props?.selectedCourse])
 
 
     useEffect(() => {
@@ -252,6 +256,7 @@ export const AddEditEvent = (props) => {
 
     /* -------------------------- Add Event Data End -------------------------- */
 
+
     return (
         <>
             {/***** Offcanvas start *****/}
@@ -383,11 +388,13 @@ export const AddEditEvent = (props) => {
 
                                                         }}
                                                         value={syllabusDropDownData?.filter(({ value }) => {
+
                                                             return (
                                                                 value ===
                                                                 eventFormData.values.syllabus_id
                                                             );
                                                         })}
+                                                        isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse) ? true : false}
                                                         // onBlur={() => {
                                                         //     // objectiveDetailsFormData.setFieldTouched("theme_id", true)
                                                         //     handleUpdateDetails()
@@ -513,7 +520,43 @@ export const AddEditEvent = (props) => {
 
 
 
-                                                            <div className="button-group social-cal">
+                                                            <div className="button-group social-cal"
+                                                                onClick={() => {
+                                                                    // Generate the .ics file content
+                                                                    const title = eventFormData?.values?.title || 'Event';
+                                                                    const description = eventFormData?.values?.note || '';
+                                                                    const startDate = formatedDate(
+                                                                        eventFormData?.values?.start_date || new Date(),
+                                                                        'yyyyMMDDTHHmmss'
+                                                                    );
+                                                                    const endDate = formatedDate(
+                                                                        eventFormData?.values?.end_date || new Date(),
+                                                                        'yyyyMMDDTHHmmss'
+                                                                    );
+
+                                                                    const icsContent = `
+                                                        BEGIN:VCALENDAR
+                                                        VERSION:2.0
+                                                        PRODID:-//YourAppName//EN
+                                                        CALSCALE:GREGORIAN
+                                                        BEGIN:VEVENT
+                                                        SUMMARY:${title}
+                                                        DESCRIPTION:${description}
+                                                        DTSTART:${startDate}Z
+                                                        DTEND:${endDate}Z
+                                                        LOCATION:America/New_York
+                                                        END:VEVENT
+                                                        END:VCALENDAR`;
+
+                                                                    // Create a Blob for the .ics file
+                                                                    const blob = new Blob([icsContent], { type: 'text/calendar' });
+
+                                                                    // Trigger download
+                                                                    const link = document.createElement('a');
+                                                                    link.href = URL.createObjectURL(blob);
+                                                                    link.download = `${title}.ics`;
+                                                                    link.click();
+                                                                }}>
                                                                 {/* <Button
                                                                     variant="outline-white"
                                                                     className="btn-icon-text "
@@ -538,6 +581,7 @@ export const AddEditEvent = (props) => {
                                                                     Outlook
                                                                 </Button> */}
                                                                 <add-to-calendar-button
+
                                                                     name={eventFormData?.values?.title}
                                                                     startDate={!isNullUndefinedOrBlank(eventFormData?.values?.start_date) ? formatedDate(eventFormData?.values?.start_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
                                                                     endDate={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
@@ -545,11 +589,12 @@ export const AddEditEvent = (props) => {
                                                                     endTime={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
                                                                     timeZone="America/New_York"
                                                                     description={!isNullUndefinedOrBlank(eventFormData?.values?.note) ? eventFormData?.values?.note : ""}
-                                                                    options="'Apple','Google','iCal','Outlook.com','Yahoo'"
+                                                                    options="'Apple','Google','Outlook.com'"
                                                                     buttonsList
                                                                     hideTextLabelButton
                                                                     buttonStyle="round"
                                                                     lightMode="bodyScheme"
+
                                                                 ></add-to-calendar-button>
                                                             </div>
                                                         </div>

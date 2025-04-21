@@ -11,14 +11,7 @@ const CompletEvents = (props) => {
     let dispatch: AppDispatch = useDispatch();
 
 
-    // Compated Deleted modal
-    const [SuccessDeleteShow, setSuccessDeleteShow] = useState(false);
-    const handleSuccessDeleteClose = () => setSuccessDeleteShow(false);
-    const handleSuccessDeleteShow = () => setSuccessDeleteShow(true);
 
-    const [SuccessShow, setSuccessShow] = useState(false);
-    const handleSuccessClose = () => setSuccessShow(false);
-    const handleSuccessShow = () => setSuccessShow(true);
 
 
     const [eventData, setEventData] = useState<any>([])
@@ -229,78 +222,6 @@ const CompletEvents = (props) => {
             </Modal>
             {/* Delete Modal */}
 
-
-            {/* Compated Delete Modal */}
-            <Modal
-                className="modal-theme modal-confirmation modal-reject"
-                show={SuccessDeleteShow}
-                onHide={handleSuccessDeleteClose}
-                centered
-            >
-                <Modal.Header>
-                    <h4 className="modal-title">Task Deleted!</h4>
-                    <button
-                        type="button"
-                        className="btn-close"
-                        onClick={handleSuccessDeleteClose}
-                    >
-                        <i className="material-symbols-outlined">close</i>
-                    </button>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className="modal-confirmation-container">
-                        <div className="modal-confirmation-icon">
-                            <i className="material-symbols-outlined">delete</i>
-                        </div>
-                        <div className="modal-confirmation-content">
-                            <h5>You have successfully
-                                deleted Task!</h5>
-                            <p>
-                                Get back to task page to add or complete the other task
-                            </p>
-                        </div>
-                    </div>
-                    <div className="modal-button-group modal-full-width-btn modal-footer-button">
-                        <Button
-                            variant="success"
-                            className="btn-icon-text btn-md"
-                            onClick={handleSuccessDeleteClose}
-                        >
-                            Done
-                        </Button>
-                    </div>
-                </Modal.Body>
-            </Modal>
-            {/* Delete Modal */}
-
-
-            {/* Success Modal */}
-            <Modal className='modal-theme modal-confirmation modal-approve' show={SuccessShow} onHide={handleSuccessClose} centered>
-                <Modal.Header >
-                    <h4 className="modal-title">Task Completed!</h4>
-                    <button type="button" className="btn-close" onClick={handleSuccessClose}>
-                        <i className="material-symbols-outlined">close</i>
-                    </button>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className="modal-confirmation-container">
-                        <div className="modal-confirmation-icon">
-                            <i className="material-symbols-outlined">mood</i>
-                        </div>
-                        <div className="modal-confirmation-content">
-                            <h5>You have successfully
-                                completed  Task!</h5>
-                            <p>Get back to task page to add or complete the other task</p>
-                        </div>
-                    </div>
-                    <div className="modal-button-group modal-full-width-btn modal-footer-button">
-                        <Button variant="success"
-                            className="btn-icon-text btn-md" onClick={handleSuccessClose}> Done
-                        </Button>
-                    </div>
-                </Modal.Body>
-            </Modal>
-            {/* Success Modal */}
         </>
     )
 }

@@ -14,7 +14,12 @@ import { WEB_SOCKET_CONNECTION_URL } from './Utility/Config';
 import "react-datepicker/dist/react-datepicker.css";
 import 'react-phone-input-2/lib/style.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { Worker } from '@react-pdf-viewer/core';
+// import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 // import 'add-to-calendar-button-react/dist/style.css';
+// import '@react-pdf-viewer/core/lib/styles/index.css';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -27,11 +32,13 @@ root.render(
   //   console.log(str);
 
   // }}>
-  <Provider store={store}>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  </Provider>
+  <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+    <Provider store={store}>
+      <React.StrictMode>
+        <App />
+      </React.StrictMode>
+    </Provider>
+  </Worker>
   // </StompSessionProvider>
 );
 
