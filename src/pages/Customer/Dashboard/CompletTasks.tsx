@@ -74,14 +74,14 @@ const CompletTasks = (props) => {
                             <tr>
                                 <th className="">
                                     <div className="d-flex align-items-center gap-2">
-                                        <div className=" checkbox checkbox-primary checkbox-small">
+                                        {/* <div className=" checkbox checkbox-primary checkbox-small">
                                             <input
                                                 type="checkbox"
                                                 id="tbl-checkbox"
                                                 className="material-inputs filled-in"
                                             />
                                             <label htmlFor="tbl-checkbox"></label>
-                                        </div>
+                                        </div> */}
                                         #
                                     </div>
                                 </th>
@@ -140,14 +140,14 @@ const CompletTasks = (props) => {
                                         <tr key={taskIndex}>
                                             <td className="tbl-user tbl-srno">
                                                 <div className="tbl-user-checkbox-srno">
-                                                    <div className="checkbox checkbox-primary checkbox-small">
+                                                    {/* <div className="checkbox checkbox-primary checkbox-small">
                                                         <input
                                                             type="checkbox"
                                                             id="tbl-checkbox1"
                                                             className="material-inputs filled-in"
                                                         />
                                                         <label htmlFor="tbl-checkbox1"></label>
-                                                    </div>
+                                                    </div> */}
                                                     <span>{taskIndex + 1}</span>
                                                 </div>
                                             </td>

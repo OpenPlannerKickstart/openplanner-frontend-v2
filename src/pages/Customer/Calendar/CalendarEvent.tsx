@@ -13,8 +13,8 @@ import { Calendar, momentLocalizer } from "react-big-calendar";
 import appleLogo from "/assets/images/apple-logo.svg";
 import calendarLogo from "/assets/images/calendar-logo.svg";
 import outlookLogo from "/assets/images/outlook-logo.svg";
-import { AppDispatch } from "../../../redux/store";
-import { connect, useDispatch } from "react-redux";
+import { AppDispatch, RootState } from "../../../redux/store";
+import { connect, useDispatch, useSelector } from "react-redux";
 import {
   getCalenderDataAPI,
   getSyllabusDropDownDataAPI,
@@ -24,10 +24,13 @@ import { Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
 import AddEditEvent from "../../../common/AddSyllabusEvents/AddEditEvent";
 import { addEvenData } from "../../../interfaces/interface";
 import AddEditSyllabus from "../../../common/AddSyllabusEvents/AddEditSyllabus";
+import notVoucherFound from "/assets/images/not-voucher-found.svg";
+import { isUpdatedEvent, isUpdatedSyllabus } from "../../../redux/User/Courses/coursesSlice";
 
 const localizer: any = momentLocalizer(moment);
 const CalenderEvent = () => {
-
+  const coursesData: any = useSelector(
+    (state: RootState) => state.CoursesReducer);
 
   const dispatch: AppDispatch = useDispatch();
 
@@ -130,7 +133,11 @@ const CalenderEvent = () => {
   const [editEventFormData, setEditEventFormData] = useState<any>(null);
   const handleSelectEvent = (event) => {
     handleShow();
-    setEditEventFormData({ ...event?.event_data, start_date: new Date(event?.event_data?.start_date), end_date: new Date(event?.event_data?.end_date) })
+    setEditEventFormData({
+      ...event?.event_data, start_date: new Date(event?.event_data?.start_date),
+      end_date: new Date(event?.event_data?.end_date),
+
+    })
   };
   /** --------------------Edit event End------------------------*/
   function customEventView({ event }) {
@@ -256,173 +263,173 @@ const CalenderEvent = () => {
     }
   };
   /** ----------------- sidebar logic end---------------------------*/
-  // const CustomDateCell = ({ children, className, value, onClick }) => {
-  //     return (
-  //         <div
-  //             className={className} // Preserve all existing classes
-  //             onClick={() => onClick(value)}
-  //             style={{ position: 'relative', overflow: 'hidden' }} // Ensure relative positioning and clipping
-  //         >
-  //             {children}
-  //             <button
-  //                 className="custom-date-button"
-  //                 onClick={(e) => {
-  //                     e.stopPropagation(); // Prevent triggering the cell click
-  //                     alert(`Button clicked on ${value}`);
-  //                 }}
-  //                 style={{
-  //                     position: 'absolute',
-  //                     bottom: '5px',
-  //                     right: '5px',
-  //                     zIndex: 10,
-  //                     padding: '4px 8px',
-  //                     backgroundColor: '#007BFF',
-  //                     color: 'white',
-  //                     border: 'none',
-  //                     borderRadius: '4px',
-  //                     cursor: 'pointer',
-  //                 }}
-  //             >
-  //                 +
-  //             </button>
-  //         </div>
-  //     );
-  // };
-  // const [currentMonth, setCurrentMonth] = useState(moment().startOf("month"));
+  const CustomDateCell = ({ children, className, value, onClick }) => {
+    return (
+      <div
+        className={className} // Preserve all existing classes
+        onClick={() => onClick(value)}
+        style={{ position: 'relative', overflow: 'hidden' }} // Ensure relative positioning and clipping
+      >
+        {children}
+        <button
+          className="custom-date-button"
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent triggering the cell click
+            alert(`Button clicked on ${value}`);
+          }}
+          style={{
+            position: 'absolute',
+            bottom: '5px',
+            right: '5px',
+            zIndex: 10,
+            padding: '4px 8px',
+            backgroundColor: '#007BFF',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          +
+        </button>
+      </div>
+    );
+  };
+  const [currentMonth, setCurrentMonth] = useState(moment().startOf("month"));
 
   // Function to handle navigation (change of month)
-  // const handleNavigateEvent = (date) => {
-  //   setCurrentMonth(moment(date).startOf("month"));
-  // };
-  // const CustomDateCellWrapperTest = ({ children, value }) => {
-  //     const isInCurrentMonth = moment(value).isSame(currentMonth, 'month');
+  const handleNavigateEvent = (date) => {
+    setCurrentMonth(moment(date).startOf("month"));
+  };
+  const CustomDateCellWrapperTest = ({ children, value }) => {
+    const isInCurrentMonth = moment(value).isSame(currentMonth, 'month');
 
-  //     return (
-  //         <div
-  //             style={{
-  //                 position: "relative",
-  //                 height: "100%",
-  //                 width: "100%",
-  //                 overflow: "hidden",
-  //                 // boxSizing: "border-box",
-  //                 border: "1px solid #ddd",
-  //                 // padding: "5px",
-  //                 // textAlign: "left",
-  //                 // verticalAlign: "top",
-  //             }}
+    return (
+      <div
+        style={{
+          position: "relative",
+          height: "100%",
+          width: "100%",
+          overflow: "hidden",
+          // boxSizing: "border-box",
+          border: "1px solid #ddd",
+          // padding: "5px",
+          // textAlign: "left",
+          // verticalAlign: "top",
+        }}
 
-  //         >
-  //             <div
-  //                 className={`rbc-day-bg rbc-date-cell custom-date-cell`}
-  //                 style={{
-  //                     position: "relative",
-  //                     padding: "10px",
-  //                     opacity: isInCurrentMonth ? 1 : 0.3, // Apply opacity based on the month check
-  //                 }}
-  //             >
-  //                 {children}
-  //                 {isInCurrentMonth && ( // Only show the button for dates in the current month
-  //                     <div >
-  //                         <button
-  //                             style={{
-  //                                 position: "absolute",
-  //                                 // top: "10px",
-  //                                 right: "0px",
-  //                                 bottom: "-141px",
-  //                                 backgroundColor: "#3174ad",
-  //                                 color: "white",
-  //                                 border: "none",
-  //                                 // borderRadius: "50%",
-  //                                 // width: "20px",
-  //                                 // height: "20px",
-  //                                 textAlign: "center",
-  //                                 lineHeight: "20px",
-  //                                 fontSize: "12px",
-  //                                 cursor: "pointer",
-  //                                 zIndex: "100"
-  //                             }}
-  //                             onClick={(e) => {
-  //                                 e.stopPropagation(); // Prevents event bubbling
-  //                                 alert("Add button clicked!");
-  //                             }}
-  //                         >
-  //                             +
-  //                         </button>
-  //                     </div>
-  //                 )}
-  //             </div>
-  //         </div>
-  //     );
-  // };
+      >
+        <div
+          className={`rbc-day-bg rbc-date-cell custom-date-cell`}
+          style={{
+            position: "relative",
+            padding: "10px",
+            opacity: isInCurrentMonth ? 1 : 0.3, // Apply opacity based on the month check
+          }}
+        >
+          {children}
+          {isInCurrentMonth && ( // Only show the button for dates in the current month
+            <div >
+              <button
+                style={{
+                  position: "absolute",
+                  // top: "10px",
+                  right: "0px",
+                  bottom: "-141px",
+                  backgroundColor: "#3174ad",
+                  color: "white",
+                  border: "none",
+                  // borderRadius: "50%",
+                  // width: "20px",
+                  // height: "20px",
+                  textAlign: "center",
+                  lineHeight: "20px",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                  zIndex: "100"
+                }}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevents event bubbling
+                  alert("Add button clicked!");
+                }}
+              >
+                +
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
-  // const CustomDateCellWrapper2 = ({ children, value }) => {
-  //   //
-  //   const isInCurrentMonth = moment(value).isSame(currentMonth, "month");
-  //   const [isHovered, setIsHovered] = useState(false);
+  const CustomDateCellWrapper2 = ({ children, value }) => {
+    //
+    const isInCurrentMonth = moment(value).isSame(currentMonth, "month");
+    const [isHovered, setIsHovered] = useState(false);
 
-  //   const handleAddClick = (date) => {
-  //     console.log("Add event for date:", date);
-  //     alert(`Add event for: ${date.toDateString()}`);
-  //   };
+    const handleAddClick = (date) => {
+      console.log("Add event for date:", date);
+      alert(`Add event for: ${date.toDateString()}`);
+    };
 
-  //   return (
-  //     <div
-  //       className="button-wrapper"
-  //       style={{
-  //         backgroundColor: !isInCurrentMonth ? "#F9FAFB" : "white",
-  //         // opacity: isInCurrentMonth ? 1 : 0.1, // Apply opacity based on the month check
+    return (
+      <div
+        className="button-wrapper"
+        style={{
+          backgroundColor: !isInCurrentMonth ? "#F9FAFB" : "white",
+          // opacity: isInCurrentMonth ? 1 : 0.1, // Apply opacity based on the month check
 
-  //         // boxSizing: "border-box",
-  //         // border: "1px solid #ddd",
-  //         // padding: "5px",
-  //         // textAlign: "left",
-  //         // verticalAlign: "top",
-  //       }}
-  //     >
-  //       {isInCurrentMonth && (
-  //         <button
-  //           className="add-button"
-  //           onClick={(e) => {
-  //             e.stopPropagation();
-  //             alert(`Add event for ${value.toDateString()}`);
-  //           }}
-  //         >
-  //           +
-  //         </button>
-  //       )}
-  //     </div>
-  //   );
-  // };
+          // boxSizing: "border-box",
+          // border: "1px solid #ddd",
+          // padding: "5px",
+          // textAlign: "left",
+          // verticalAlign: "top",
+        }}
+      >
+        {isInCurrentMonth && (
+          <button
+            className="add-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              alert(`Add event for ${value.toDateString()}`);
+            }}
+          >
+            +
+          </button>
+        )}
+      </div>
+    );
+  };
 
-  // const CustomDateCellWrapper = ({ children, value }) => {
-  //     const isInCurrentMonth = moment(value).isSame(currentMonth, 'month');
+  const CustomDateCellWrapper = ({ children, value }) => {
+    const isInCurrentMonth = moment(value).isSame(currentMonth, 'month');
 
-  //     return (
-  //         <div
-  //             className={`rbc-day-bg rbc-date-cell custom-date-cell`}
-  //             style={{
-  //                 position: "relative",
-  //                 padding: "10px",
-  //                 opacity: isInCurrentMonth ? 1 : 0.3, // Apply opacity based on the month check
-  //             }}
-  //         >
-  //             {children}
-  //             {isInCurrentMonth && ( // Only show the button for dates in the current month
-  //                 <div className="button-wrapper">
-  //                     <button
-  //                         className="add-button"
-  //                         onClick={(e) => {
-  //                             e.stopPropagation(); // Prevents event bubbling
-  //                             alert("Add button clicked!");
-  //                         }}
-  //                     >
-  //                         +
-  //                     </button>
-  //                 </div>
-  //             )}
-  //         </div>
-  //     );
-  // };
+    return (
+      <div
+        className={`rbc-day-bg rbc-date-cell custom-date-cell`}
+        style={{
+          position: "relative",
+          padding: "10px",
+          opacity: isInCurrentMonth ? 1 : 0.3, // Apply opacity based on the month check
+        }}
+      >
+        {children}
+        {isInCurrentMonth && ( // Only show the button for dates in the current month
+          <div className="button-wrapper">
+            <button
+              className="add-button"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevents event bubbling
+                alert("Add button clicked!");
+              }}
+            >
+              +
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   /** -----------------Add/Edit Event start---------------------------*/
   const [show, setShow] = useState(false);
@@ -434,6 +441,120 @@ const CalenderEvent = () => {
   const [showSyllabus, setShowSyllabus] = useState(false);
   const handleSyllabusShow = () => setShowSyllabus(true);
   /** -----------------Add/Edit Syllabus end---------------------------*/
+
+  const [currentView, setCurrentView] = useState('month'); // Initial view
+  const [currentDate, setCurrentDate] = useState(new Date()); // Initial date
+
+  const handleDateClick = (date) => {
+    setCurrentView('day'); // Change to Day view
+    setCurrentDate(date); // Set the clicked date
+  };
+  const CustomDateHeader = ({ date }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
+    const handleMouseEnter = () => setIsHovered(true);
+    const handleMouseLeave = () => setIsHovered(false);
+
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "0 10px",
+          height: "100%", // Ensure it stretches the full cell height
+        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Date on the left */}
+        <span onClick={() => { handleDateClick(date) }} style={{ cursor: "pointer" }}><b>{date.getDate()}</b> </span>
+
+        {/* Button on the right */}
+        <button
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            width: "26px",
+            height: "26px",
+            backgroundColor: "#374151",
+            color: "white",
+            border: "none",
+            borderRadius: "50%",
+            cursor: "pointer",
+            visibility: isHovered ? "visible" : "hidden", // Reserve space
+            opacity: isHovered ? 1 : 0, // Smooth transition
+            transition: "0.2s all",
+
+          }}
+
+          onClick={(e) => {
+            e.stopPropagation();
+            const startDate = new Date(date); // Start date at 12:00 AM
+            const endDate = new Date(date); // Clone the date for end time
+            endDate.setHours(23, 59, 59, 999); // Set end time to 11:59:59 PM
+
+            setEditEventFormData({
+              ...editEventFormData,
+              start_date: startDate,
+              end_date: endDate,
+              is_reminder: false,
+              reminder: [],
+            });
+            handleShow();
+          }}
+
+        >
+          +
+        </button>
+      </div>
+    );
+  };
+
+  const CustomShowMore = ({ events, date, onClose }) => {
+
+    return (
+      <div>
+        <h4>Events on {date.toLocaleDateString()}</h4>
+        <ul>
+          {events.map((event, index) => (
+            <li key={index}>{event.title}</li>
+          ))}
+        </ul>
+        <button onClick={onClose}>Close</button>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (coursesData.isUpdatedEventData) {
+        handleGetCalenderData();
+        setTimeout(() => {
+          dispatch(isUpdatedEvent(false));
+        }, 400);
+      }
+
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+  }, [coursesData.isUpdatedEventData])
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (coursesData.isUpdatedSyllabusData) {
+        handleGetDropDownData();
+        setTimeout(() => {
+          dispatch(isUpdatedSyllabus(false));
+        }, 400);
+      }
+
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+  }, [coursesData.isUpdatedSyllabusData])
   return (
     <>
       <div className="page-content">
@@ -521,7 +642,7 @@ const CalenderEvent = () => {
                       </div>
                     </div>
                     <div className="classes-details">
-                      {!isEmptyObjectOrNullUndefiend(syllabusDropDownData) &&
+                      {!isEmptyObjectOrNullUndefiend(syllabusDropDownData) ?
                         syllabusDropDownData?.map((item, index) => {
                           return (
                             <>
@@ -555,7 +676,20 @@ const CalenderEvent = () => {
                               </div>
                             </>
                           );
-                        })}
+                        })
+                        :
+                        <>
+                          <div className="no-records-found no-records-found-inner h-100">
+                            <div className="no-records-found-image">
+                              <img src={notVoucherFound} alt="OpenPlaner" />
+                            </div>
+                            <div className="no-records-found-text">
+                              <h6>No data found!</h6>
+                            </div>
+                          </div>
+
+                        </>
+                      }
                       {/* <div className="class-main">
                                                 <div className="checkbox checkbox-primary classes-checkbox">
                                                     <input
@@ -616,225 +750,34 @@ const CalenderEvent = () => {
                   onSelectEvent={(event) => {
                     handleSelectEvent(event);
                   }}
-                  timeslots={2}
-                  // onNavigate={(e) => {
-                  //   handleNavigateEvent(e);
-                  // }}
-                  // views={['month', '']}
-                  showAllEvents={true}
+                  view={currentView} // Controlled view
+                  date={currentDate} // Controlled date
+                  onView={(view) => setCurrentView(view)} // Sync view change
+                  onNavigate={(date) => setCurrentDate(date)} // Sync date change
 
-                  popup
+
+                  selectable={true}
                   components={{
+                    showMore: CustomShowMore,
+                    month: {
+                      dateHeader: CustomDateHeader,
+                    },
                     event: customEventView,
                     toolbar: customToolbar,
 
-                    // dateCellWrapper: CustomDateCellWrapper2
-                    // dateCellWrapper: CustomDateCellWrapper,
-                    // timeSlotWrapper: (props) => (
-                    //   <CustomTimeSlot {...props} onClick={handleSelectEvent} />
-                    // ),
-                    // month: {
-                    //   dateHeader: (props) => <DayCell {...props} />, //  this is how you control the header cell for each one in month view
-                    // },
                   }}
+                  // popup={true}
+                  showAllEvents={true}
+                // showMoreLabel="Show More"
+                // style={{ height: "100vh", width: "100%" }}
+
                 />
               </div>
 
             </div>
           </div>
 
-          {/* EDIT EVENT OFFCANVAS */}
-          {/* <Offcanvas
-            className="edit-event-canvas style-1"
-            show={showEditEvent}
-            placement={"end"}
-            onHide={handleCloseEditEvent}
-          >
-            <Offcanvas.Header>
-              <Offcanvas.Title>
-                Edit <span>Event</span>
-              </Offcanvas.Title>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={handleCloseEditEvent}
-              >
-                <i className="material-symbols-outlined">close</i>
-              </button>
-            </Offcanvas.Header>
-            <Offcanvas.Body>
-              <div className="Add-new-task-container">
-                <div className="op-offcanvas-body-container">
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className="form-group">
-                        <Form.Label>Start Date</Form.Label>
-                        <div className="react-datepicker-container form-group-icon-end">
-                          <i className="material-symbols-outlined control-icon">
-                            calendar_month
-                          </i>
-                          <DatePicker
-                            dropdownMode="select"
-                            isClearable={true}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control"
-                            popperProps={{ strategy: "fixed" }}
-                            placeholderText="Select Date"
-                          />
-                        </div>
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group className="form-group">
-                        <Form.Label>End Date</Form.Label>
-                        <div className="react-datepicker-container form-group-icon-end">
-                          <i className="material-symbols-outlined control-icon">
-                            calendar_month
-                          </i>
-                          <DatePicker
-                            dropdownMode="select"
-                            isClearable={true}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control"
-                            popperProps={{ strategy: "fixed" }}
-                            placeholderText="Select Date"
-                          />
-                        </div>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Form.Group
-                    className="form-group"
-                    controlId="exampleForm.ControlInput1"
-                  >
-                    <Form.Label>Title</Form.Label>
-                    <div className="form-group">
-                      <Form.Control
-                        type="text"
-                        placeholder="Unsatisfactory grades due to registrar"
-                      />
-                    </div>
-                  </Form.Group>
-                  <Form.Group
-                    className="form-group"
-                    controlId="exampleForm.ControlInput1"
-                  >
-                    <Form.Label>Note</Form.Label>
-                    <div className="form-group">
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        placeholder="Loreamipsumis"
-                      />
-                    </div>
-                  </Form.Group>
-                  <Form.Group className="form-group">
-                    <Form.Label>Calendar</Form.Label>
-                    <Select
-                      placeholder={<div>Project Management</div>}
-                      menuPosition="fixed"
-                      className="react-select-container"
-                    />
-                  </Form.Group>
-                  <div className="Reminder-box">
-                    <div className="title-with-switch">
-                      <div className="title-text">
-                        <h4>Reminder (Notify me before start date)</h4>
-                      </div>
-                      <div className="switch-box ">
-                        <label className="switch" htmlFor="switch">
-                          <input type="checkbox" id="switch" />
-                          <div className="slider round"></div>
-                        </label>
-                      </div>
-                    </div>
-                    <div className="remider-fields">
-                      <Form.Group className="form-group">
-                        <Form.Label>Unit</Form.Label>
-                        <Select
-                          placeholder={<div>Days</div>}
-                          menuPosition="fixed"
-                          className="react-select-container"
-                        />
-                      </Form.Group>
-                      <Form.Group
-                        className="form-group"
-                        controlId="exampleForm.ControlInput1"
-                      >
-                        <Form.Label>Value</Form.Label>
-                        <Form.Select aria-label="Default select example">
-                          <option>5</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                        </Form.Select>
-                      </Form.Group>
-                      <button
-                        type="button"
-                        className="btn btn-light-white btn-outline-white"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  </div>
-                  <div className="form-group default-cal-group">
-                    <div className="title-text">
-                      <h4>Add On Your Default Calender</h4>
-                    </div>
-                    <div className="button-group social-cal">
-                      <Button
-                        variant="outline-white"
-                        className="btn-icon-text "
-                      >
-                        <img src={appleLogo} alt="" />
-                        Apple Calendar
-                      </Button>
-                      <Button
-                        variant="outline-white"
-                        className="btn-icon-text "
-                      >
-                        <img src={calendarLogo} alt="" />
-                        Google Calendar
-                      </Button>
-                      <Button
-                        variant="outline-white"
-                        className="btn-icon-text "
-                      >
-                        <img src={outlookLogo} alt="" />
-                        Outlook
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="checkbox checkbox-primary all-event-checkbox">
-                    <input
-                      type="checkbox"
-                      id="checkbox"
-                      className="material-inputs filled-in"
-                    />
-                    <label htmlFor="checkbox">Mark as all day Event</label>
-                  </div>
-                </div>
-                <div className="bottom-button-group">
-                  <Button
-                    type="button"
-                    className="btn btn-light-white me-auto"
-                    onClick={handleCloseEditEvent}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="button" className="btn btn-light-danger">
-                    Delete
-                  </Button>
-                  <Button type="button" className="btn btn-success">
-                    Mark As Complated
-                  </Button>
-                  <Button type="button" className="btn btn-primary">
-                    Save
-                  </Button>
-                </div>
-              </div>
-            </Offcanvas.Body>
-          </Offcanvas> */}
+
         </div>
       </div>
 

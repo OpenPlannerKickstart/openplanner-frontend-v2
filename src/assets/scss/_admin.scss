@@ -619,7 +619,8 @@ $sm_sidebar_home_link_width: 270px;
                     font-size: 14px;
                     line-height: 20px;
                     cursor: pointer;
-                    &:hover{
+
+                    &:hover {
                         text-decoration: underline;
                     }
                 }
@@ -1176,7 +1177,7 @@ $sm_sidebar_home_link_width: 270px;
                         .form-label {
                             font-size: 16px;
                             letter-spacing: 0.2px;
-                        }                        
+                        }
                     }
                 }
 
@@ -1295,9 +1296,11 @@ $sm_sidebar_home_link_width: 270px;
             }
         }
     }
-    .react-datepicker__time-container{
+
+    .react-datepicker__time-container {
         border: none !important;
-        .react-datepicker__header{
+
+        .react-datepicker__header {
             /*min-height: 64px;*/
         }
     }
@@ -1478,6 +1481,7 @@ $sm_sidebar_home_link_width: 270px;
         .chart-main-box {
             .event-main-card {
                 margin-bottom: 27px;
+                min-height: 215px;
 
                 .card-body {
                     padding: 0;
@@ -1502,16 +1506,18 @@ $sm_sidebar_home_link_width: 270px;
                         .title-dropdown {
                             .form-group {
                                 margin-bottom: 0;
-                                &.form-group-sm{
+
+                                &.form-group-sm {
                                     .react-select-container {
                                         min-width: 105px;
                                         font-size: 14px;
-                                    }               
-                                }                 
+                                    }
+                                }
+
                                 .react-select-container {
                                     min-width: 105px;
                                     font-size: 14px;
-                                }                                 
+                                }
                             }
                         }
                     }
@@ -1582,6 +1588,14 @@ $sm_sidebar_home_link_width: 270px;
                                         margin-bottom: 0;
                                     }
                                 }
+                            }
+                        }
+
+                        .no-records-found {
+                            width: 100%;
+
+                            h6 {
+                                color: $text_black_color;
                             }
                         }
 
@@ -1707,19 +1721,21 @@ $sm_sidebar_home_link_width: 270px;
                                 .react-select-container {
                                     min-width: 175px;
                                     font-size: 14px;
-                                }  
+                                }
                             }
+
                             .react-select-container {
                                 min-width: 175px;
                                 font-size: 14px;
-                            }  
+                            }
+
                             .react-datepicker-container {
                                 min-width: 240px;
-            
+
                                 .react-datepicker__close-icon {
                                     right: 21px;
                                 }
-                            }             
+                            }
                         }
                     }
 
@@ -2260,6 +2276,7 @@ $sm_sidebar_home_link_width: 270px;
 
             p {
                 text-wrap: auto;
+
                 &:nth-child(2) {
                     font-size: 14px;
                     font-weight: 600;

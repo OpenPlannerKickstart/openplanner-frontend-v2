@@ -8,8 +8,8 @@ import PendingEvents from './PendingEvents';
 import CompletEvents from './CompletEvents';
 import PendingTasks from './PendingTasks';
 import CompletTasks from './CompletTasks';
-import { AppDispatch } from '../../../redux/store';
-import { useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from '../../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
 import { dashboardCoursesDataAPI, dashboardEventListingAPI, dashboardEventsDataAPI, dashboardListingCountAPI, dashboardTasksDataAPI, syllabusDropDownAPI } from '../../../redux/Service/User/DashBoard/dashboard';
 import { customJsonInclude, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import { FilterComponent } from './FilterComponent';
@@ -18,10 +18,15 @@ import { taskListingAPI } from '../../../redux/Service/task';
 import Select, { components, ControlProps } from "react-select";
 import { chartDropDownData } from '../../../Utility/staticDropDown';
 import Chart from "react-google-charts";
+import notVoucherFound from "/assets/images/not-voucher-found.svg";
+import { isUpdatedSyllabus } from '../../../redux/User/Courses/coursesSlice';
 
 
 const Dashboard = () => {
   const dispatch: AppDispatch = useDispatch();
+
+  const coursesData: any = useSelector(
+    (state: RootState) => state.CoursesReducer);
   const getStatus = () => {
     return (selectedTab === ENUMFORDASHBORD.COMPLETED_EVENT || selectedTab === ENUMFORDASHBORD.COMPLETED_TASK) ? "Completed" : "Pending";
   };
@@ -54,8 +59,8 @@ const Dashboard = () => {
     let response = await dispatch(dashboardEventListingAPI(reqBody));
     if (!isNullUndefinedOrBlank(response)) {
       setEventData(response?.payload);
-      getDashboardCount();
-      handleEventChartData();
+
+      // handleEventChartData();
     }
   }
   useEffect(() => {
@@ -72,9 +77,40 @@ const Dashboard = () => {
     }
   }, [startDate, endDate, search, syllabusId, selectedTab])
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (coursesData.isUpdatedSyllabusData) {
+        handleSyllabusChartData();
+        getDashboardCount();
+        handleGetDropDownData();
+        setTimeout(() => {
+          dispatch(isUpdatedSyllabus(false));
+        }, 400);
+      }
+
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+  }, [coursesData.isUpdatedSyllabusData])
 
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (coursesData.isUpdatedEventData) {
+        handleEventChartData();
+        getDashboardCount();
+        handleEventListing();
+        setTimeout(() => {
+          dispatch(isUpdatedSyllabus(false));
+        }, 400);
+      }
 
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+  }, [coursesData.isUpdatedEventData])
   /** -----------------event listing api end---------------------------*/
 
   /** --------------------get syllabus dropdown data start------------------------*/
@@ -305,32 +341,48 @@ const Dashboard = () => {
                           </div>
                         </div>
                         <div className="chart-with-details primary-chart">
-                          <div className="chart-box">
-                            {/* <img src={eventChart1} alt="OpenPlaner" /> */}
-                            {!isEmptyObjectOrNullUndefiend(eventChartData) &&
-                              <Chart
-                                chartType="PieChart"
-                                height="140px"
-                                width="100%"
-                                data={eventChartData}
-                                options={eventOptions}
-                              />
-                            }
-                          </div>
-                          <div className="chart-details">
-                            <div className="event-deta total-event">
-                              <div className="event-title">
-                                <h4><span></span>Total Events</h4>
+                          {!isEmptyObjectOrNullUndefiend(eventChartData) ?
+                            <>
+                              <div className="chart-box">
+                                {/* <img src={eventChart1} alt="OpenPlaner" /> */}
+
+                                <Chart
+                                  chartType="PieChart"
+                                  height="140px"
+                                  width="100%"
+                                  data={eventChartData}
+                                  options={eventOptions}
+                                />
                               </div>
-                              <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(eventChartData) ? eventChartData[1][1] : 0}</h4></div>
-                            </div>
-                            <div className="event-deta complet-event">
-                              <div className="event-title">
-                                <h4><span></span>Completed Events</h4>
+                              <div className="chart-details">
+                                <div className="event-deta total-event">
+                                  <div className="event-title">
+                                    <h4><span></span>Total Events</h4>
+                                  </div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(eventChartData) ? eventChartData[1][1] : 0}</h4></div>
+                                </div>
+                                <div className="event-deta complet-event">
+                                  <div className="event-title">
+                                    <h4><span></span>Completed Events</h4>
+                                  </div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(eventChartData) ? eventChartData[2][1] : 0}</h4></div>
+                                </div>
                               </div>
-                              <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(eventChartData) ? eventChartData[2][1] : 0}</h4></div>
-                            </div>
-                          </div>
+                            </>
+                            :
+                            <>
+                              <div className="no-records-found no-records-found-inner h-100">
+                                {/* <div className="no-records-found-image">
+                                  <img src={notVoucherFound} alt="OpenPlaner" />
+                                </div> */}
+                                <div className="no-records-found-text ">
+                                  {/* <img src={notVoucherFound} alt="OpenPlaner" /> */}
+                                  <h6>No data found!</h6>
+                                </div>
+                              </div>
+
+                            </>
+                          }
                         </div>
                       </Card.Body>
                     </Card>
@@ -371,32 +423,47 @@ const Dashboard = () => {
                         </div>
                         <div className="chart-with-details success-chart">
 
-                          <div className="chart-box">
-                            {/* <img src={eventChart2} alt="OpenPlaner" /> */}
-                            {!isEmptyObjectOrNullUndefiend(taskChartData) &&
-                              <Chart
-                                chartType="PieChart"
-                                height="140px"
-                                width="100%"
-                                data={taskChartData}
-                                options={taskOptions}
-                              />
-                            }
-                          </div>
-                          <div className="chart-details">
-                            <div className="event-deta total-event">
-                              <div className="event-title">
-                                <h4><span></span>Total Tasks</h4>
+                          {!isEmptyObjectOrNullUndefiend(taskChartData) ?
+                            <>
+
+                              <div className="chart-box">
+                                {/* <img src={eventChart2} alt="OpenPlaner" /> */}
+                                <Chart
+                                  chartType="PieChart"
+                                  height="140px"
+                                  width="100%"
+                                  data={taskChartData}
+                                  options={taskOptions}
+                                />
                               </div>
-                              <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(taskChartData) ? taskChartData[1][1] : 0}</h4></div>
-                            </div>
-                            <div className="event-deta complet-event">
-                              <div className="event-title">
-                                <h4><span></span>Completed Tasks</h4>
+                              <div className="chart-details">
+                                <div className="event-deta total-event">
+                                  <div className="event-title">
+                                    <h4><span></span>Total Tasks</h4>
+                                  </div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(taskChartData) ? taskChartData[1][1] : 0}</h4></div>
+                                </div>
+                                <div className="event-deta complet-event">
+                                  <div className="event-title">
+                                    <h4><span></span>Completed Tasks</h4>
+                                  </div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(taskChartData) ? taskChartData[2][1] : 0}</h4></div>
+                                </div>
                               </div>
-                              <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(taskChartData) ? taskChartData[2][1] : 0}</h4></div>
-                            </div>
-                          </div>
+                            </> :
+                            <>
+                              <div className="no-records-found no-records-found-inner h-100">
+                                {/* <div className="no-records-found-image">
+                                  <img src={notVoucherFound} alt="OpenPlaner" />
+                                </div> */}
+                                <div className="no-records-found-text">
+                                  <h6>No data found!</h6>
+                                </div>
+                              </div>
+
+                            </>
+                          }
+
                         </div>
                       </Card.Body>
                     </Card>
@@ -438,32 +505,47 @@ const Dashboard = () => {
                         </div>
                         <div className="chart-with-details warning-chart">
 
-                          <div className="chart-box">
-                            {/* <img src={eventChart3} alt="OpenPlaner" /> */}
-                            {!isEmptyObjectOrNullUndefiend(syllabusChartData) &&
-                              <Chart
-                                chartType="PieChart"
-                                height="140px"
-                                width="100%"
-                                data={syllabusChartData}
-                                options={syllabusOptions}
-                              />
-                            }
-                          </div>
-                          <div className="chart-details">
-                            <div className="event-deta total-event">
-                              <div className="event-title">
-                                <h4><span></span>Total Courses</h4>
+                          {!isEmptyObjectOrNullUndefiend(syllabusChartData) ?
+                            <>
+
+                              <div className="chart-box">
+                                {/* <img src={eventChart3} alt="OpenPlaner" /> */}
+                                <Chart
+                                  chartType="PieChart"
+                                  height="140px"
+                                  width="100%"
+                                  data={syllabusChartData}
+                                  options={syllabusOptions}
+                                />
+
                               </div>
-                              <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(syllabusChartData) ? syllabusChartData[1][1] : 0}</h4></div>
-                            </div>
-                            <div className="event-deta complet-event">
-                              <div className="event-title">
-                                <h4><span></span>Completed Courses</h4>
+                              <div className="chart-details">
+                                <div className="event-deta total-event">
+                                  <div className="event-title">
+                                    <h4><span></span>Total Courses</h4>
+                                  </div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(syllabusChartData) ? syllabusChartData[1][1] : 0}</h4></div>
+                                </div>
+                                <div className="event-deta complet-event">
+                                  <div className="event-title">
+                                    <h4><span></span>Completed Courses</h4>
+                                  </div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(syllabusChartData) ? syllabusChartData[2][1] : 0}</h4></div>
+                                </div>
                               </div>
-                              <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(syllabusChartData) ? syllabusChartData[2][1] : 0}</h4></div>
-                            </div>
-                          </div>
+                            </> :
+                            <>
+                              <div className="no-records-found no-records-found-inner h-100">
+                                {/* <div className="no-records-found-image">
+                                  <img src={notVoucherFound} alt="OpenPlaner" />
+                                </div> */}
+                                <div className="no-records-found-text">
+                                  <h6>No data found!</h6>
+                                </div>
+                              </div>
+
+                            </>
+                          }
                         </div>
                       </Card.Body>
                     </Card>

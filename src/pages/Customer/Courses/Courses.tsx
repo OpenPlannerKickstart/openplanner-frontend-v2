@@ -11,23 +11,29 @@ import {
 } from "react-bootstrap";
 import gridCardImg from "/assets/images/grid-card-img.svg";
 import DatePicker from "react-datepicker";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import SyllabusDetails from "./SyllabusDetails";
 import Events from "./Events";
 import AddSyllabusEvents from "../../../common/AddSyllabusEvents/AddSyllabusEvents";
-import { AppDispatch } from "../../../redux/store";
-import { deleteSyllabusDataAPI, getCoursesListDataAPI } from "../../../redux/Service/User/Courses/courses";
+import { AppDispatch, RootState } from "../../../redux/store";
+import { deleteSyllabusDataAPI, getCoursesListDataAPI, updateSyllabusStatusDataAPI } from "../../../redux/Service/User/Courses/courses";
 import { addSyllabusData, SyllabusResponseType } from "../../../interfaces/interface";
-import { formatedDate, isEmptyObjectOrNullUndefiend, NO_RECORD_FOUND_MSG } from "../../../Utility/Helper";
+import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, NO_RECORD_FOUND_MSG } from "../../../Utility/Helper";
 import { ENUM_FOR_DISPLAY_VIEW } from "../../../interfaces/enum";
 import SyllabusCanvasDetails from "./SyllabusCanvasDetails";
+import notVoucherFound from "/assets/images/not-voucher-found.svg";
+import { isUpdatedSyllabus } from "../../../redux/User/Courses/coursesSlice";
 
 const Courses = (props) => {
   const dispatch: AppDispatch = useDispatch();
+  const coursesData: any = useSelector(
+    (state: RootState) => state.CoursesReducer);
+
+
 
   const [showCourse, setShowCourse] = useState(false);
   const [showEvent, setShowEvent] = useState(false);
-  const [isAddNewData, setIsAddNewData] = useState(false);
+
 
   const handleCloseCourse = () => { setShowCourse(false); setSelectedSyllabusObj({} as addSyllabusData); }
   const handleShowCourse = () => setShowCourse(true);
@@ -70,22 +76,22 @@ const Courses = (props) => {
     return () => {
       clearTimeout(delayDebounceFn);
     }
-  }, [searchValue])
-  useEffect(() => {
+  }, [searchValue]);
 
+  useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      if (isAddNewData) {
+      if (coursesData.isUpdatedSyllabusData) {
         handleGetCourseList();
         setTimeout(() => {
-          setIsAddNewData(false);
-        }, 300);
+          dispatch(isUpdatedSyllabus(false));
+        }, 400);
       }
 
     }, 300);
     return () => {
       clearTimeout(delayDebounceFn);
     }
-  }, [isAddNewData])
+  }, [coursesData.isUpdatedSyllabusData])
 
 
   const handleGetCourseList = async () => {
@@ -132,6 +138,34 @@ const Courses = (props) => {
   }
 
   /** -------------------Delete Syllabus end-------------------------*/
+  /** -------------------Complete syllabus start-------------------------*/
+  const [completeConfirmationShow, setCompleteConfirmationShow] = useState(false);
+  const handleConfirmationClose = () => {
+    setCompleteSyllabusData([])
+    setCompleteConfirmationShow(false);
+  }
+  const handleConfirmationShow = (id) => { setCompleteConfirmationShow(true); setCompleteSyllabusData([id]) }
+  const [completeSyllabusData, setCompleteSyllabusData] = useState<any>([])
+
+  const [SuccessShow, setSuccessShow] = useState(false);
+  const handleSuccessClose = () => setSuccessShow(false);
+  const handleSuccessShow = () => setSuccessShow(true);
+
+  const handleSyllabusCompleted = async () => {
+    let payload = {
+      syllabus_id: completeSyllabusData
+    }
+    let response = await dispatch(updateSyllabusStatusDataAPI(payload));
+    if (!isNullUndefinedOrBlank(response?.payload)) {
+      handleGetCourseList();
+      handleConfirmationClose();
+      setTimeout(() => {
+        handleSuccessShow();
+      }, 300);
+    }
+  }
+  /** -------------------Complete syllabus end-------------------------*/
+
 
   return (
     <>
@@ -200,13 +234,14 @@ const Courses = (props) => {
           <div className="page-content-wrapper h-100">
             {
               selectedView === ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW &&
+              <>
 
-              <div className="list-view-layout">
-                <div className="table-responsive mb-3">
-                  <Table className="table-theme">
-                    <thead className="border-less">
-                      <tr>
-                        {/* <th className="">
+                <div className="list-view-layout">
+                  <div className="table-responsive mb-3">
+                    <Table className="table-theme">
+                      <thead className="border-less">
+                        <tr>
+                          {/* <th className="">
                         <div className="d-flex align-items-center gap-2">
                           <div className=" checkbox checkbox-primary checkbox-small">
                             <input
@@ -219,21 +254,21 @@ const Courses = (props) => {
                           #
                         </div>
                       </th> */}
-                        <th>Course Name</th>
-                        <th>Course Color</th>
-                        <th>No of Events</th>
-                        <th>Last Update Date</th>
-                        <th className="text-center">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
+                          <th>Course Name</th>
+                          <th>Course Color</th>
+                          <th>No of Events</th>
+                          <th>Last Update Date</th>
+                          <th className="text-center">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
 
-                        !isEmptyObjectOrNullUndefiend(syllabusList) ?
-                          syllabusList?.map((item, index) => {
-                            return (
-                              <tr key={index}>
-                                {/* <td className="tbl-user">
+                          !isEmptyObjectOrNullUndefiend(syllabusList) ?
+                            syllabusList?.map((item, index) => {
+                              return (
+                                <tr key={index}>
+                                  {/* <td className="tbl-user">
                                 <div className="tbl-user-checkbox-srno">
                                   <div className="checkbox checkbox-primary checkbox-small">
                                     <input
@@ -246,51 +281,75 @@ const Courses = (props) => {
                                   <span>01.</span>
                                 </div>
                               </td> */}
-                                <td>
-                                  {item?.title || "-"}
-                                </td>
-                                <td>
-                                  <span className="color-box" style={{ backgroundColor: `${item?.course_color || "#239bc266"}` }}></span>
-                                </td>
-                                <td>
-                                  <a>{item?.no_of_events || "0"}</a>
-                                </td>
-                                <td>
-                                  {formatedDate(item?.updated_at, " DD-MM-YYYY - hh:mm A")}
+                                  <td>
+                                    {item?.title || "-"}
+                                  </td>
+                                  <td>
+                                    <span className="color-box" style={{ backgroundColor: `${item?.course_color || "#239bc266"}` }}></span>
+                                  </td>
+                                  <td>
+                                    <a>{item?.no_of_events || "0"}</a>
+                                  </td>
+                                  <td>
+                                    {formatedDate(item?.updated_at, " DD-MM-YYYY - hh:mm A")}
 
-                                </td>
-                                <td className="tbl-action">
-                                  <div className="tbl-action-group">
-                                    <button
-                                      className="btn btn-xs btn-icon btn-transparent"
-                                      onClick={() => { handleUpdateCourse(item) }}
-                                    >
-                                      <i className="material-symbols-outlined">edit</i>
-                                    </button>
-                                    <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow(item) }}>
-                                      <i className="material-symbols-outlined">delete</i>
-                                    </button>
-                                  </div>
+                                  </td>
+                                  <td className="tbl-action">
+                                    <div className="tbl-action-group">
+                                      {/* <button
+                                        className="btn btn-xs btn-icon btn-transparent check-icon"
+                                        onClick={() => { handleConfirmationShow(item?.id) }}
+                                      >
+                                        <i className="material-symbols-outlined">check_circle</i>
+                                      </button> */}
+                                      {
+                                        item?.status === "Completed" ?
+                                          <button
+                                            className="btn btn-xs btn-icon btn-transparent check-icon text-success "
+                                          >
+
+                                            <i className="material-symbols-outlined ">check_circle</i>
+                                          </button>
+                                          :
+                                          <button
+                                            className="btn btn-xs btn-icon btn-transparent check-icon " onClick={() => { handleConfirmationShow(item?.id) }}
+                                          >
+                                            <i className="material-symbols-outlined">check_circle</i>
+                                          </button>
+                                      }
+                                      <button
+                                        className="btn btn-xs btn-icon btn-transparent"
+                                        onClick={() => { handleUpdateCourse(item) }}
+                                      >
+                                        <i className="material-symbols-outlined">edit</i>
+                                      </button>
+                                      <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow(item) }}>
+                                        <i className="material-symbols-outlined">delete</i>
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+
+                              )
+                            })
+                            : <>
+                              <tr>
+                                <td className='text-center'
+                                  colSpan={35}
+                                >
+                                  {NO_RECORD_FOUND_MSG}
                                 </td>
                               </tr>
+                            </>
+                        }
 
-                            )
-                          })
-                          : <>
-                            <tr>
-                              <td className='text-center'
-                                colSpan={35}
-                              >
-                                {NO_RECORD_FOUND_MSG}
-                              </td>
-                            </tr>
-                          </>
-                      }
-
-                    </tbody>
-                  </Table>
+                      </tbody>
+                    </Table>
+                  </div>
                 </div>
-              </div>
+
+              </>
+
             }
 
             {/***** Grid layout start *****/}
@@ -302,6 +361,7 @@ const Courses = (props) => {
                   <Row className="course-container">
                     {
                       !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {
+                        console.log(item, "item")
                         return (
                           <Col md={"4"} key={index}>
                             <Card className="card-style-1">
@@ -333,6 +393,21 @@ const Courses = (props) => {
                                           </p>
                                         </div>
                                         <div className="action-button">
+                                          {
+                                            item?.status === "Completed" ?
+                                              <button
+                                                className="btn btn-xs btn-icon btn-transparent check-icon text-success"
+                                              >
+
+                                                <i className="material-symbols-outlined">check_circle</i>
+                                              </button>
+                                              :
+                                              <button
+                                                className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleConfirmationShow(item?.id) }}
+                                              >
+                                                <i className="material-symbols-outlined">check_circle</i>
+                                              </button>
+                                          }
                                           <button
                                             className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm"
                                             onClick={() => { handleUpdateCourse(item) }}
@@ -353,8 +428,20 @@ const Courses = (props) => {
                             </Card>
                           </Col>
                         )
-                      }) : <></>
+                      }) :
+                        <>
+                          <div className="no-records-found no-records-found-inner h-100">
+                            <div className="no-records-found-image">
+                              <img src={notVoucherFound} alt="OpenPlaner" />
+                            </div>
+                            <div className="no-records-found-text">
+                              <h6>No data found!</h6>
+                            </div>
+                          </div>
+
+                        </>
                     }
+
 
                   </Row>
                 </div>
@@ -371,7 +458,7 @@ const Courses = (props) => {
             {/***** Offcanvas end *****/}
 
             <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent}
-              setIsAddNewData={setIsAddNewData}
+
             />
 
 
@@ -404,6 +491,67 @@ const Courses = (props) => {
             </Modal>
             {/* Delete Modal */}
 
+
+
+            {/* complete syllabus confirmation Modal */}
+            <Modal className='modal-theme modal-confirmation modal-approve' show={completeConfirmationShow} onHide={handleConfirmationClose} centered>
+              <Modal.Header >
+                <h4 className="modal-title">Task Completed!</h4>
+                <button type="button" className="btn-close" onClick={handleConfirmationClose}>
+                  <i className="material-symbols-outlined">close</i>
+                </button>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="modal-confirmation-container">
+                  <div className="modal-confirmation-icon">
+                    <i className="material-symbols-outlined">check_circle</i>
+                  </div>
+                  <div className="modal-confirmation-content">
+
+                    <h5>All the Events of this course will be marked as completed.</h5>
+                    <p>Do you want to proceed?</p>
+
+                  </div>
+                </div>
+                <div className="modal-button-group modal-full-width-btn modal-footer-button">
+                  <Button variant="light-white"
+                    className="btn-icon-text btn-md" onClick={handleConfirmationClose}> Cancel
+                  </Button>
+                  <Button variant="success"
+                    className="btn-icon-text btn-md" onClick={() => { handleSyllabusCompleted() }}> Ok
+                  </Button>
+                </div>
+              </Modal.Body>
+            </Modal>
+            {/* complete syllabus confirmation Modal */}
+            {/* Success Modal */}
+            <Modal className='modal-theme modal-confirmation modal-approve' show={SuccessShow} onHide={handleSuccessClose} centered>
+              <Modal.Header >
+                <h4 className="modal-title">Task Completed!</h4>
+                <button type="button" className="btn-close" onClick={handleSuccessClose}>
+                  <i className="material-symbols-outlined">close</i>
+                </button>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="modal-confirmation-container">
+                  <div className="modal-confirmation-icon">
+                    <i className="material-symbols-outlined">check_circle</i>
+                  </div>
+                  <div className="modal-confirmation-content">
+                    <h5>You have successfully
+                      completed  Syllabus!</h5>
+                    <p>Get back to syllabus page to add or complete the other syllabus</p>
+                  </div>
+                </div>
+                <div className="modal-button-group modal-full-width-btn modal-footer-button">
+                  <Button variant="success"
+                    className="btn-icon-text btn-md" onClick={handleSuccessClose}> Done
+                  </Button>
+                </div>
+              </Modal.Body>
+            </Modal>
+            {/* Success Modal */}
+
           </div>
         </div>
       </div>
@@ -411,8 +559,11 @@ const Courses = (props) => {
   );
 };
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = (state) => ({
+});
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Courses);

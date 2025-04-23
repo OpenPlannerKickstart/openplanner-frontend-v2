@@ -50,7 +50,7 @@ axiosInstance.interceptors.response.use(
           /**   Refresh the access token using the refresh token */
 
           const decoded: any = getDecodeIDToken();
-          console.log(decoded['cognito:username'], "!decoded?.username")
+          // console.log(decoded['cognito:username'], "!decoded?.username")
           if (!decoded['cognito:username']) {
             return logoutFromSystem();
           }

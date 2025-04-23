@@ -3,7 +3,7 @@ import { connect, useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store';
 import { getSyllabusDropDownDataAPI } from '../../redux/Service/User/Calender/calender';
 import { addEvenData } from '../../interfaces/interface';
-import { END_DATE_IS_REQUIRED, START_DATE_IS_REQUIRED, TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
+import { END_DATE_IS_REQUIRED, SELECTION_IS_REQUIRED, START_DATE_IS_REQUIRED, TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
 import * as yup from 'yup';
 import { MAX_3, MAX_50, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
@@ -19,6 +19,7 @@ import outlookLogo from "/assets/images/outlook-logo.svg";
 import moment from 'moment';
 import { AddToCalendarButton } from 'add-to-calendar-button-react';
 import 'add-to-calendar-button';
+import { isUpdatedEvent } from '../../redux/User/Courses/coursesSlice';
 
 
 export const AddEditEvent = (props) => {
@@ -89,6 +90,7 @@ export const AddEditEvent = (props) => {
         start_date: yup.string().required(START_DATE_IS_REQUIRED),
         end_date: yup.string().required(END_DATE_IS_REQUIRED),
         is_reminder: yup.boolean(),
+        syllabus_id: yup.string().required(SELECTION_IS_REQUIRED),
         reminder: yup.array()
             .of(
                 yup.object().shape({
@@ -171,6 +173,7 @@ export const AddEditEvent = (props) => {
         const response = await dispatch(addEditEventDataAPI(reqBody));
         if (response) {
             handleCloseAddSyllabusEvents();
+            dispatch(isUpdatedEvent(true));
             props?.handleGetData();
         }
     }
@@ -315,9 +318,9 @@ export const AddEditEvent = (props) => {
                                                                 />
 
                                                             </div>
-                                                                {eventFormData.touched.start_date &&
-                                                                    eventFormData.errors.start_date
-                                                                    && renderError(eventFormData.errors.start_date as any)}
+                                                            {eventFormData.touched.start_date &&
+                                                                eventFormData.errors.start_date
+                                                                && renderError(eventFormData.errors.start_date as any)}
                                                         </Form.Group>
                                                     </Col>
                                                     <Col md={6}>
@@ -344,9 +347,9 @@ export const AddEditEvent = (props) => {
 
                                                                 />
                                                             </div>
-                                                                {eventFormData.touched.end_date &&
-                                                                    eventFormData.errors.end_date
-                                                                    && renderError(eventFormData.errors.end_date as any)}
+                                                            {eventFormData.touched.end_date &&
+                                                                eventFormData.errors.end_date
+                                                                && renderError(eventFormData.errors.end_date as any)}
                                                         </Form.Group>
                                                     </Col>
                                                 </Row>
@@ -429,7 +432,7 @@ export const AddEditEvent = (props) => {
                                                                                     <Form.Label>Unit</Form.Label>
                                                                                     <Select
                                                                                         options={reminderUnitDropDownData}
-                                                                                        placeholder={<div>Days</div>}
+                                                                                        placeholder={<div>Select Unit</div>}
                                                                                         menuPosition="fixed"
                                                                                         className="react-select-container"
                                                                                         onChange={(selectedOption: any) => {

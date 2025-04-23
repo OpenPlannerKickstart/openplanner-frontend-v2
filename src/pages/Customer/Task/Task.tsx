@@ -600,7 +600,7 @@ const Task = (props) => {
                                         <Form.Label>Unit</Form.Label>
                                         <Select
                                           options={reminderUnitDropDownData}
-                                          placeholder={<div>Days</div>}
+                                          placeholder={<div>Select Unit</div>}
                                           menuPosition="fixed"
                                           className="react-select-container"
                                           onChange={(selectedOption: any) => {

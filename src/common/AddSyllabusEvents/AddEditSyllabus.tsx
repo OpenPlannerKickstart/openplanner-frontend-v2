@@ -12,6 +12,7 @@ import { MAX_50 } from '../../Utility/Validation_Helper';
 import GetImageIcon from '../GetImageIcon';
 import DatePicker from "react-datepicker";
 import InputColor from 'react-input-color';
+import { isUpdatedSyllabus } from '../../redux/User/Courses/coursesSlice';
 
 export const AddEditSyllabus = (props) => {
     const dispatch: AppDispatch = useDispatch();
@@ -117,7 +118,8 @@ export const AddEditSyllabus = (props) => {
         const response = await dispatch(addEditSyllabusDataAPI(formData));
         if (response) {
             handleCloseAddSyllabusEvents();
-            props?.handleGetData()
+            props?.handleGetData();
+            dispatch(isUpdatedSyllabus(true));
         }
 
 
@@ -299,6 +301,7 @@ export const AddEditSyllabus = (props) => {
                                                                     onBlur={() => {
                                                                         syllabusFormData.setFieldTouched("class_time", true)
                                                                     }}
+                                                                    showIcon
                                                                 />
                                                             </div>
                                                             {syllabusFormData.touched.class_time &&
@@ -329,15 +332,15 @@ export const AddEditSyllabus = (props) => {
                                                 </Row>
                                                 <Form.Group className='form-group form-group-sm'>
                                                     <Form.Label>Course Color</Form.Label>
-                                                        <div className="form-color-picker color-picker-with-box">
+                                                    <div className="form-color-picker color-picker-with-box">
                                                         <i className='th-bold-mouse-square' style={{ color: syllabusFormData?.values?.course_color }}></i>
-                                                            <InputColor
-                                                                initialValue={syllabusFormData?.values?.course_color || "#7209B7"}
-                                                                onChange={(color) => {
-                                                                    syllabusFormData.setFieldValue("course_color", color.hex);
-                                                                }}
-                                                            />
-                                                        </div>
+                                                        <InputColor
+                                                            initialValue={syllabusFormData?.values?.course_color || "#7209B7"}
+                                                            onChange={(color) => {
+                                                                syllabusFormData.setFieldValue("course_color", color.hex);
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </Form.Group>
                                             </div>
                                         </div>

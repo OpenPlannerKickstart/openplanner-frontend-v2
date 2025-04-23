@@ -64,14 +64,14 @@ const CompletEvents = (props) => {
                             <tr>
                                 <th className="">
                                     <div className="d-flex align-items-center gap-2">
-                                        <div className=" checkbox checkbox-primary checkbox-small">
+                                        {/* <div className=" checkbox checkbox-primary checkbox-small">
                                             <input
                                                 type="checkbox"
                                                 id="tbl-checkbox"
                                                 className="material-inputs filled-in"
                                             />
                                             <label htmlFor="tbl-checkbox"></label>
-                                        </div>
+                                        </div> */}
                                         #
                                     </div>
                                 </th>
@@ -91,14 +91,14 @@ const CompletEvents = (props) => {
                                         <tr key={index}>
                                             <td className="tbl-user tbl-srno">
                                                 <div className="tbl-user-checkbox-srno">
-                                                    <div className="checkbox checkbox-primary checkbox-small">
+                                                    {/* <div className="checkbox checkbox-primary checkbox-small">
                                                         <input
                                                             type="checkbox"
                                                             id="tbl-checkbox1"
                                                             className="material-inputs filled-in"
                                                         />
                                                         <label htmlFor="tbl-checkbox1"></label>
-                                                    </div>
+                                                    </div> */}
                                                     <span>{index + 1}.</span>
                                                 </div>
                                             </td>
@@ -106,7 +106,7 @@ const CompletEvents = (props) => {
                                                 {!isNullUndefinedOrBlank(item.title) ? item.title : ""}
                                             </td>
                                             <td>
-                                               <Badge bg="" style={{backgroundColor:item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)',color:item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)'}}><i className="material-symbols-outlined" style={{color:item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)'}}>book_2</i>{!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"}</Badge>
+                                                <Badge bg="" style={{ backgroundColor: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)', color: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}><i className="material-symbols-outlined" style={{ color: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}>book_2</i>{!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"}</Badge>
                                             </td>
                                             <td onClick={() => { props.handleShowShowNote(item.note) }}>
                                                 <a >View Notes</a>

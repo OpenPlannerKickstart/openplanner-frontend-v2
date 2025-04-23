@@ -316,16 +316,14 @@ const SyllabusDetails = (props) => {
           </Form.Group>
           <Form.Group className='form-group'>
             <Form.Label>Course Color</Form.Label>
-            <div className="form-control-icon icon-start">
+            <div className="form-color-picker color-picker-with-box">
               <i className='th-bold-mouse-square' style={{ color: syllabusFormData?.values?.course_color }}></i>
-              <div className="form-color-picker">
-                <InputColor
-                  initialValue={syllabusFormData?.values?.course_color || "#7209B7"}
-                  onChange={(color) => {
-                    syllabusFormData.setFieldValue("course_color", color.hex);
-                  }}
-                />
-              </div>
+              <InputColor
+                initialValue={syllabusFormData?.values?.course_color || "#7209B7"}
+                onChange={(color) => {
+                  syllabusFormData.setFieldValue("course_color", color.hex);
+                }}
+              />
             </div>
           </Form.Group>
         </div>

@@ -19,6 +19,7 @@ import InputColor from 'react-input-color';
 import { ENUM_FOR_SYLLABUS_TAB } from '../../interfaces/enum';
 import GetImageIcon from '../GetImageIcon';
 import { reminderUnitDropDownData } from '../../Utility/staticDropDown';
+import { isUpdatedEvent, isUpdatedSyllabus } from '../../redux/User/Courses/coursesSlice';
 const AddSyllabusEvents = (props) => {
   const dispatch: AppDispatch = useDispatch();
 
@@ -32,6 +33,7 @@ const AddSyllabusEvents = (props) => {
       syllabusFormData.resetForm();
       eventFormData.resetForm();
       setSavedEventFormData(initEventData);
+      setSelectedTab(ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS);
     }, 300);
 
   }
@@ -135,7 +137,8 @@ const AddSyllabusEvents = (props) => {
     const response = await dispatch(addEditSyllabusDataAPI(formData));
     if (response) {
       handleCloseAddSyllabusEvents();
-      props?.setIsAddNewData(true);
+      dispatch(isUpdatedSyllabus(true));
+
     }
 
 
@@ -271,6 +274,7 @@ const AddSyllabusEvents = (props) => {
     const response = await dispatch(addEditEventDataAPI(reqBody));
     if (response) {
       handleCloseAddSyllabusEvents();
+      dispatch(isUpdatedEvent(true));
       props?.setIsAddNewData(true);
     }
   }
@@ -536,8 +540,8 @@ const AddSyllabusEvents = (props) => {
                             <Col md={6}>
                               <Form.Group className="form-group">
                                 <Form.Label>Class Time</Form.Label>
-                                <div className="form-group-icon-start">
-                                  <i className="material-symbols-outlined">menu_book</i>
+                                <div className="react-datepicker-container">
+                                  {/* <i className="material-symbols-outlined">menu_book</i> */}
                                   <DatePicker
                                     placeholderText="Select Class Time"
                                     selected={syllabusFormData.values.class_time}
@@ -741,7 +745,7 @@ const AddSyllabusEvents = (props) => {
                                             <Form.Label>Unit</Form.Label>
                                             <Select
                                               options={reminderUnitDropDownData}
-                                              placeholder={<div>Days</div>}
+                                              placeholder={<div>Select Unit</div>}
                                               menuPosition="fixed"
                                               className="react-select-container"
                                               onChange={(selectedOption: any) => {

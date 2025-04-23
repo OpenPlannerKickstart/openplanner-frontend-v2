@@ -32,12 +32,16 @@ export const Sidebar = () => {
         {/* <!-- LOGO --> */}
         < div className="navbar-brand-box" >
           <a href="index.html" className="logo logo-dark">
-            <span className="logo-sm">
-              <img src={sidebarLogosm} alt="logoSm" height="48" />
-            </span>
-            {/* <span className="logo-lg">
+
+            <span className="logo-lg">
               <img src={sidebarLogoLg} alt="sidebarLogoLg" height="48" />
+            </span>
+            {/* <span className="logo-sm">
+              <img src={sidebarLogosm} alt="logoSm" height="48" />
             </span> */}
+
+
+
           </a>
 
         </div >
@@ -66,11 +70,11 @@ export const Sidebar = () => {
                     <i className="material-symbols-outlined">ballot</i> <span data-key="t-widgets">Task List</span>
                   </NavLink>
                 </li>
-                <li className="nav-item">
+                {/* <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="">
                     <i className="material-symbols-outlined">info</i> <span data-key="t-widgets">Help</span>
                   </NavLink>
-                </li>
+                </li> */}
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="/settings">
                     <i className="material-symbols-outlined">settings</i> <span data-key="t-widgets">Settings</span>
@@ -109,8 +113,8 @@ export const Sidebar = () => {
         </div>
         <div className="sidebar-background"></div>
         <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent}
-          setIsAddNewData={setIsAddNewData}
-        />
+          setIsAddNewData={setIsAddNewData} isAddNewData={isAddNewData} />
+
       </div >
       {/* <!-- Left Sidebar End --> */}
     </>
