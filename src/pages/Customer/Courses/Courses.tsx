@@ -166,7 +166,22 @@ const Courses = (props) => {
   }
   /** -------------------Complete syllabus end-------------------------*/
 
+  /** ----------------------refresh list start----------------------*/
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (coursesData.isUpdatedEventData) {
+        handleGetCourseList();
+        setTimeout(() => {
+          dispatch(isUpdatedSyllabus(false));
+        }, 400);
+      }
+
+    }, 300);
+    return () => {
+      clearTimeout(delayDebounceFn);
+    }
+  }, [coursesData.isUpdatedEventData])
   return (
     <>
       <div className="page-content">

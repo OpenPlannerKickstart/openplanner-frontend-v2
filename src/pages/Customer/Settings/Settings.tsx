@@ -87,7 +87,7 @@ const Settings = () => {
                                         onClick={() => { onChangeTab(ENUMFORACCOUNTTAB.NOTIFICATION) }}
 
                                     >
-                                        Notification Setting
+                                        Notification Settings
                                     </button>
                                     <button
                                         className={`nav-link ${ENUMFORACCOUNTTAB.DELETE_ACCOUNT === selectedTab ? "active" : ""}`}

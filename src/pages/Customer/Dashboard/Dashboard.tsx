@@ -188,7 +188,7 @@ const Dashboard = () => {
   ]);
   const [eventChartFilter, setEventChartFilter] = useState<any>(null);
   const eventOptions = {
-    pieHole: 0.4,
+    pieHole: 0.6,
     is3D: false,
     legend: { position: "none" },
     colors: ["#BEE6F3", "#239BC2"], // Custom colors for pie segments.
@@ -203,7 +203,7 @@ const Dashboard = () => {
   }
 
   const taskOptions = {
-    pieHole: 0.4,
+    pieHole: 0.6,
     is3D: false,
     legend: { position: "none" },
     colors: ["#EAFCF2", "#25D076"], // Custom colors for pie segments.
@@ -221,7 +221,7 @@ const Dashboard = () => {
 
 
   const syllabusOptions = {
-    pieHole: 0.4,
+    pieHole: 0.6,
     is3D: false,
     legend: { position: "none" },
     colors: ["#EBF9F8", "#33B3AA"], // Custom colors for pie segments.
@@ -359,13 +359,13 @@ const Dashboard = () => {
                                   <div className="event-title">
                                     <h4><span></span>Total Events</h4>
                                   </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(eventChartData) ? eventChartData[1][1] : 0}</h4></div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(eventChartData) ? eventChartData[1][1] + eventChartData[2][1] : 0}</h4></div>
                                 </div>
                                 <div className="event-deta complet-event">
                                   <div className="event-title">
                                     <h4><span></span>Completed Events</h4>
                                   </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(eventChartData) ? eventChartData[2][1] : 0}</h4></div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(eventChartData) ? eventChartData[1][1] : 0}</h4></div>
                                 </div>
                               </div>
                             </>
@@ -441,13 +441,13 @@ const Dashboard = () => {
                                   <div className="event-title">
                                     <h4><span></span>Total Tasks</h4>
                                   </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(taskChartData) ? taskChartData[1][1] : 0}</h4></div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(taskChartData) ? taskChartData[1][1] + taskChartData[2][1] : 0}</h4></div>
                                 </div>
                                 <div className="event-deta complet-event">
                                   <div className="event-title">
                                     <h4><span></span>Completed Tasks</h4>
                                   </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(taskChartData) ? taskChartData[2][1] : 0}</h4></div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(taskChartData) ? taskChartData[1][1] : 0}</h4></div>
                                 </div>
                               </div>
                             </> :
@@ -524,13 +524,13 @@ const Dashboard = () => {
                                   <div className="event-title">
                                     <h4><span></span>Total Courses</h4>
                                   </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(syllabusChartData) ? syllabusChartData[1][1] : 0}</h4></div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(syllabusChartData) ? syllabusChartData[1][1] + syllabusChartData[2][1] : 0}</h4></div>
                                 </div>
                                 <div className="event-deta complet-event">
                                   <div className="event-title">
                                     <h4><span></span>Completed Courses</h4>
                                   </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(syllabusChartData) ? syllabusChartData[2][1] : 0}</h4></div>
+                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(syllabusChartData) ? syllabusChartData[1][1] : 0}</h4></div>
                                 </div>
                               </div>
                             </> :

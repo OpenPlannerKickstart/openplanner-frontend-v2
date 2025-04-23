@@ -323,6 +323,7 @@ const Task = (props) => {
 
   const [taskList, setTaskList] = useState<Array<Task>>([]);
   const [count, setCount] = useState<number>(0)
+  const [completedCount, setCompletedCount] = useState<number>(0)
   const getTaskListing = async () => {
     let reqBody = {
       status: selectedTab,
@@ -335,6 +336,7 @@ const Task = (props) => {
     if (!isNullUndefinedOrBlank(response?.payload)) {
       setTaskList(response?.payload?.tasks);
       setCount(response?.payload?.pending_task_count);
+      setCompletedCount(response?.payload?.completed_task_count);
     }
   }
 
@@ -416,7 +418,7 @@ const Task = (props) => {
 
                         onClick={() => { onChangeTab(ENUMFORTASK.COMPLETED) }}
                       >
-                        Completed
+                        Completed  <Badge bg="light-grey">{!isNullUndefinedOrBlank(completedCount) ? completedCount : 0}</Badge>
                       </button>
                     </div>
                     <div className="page-filters-right">
