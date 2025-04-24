@@ -93,6 +93,7 @@ const NewPassword = (props) => {
     const reqBody = {
       username: emailDetailObj.username
     }
+    resetPasswordForm.setFieldValue('code', '');
     const response = await dispatch(sendForgotPasswordEmailOtp(reqBody))
     if (response) {
       setTimer(60);
@@ -146,6 +147,7 @@ const NewPassword = (props) => {
                           type={eyeToggle ? "text" : "password"}
                           placeholder="Enter Password"
                           {...resetPasswordForm.getFieldProps("new_password")}
+                          autoComplete="new-password"
                         />
                         <button
                           onClick={() => setEyeToggle(!eyeToggle)}
@@ -202,8 +204,8 @@ const NewPassword = (props) => {
                       </Button>
                     </div>
                     {canResend ? (
-                     
-                        <div className="btn-full-group">
+
+                      <div className="btn-full-group">
                         <Button variant="primary" className="w-100 mb-3 mt-4"
                           onClick={() => { handleResentEmailCode(); }}
                         >
