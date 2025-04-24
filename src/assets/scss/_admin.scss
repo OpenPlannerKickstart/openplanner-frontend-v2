@@ -76,7 +76,11 @@ $sm_sidebar_home_link_width: 270px;
         .notification-button {
             padding-right: 14px;
             position: relative;
-
+            button{
+                i{
+                    font-size: 20px;
+                }
+            }
             &::before {
                 content: "";
                 position: absolute;
@@ -88,6 +92,7 @@ $sm_sidebar_home_link_width: 270px;
                 background: #E9F7FB;
             }
         }
+
     }
 
     /* ------------------------- Profile Dropdown Start ------------------------- */
@@ -144,6 +149,16 @@ $sm_sidebar_home_link_width: 270px;
                 font-family: "techhive" !important;
             }
         }
+        .dropdown-menu{
+            .dropdown-header{
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 1;
+                white-space: normal;
+                padding: 8px 16px 5px;
+            }
+        }
     }
 
     /* -------------------------- Profile Dropdown End -------------------------- */
@@ -184,6 +199,10 @@ $sm_sidebar_home_link_width: 270px;
     box-shadow: unset;
     padding: 0 0 95px 0;
     transition: all 0.1s ease-out;
+
+    .logo-sm{
+        display: none;
+    }
 
     .container-fluid {
         padding-left: 0px;
@@ -354,6 +373,20 @@ $sm_sidebar_home_link_width: 270px;
     #page-topbar {
         left: $sm_sidebarWidth;
     }
+    .navbar-brand-box{
+        justify-content: center;
+    }
+    .logo-sm{
+        display: block;
+
+        img{
+            width: auto;
+            height: 35px;
+        }
+    }
+    .logo-lg{
+        display: none;
+    }
 
     .navbar-menu {
         width: $sm_sidebarWidth;
@@ -492,7 +525,6 @@ $sm_sidebar_home_link_width: 270px;
     .sidebar-footer {
         display: none;
     }
-
 
 }
 
@@ -793,7 +825,6 @@ $sm_sidebar_home_link_width: 270px;
                     display: flex;
                     align-items: center;
                     border-width: 2px;
-
                     .nav-link {
                         padding: 17px;
                         letter-spacing: 0.2px;
@@ -969,7 +1000,7 @@ $sm_sidebar_home_link_width: 270px;
 
             .form-group {
                 .form-label {
-                    font-size: 16px;
+                    /*font-size: 16px;*/
                 }
             }
         }
@@ -1002,8 +1033,10 @@ $sm_sidebar_home_link_width: 270px;
             }
 
             .syllabus-view-box {
-                height: 100%;
-                padding: 30px 24px;
+                /*height: calc(100vh - 140px);*/
+                padding: 15px;
+                overflow-y: auto;
+
             }
         }
 
@@ -1175,8 +1208,8 @@ $sm_sidebar_home_link_width: 270px;
                         }
 
                         .form-label {
-                            font-size: 16px;
-                            letter-spacing: 0.2px;
+                            /*font-size: 16px;
+                            letter-spacing: 0.2px;*/
                         }
                     }
                 }
@@ -1907,6 +1940,19 @@ $sm_sidebar_home_link_width: 270px;
                                 }
                             }
                         }
+
+                        .no-records-found {
+                            .no-records-found-image{
+                                img{
+                                    width: 160px;
+                                }
+                            }
+                            .no-records-found-text{
+                                h6{
+                                    font-size: 15.16px;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -2290,7 +2336,8 @@ $sm_sidebar_home_link_width: 270px;
             border-bottom-right-radius: 4px;
 
             p {
-                text-wrap: auto;
+                text-wrap: auto !important;
+                word-wrap: break-word;
 
                 &:nth-child(2) {
                     font-size: 14px;
@@ -2453,3 +2500,4 @@ $sm_sidebar_home_link_width: 270px;
         }
     }
 }
+

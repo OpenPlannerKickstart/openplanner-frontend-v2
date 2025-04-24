@@ -36,11 +36,9 @@ export const Sidebar = () => {
             <span className="logo-lg">
               <img src={sidebarLogoLg} alt="sidebarLogoLg" height="48" />
             </span>
-            {/* <span className="logo-sm">
+            <span className="logo-sm">
               <img src={sidebarLogosm} alt="logoSm" height="48" />
-            </span> */}
-
-
+            </span>
 
           </a>
 

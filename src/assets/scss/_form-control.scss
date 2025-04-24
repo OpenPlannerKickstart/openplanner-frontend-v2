@@ -166,13 +166,12 @@
 
         i {
             position: absolute;
-            top: 50%;
+            top: 0;
             bottom: 0;
             display: flex;
             align-items: center;
             font-size: 18px;
             color:#4B5563;
-            transform: translateY(-50%);
         }
     }
 
@@ -220,8 +219,6 @@
                 left: unset;
                 right: unset;
                 position: relative;
-                display: flex;
-                align-items: center ;
             }
 
             &:hover {
@@ -1465,8 +1462,16 @@ body {
             }
         }
     }
-
-
+.color-picker-with-box{
+    position: relative;
+    .color-picker-code {
+        position: absolute;
+        left: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-bottom: 0px;
+    }
+}
     .form-color-picker {
         width: 100%;
         display: flex;
@@ -1663,7 +1668,9 @@ body {
         }
     }
     .react-datepicker__day--today{
-        background-color: #006b90;
+        background-color: $primary_hover_color;
+        color: $white_color;
+        border-radius: 0.3rem;
     }
     .react-datepicker__day--disabled,
     .react-datepicker__month-text--disabled,

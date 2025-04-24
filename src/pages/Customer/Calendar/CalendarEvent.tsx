@@ -300,7 +300,7 @@ const CalenderEvent = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "0 10px",
+          padding: "0 0px",
           height: "100%", // Ensure it stretches the full cell height
         }}
         onMouseEnter={handleMouseEnter}
@@ -312,10 +312,12 @@ const CalenderEvent = () => {
         {/* Button on the right */}
         <button
           style={{
+            display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            width: "26px",
-            height: "26px",
+            width: "22px",
+            height: "22px",
+            fontSize: "16px",
             backgroundColor: "#374151",
             color: "white",
             border: "none",
