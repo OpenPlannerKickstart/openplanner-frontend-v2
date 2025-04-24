@@ -15,8 +15,8 @@ import { AppDispatch } from "../../../redux/store";
 import { sendForgotPasswordEmailOtp } from "../../../redux/Service/auth/forgotPassword";
 import { isEmptyObjectOrNullUndefiend, renderError } from "../../../Utility/Helper";
 import NewPassword from "../NewPassword/NewPassword";
-import { PATTERN_EMAIL } from "../../../Utility/Validation_Helper";
-import { EMAIL_INVALID, EMAIL_REQUIRED } from "../../../Utility/Validation_Message";
+import { PATTERN_EMAIL, PATTERN_NOT_ALLOW_SPACE } from "../../../Utility/Validation_Helper";
+import { EMAIL_INVALID, EMAIL_REQUIRED, USERNAME_IS_REQUIRED, USERNAME_SPACE_VALIDATION } from "../../../Utility/Validation_Message";
 const ForgotPassword = (props) => {
   const dispatch: AppDispatch = useDispatch();
   const [emailDetailObj, setEmailDetailObj] = useState({} as any);
@@ -27,11 +27,10 @@ const ForgotPassword = (props) => {
   }
   const [savedEmailFormData, setSavedEmailFormData] = useState<any>(initEmailData);
   const onSubmit = (values) => {
-  
+
   }
   const validationSchema = yup.object({
-    username: yup.string()
-    // .trim()
+    username: yup.string().required(USERNAME_IS_REQUIRED).matches(PATTERN_NOT_ALLOW_SPACE, USERNAME_SPACE_VALIDATION),    // .trim()
     // .matches(PATTERN_EMAIL, EMAIL_INVALID)    
     // .required(EMAIL_REQUIRED),
   })
@@ -78,20 +77,20 @@ const ForgotPassword = (props) => {
 
   }
   useEffect(() => {
-    if(!isEmptyObjectOrNullUndefiend(emailDetailObj)){
+    if (!isEmptyObjectOrNullUndefiend(emailDetailObj)) {
       setSavedEmailFormData(emailDetailObj)
     }
-    else{
+    else {
       emailFormData.resetForm();
       setSavedEmailFormData(initEmailData);
     }
-    
-  
+
+
     return () => {
-      
+
     }
   }, [emailDetailObj])
-  
+
   /* ------------------------ Send Email Otp Data End ----------------------- */
   return (
     <>
@@ -123,7 +122,7 @@ const ForgotPassword = (props) => {
                         <Form.Group className="form-group required">
                           <Form.Label>Enter UserName</Form.Label>
                           <div className="form-group-icon-start">
-                          <i className="material-symbols-outlined">mail</i>
+                            <i className="material-symbols-outlined">mail</i>
                             <Form.Control type="email" placeholder="Enter UserName"
                               {...emailFormData.getFieldProps("username")}
                               onKeyDown={(event) => { handleKeyPress(event) }}

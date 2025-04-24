@@ -9,6 +9,7 @@ export const UNIVERSITY_NAME_REQUIRED = 'University Name is Required!!';
 export const MOBILE_NO_IS_REQUIRED = 'Mobile No is Required!!';
 export const MOBILE_NO_VALIDATION_MESSAGE = 'Enter a valid phone number.';
 export const USERNAME_IS_REQUIRED = 'User Name is Required!!';
+export const USERNAME_SPACE_VALIDATION= 'Username should not contain space.';
 export const CODE_IS_REQUIRED = 'Code is Required!!';
 export const SYLLABUS_TITLE_IS_REQUIRED = 'Title is Required!!';
 export const SYLLABUS_COLOR_IS_REQUIRED = ' Color is Required!!';

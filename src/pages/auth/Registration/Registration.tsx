@@ -8,11 +8,11 @@ import { connect, useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { AppDispatch } from "../../../redux/store";
-import { MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_MOBILE_NO, PATTERN_FOR_PASSWORD_NEW } from "../../../Utility/Validation_Helper";
+import { MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_MOBILE_NO, PATTERN_FOR_PASSWORD_NEW, PATTERN_NOT_ALLOW_SPACE } from "../../../Utility/Validation_Helper";
 import { SignUpData } from "../../../interfaces/interface";
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from "formik";
 import * as yup from "yup";
-import { EMAIL_INVALID, EMAIL_REQUIRED, FIRST_NAME_REQUIRED, LAST_NAME_REQUIRED, MOBILE_NO_IS_REQUIRED, MOBILE_NO_VALIDATION_MESSAGE, PASSWORD_REQUIRED, UNIVERSITY_NAME_REQUIRED, USERNAME_IS_REQUIRED } from "../../../Utility/Validation_Message";
+import { EMAIL_INVALID, EMAIL_REQUIRED, FIRST_NAME_REQUIRED, LAST_NAME_REQUIRED, MOBILE_NO_IS_REQUIRED, MOBILE_NO_VALIDATION_MESSAGE, PASSWORD_REQUIRED, UNIVERSITY_NAME_REQUIRED, USERNAME_IS_REQUIRED, USERNAME_SPACE_VALIDATION } from "../../../Utility/Validation_Message";
 import { customJsonInclude, isEmptyObjectOrNullUndefiend, renderError } from "../../../Utility/Helper";
 import { sendSignupEmailOtp, signupToSystem } from "../../../redux/Service/auth/signup";
 import VerifySignupOtp from "./VerifySignupOtp";
@@ -77,7 +77,7 @@ const Registeration = (props) => {
     last_name: yup.string().required(LAST_NAME_REQUIRED),
     university_name: yup.string().required(UNIVERSITY_NAME_REQUIRED),
     mobile: yup.string().required(MOBILE_NO_IS_REQUIRED).matches(PATTERN_FOR_MOBILE_NO, MOBILE_NO_VALIDATION_MESSAGE),
-    username: yup.string().required(USERNAME_IS_REQUIRED),
+    username: yup.string().required(USERNAME_IS_REQUIRED).matches(PATTERN_NOT_ALLOW_SPACE, USERNAME_SPACE_VALIDATION),
 
     password: yup
       .string()
