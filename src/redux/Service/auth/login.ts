@@ -23,13 +23,13 @@ export const loginToSystem =
         const response: any = await post(GET_LOGIN_DATA_API, objBody);
         if (!response.data.error) {
           if (response.data.data.isVerify) {
+     
             setPlannerToken(response.data.data?.AccessToken);
             setPlannerIDToken(response.data.data?.IdToken);
             setPlannerRefreshToken(response.data.data?.RefreshToken);
-            return dispatch(getLoginSuccess(response.data.data));
-          } else {
-            dispatch(getLoginFailure());
-          }
+          } 
+          
+          return dispatch(getLoginSuccess(response.data.data));
         }
       }
       catch (err) {

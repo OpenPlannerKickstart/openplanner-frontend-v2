@@ -1,6 +1,7 @@
 import { SEND_EMAIL_OTP_FOR_NEW_PASSWORD_DATA_API, SEND_NEW_PASSWORD_DATA_API } from "../../../Utility/ApiList";
 import { post } from "../../../Utility/httpInterceptor";
-import {  sendEmailOtpForPasswordFailure, sendEmailOtpForPasswordSuccess, sendNewPasswordDataFailure, sendNewPasswordDataSuccess } from "../../auth/ForgotPassword/forgotPasswordSlice";
+import { ts } from "../../../Utility/Toaster";
+import { sendEmailOtpForPasswordFailure, sendEmailOtpForPasswordSuccess, sendNewPasswordDataFailure, sendNewPasswordDataSuccess } from "../../auth/ForgotPassword/forgotPasswordSlice";
 import { setLoading } from "../../Loader/LoaderSlice";
 import { AppDispatch } from "../../store";
 
@@ -13,22 +14,23 @@ import { AppDispatch } from "../../store";
  */
 export const sendForgotPasswordEmailOtp =
   (objBody: any = undefined) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setLoading(true));
-   
-    try {
-      const response: any = await post(SEND_EMAIL_OTP_FOR_NEW_PASSWORD_DATA_API, objBody);
-      if (!response.data.error) {       
-        return  dispatch(sendEmailOtpForPasswordSuccess(response.data.data));
-      } else {
+    async (dispatch: AppDispatch) => {
+      dispatch(setLoading(true));
+
+      try {
+        const response: any = await post(SEND_EMAIL_OTP_FOR_NEW_PASSWORD_DATA_API, objBody);
+        if (!response.data.error) {
+          ts(response.data?.message);
+          return dispatch(sendEmailOtpForPasswordSuccess(response.data.data));
+        } else {
+          dispatch(sendEmailOtpForPasswordFailure());
+        }
+      } catch (err) {
         dispatch(sendEmailOtpForPasswordFailure());
+      } finally {
+        dispatch(setLoading(false));
       }
-    } catch (err) {
-      dispatch(sendEmailOtpForPasswordFailure());
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+    };
 /**
  * Send New Password Data
  * @param {*} objBody
@@ -38,19 +40,19 @@ export const sendForgotPasswordEmailOtp =
  */
 export const sendNewPasswordDataAPI =
   (objBody: any = undefined) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setLoading(true));
-   
-    try {
-      const response: any = await post(SEND_NEW_PASSWORD_DATA_API, objBody);
-      if (!response.data.error) {       
-        return  dispatch(sendNewPasswordDataSuccess(response.data.data));
-      } else {
+    async (dispatch: AppDispatch) => {
+      dispatch(setLoading(true));
+
+      try {
+        const response: any = await post(SEND_NEW_PASSWORD_DATA_API, objBody);
+        if (!response.data.error) {
+          return dispatch(sendNewPasswordDataSuccess(response.data.data));
+        } else {
+          dispatch(sendNewPasswordDataFailure());
+        }
+      } catch (err) {
         dispatch(sendNewPasswordDataFailure());
+      } finally {
+        dispatch(setLoading(false));
       }
-    } catch (err) {
-      dispatch(sendNewPasswordDataFailure());
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+    };

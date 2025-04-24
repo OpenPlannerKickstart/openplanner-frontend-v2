@@ -375,8 +375,7 @@ const Courses = (props) => {
                 <div className="course-wrapper">
                   <Row className="course-container">
                     {
-                      !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {
-                        console.log(item, "item")
+                      !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {                        
                         return (
                           <Col md={"4"} key={index}>
                             <Card className="card-style-1">
