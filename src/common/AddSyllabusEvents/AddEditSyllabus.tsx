@@ -132,8 +132,9 @@ export const AddEditSyllabus = (props) => {
         syllabusDocRef.current.value = null;
     }
     useEffect(() => {
-        if(syllabusFormData?.dirty){
-        syllabusFormData.setFieldTouched("syllabus_doc", true);}
+        if (syllabusFormData?.dirty) {
+            syllabusFormData.setFieldTouched("syllabus_doc", true);
+        }
         return () => {
 
         }
@@ -232,6 +233,12 @@ export const AddEditSyllabus = (props) => {
                                                                                 image={syllabusFormData?.values?.syllabus_doc_name}
                                                                             />
                                                                         </div>
+                                                                        {
+                                                                            !isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) &&
+                                                                            <div className="attachments-text">
+                                                                                <p title={!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"} >{!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"}</p>
+                                                                            </div>
+                                                                        }
                                                                         <button className="btn-close"
                                                                             onClick={() => { handleRemoveSyllabusDoc() }}
                                                                         ><i className='material-symbols-outlined'>close</i></button>
