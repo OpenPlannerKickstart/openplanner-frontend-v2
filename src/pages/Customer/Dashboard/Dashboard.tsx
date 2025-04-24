@@ -155,6 +155,10 @@ const Dashboard = () => {
     if (selectedTab == ENUMFORDASHBORD.COMPLETED_TASK || selectedTab == ENUMFORDASHBORD.PENDING_TASK) {
       handleSetTaskData();
     }
+    return () => {
+      setTaskData([]);
+    }
+
   }, [selectedTab])
 
   /** --------------------get task data end------------------------*/
@@ -191,7 +195,7 @@ const Dashboard = () => {
     pieHole: 0.6,
     is3D: false,
     legend: { position: "none" },
-    colors: ["#BEE6F3", "#239BC2"], // Custom colors for pie segments.
+    colors: ["#239BC2", "#BEE6F3"], // Custom colors for pie segments.
     chartArea: { width: "90%", height: "80%" },
   };
   const handleEventChartData = async () => {
@@ -206,7 +210,7 @@ const Dashboard = () => {
     pieHole: 0.6,
     is3D: false,
     legend: { position: "none" },
-    colors: ["#EAFCF2", "#25D076"], // Custom colors for pie segments.
+    colors: ["#25D076", "#EAFCF2"], // Custom colors for pie segments.
     chartArea: { width: "90%", height: "80%" },
   };
   const [taskChartData, setTaskChartData] = useState<any>([]);
@@ -224,7 +228,7 @@ const Dashboard = () => {
     pieHole: 0.6,
     is3D: false,
     legend: { position: "none" },
-    colors: ["#EBF9F8", "#33B3AA"], // Custom colors for pie segments.
+    colors: ["#33B3AA", "#EBF9F8"], // Custom colors for pie segments.
     chartArea: { width: "90%", height: "80%" },
   };
   const [syllabusChartData, setSyllabusChartData] = useState<any>([]);
