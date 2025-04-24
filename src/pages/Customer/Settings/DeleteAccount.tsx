@@ -113,7 +113,7 @@ const DeleteAccount = () => {
                             </Form.Group>
                             <Form.Group className='form-group '>
                                 <Form.Label>Password</Form.Label>
-                                <div className="form-group form-group-password">
+                                <div className="form-group-icon-end form-group-password">
                                     <Form.Control type="password" placeholder='Enter password'
                                         {...formData.getFieldProps("password")}
                                         maxLength={MAX_200}

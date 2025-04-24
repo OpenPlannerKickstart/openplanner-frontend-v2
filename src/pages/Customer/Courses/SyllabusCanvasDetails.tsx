@@ -2,6 +2,7 @@ import React, { ReactElement, useEffect, useState } from 'react'
 import SyllabusDetails from './SyllabusDetails'
 import { Button, Offcanvas } from 'react-bootstrap'
 import Events from './Events';
+import notVoucherFound from "/assets/images/not-voucher-found.svg";
 import { ENUM_FOR_SYLLABUS_TAB } from '../../../interfaces/enum';
 import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
 import { isNullUndefinedOrBlank } from '../../../Utility/Helper';
@@ -221,14 +222,15 @@ const SyllabusCanvasDetails = (props) => {
                                         </div>
                                         {/* pdf viewer */}
                                         {!isNullUndefinedOrBlank(pdfPreviewLink) &&
-
+                                            isShowPdf ? 
                                             <div className={`syllabus-view-box ${isShowPdf ? " d-block" : "d-none"}`}>
 
                                                 <div
                                                     style={{
-                                                        border: '1px solid rgba(0, 0, 0, 0.3)',
-                                                        height: '1000px',
-                                                        width: '100%'
+                                                        border: '1px solid #E6EAEE',
+                                                        height: 'calc(100vh - 145px)',
+                                                        width: '100%',
+                                                        overflowY: 'auto'
                                                     }}
                                                 >
                                                     <Viewer
@@ -238,8 +240,24 @@ const SyllabusCanvasDetails = (props) => {
                                                 </div>
 
                                             </div>
+                                       
+                                                :<><div className="no-preview-box">
+                                                    <div className="no-records-found no-records-found-inner h-100">
+                                                        <div className="no-records-found-image">
+                                                        <img src={notVoucherFound} alt="OpenPlaner" />
+                                                        </div>
+                                                        <div className="no-records-found-text">
+                                                        <h6>No preview available!</h6>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                </>
+
+                                            
+                                            
                                         }
                                     </div>
+
                                 </div>
                             </div>
                         </div>

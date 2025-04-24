@@ -407,6 +407,22 @@ export const AddEditEvent = (props) => {
                                                         className="react-select-container"
                                                     />
                                                 </Form.Group>
+                                                {
+                                                    !isNullUndefinedOrBlank(eventFormData?.values?.id) &&
+                                                    <div className="checkbox checkbox-primary all-event-checkbox my-4">
+                                                    <input
+                                                        type="checkbox"
+                                                        id="checkbox-all-day"
+                                                        className="material-inputs filled-in"
+                                                        onChange={() => {
+                                                            handleMarkAllDayEvent(!eventFormData?.values?.is_all_day_event)
+                                                        }}
+                                                        disabled={isNullUndefinedOrBlank(eventFormData?.values?.start_date)}
+                                                        checked={eventFormData?.values?.is_all_day_event}
+                                                    />
+                                                    <label htmlFor="checkbox-all-day">Mark as all day Event</label>
+                                                </div>
+                                                }
                                                 <div className="Reminder-box">
                                                     <div className="title-with-switch">
                                                         <div className="title-text"><h4>Reminder (Notify me before start date)</h4></div>
@@ -514,7 +530,7 @@ export const AddEditEvent = (props) => {
                                                     <>
                                                         <div className="form-group default-cal-group">
                                                             <div className="title-text">
-                                                                <h4>Add On Your Default Calender</h4>
+                                                                <p>Add On Your Default Calender</p>
                                                             </div>
 
 
@@ -601,19 +617,7 @@ export const AddEditEvent = (props) => {
                                                                 ></add-to-calendar-button>
                                                             </div>
                                                         </div>
-                                                        <div className="checkbox checkbox-primary all-event-checkbox">
-                                                            <input
-                                                                type="checkbox"
-                                                                id="checkbox-all-day"
-                                                                className="material-inputs filled-in"
-                                                                onChange={() => {
-                                                                    handleMarkAllDayEvent(!eventFormData?.values?.is_all_day_event)
-                                                                }}
-                                                                disabled={isNullUndefinedOrBlank(eventFormData?.values?.start_date)}
-                                                                checked={eventFormData?.values?.is_all_day_event}
-                                                            />
-                                                            <label htmlFor="checkbox-all-day">Mark as all day Event</label>
-                                                        </div>
+                                                       
                                                     </>
                                                 }
                                             </div>
