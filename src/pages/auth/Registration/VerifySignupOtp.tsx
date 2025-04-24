@@ -30,7 +30,7 @@ const VerifySignupOtp = (props) => {
             navigate(route);
         }
 
-    } 
+    }
 
     const [otpData, setOtpData] = useState("");
     const handleOtpInput = (otp) => {
@@ -39,16 +39,16 @@ const VerifySignupOtp = (props) => {
     };
     const handleverifyCodeSubmit = async () => {
 
-        if(otpData?.length !==6){
-            return ;
+        if (otpData?.length !== 6) {
+            return;
         }
 
         const reqBody = {
-            username:`${otpDetailsObj?.detailsObj?.username}`,
+            username: `${otpDetailsObj?.detailsObj?.username}`,
             code: otpData.toString()
         }
         const verifyResponse = await dispatch(verifySignupEmailOtp(reqBody));
-        if (verifyResponse) {   
+        if (verifyResponse) {
             if (otpDetailsObj?.isFromLogin) {
                 props?.handleLoginData();
             } else {
@@ -58,10 +58,23 @@ const VerifySignupOtp = (props) => {
         }
     }
 
-   
-    /* ------------------------- handle Resend Otp Start ------------------------ */
 
-    const handleResendOtp = async() => {
+    /* ------------------------- handle Resend Otp Start ------------------------ */
+    const [timer, setTimer] = useState(60);
+    const [canResend, setCanResend] = useState(false);
+
+    useEffect(() => {
+        let countdown;
+        if (timer > 0) {
+            countdown = setTimeout(() => setTimer(timer - 1), 1000);
+        } else {
+            setCanResend(true);
+        }
+
+        return () => clearTimeout(countdown);
+    }, [timer]);
+
+    const handleResendOtp = async () => {
         const sendEmailOtpReqBody = {
             username: `${otpDetailsObj?.detailsObj?.username}`
         }
@@ -91,35 +104,53 @@ const VerifySignupOtp = (props) => {
                             <div className="terms-condition-wrapper">
                                 <p >
                                     By creating an account, you agree to our{" "}
-                                    <NavLink
+                                    <span
                                         className="text-link text-primary fw-600"
-                                        to={""}
+
                                     >
                                         Terms and Conditions
-                                    </NavLink>
+                                    </span>
                                     and
-                                    <NavLink
+                                    <span
                                         className="text-link text-primary fw-600"
-                                        to={""}
+
                                     >
                                         Services Agreement.
-                                    </NavLink>
+                                    </span>
                                 </p>
                             </div>
                         </div>
                         <div className="admin-auth-col admin-auth-right">
                             <div className="admin-auth-from">
-                                <div className="admin-auth-card-title">
-                                    <div className="box-icon box-light-primary wh-70px">
-                                        <i className="material-symbols-outlined">mark_email_unread</i>
-                                    </div>
-                                    <h2 className="">Check your Email!</h2>
-                                    <p className="text-center mt-4">
-                                        We have sent a 6-digit code to your email
-                                        <br />
-                                        <span className="text-warning">{otpDetailsObj?.isFromLogin?otpDetailsObj?.detailsObj?.identifier :otpDetailsObj?.detailsObj?.email || ""}</span>
-                                    </p>
-                                </div>
+                                {
+                                    otpDetailsObj?.isFromLogin ?
+                                        <>
+                                            <div className="admin-auth-card-title">
+                                                <div className="box-icon box-light-primary wh-70px">
+                                                    <i className="material-symbols-outlined">mark_email_unread</i>
+                                                </div>
+                                                <h2 className="">Email is Not Verified!</h2>
+                                                <h2 className="">Check your Email!</h2>
+                                                <p className="text-center mt-4">
+                                                    We have sent a 6-digit code to your email
+                                                    <br />
+                                                    <span className="text-warning">{otpDetailsObj?.isFromLogin ? otpDetailsObj?.detailsObj?.identifier : otpDetailsObj?.detailsObj?.email || ""}</span>
+                                                </p>
+                                            </div>
+                                        </> :
+
+                                        <div className="admin-auth-card-title">
+                                            <div className="box-icon box-light-primary wh-70px">
+                                                <i className="material-symbols-outlined">mark_email_unread</i>
+                                            </div>
+                                            <h2 className="">Check your Email!</h2>
+                                            <p className="text-center mt-4">
+                                                We have sent a 6-digit code to your email
+                                                <br />
+                                                <span className="text-warning">{otpDetailsObj?.isFromLogin ? otpDetailsObj?.detailsObj?.identifier : otpDetailsObj?.detailsObj?.email || ""}</span>
+                                            </p>
+                                        </div>
+                                }
                                 <Card className="admin-auth-card">
                                     <Card.Body>
                                         <Form.Group className="form-group mb-0">
@@ -137,16 +168,22 @@ const VerifySignupOtp = (props) => {
                                                 />
                                             </div>
                                         </Form.Group>
-                                        <div className="auth-top-text-link otp-resend-text">
-                                            <p>
-                                                Did not receive it?
-                                                <button className='btn btn-link'
-                                                    onClick={() => { handleResendOtp();}}
-                                                >
-                                                    Resend
-                                                </button>
-                                            </p>
-                                        </div>
+                                        {canResend ? (
+
+                                            <div className="auth-top-text-link otp-resend-text">
+                                                <p>
+                                                    Did not receive it?
+                                                    <button className='btn btn-link'
+                                                        onClick={() => { handleResendOtp(); }}
+                                                    >
+                                                        Resend
+                                                    </button>
+                                                </p>
+                                            </div>
+
+                                        ) : (
+                                            <p className="mt-4 text-gray-600">You can resend code in {timer} seconds.</p>
+                                        )}
 
                                         <div className="btn-full-group">
                                             <Button variant="primary" className="w-100 mb-4" onClick={() => { handleverifyCodeSubmit() }}>

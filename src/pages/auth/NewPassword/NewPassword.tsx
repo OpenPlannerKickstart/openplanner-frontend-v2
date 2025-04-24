@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card, Form } from "react-bootstrap";
 import authLogo from "/assets/images/auth-logo.svg";
 import authBGImage4 from "/assets/images/auth-bg-image4.svg";
@@ -10,7 +10,7 @@ import { CONFIRM_PASSWORD_NOT_MATCHED, PATTERN_FOR_PASSWORD_NEW } from "../../..
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
 import { CONFIRM_PASSWORD_REQUIRED, EMAIL_CODE_IS_REQUIRED, NEW_PASSWORD_REQUIRED, PASSWORD_INVALID } from "../../../Utility/Validation_Message";
-import { sendNewPasswordDataAPI } from "../../../redux/Service/auth/forgotPassword";
+import { sendForgotPasswordEmailOtp, sendNewPasswordDataAPI } from "../../../redux/Service/auth/forgotPassword";
 import { renderError } from "../../../Utility/Helper";
 const NewPassword = (props) => {
   const { emailDetailObj } = props;
@@ -57,7 +57,7 @@ const NewPassword = (props) => {
 
       return;
     }
-    const reqBody = { ...resetPasswordForm.values,username:emailDetailObj?.username };
+    const reqBody = { ...resetPasswordForm.values, username: emailDetailObj?.username };
     delete reqBody.confirm_password;
     const response = await dispatch(sendNewPasswordDataAPI(reqBody));
 
@@ -71,6 +71,35 @@ const NewPassword = (props) => {
     // customJsonInclude(requestValue);
     // reqBody.append("companyDetail", JSON.stringify(requestValue));
   }
+
+  /* ---------------------- handle Reset Email Code start --------------------- */
+  const [timer, setTimer] = useState(60);
+  const [canResend, setCanResend] = useState(false);
+
+  useEffect(() => {
+    let countdown;
+    if (timer > 0) {
+      countdown = setTimeout(() => setTimer(timer - 1), 1000);
+    } else {
+      setCanResend(true);
+    }
+
+    return () => clearTimeout(countdown);
+  }, [timer]);
+
+
+
+  const handleResentEmailCode = async () => {
+    const reqBody = {
+      username: emailDetailObj.username
+    }
+    const response = await dispatch(sendForgotPasswordEmailOtp(reqBody))
+    if (response) {
+      setTimer(60);
+      setCanResend(false);
+    }
+  }
+  /* ---------------------- handle Reset Email Code End --------------------- */
 
   return (
     <>
@@ -100,8 +129,8 @@ const NewPassword = (props) => {
                       <div className="form-group-icon-start">
                         <i className="material-symbols-outlined">password</i>
                         <Form.Control type="email" placeholder="Enter Email Code"
-                          {...resetPasswordForm.getFieldProps("code")}                       
-                        
+                          {...resetPasswordForm.getFieldProps("code")}
+
                         />
                       </div>
                       {resetPasswordForm.touched.code &&
@@ -116,13 +145,13 @@ const NewPassword = (props) => {
                         <Form.Control
                           type={eyeToggle ? "text" : "password"}
                           placeholder="Enter Password"
-                          {...resetPasswordForm.getFieldProps("new_password")} 
+                          {...resetPasswordForm.getFieldProps("new_password")}
                         />
                         <button
                           onClick={() => setEyeToggle(!eyeToggle)}
                           className="btn-password"
                         >
-                          
+
                           {/* <i
                             className={` ${eyeToggle
                                 ? "th-outline-eye"
@@ -144,7 +173,7 @@ const NewPassword = (props) => {
                         <Form.Control
                           type={eyeConfirmToggle ? "text" : "password"}
                           placeholder="Enter Confirm Password"
-                          {...resetPasswordForm.getFieldProps("confirm_password")} 
+                          {...resetPasswordForm.getFieldProps("confirm_password")}
                         />
                         <button
                           onClick={() => setEyeConfirmToggle(!eyeConfirmToggle)}
@@ -167,11 +196,23 @@ const NewPassword = (props) => {
                     </Form.Group>
                     <div className="btn-full-group">
                       <Button variant="primary" className="w-100 mb-3 mt-4"
-                      onClick={()=>{handleChangePassword();}}
+                        onClick={() => { handleChangePassword(); }}
                       >
                         Update Password
                       </Button>
                     </div>
+                    {canResend ? (
+                     
+                        <div className="btn-full-group">
+                        <Button variant="primary" className="w-100 mb-3 mt-4"
+                          onClick={() => { handleResentEmailCode(); }}
+                        >
+                          Resend Code
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="mt-4 text-gray-600">You can resend code in {timer} seconds.</p>
+                    )}
                     <div className="auth-bottom-text-link btn-full-group">
                       <p>Go back to <NavLink className="text-link text-primary fw-600" to={ENUMFORROUTES.LOGIN}>Log In</NavLink></p>
                     </div>
