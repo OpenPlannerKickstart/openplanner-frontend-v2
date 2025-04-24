@@ -8,7 +8,7 @@ import { connect, useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { AppDispatch } from "../../../redux/store";
-import { MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_MOBILE_NO, PATTERN_FOR_PASSWORD_NEW, PATTERN_NOT_ALLOW_SPACE } from "../../../Utility/Validation_Helper";
+import { MAX_5, MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_MOBILE_NO, PATTERN_FOR_PASSWORD_NEW, PATTERN_NOT_ALLOW_SPACE } from "../../../Utility/Validation_Helper";
 import { SignUpData } from "../../../interfaces/interface";
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from "formik";
 import * as yup from "yup";
@@ -75,7 +75,7 @@ const Registeration = (props) => {
       .required(EMAIL_REQUIRED),
     first_name: yup.string().required(FIRST_NAME_REQUIRED),
     last_name: yup.string().required(LAST_NAME_REQUIRED),
-    university_name: yup.string().required(UNIVERSITY_NAME_REQUIRED),
+    university_name: yup.string().required(UNIVERSITY_NAME_REQUIRED).min(5,"Manimum 5 letters Required."),
     mobile: yup.string().required(MOBILE_NO_IS_REQUIRED).matches(PATTERN_FOR_MOBILE_NO, MOBILE_NO_VALIDATION_MESSAGE),
     username: yup.string().required(USERNAME_IS_REQUIRED).matches(PATTERN_NOT_ALLOW_SPACE, USERNAME_SPACE_VALIDATION),
 
@@ -357,6 +357,7 @@ const Registeration = (props) => {
                               placeholder="Enter University Name"
                               {...signUpFormData.getFieldProps("university_name")}
                               maxLength={MAX_50}
+                              minLength={MAX_5}
                               onBlur={() => {
                                 handleBlurValueUpdate("university_name");
                               }}

@@ -129,10 +129,9 @@ const VerifySignupOtp = (props) => {
                                                 <div className="box-icon box-light-primary wh-70px">
                                                     <i className="material-symbols-outlined">mark_email_unread</i>
                                                 </div>
-                                                <h2 className="">Email is Not Verified!</h2>
-                                                <h2 className="">Check your Email!</h2>
+                                                <h2 className="">Email Verification pending</h2>
                                                 <p className="text-center mt-4">
-                                                    We have sent a 6-digit code to your email
+                                                    We have sent a 6-digit code to your email for verification
                                                     <br />
                                                     <span className="text-warning">{otpDetailsObj?.isFromLogin ? otpDetailsObj?.detailsObj?.identifier : otpDetailsObj?.detailsObj?.email || ""}</span>
                                                 </p>
@@ -168,23 +167,13 @@ const VerifySignupOtp = (props) => {
                                                 />
                                             </div>
                                         </Form.Group>
-                                        {canResend ? (
+                                  
+                                          {canResend ? (
 
-                                            <div className="auth-top-text-link otp-resend-text">
-                                                <p>
-                                                    Did not receive it?
-                                                    <button className='btn btn-link'
-                                                        onClick={() => { handleResendOtp(); }}
-                                                    >
-                                                        Resend
-                                                    </button>
-                                                </p>
-                                            </div>
-
-                                        ) : (
-                                            <p className="mt-4 text-gray-600">You can resend code in {timer} seconds.</p>
-                                        )}
-
+<p className="text-center mt-4">Did not receive it? <span className="text-primary fw-600"   onClick={() => { handleResendOtp(); }}>Resend Code</span></p>
+) : (
+<p className="mt-4 text-gray-600 text-center ">You can resend code in <span className="text-primary fw-600">{timer}</span> seconds.</p>
+)}
                                         <div className="btn-full-group">
                                             <Button variant="primary" className="w-100 mb-4" onClick={() => { handleverifyCodeSubmit() }}>
                                                 Verify Email

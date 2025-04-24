@@ -205,15 +205,9 @@ const NewPassword = (props) => {
                     </div>
                     {canResend ? (
 
-                      <div className="btn-full-group">
-                        <Button variant="primary" className="w-100 mb-3 mt-4"
-                          onClick={() => { handleResentEmailCode(); }}
-                        >
-                          Resend Code
-                        </Button>
-                      </div>
+                        <p className="text-center">Did not receive it? <span className="text-primary fw-600" onClick={() => { handleResentEmailCode(); }}>Resend Code</span></p>
                     ) : (
-                      <p className="mt-4 text-gray-600">You can resend code in {timer} seconds.</p>
+                      <p className="mt-4 text-gray-600 text-center mb-0">You can resend code in <span className="text-primary fw-600">{timer}</span> seconds.</p>
                     )}
                     <div className="auth-bottom-text-link btn-full-group">
                       <p>Go back to <NavLink className="text-link text-primary fw-600" to={ENUMFORROUTES.LOGIN}>Log In</NavLink></p>

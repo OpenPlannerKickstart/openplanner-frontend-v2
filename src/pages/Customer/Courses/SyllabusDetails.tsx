@@ -268,9 +268,7 @@ const SyllabusDetails = (props) => {
                           <p title={!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"} >{!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"}</p>
                         </div>
                       }
-                      <button className="btn-close"
-                        onClick={() => { handleRemoveSyllabusDoc() }}
-                      ><i className='material-symbols-outlined'>close</i></button>
+                    
                     </div>
                   </div>
                 </div>

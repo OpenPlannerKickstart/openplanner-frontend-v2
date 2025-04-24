@@ -655,6 +655,22 @@
     }
 }
 
+.attachments-text{
+    background-color: $white_color;
+    border-radius: 5px;
+    margin-top: 5px;
+
+    p{
+        font-size: 10px;
+        color: $text_color;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 6px;
+    }
+}
+
+
 .file-notification{
     margin-top: 15px;
     padding: 8px 12px;
