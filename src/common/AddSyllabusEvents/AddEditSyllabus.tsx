@@ -182,7 +182,7 @@ export const AddEditSyllabus = (props) => {
                                                     <h4>Syllabus Details</h4>
                                                 </div> */}
                                                 <Form.Group
-                                                    className="form-group"
+                                                    className="form-group required"
 
                                                 >
                                                     <Form.Label>Course Title</Form.Label>
@@ -197,7 +197,7 @@ export const AddEditSyllabus = (props) => {
                                                         ? renderError(syllabusFormData.errors.title as any)
                                                         : null}
                                                 </Form.Group>
-                                                <Form.Group className="form-group">
+                                                <Form.Group className="form-group required">
                                                     <Form.Label>Upload Syllabus Here</Form.Label>
                                                     <div className='attachments-container'>
                                                         <div className='attachments-content'>
@@ -285,7 +285,7 @@ export const AddEditSyllabus = (props) => {
                       </div> */}
                                                 <Row>
                                                     <Col md={6}>
-                                                        <Form.Group className="form-group">
+                                                        <Form.Group className="form-group required">
                                                             <Form.Label>Class Time</Form.Label>
                                                             <div className="react-datepicker-container">
                                                                 <DatePicker
@@ -312,7 +312,7 @@ export const AddEditSyllabus = (props) => {
                                                     </Col>
                                                     <Col md={6}>
                                                         <Form.Group
-                                                            className="form-group"
+                                                            className="form-group required"
                                                             controlId="exampleForm.ControlInput1"
                                                         >
                                                             <Form.Label>Professor Name</Form.Label>

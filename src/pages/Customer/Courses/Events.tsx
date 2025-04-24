@@ -28,7 +28,9 @@ const Events = (props) => {
     }
 
     return () => {
-
+      setTimeout(() => {
+        setEventListData({} as EventResponseType);
+      }, 200);
     }
   }, [props?.selectedSyllabusObj?.id, props?.selectedTab])
 

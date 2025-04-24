@@ -155,6 +155,7 @@ const MyProfile = (props) => {
     // }
 
     /** ----------------------on cancel End----------------------*/
+    // console.log(formData?.values?.profile_image, "abc")
     return (
         <>
             <div className="profile-main-wrapper">
@@ -165,7 +166,7 @@ const MyProfile = (props) => {
                         </div>
                         <div className="profile-upload">
                             <div className="profile-image">
-                                <img src={!isNullUndefinedOrBlank(formData?.values?.profile_image) ? formData?.values?.profile_image : defaultAvatar} alt="OpenPlaner" />
+                                <img src={(!isNullUndefinedOrBlank(formData?.values?.profile_image) && isNullUndefinedOrBlank(formData?.errors?.file)) ? formData?.values?.profile_image : defaultAvatar} alt="OpenPlaner" />
                             </div>
 
                             <div className="profile-text">
@@ -186,17 +187,22 @@ const MyProfile = (props) => {
                                     </Button>
                                 </div>
                             </div>
+                        </div>
+                        <p className='profile-error-msg'>
                             {
                                 formData?.errors?.file
                                     ? renderError(formData?.errors?.file)
                                     : null
                             }
+                        </p>
+                        <div className="upload_img_note">
+                            <p>Note: Please upload a valid image file (PNG, JPG, JPEG) with a maximum size of 1MB.</p>
                         </div>
                         <div className="main-form-wrapper">
                             <Row>
                                 <Col md={6}>
                                     <Form.Group
-                                        className="form-group"
+                                        className="form-group required"
                                         controlId="exampleForm.ControlInput1"
                                     >
                                         <Form.Label>First Name</Form.Label>
@@ -217,7 +223,7 @@ const MyProfile = (props) => {
                                 </Col>
                                 <Col md={6}>
                                     <Form.Group
-                                        className="form-group"
+                                        className="form-group required"
                                         controlId="exampleForm.ControlInput1"
                                     >
                                         <Form.Label>Last Name</Form.Label>
@@ -238,12 +244,13 @@ const MyProfile = (props) => {
                                     </Form.Group>
                                 </Col>
                             </Row>
-                            <Form.Group className="form-group">
+                            <Form.Group className="form-group required">
                                 <Form.Label>Email Address</Form.Label>
                                 <div className="form-group">
                                     <Form.Control type="email" placeholder="wonghashitoma545@gmail.com"
                                         {...formData.getFieldProps("email")}
                                         maxLength={MAX_50}
+                                        disabled={true}
                                         onBlur={() => {
                                             handleBlurValueUpdate("email");
                                         }}
@@ -255,7 +262,7 @@ const MyProfile = (props) => {
                                         : null
                                 }
                             </Form.Group>
-                            <Form.Group className="form-group">
+                            <Form.Group className="form-group required">
                                 <Form.Label>University Name</Form.Label>
                                 <div className="form-group">
                                     <Form.Control

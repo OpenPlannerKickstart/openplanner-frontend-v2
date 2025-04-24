@@ -142,6 +142,7 @@ const CalenderEvent = () => {
   /** --------------------Edit event End------------------------*/
   function customEventView({ event }) {
     const isCompleted = event?.event_data?.status === "Completed" ? true : false
+    // console.log(isCompleted, "isCompleted", event?.event_data)
     return (
       <div key={Math.random()}>
         <div
@@ -251,7 +252,9 @@ const CalenderEvent = () => {
   const handleResetFilter = () => {
     setSearchByStartDate(null);
     setSearchByEndDate(null);
-    setSyllabusId([]);
+    setCurrentDate(new Date());
+    const syllabusId = syllabusDropDownData?.map((item) => item.value);
+    setSyllabusId(syllabusId);
   };
   /** ------------------reset filter end--------------------------*/
 
@@ -449,6 +452,7 @@ const CalenderEvent = () => {
                           onChange={(dates) => {
                             const [start, end] = dates;
                             setSearchByStartDate(start ? start : null);
+                            setCurrentDate(start ? start : currentDate);
                             setSearchByEndDate(end ? end : null);
                           }}
                           open={true}

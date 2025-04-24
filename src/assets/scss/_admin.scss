@@ -1440,6 +1440,7 @@ $sm_sidebar_home_link_width: 270px;
     display: flex;
     align-items: center;
     gap: 0 21px;
+    margin-bottom: 0 !important;
 
     .profile-image {
         width: 80px;
@@ -1464,6 +1465,20 @@ $sm_sidebar_home_link_width: 270px;
             color: #292D32;
             margin-bottom: 12px;
         }
+    }
+}
+
+.profile-error-msg {
+    margin-bottom: 0 !important;
+}
+
+.upload_img_note {
+    margin-bottom: 27px;
+
+    p {
+        font-size: 12px;
+        color: $danger_color;
+        font-weight: 500;
     }
 }
 

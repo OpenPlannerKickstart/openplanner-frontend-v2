@@ -511,7 +511,7 @@ const Courses = (props) => {
             {/* complete syllabus confirmation Modal */}
             <Modal className='modal-theme modal-confirmation modal-approve' show={completeConfirmationShow} onHide={handleConfirmationClose} centered>
               <Modal.Header >
-                <h4 className="modal-title">Task Completed!</h4>
+                <h4 className="modal-title">Syllabus Completed!</h4>
                 <button type="button" className="btn-close" onClick={handleConfirmationClose}>
                   <i className="material-symbols-outlined">close</i>
                 </button>
@@ -542,7 +542,7 @@ const Courses = (props) => {
             {/* Success Modal */}
             <Modal className='modal-theme modal-confirmation modal-approve' show={SuccessShow} onHide={handleSuccessClose} centered>
               <Modal.Header >
-                <h4 className="modal-title">Task Completed!</h4>
+                <h4 className="modal-title">Syllabus Completed!</h4>
                 <button type="button" className="btn-close" onClick={handleSuccessClose}>
                   <i className="material-symbols-outlined">close</i>
                 </button>

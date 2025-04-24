@@ -294,7 +294,7 @@ export const AddEditEvent = (props) => {
                                                 </div> */}
                                                 <Row>
                                                     <Col md={6}>
-                                                        <Form.Group className="form-group">
+                                                        <Form.Group className="form-group required">
                                                             <Form.Label>Start Date</Form.Label>
                                                             <div className="react-datepicker-container form-group-icon-end">
                                                                 <i className="material-symbols-outlined control-icon">calendar_month</i>
@@ -324,7 +324,7 @@ export const AddEditEvent = (props) => {
                                                         </Form.Group>
                                                     </Col>
                                                     <Col md={6}>
-                                                        <Form.Group className="form-group">
+                                                        <Form.Group className="form-group required">
                                                             <Form.Label>End Date</Form.Label>
                                                             <div className="react-datepicker-container form-group-icon-end">
                                                                 <i className="material-symbols-outlined control-icon">calendar_month</i>
@@ -354,7 +354,7 @@ export const AddEditEvent = (props) => {
                                                     </Col>
                                                 </Row>
                                                 <Form.Group
-                                                    className="form-group"
+                                                    className="form-group required"
                                                     controlId="exampleForm.ControlInput1"
                                                 >
                                                     <Form.Label>Title</Form.Label>
@@ -380,7 +380,7 @@ export const AddEditEvent = (props) => {
                                                         />
                                                     </div>
                                                 </Form.Group>
-                                                <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                                                <Form.Group className="form-group required" controlId="exampleForm.ControlInput1">
                                                     <Form.Label>Calender</Form.Label>
                                                     <Select
                                                         options={syllabusDropDownData}
@@ -406,6 +406,9 @@ export const AddEditEvent = (props) => {
                                                         menuPosition="fixed"
                                                         className="react-select-container"
                                                     />
+                                                    {eventFormData.touched.syllabus_id &&
+                                                        eventFormData.errors.syllabus_id
+                                                        && renderError(eventFormData.errors.syllabus_id as any)}
                                                 </Form.Group>
                                                 <div className="Reminder-box">
                                                     <div className="title-with-switch">
@@ -428,7 +431,7 @@ export const AddEditEvent = (props) => {
                                                                     return (
                                                                         <>
                                                                             <div className="remider-fields" key={index}>
-                                                                                <Form.Group className='form-group'>
+                                                                                <Form.Group className='form-group required'>
                                                                                     <Form.Label>Unit</Form.Label>
                                                                                     <Select
                                                                                         options={reminderUnitDropDownData}
@@ -459,7 +462,7 @@ export const AddEditEvent = (props) => {
 
 
                                                                                 </Form.Group>
-                                                                                <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                                                                                <Form.Group className="form-group required" controlId="exampleForm.ControlInput1">
                                                                                     <Form.Label>Value</Form.Label>
                                                                                     <Form.Control type="text" placeholder="Enter Value"
                                                                                         {...eventFormData.getFieldProps(`reminder.${index}.value`)}

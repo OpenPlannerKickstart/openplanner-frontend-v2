@@ -175,7 +175,6 @@ const Task = (props) => {
   const handleSubmitTaskFormData = async () => {
     taskFormData.handleSubmit();
     const taskFormDataErrors = await taskFormData.validateForm();
-    console.log("taskFormDataErrors", taskFormDataErrors);
     if (Object.keys(taskFormDataErrors).length > 0) {
       taskFormData.setTouched(
         setNestedObjectValues(taskFormDataErrors, true)
@@ -511,7 +510,7 @@ const Task = (props) => {
                   <div className="Add-new-task-container">
                     <div className="op-offcanvas-body-container">
                       <Form.Group
-                        className="form-group"
+                        className="form-group required"
                         controlId="exampleForm.ControlInput1"
                       >
                         <Form.Label>Task Name</Form.Label>
@@ -530,7 +529,7 @@ const Task = (props) => {
                           }
                         </div>
                       </Form.Group>
-                      <Form.Group className="form-group">
+                      <Form.Group className="form-group required">
                         <Form.Label>Due Date</Form.Label>
                         <div className="react-datepicker-container form-group-icon-end">
                           <i className="material-symbols-outlined control-icon">calendar_month</i>
@@ -558,7 +557,7 @@ const Task = (props) => {
                         }
                       </Form.Group>
                       <Form.Group
-                        className="form-group"
+                        className="form-group "
                         controlId="exampleForm.ControlInput1"
                       >
                         <Form.Label>Note</Form.Label>
@@ -598,7 +597,7 @@ const Task = (props) => {
                                 return (
                                   <>
                                     <div className="remider-fields" key={index}>
-                                      <Form.Group className='form-group'>
+                                      <Form.Group className='form-group required'>
                                         <Form.Label>Unit</Form.Label>
                                         <Select
                                           options={reminderUnitDropDownData}
@@ -623,7 +622,7 @@ const Task = (props) => {
 
 
                                       </Form.Group>
-                                      <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                                      <Form.Group className="form-group required" controlId="exampleForm.ControlInput1">
                                         <Form.Label>Value</Form.Label>
                                         <Form.Control type="text" placeholder="Enter Value"
                                           {...taskFormData.getFieldProps(`reminder.${index}.value`)}

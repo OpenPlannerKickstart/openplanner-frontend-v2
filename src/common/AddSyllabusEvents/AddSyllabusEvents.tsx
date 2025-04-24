@@ -435,7 +435,7 @@ const AddSyllabusEvents = (props) => {
                             <h4>Syllabus Details</h4>
                           </div>
                           <Form.Group
-                            className="form-group"
+                            className="form-group required"
 
                           >
                             <Form.Label>Course Title</Form.Label>
@@ -450,7 +450,7 @@ const AddSyllabusEvents = (props) => {
                               ? renderError(syllabusFormData.errors.title as any)
                               : null}
                           </Form.Group>
-                          <Form.Group className="form-group">
+                          <Form.Group className="form-group required">
                             <Form.Label>Upload Syllabus Here</Form.Label>
                             <div className='attachments-container'>
                               <div className='attachments-content'>
@@ -538,7 +538,7 @@ const AddSyllabusEvents = (props) => {
                       </div> */}
                           <Row>
                             <Col md={6}>
-                              <Form.Group className="form-group">
+                              <Form.Group className="form-group required">
                                 <Form.Label>Class Time</Form.Label>
                                 <div className="react-datepicker-container">
                                   {/* <i className="material-symbols-outlined">menu_book</i> */}
@@ -565,7 +565,7 @@ const AddSyllabusEvents = (props) => {
                             </Col>
                             <Col md={6}>
                               <Form.Group
-                                className="form-group"
+                                className="form-group required"
                                 controlId="exampleForm.ControlInput1"
                               >
                                 <Form.Label>Professor Name</Form.Label>
@@ -607,7 +607,7 @@ const AddSyllabusEvents = (props) => {
                           </div>
                           <Row>
                             <Col md={6}>
-                              <Form.Group className="form-group">
+                              <Form.Group className="form-group required">
                                 <Form.Label>Start Date</Form.Label>
                                 <div className="react-datepicker-container form-group-icon-end">
                                   <i className="material-symbols-outlined control-icon">calendar_month</i>
@@ -639,7 +639,7 @@ const AddSyllabusEvents = (props) => {
                               </Form.Group>
                             </Col>
                             <Col md={6}>
-                              <Form.Group className="form-group">
+                              <Form.Group className="form-group required">
                                 <Form.Label>End Date</Form.Label>
                                 <div className="react-datepicker-container form-group-icon-end">
                                   <i className="material-symbols-outlined control-icon">calendar_month</i>
@@ -666,7 +666,7 @@ const AddSyllabusEvents = (props) => {
                             </Col>
                           </Row>
                           <Form.Group
-                            className="form-group"
+                            className="form-group required"
                             controlId="exampleForm.ControlInput1"
                           >
                             <Form.Label>Title</Form.Label>
@@ -692,7 +692,7 @@ const AddSyllabusEvents = (props) => {
                               />
                             </div>
                           </Form.Group>
-                          <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                          <Form.Group className="form-group required" controlId="exampleForm.ControlInput1">
                             <Form.Label>Calender</Form.Label>
                             <Select
                               options={syllabusDropDownData}
@@ -741,7 +741,7 @@ const AddSyllabusEvents = (props) => {
                                     return (
                                       <>
                                         <div className="remider-fields" key={index}>
-                                          <Form.Group className='form-group'>
+                                          <Form.Group className='form-group required'>
                                             <Form.Label>Unit</Form.Label>
                                             <Select
                                               options={reminderUnitDropDownData}
@@ -772,7 +772,7 @@ const AddSyllabusEvents = (props) => {
 
 
                                           </Form.Group>
-                                          <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                                          <Form.Group className="form-group required" controlId="exampleForm.ControlInput1">
                                             <Form.Label>Value</Form.Label>
                                             <Form.Control type="text" placeholder="Enter Value"
                                               {...eventFormData.getFieldProps(`reminder.${index}.value`)}
