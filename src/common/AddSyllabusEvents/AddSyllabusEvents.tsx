@@ -151,12 +151,17 @@ const AddSyllabusEvents = (props) => {
     syllabusDocRef.current.value = null;
   }
   useEffect(() => {
+    if(syllabusFormData?.dirty){
 
-    syllabusFormData.setFieldTouched("syllabus_doc", true);
+      syllabusFormData.setFieldTouched("syllabus_doc", true);
+    }
+    
     return () => {
-
+      
     }
   }, [syllabusFormData.values.syllabus_doc])
+
+  
   /* ------------------------- Add Syllabus Data End ------------------------ */
 
   /* -------------------------- Add Event Data Start -------------------------- */
@@ -363,8 +368,8 @@ const AddSyllabusEvents = (props) => {
     switch (selectedTab) {
       case ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS:
         syllabusFormData.resetForm();
-        setSavedSyllabusFormData(initSyllabusData);
-        syllabusDocRef.current.value = null;
+        setSavedSyllabusFormData(initSyllabusData);    
+        syllabusDocRef.current.value = null;     
         break;
       case ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS:
         eventFormData.resetForm();

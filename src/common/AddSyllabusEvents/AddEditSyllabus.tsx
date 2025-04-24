@@ -132,8 +132,8 @@ export const AddEditSyllabus = (props) => {
         syllabusDocRef.current.value = null;
     }
     useEffect(() => {
-
-        syllabusFormData.setFieldTouched("syllabus_doc", true);
+        if(syllabusFormData?.dirty){
+        syllabusFormData.setFieldTouched("syllabus_doc", true);}
         return () => {
 
         }
