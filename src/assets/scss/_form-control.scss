@@ -33,7 +33,8 @@
                 border-color: $bg_grey !important
             }
         }
-        &::placeholder{
+
+        &::placeholder {
             color: #777F90;
         }
     }
@@ -46,7 +47,7 @@
         justify-content: center;
 
 
-        &>div{
+        &>div {
             gap: 0 10px;
         }
 
@@ -64,7 +65,7 @@
             text-align: center;
 
 
-        
+
             &:focus,
             &:hover {
                 background-color: transparent;
@@ -72,15 +73,16 @@
                 color: $primary_color;
             }
 
-            &:focus-visible{
+            &:focus-visible {
                 outline: 0;
             }
-            &[type=number]::-webkit-inner-spin-button, 
-            &[type=number]::-webkit-outer-spin-button { 
+
+            &[type=number]::-webkit-inner-spin-button,
+            &[type=number]::-webkit-outer-spin-button {
                 -webkit-appearance: none;
                 -moz-appearance: none;
                 appearance: none;
-                margin: 0; 
+                margin: 0;
             }
         }
 
@@ -171,7 +173,7 @@
             display: flex;
             align-items: center;
             font-size: 18px;
-            color:#4B5563;
+            color: #4B5563;
         }
     }
 
@@ -215,6 +217,7 @@
             top: 0;
             bottom: 0;
             display: flex;
+
             i {
                 left: unset;
                 right: unset;
@@ -412,7 +415,7 @@
         }
 
         .form-select {
-          padding-right: 25px
+            padding-right: 25px
         }
 
         .form-group-icon-start,
@@ -459,7 +462,7 @@
     }
 }
 
-.form-group{
+.form-group {
     .react-tel-input {
         .form-control {
             width: 100%;
@@ -471,24 +474,29 @@
             color: $text_black_color;
             padding-left: 45px;
             min-height: 38px;
+
             &:hover,
             &:focus {
                 border-color: $primary_color !important;
             }
         }
+
         .flag-dropdown {
             border: none;
             background-color: transparent;
-            border-radius: 6px 0 0 6px;      
-            border-right: 1px solid $stock_light; 
-            .selected-flag{
+            border-radius: 6px 0 0 6px;
+            border-right: 1px solid $stock_light;
+
+            .selected-flag {
+
                 &:hover,
                 &:focus {
                     background-color: transparent !important;
-                }    
+                }
             }
-            &.open{
-                .selected-flag{
+
+            &.open {
+                .selected-flag {
                     background-color: transparent !important;
                     border-radius: 6px 0 0 0;
                     border: 1px solid $primary_color;
@@ -575,7 +583,7 @@
         }
 
         .card-attachments-upload {
-            border: 1px solid $stock_light;
+            border: none;
             border-radius: 7px;
             overflow: hidden;
             position: relative;
@@ -655,14 +663,14 @@
     }
 }
 
-.attachments-text{
-    background-color: $white_color;
+.attachments-text {
+    background-color: lightgray;
     border-radius: 5px;
     margin-top: 5px;
 
-    p{
+    p {
         font-size: 10px;
-        color: $text_color;
+        color: $text_black_color;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
@@ -671,13 +679,14 @@
 }
 
 
-.file-notification{
+.file-notification {
     margin-top: 15px;
     padding: 8px 12px;
     background-color: #FFFBE5;
     border: 1px solid #FFF2B3;
     border-radius: 10px;
-    p{
+
+    p {
         font-weight: 500;
         font-size: 12px;
         line-height: normal;
@@ -1290,10 +1299,10 @@
             border-color: $primary_color;
         }
 
-        
+
         .css-15lsz6c-indicatorContainer,
-        .css-1xc3v61-indicatorContainer{
-          
+        .css-1xc3v61-indicatorContainer {
+
             width: 20px;
             height: 20px;
             background-size: 20px 11px;
@@ -1302,7 +1311,7 @@
             padding: 0 !important;
             cursor: pointer;
 
-            .css-tj5bde-Svg{
+            .css-tj5bde-Svg {
                 /*fill: $primary_color;*/
                 fill: #636D83;
                 width: 15px;
@@ -1310,7 +1319,7 @@
         }
 
 
-        
+
 
     }
 
@@ -1342,7 +1351,7 @@
     .css-1u9des2-indicatorSeparator {
         display: none;
 
-       
+
     }
 
     .css-3w2yfm-ValueContainer {
@@ -1427,7 +1436,8 @@ body {
     }
 }
 
-.form-group{
+.form-group {
+
     .form-group-icon-start,
     .form-group-icon-end {
         .control-icon {
@@ -1453,7 +1463,7 @@ body {
                 .css-t3ipsp-control {
                     padding-left: 22px;
 
-                    
+
                 }
             }
         }
@@ -1466,7 +1476,8 @@ body {
             .css-t3ipsp-control {
                 min-height: 31px;
                 font-size: 14px;
-                &>div{
+
+                &>div {
                     padding-top: 0px;
                     padding-bottom: 0px;
                 }
@@ -1478,19 +1489,23 @@ body {
             }
         }
     }
-.color-picker-with-box{
-    position: relative;
-    .color-picker-code {
-        position: absolute;
-        left: 50px;
-        top: 50%;
-        transform: translateY(-50%);
-        margin-bottom: 0px;
+
+    .color-picker-with-box {
+        position: relative;
+
+        .color-picker-code {
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-bottom: 0px;
+        }
     }
-}
+
     .form-color-picker {
         width: 100%;
         display: flex;
+
         .css-1yn2e29-InputColor {
             background-color: $white_color;
             border: 1px solid $gray_color;
@@ -1513,25 +1528,30 @@ body {
                 display: none;
             }
         }
-        &.color-picker-with-box{
+
+        &.color-picker-with-box {
             display: flex;
             align-items: center;
             background-color: $white_color;
             border: 1px solid $stock_light;
             border-radius: 5px;
             padding: 0px 15px;
-            i{
+
+            i {
                 font-size: 22px;
             }
-            .css-cnfek5-Popover{
+
+            .css-cnfek5-Popover {
                 background-color: $white_color;
                 border: 1px solid $stock_light;
                 border-radius: 5px;
-                .css-6fii2q-Arrow{
+
+                .css-6fii2q-Arrow {
                     display: none;
                 }
             }
-            .css-1yn2e29-InputColor{
+
+            .css-1yn2e29-InputColor {
                 border: none;
                 padding: 0;
                 border-radius: 0;
@@ -1589,7 +1609,7 @@ body {
     }
 
     .react-datepicker-popper[data-placement^=top] {
-        .react-datepicker__triangle {           
+        .react-datepicker__triangle {
             &::before {
                 border-top-color: #DFE5EF;
             }
@@ -1599,6 +1619,7 @@ body {
     .react-datepicker-popper[data-placement^=bottom] {
         .react-datepicker__triangle {
             display: none;
+
             &::before {
                 border-bottom-color: #DFE5EF;
             }
@@ -1683,11 +1704,13 @@ body {
             color: $white_color;
         }
     }
-    .react-datepicker__day--today{
+
+    .react-datepicker__day--today {
         background-color: $primary_hover_color;
         color: $white_color;
         border-radius: 0.3rem;
     }
+
     .react-datepicker__day--disabled,
     .react-datepicker__month-text--disabled,
     .react-datepicker__quarter-text--disabled,

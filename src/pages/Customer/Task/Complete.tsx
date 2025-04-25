@@ -105,7 +105,7 @@ const Complete = (props) => {
                       {taskItem?.task_name}
                     </td>
                     <td>
-                      {taskItem?.note}
+                      {!isNullUndefinedOrBlank(taskItem?.note) ? taskItem?.note : "-"}
                     </td>
                     <td>{!isNullUndefinedOrBlank(taskItem?.due_date) ? formatedDate(taskItem?.due_date, "DD-MM-yyyy hh:mm A") : "-"}</td>
 

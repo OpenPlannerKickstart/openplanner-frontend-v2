@@ -67,8 +67,8 @@ const Task = (props) => {
       .trim()
       .required(TASK_DATE_IS_REQUIRED),
     note: yup.string()
-      .trim()
-      .required(TASK_NOTE_IS_REQUIRED),
+      .trim().notRequired().nullable(),
+    // .required(TASK_NOTE_IS_REQUIRED),
     is_reminder: yup.boolean(),
     // reminder: yup.array()
     //   .of(

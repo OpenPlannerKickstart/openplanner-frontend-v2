@@ -64,6 +64,8 @@ const PendingEvents = (props) => {
         let response = await dispatch(upadteEventStatusAPI({ event_id: id }));
         if (!isNullUndefinedOrBlank(response?.payload)) {
             props?.handleEventListing();
+            props?.getDashboardCount();
+            props?.handleEventChartData();
             handleSuccessShow();
         }
     }

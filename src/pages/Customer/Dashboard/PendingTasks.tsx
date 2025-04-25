@@ -60,6 +60,8 @@ const PendingTasks = (props) => {
         let response = await dispatch(upadteTaskStatusAPI({ id }));
         if (!isNullUndefinedOrBlank(response?.payload)) {
             props?.handleSetTaskData();
+            props?.getDashboardCount();
+            props?.handleTaskChartData();
             handleSuccessShow();
         }
     }

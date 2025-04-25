@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Badge, Button, Card, Col, Form, Modal, Row } from 'react-bootstrap';
+import { Badge, Button, Card, Col, Form, Modal, Row, Tooltip } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import eventChart1 from "/assets/images/chart-1.svg";
 import eventChart2 from "/assets/images/chart-2.svg";
@@ -194,6 +194,10 @@ const Dashboard = () => {
   const eventOptions = {
     pieHole: 0.6,
     is3D: false,
+    tooltip: {
+      trigger: "none", // Disables the tooltip
+    },
+    pieSliceText: "none",
     legend: { position: "none" },
     colors: ["#239BC2", "#BEE6F3"], // Custom colors for pie segments.
     chartArea: { width: "90%", height: "80%" },
@@ -209,6 +213,10 @@ const Dashboard = () => {
   const taskOptions = {
     pieHole: 0.6,
     is3D: false,
+    tooltip: {
+      trigger: "none", // Disables the tooltip
+    },
+    pieSliceText: "none",
     legend: { position: "none" },
     colors: ["#25D076", "#EAFCF2"], // Custom colors for pie segments.
     chartArea: { width: "90%", height: "80%" },
@@ -227,6 +235,10 @@ const Dashboard = () => {
   const syllabusOptions = {
     pieHole: 0.6,
     is3D: false,
+    tooltip: {
+      trigger: "none", // Disables the tooltip
+    },
+    pieSliceText: "none",
     legend: { position: "none" },
     colors: ["#33B3AA", "#EBF9F8"], // Custom colors for pie segments.
     chartArea: { width: "90%", height: "80%" },
@@ -633,7 +645,7 @@ const Dashboard = () => {
                         >
                           <div className="tab-content-container">
                             <FilterComponent syllabusDropDownData={syllabusDropDownData} setStartDate={setStartDate} setEndDate={setEndDate} setSearch={setSearch} setSyllabusId={setSyllabusId} startDate={startDate} endDate={endDate} search={search} syllabusId={syllabusId} />
-                            <PendingEvents eventData={eventData} handleEventListing={handleEventListing} handleShowShowNote={handleShowShowNote} />
+                            <PendingEvents eventData={eventData} handleEventListing={handleEventListing} handleShowShowNote={handleShowShowNote} handleEventChartData={handleEventChartData} getDashboardCount={getDashboardCount} />
                           </div>
                         </div>
                         <div
@@ -654,7 +666,7 @@ const Dashboard = () => {
                           aria-labelledby="nav-pendingtask-tab"
                         >
                           <div className="tab-content-container">
-                            <PendingTasks taskData={taskData} handleSetTaskData={handleSetTaskData} />
+                            <PendingTasks taskData={taskData} handleSetTaskData={handleSetTaskData} handleTaskChartData={handleTaskChartData} getDashboardCount={getDashboardCount} />
                           </div>
                         </div>
                         <div

@@ -268,7 +268,7 @@ const SyllabusDetails = (props) => {
                           <p title={!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"} >{!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"}</p>
                         </div>
                       }
-                    
+
                     </div>
                   </div>
                 </div>
@@ -366,7 +366,7 @@ const SyllabusDetails = (props) => {
               ></i>
               <InputColor
                 initialValue={
-                  syllabusFormData?.values?.course_color || "#7209B7"
+                  syllabusFormData?.values?.course_color || "#239BC2"
                 }
                 onChange={(color) => {
                   syllabusFormData.setFieldValue("course_color", color.hex);
