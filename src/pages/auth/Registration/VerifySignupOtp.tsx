@@ -17,6 +17,7 @@ import { AppDispatch } from '../../../redux/store';
 import { renderError } from '../../../Utility/Helper';
 import OTPInput from 'react-otp-input';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
+import { setLoading } from '../../../redux/Loader/LoaderSlice';
 const VerifySignupOtp = (props) => {
     const { otpDetailsObj } = props;
     const dispatch: AppDispatch = useDispatch();
@@ -50,7 +51,11 @@ const VerifySignupOtp = (props) => {
         const verifyResponse = await dispatch(verifySignupEmailOtp(reqBody));
         if (verifyResponse) {
             if (otpDetailsObj?.isFromLogin) {
-                props?.handleLoginData();
+                dispatch(setLoading(true));
+                setTimeout(() => {
+                    props?.handleLoginData();
+                    dispatch(setLoading(false));
+                }, 2000);
             } else {
                 navigate(ENUMFORROUTES.LOGIN)
             }
@@ -167,13 +172,13 @@ const VerifySignupOtp = (props) => {
                                                 />
                                             </div>
                                         </Form.Group>
-                                  
-                                          {canResend ? (
 
-<p className="text-center mt-4">Did not receive it? <span className="text-primary fw-600"   onClick={() => { handleResendOtp(); }}>Resend Code</span></p>
-) : (
-<p className="mt-4 text-gray-600 text-center ">You can resend code in <span className="text-primary fw-600">{timer}</span> seconds.</p>
-)}
+                                        {canResend ? (
+
+                                            <p className="text-center mt-4">Did not receive it? <span className="text-primary fw-600" onClick={() => { handleResendOtp(); }}>Resend Code</span></p>
+                                        ) : (
+                                            <p className="mt-4 text-gray-600 text-center ">You can resend code in <span className="text-primary fw-600">{timer}</span> seconds.</p>
+                                        )}
                                         <div className="btn-full-group">
                                             <Button variant="primary" className="w-100 mb-4" onClick={() => { handleverifyCodeSubmit() }}>
                                                 Verify Email
