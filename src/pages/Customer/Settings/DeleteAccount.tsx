@@ -114,7 +114,7 @@ const DeleteAccount = () => {
                             <Form.Group className='form-group '>
                                 <Form.Label>Password</Form.Label>
                                 <div className="form-group-icon-end form-group-password">
-                                    <Form.Control type="password" placeholder='Enter password'
+                                    <Form.Control type={!eyeToggle ? "password" : "text"} placeholder='Enter password'
                                         {...formData.getFieldProps("password")}
                                         maxLength={MAX_200}
 
