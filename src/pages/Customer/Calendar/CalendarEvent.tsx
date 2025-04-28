@@ -447,7 +447,8 @@ const CalenderEvent = () => {
                       <h4>Date</h4>
                     </div>
                     <Form.Group className="form-group">
-                      <div className="react-datepicker-container">
+                      <div className="react-datepicker-container filter-calendar">
+
                         <DatePicker
                           toggleCalendarOnIconClick
                           selectsRange={true}
@@ -457,6 +458,7 @@ const CalenderEvent = () => {
                             setCurrentDate(start ? start : currentDate);
                             setSearchByEndDate(end ? end : null);
                           }}
+                         
                           open={true}
                           startDate={searchByStartDate}
                           endDate={searchByEndDate}
@@ -464,7 +466,7 @@ const CalenderEvent = () => {
                           dateFormat="MM/dd/yyyy"
                           className="form-control"
                           placeholderText="Select a Date"
-                          inline
+                          inline                                              
                         />
                       </div>
                     </Form.Group>

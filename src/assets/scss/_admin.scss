@@ -1923,6 +1923,8 @@ $sm_sidebar_home_link_width: 270px;
                                 [type=checkbox]+label {
                                     padding-left: 30px;
                                     font-size: 14px;
+                                    word-break: break-word;
+                                    padding-right: 10px;
                                 }
                             }
 
@@ -2096,9 +2098,11 @@ $sm_sidebar_home_link_width: 270px;
 
                     .rbc-month-row {
                         min-height: 166px;
+                        /*max-height: 145px;
+                        min-height: 145px;*/
 
                         .rbc-off-range-bg {
-                            background: #F9FAFB;
+                            background: $bg_grey;
                         }
 
 
@@ -2224,6 +2228,22 @@ $sm_sidebar_home_link_width: 270px;
             }
         }
     }
+}
+
+.course_badge{
+    width: 200px; /* fixed width */
+    overflow: hidden;
+    span{
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+    }
+}
+.filter-calendar{
+.react-datepicker__month-container{
+    width: 290px;
+}
 }
 
 .button-wrapper {
