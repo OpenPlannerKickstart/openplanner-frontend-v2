@@ -3,11 +3,12 @@ import { Badge, Button, Collapse, Modal, OverlayTrigger, Table, Tooltip } from '
 import { connect, useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
 import { deleteEventDataAPI, getEventListDataAPI, updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses'
-import { ENUM_FOR_SYLLABUS_TAB } from '../../../interfaces/enum'
+import { ENUM_FOR_SYLLABUS_TAB, ENUMFORSTATUS } from '../../../interfaces/enum'
 import { EventResponseType } from '../../../interfaces/interface'
 import { formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, NO_RECORD_FOUND_MSG } from '../../../Utility/Helper'
 import { NO_END_DATE_ADDED, NO_START_DATE_ADDED } from '../../../Utility/Validation_Message'
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
+import { isUpdatedEvent } from '../../../redux/User/Courses/coursesSlice'
 
 const Events = (props) => {
   const dispatch: AppDispatch = useDispatch();
@@ -91,10 +92,11 @@ const Events = (props) => {
   /** -------------------Event complete Start-------------------------*/
 
   const [successShow, setSuccessShow] = useState(false);
-  const handleSuccessClose = () => setSuccessShow(false);
+  const handleSuccessClose = () => { setSuccessShow(false); setEventStatus(null) }
   const handleSuccessShow = () => setSuccessShow(true);
+  const [eventStatus, setEventStatus] = useState(null)
 
-  const handleEventCompleted = async (id) => {
+  const handleEventCompleted = async (id, status) => {
     let event_id: any = [];
     if (id instanceof Array) {
       event_id = id;
@@ -104,10 +106,13 @@ const Events = (props) => {
     }
     const reqBody = {
       event_id: event_id,
+      status: status === ENUMFORSTATUS.COMPLETED ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED,
     }
     let response = await dispatch(updateEventStatusDataAPI(reqBody));
     if (!isNullUndefinedOrBlank(response?.payload)) {
       getEventListData();
+      await dispatch(isUpdatedEvent(true));
+      setEventStatus(status);
       handleSuccessShow();
     }
   }
@@ -178,23 +183,27 @@ const Events = (props) => {
                                                 <OverlayTrigger
                                                   trigger={["hover", "hover"]}
                                                   placement="bottom"
-                                                  overlay={<Tooltip>Completed</Tooltip>}
+                                                  overlay={<Tooltip>Pending</Tooltip>}
                                                 >
                                                   <button
                                                     className="btn btn-xs btn-icon btn-transparent check-icon"
+                                                    onClick={() => {
+                                                      // console.log("childItem?.status", childItem?.status)
+                                                      handleEventCompleted(childItem?.id, childItem?.status)
+                                                    }}
                                                   >
-                                                    {" "}
-                                                    <i className="material-symbols-outlined">check_circle</i>
+
+                                                    <i className="material-symbols-outlined">unpublished</i>
                                                   </button>
                                                 </OverlayTrigger> :
                                                 <OverlayTrigger
                                                   trigger={["hover", "hover"]}
                                                   placement="bottom"
-                                                  overlay={<Tooltip>Update Status</Tooltip>}
+                                                  overlay={<Tooltip>Complete</Tooltip>}
                                                 >
                                                   <button className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => {
 
-                                                    handleEventCompleted(childItem?.id)
+                                                    handleEventCompleted(childItem?.id, childItem?.status)
                                                   }}
                                                   >
                                                     <i className="material-symbols-outlined">check_circle</i>
@@ -202,6 +211,7 @@ const Events = (props) => {
                                                 </OverlayTrigger>
 
                                             }
+
                                             <OverlayTrigger
                                               trigger={["hover", "hover"]}
                                               placement="bottom"
@@ -285,19 +295,23 @@ const Events = (props) => {
                                                   <OverlayTrigger
                                                     trigger={["hover", "hover"]}
                                                     placement="bottom"
-                                                    overlay={<Tooltip>Completed</Tooltip>}
+                                                    overlay={<Tooltip>Pending</Tooltip>}
                                                   >
                                                     <button
                                                       className="btn btn-xs btn-icon btn-transparent check-icon"
+                                                      onClick={() => {
+                                                        console.log("childItem?.status", parentItem?.status)
+                                                        handleEventCompleted(parentItem?.id, parentItem?.status)
+                                                      }}
                                                     >
-                                                      {" "}
-                                                      <i className="material-symbols-outlined">check_circle</i>
+
+                                                      <i className="material-symbols-outlined">unpublished</i>
                                                     </button>
                                                   </OverlayTrigger> :
                                                   <OverlayTrigger
                                                     trigger={["hover", "hover"]}
                                                     placement="bottom"
-                                                    overlay={<Tooltip>Update Status</Tooltip>}
+                                                    overlay={<Tooltip>Complete</Tooltip>}
                                                   >
                                                     <button
                                                       className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
@@ -464,31 +478,55 @@ const Events = (props) => {
 
 
           {/* Success Modal */}
-          <Modal className='modal-theme modal-confirmation modal-approve' show={successShow} onHide={handleSuccessClose} centered>
-            <Modal.Header >
-              <h4 className="modal-title">Task Completed!</h4>
+          <Modal
+            className='modal-theme modal-confirmation modal-approve'
+            show={successShow}
+            onHide={handleSuccessClose}
+            centered
+          >
+            <Modal.Header>
+              <h4 className="modal-title">
+                {eventStatus === ENUMFORSTATUS.PENDING ? 'Event Completed!' : 'Event Pending'}
+              </h4>
               <button type="button" className="btn-close" onClick={handleSuccessClose}>
                 <i className="material-symbols-outlined">close</i>
               </button>
             </Modal.Header>
+
             <Modal.Body>
               <div className="modal-confirmation-container">
                 <div className="modal-confirmation-icon">
-                  <i className="material-symbols-outlined">mood</i>
+                  <i className="material-symbols-outlined">
+                    {eventStatus === ENUMFORSTATUS.PENDING ? 'mood' : 'mood_bad'}
+                  </i>
                 </div>
                 <div className="modal-confirmation-content">
-                  <h5>You have successfully
-                    completed  Event!</h5>
-                  <p>Get back to Event page to add or complete the other Event</p>
+                  {eventStatus === ENUMFORSTATUS.PENDING ? (
+                    <>
+                      <h5>You have successfully completed the Event!</h5>
+                      <p>Get back to the Event page to add or complete the other Event.</p>
+                    </>
+                  ) : (
+                    <>
+                      <h5>Event is still Pending!</h5>
+                      <p>Complete the event to move forward with the syllabus.</p>
+                    </>
+                  )}
                 </div>
               </div>
+
               <div className="modal-button-group modal-full-width-btn modal-footer-button">
-                <Button variant="success"
-                  className="btn-icon-text btn-md" onClick={handleSuccessClose}> Done
+                <Button
+                  variant={eventStatus === ENUMFORSTATUS.PENDING ? 'success' : 'warning'}
+                  className="btn-icon-text btn-md"
+                  onClick={handleSuccessClose}
+                >
+                  {eventStatus === ENUMFORSTATUS.PENDING ? 'Done' : 'Done'}
                 </Button>
               </div>
             </Modal.Body>
           </Modal>
+
           {/* Success Modal */}
         </div>
       </div>

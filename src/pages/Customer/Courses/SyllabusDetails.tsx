@@ -39,6 +39,7 @@ import {
   deleteSyllabusDataAPI,
 } from "../../../redux/Service/User/Courses/courses";
 import GetImageIcon from "../../../common/GetImageIcon";
+import { DELETE_DOCUMENT_TYPE } from "../../../interfaces/enum";
 const SyllabusDetails = (props) => {
   const dispatch: AppDispatch = useDispatch();
 
@@ -148,7 +149,10 @@ const SyllabusDetails = (props) => {
   const handleRemoveSyllabusDoc = () => {
     syllabusFormData.setFieldValue("syllabus_doc", null);
     syllabusFormData.setFieldValue("syllabus_doc_name", null);
-    syllabusDocRef.current.value = null;
+    if (syllabusDocRef.current) {
+      syllabusDocRef.current.value = null;
+    }
+    // syllabusDocRef.current.value = null;
     props?.setPdfPreviewLink(null);
   };
 
@@ -157,6 +161,8 @@ const SyllabusDetails = (props) => {
 
     return () => { };
   }, [syllabusFormData.values.syllabus_doc]);
+
+
 
   /** -------------------Delete Syllabus start-------------------------*/
   const [deleteShow, setDeleteShow] = useState(false);
@@ -179,6 +185,14 @@ const SyllabusDetails = (props) => {
   };
 
   /** -------------------Delete Syllabus end-------------------------*/
+
+  /** -----------------edit document alert start---------------------------*/
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => { setShow(false); }
+
+  const handleShow = () => { setShow(true); }
+  /** -----------------edit document alert start---------------------------*/
 
   return (
     <>
@@ -204,39 +218,44 @@ const SyllabusDetails = (props) => {
           </Form.Group>
           <Form.Group className="form-group">
             <Form.Label>Syllabus</Form.Label>
-            <div className="attachments-container">
-              <div className="attachments-content">
-                <button className="btn btn-attachments">
-                  <i className="bi bi-upload"></i>
-                </button>
-                <p>
-                  Drag and Drop file here or{" "}
-                  <span className="text-primary">Choose file</span>
-                </p>
+            {
+              isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) &&
+
+              <div className="attachments-container">
+                <div className="attachments-content">
+                  <button className="btn btn-attachments">
+                    <i className="bi bi-upload"></i>
+                  </button>
+                  <p>
+                    Drag and Drop file here or{" "}
+                    <span className="text-primary">Choose file</span>
+                  </p>
+                </div>
+                <input
+                  className=" "
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e: any) => {
+                    if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
+                      syllabusFormData.setFieldValue(
+                        "syllabus_doc",
+                        e.target?.files as any
+                      );
+                      syllabusFormData.setFieldValue(
+                        "syllabus_doc_name",
+                        e.target?.files[0]?.name as any
+                      );
+                      const url: any = URL.createObjectURL(
+                        e.target?.files[0] as any
+                      );
+                      props?.setPdfPreviewLink(url);
+                    }
+
+                  }}
+                  ref={syllabusDocRef}
+                />
               </div>
-              <input
-                className=" "
-                type="file"
-                accept="application/pdf"
-                onChange={(e: any) => {
-                  if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
-                    syllabusFormData.setFieldValue(
-                      "syllabus_doc",
-                      e.target?.files as any
-                    );
-                    syllabusFormData.setFieldValue(
-                      "syllabus_doc_name",
-                      e.target?.files[0]?.name as any
-                    );
-                    const url: any = URL.createObjectURL(
-                      e.target?.files[0] as any
-                    );
-                    props?.setPdfPreviewLink(url);
-                  }
-                }}
-                ref={syllabusDocRef}
-              />
-            </div>
+            }
             {!isEmptyObjectOrNullUndefiend(
               syllabusFormData?.values?.syllabus_doc_name
             ) &&
@@ -256,7 +275,8 @@ const SyllabusDetails = (props) => {
                         <button
                           className="btn-close"
                           onClick={() => {
-                            handleRemoveSyllabusDoc();
+                            handleShow();
+                            // handleRemoveSyllabusDoc();
                           }}
                         >
                           <i className="material-symbols-outlined">close</i>
@@ -462,6 +482,62 @@ const SyllabusDetails = (props) => {
         </Modal.Body>
       </Modal>
       {/* Delete Modal */}
+      {/* Success Modal */}
+      <Modal
+        className='modal-theme modal-confirmation modal-approve'
+        show={show}
+        onHide={handleClose}
+        centered
+      >
+        <Modal.Header>
+          <h4 className="modal-title">
+            Syllabus Document Update!
+          </h4>
+          <button type="button" className="btn-close" onClick={handleClose}>
+            <i className="material-symbols-outlined">close</i>
+          </button>
+        </Modal.Header>
+
+        <Modal.Body>
+          <div className="modal-confirmation-container">
+            <div className="modal-confirmation-icon">
+              <i className="material-symbols-outlined">
+                mood_bad
+              </i>
+            </div>
+            <div className="modal-confirmation-content">
+
+              <>
+                <h5>If you update this document, all the events will be removed.</h5>
+                <p>If you do not want to delete the events, please cancel the process.</p>
+              </>
+
+            </div>
+          </div>
+
+          <div className="modal-button-group modal-full-width-btn modal-footer-button">
+            <Button
+              variant={'warning'}
+              className="btn-icon-text btn-md"
+              onClick={handleClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={'warning'}
+              className="btn-icon-text btn-md"
+              onClick={() => {
+                handleRemoveSyllabusDoc();
+                handleClose()
+              }}
+            >
+              Ok
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      {/* Success Modal */}
     </>
   );
 };

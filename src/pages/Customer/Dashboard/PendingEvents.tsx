@@ -6,6 +6,7 @@ import notVoucherFound from "/assets/images/not-voucher-found.svg";
 import { deleteEventAPI, upadteEventStatusAPI } from '../../../redux/Service/User/DashBoard/dashboard';
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
+import { ENUMFORSTATUS } from '../../../interfaces/enum';
 
 const PendingEvents = (props) => {
     let dispatch: AppDispatch = useDispatch();
@@ -60,8 +61,9 @@ const PendingEvents = (props) => {
     const handleSuccessClose = () => setSuccessShow(false);
     const handleSuccessShow = () => setSuccessShow(true);
 
-    const handleEventCompleted = async (id) => {
-        let response = await dispatch(upadteEventStatusAPI({ event_id: id }));
+    const handleEventCompleted = async (id, status) => {
+        status = (status === ENUMFORSTATUS.COMPLETED) ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED
+        let response = await dispatch(upadteEventStatusAPI({ event_id: id, status }));
         if (!isNullUndefinedOrBlank(response?.payload)) {
             props?.handleEventListing();
             props?.getDashboardCount();
@@ -178,7 +180,7 @@ const PendingEvents = (props) => {
                                                         overlay={<Tooltip>Complete</Tooltip>}
                                                     >
                                                         <button
-                                                            className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleEventCompleted([item.id]) }}
+                                                            className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleEventCompleted([item.id], item?.status) }}
                                                         >
                                                             {" "}
                                                             <i className="material-symbols-outlined">check_circle</i>
@@ -376,7 +378,7 @@ const PendingEvents = (props) => {
             {/* Success Modal */}
             <Modal className='modal-theme modal-confirmation modal-approve' show={SuccessShow} onHide={handleSuccessClose} centered>
                 <Modal.Header >
-                    <h4 className="modal-title">Task Completed!</h4>
+                    <h4 className="modal-title">Event Completed!</h4>
                     <button type="button" className="btn-close" onClick={handleSuccessClose}>
                         <i className="material-symbols-outlined">close</i>
                     </button>
@@ -388,8 +390,8 @@ const PendingEvents = (props) => {
                         </div>
                         <div className="modal-confirmation-content">
                             <h5>You have successfully
-                                completed  Task!</h5>
-                            <p>Get back to task page to add or complete the other task</p>
+                                completed  Event!</h5>
+                            <p>Get back to task page to add or complete the other Event</p>
                         </div>
                     </div>
                     <div className="modal-button-group modal-full-width-btn modal-footer-button">
