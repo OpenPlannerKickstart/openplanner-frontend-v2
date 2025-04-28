@@ -304,7 +304,7 @@ export const AddEditEvent = (props) => {
                                                                     selected={eventFormData.values.start_date}
                                                                     onChange={(date) => { eventFormData.setFieldValue("start_date", date); eventFormData.setFieldValue('end_date', null) }}
                                                                     showTimeSelect
-                                                                    dateFormat="dd/MM/yyyy hh:mm aa"
+                                                                    dateFormat="MM/dd/yyyy hh:mm aa"
                                                                     timeIntervals={15}
                                                                     className="form-control"
                                                                     popperProps={{ strategy: "fixed" }}
@@ -333,7 +333,7 @@ export const AddEditEvent = (props) => {
                                                                     selected={eventFormData.values.end_date}
                                                                     onChange={(date) => { eventFormData.setFieldValue("end_date", date); }}
                                                                     showTimeSelect
-                                                                    dateFormat="dd/MM/yyyy hh:mm aa"
+                                                                    dateFormat="MM/dd/yyyy hh:mm aa"
                                                                     timeIntervals={15}
                                                                     className="form-control"
                                                                     popperProps={{ strategy: "fixed" }}
@@ -413,18 +413,18 @@ export const AddEditEvent = (props) => {
                                                 {
                                                     !isNullUndefinedOrBlank(eventFormData?.values?.id) &&
                                                     <div className="checkbox checkbox-primary all-event-checkbox my-4">
-                                                    <input
-                                                        type="checkbox"
-                                                        id="checkbox-all-day"
-                                                        className="material-inputs filled-in"
-                                                        onChange={() => {
-                                                            handleMarkAllDayEvent(!eventFormData?.values?.is_all_day_event)
-                                                        }}
-                                                        disabled={isNullUndefinedOrBlank(eventFormData?.values?.start_date)}
-                                                        checked={eventFormData?.values?.is_all_day_event}
-                                                    />
-                                                    <label htmlFor="checkbox-all-day">Mark as all day Event</label>
-                                                </div>
+                                                        <input
+                                                            type="checkbox"
+                                                            id="checkbox-all-day"
+                                                            className="material-inputs filled-in"
+                                                            onChange={() => {
+                                                                handleMarkAllDayEvent(!eventFormData?.values?.is_all_day_event)
+                                                            }}
+                                                            disabled={isNullUndefinedOrBlank(eventFormData?.values?.start_date)}
+                                                            checked={eventFormData?.values?.is_all_day_event}
+                                                        />
+                                                        <label htmlFor="checkbox-all-day">Mark as all day Event</label>
+                                                    </div>
                                                 }
                                                 <div className="Reminder-box">
                                                     <div className="title-with-switch">
@@ -620,7 +620,7 @@ export const AddEditEvent = (props) => {
                                                                 ></add-to-calendar-button>
                                                             </div>
                                                         </div>
-                                                       
+
                                                     </>
                                                 }
                                             </div>

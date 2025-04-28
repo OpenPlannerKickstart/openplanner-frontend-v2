@@ -259,7 +259,7 @@ const CalenderEvent = () => {
   /** ------------------reset filter end--------------------------*/
 
   /** ----------------- sidebar logic start---------------------------*/
-  const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+  const [isSideBarOpen, setIsSideBarOpen] = useState(true);
 
   const handleSideBar = (value) => {
     setIsSideBarOpen(!value);
@@ -461,7 +461,7 @@ const CalenderEvent = () => {
                           startDate={searchByStartDate}
                           endDate={searchByEndDate}
                           isClearable={false}
-                          dateFormat="dd-MM-yyyy"
+                          dateFormat="MM/dd/yyyy"
                           className="form-control"
                           placeholderText="Select a Date"
                           inline

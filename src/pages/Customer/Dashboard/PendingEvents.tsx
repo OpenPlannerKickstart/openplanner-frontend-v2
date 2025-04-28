@@ -166,9 +166,9 @@ const PendingEvents = (props) => {
                                             <td onClick={() => { props.handleShowShowNote(item.note) }}>
                                                 <a >View Notes</a>
                                             </td>
-                                            <td>{!isNullUndefinedOrBlank(item.start_date) ? formatedDate(item?.start_date, "DD-MM-yyyy hh:mm A") : "-"}</td>
+                                            <td>{!isNullUndefinedOrBlank(item.start_date) ? formatedDate(item?.start_date, "MM/DD/yyyy hh:mm A") : "-"}</td>
 
-                                            <td>{!isNullUndefinedOrBlank(item.end_date) ? formatedDate(item?.end_date, "DD-MM-yyyy hh:mm A") : "-"}</td>
+                                            <td>{!isNullUndefinedOrBlank(item.end_date) ? formatedDate(item?.end_date, "MM/DD/yyyy hh:mm A") : "-"}</td>
                                             <td className="tbl-action">
                                                 <div className="tbl-action-group">
                                                     <OverlayTrigger

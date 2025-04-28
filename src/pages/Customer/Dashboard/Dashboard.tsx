@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { dashboardCoursesDataAPI, dashboardEventListingAPI, dashboardEventsDataAPI, dashboardListingCountAPI, dashboardTasksDataAPI, syllabusDropDownAPI } from '../../../redux/Service/User/DashBoard/dashboard';
 import { customJsonInclude, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import { FilterComponent } from './FilterComponent';
-import { ENUMFORDASHBORD, ENUMFORTASK } from '../../../interfaces/enum';
+import { ENUMFORDASHBORD, ENUMFORSTATUS, ENUMFORTASK } from '../../../interfaces/enum';
 import { taskListingAPI } from '../../../redux/Service/task';
 import Select, { components, ControlProps } from "react-select";
 import { chartDropDownData } from '../../../Utility/staticDropDown';
@@ -190,7 +190,7 @@ const Dashboard = () => {
   const [eventChartData, setEventChartData] = useState<any>([
 
   ]);
-  const [eventChartFilter, setEventChartFilter] = useState<any>(null);
+  const [eventChartFilter, setEventChartFilter] = useState<any>(chartDropDownData[0]?.value);
   const eventOptions = {
     pieHole: 0.6,
     is3D: false,
@@ -222,7 +222,7 @@ const Dashboard = () => {
     chartArea: { width: "90%", height: "80%" },
   };
   const [taskChartData, setTaskChartData] = useState<any>([]);
-  const [taskChartFilter, setTaskChartFilter] = useState<any>(null)
+  const [taskChartFilter, setTaskChartFilter] = useState<any>(chartDropDownData[0]?.value)
   const handleTaskChartData = async () => {
     const reqBody = { filter: taskChartFilter };
     const response = await dispatch(dashboardTasksDataAPI(reqBody));
@@ -244,7 +244,7 @@ const Dashboard = () => {
     chartArea: { width: "90%", height: "80%" },
   };
   const [syllabusChartData, setSyllabusChartData] = useState<any>([]);
-  const [syllabusChartFilter, setSyllabusChartFilter] = useState<any>(null)
+  const [syllabusChartFilter, setSyllabusChartFilter] = useState<any>(chartDropDownData[0]?.value)
   const handleSyllabusChartData = async () => {
     const reqBody = { filter: syllabusChartFilter };
     const response = await dispatch(dashboardCoursesDataAPI(reqBody));

@@ -41,7 +41,7 @@ export const FilterComponent = (props) => {
                         <DatePicker
                             dropdownMode="select"
                             isClearable={true}
-                            dateFormat="dd/MM/yyyy"
+                            dateFormat="MM/dd/yyyy"
                             className="form-control"
                             popperProps={{ strategy: "fixed" }}
                             placeholderText="Date Range"

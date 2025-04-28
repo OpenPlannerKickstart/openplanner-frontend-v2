@@ -443,7 +443,7 @@ const Task = (props) => {
                           <DatePicker
                             dropdownMode="select"
                             isClearable={true}
-                            dateFormat="dd/MM/yyyy"
+                            dateFormat="MM/dd/yyyy"
                             className="form-control"
                             popperProps={{ strategy: "fixed" }}
                             placeholderText="Date Range"
@@ -536,7 +536,7 @@ const Task = (props) => {
                           <DatePicker
                             dropdownMode="select"
                             isClearable={true}
-                            dateFormat="dd-MM-yyyy h:mm aa"
+                            dateFormat="MM/dd/yyyy h:mm aa"
                             // showTimeSelect
                             // timeFormat="hh:mm aa"
                             className="form-control"

@@ -306,7 +306,7 @@ const Courses = (props) => {
                                     <a>{item?.no_of_events || "0"}</a>
                                   </td>
                                   <td>
-                                    {formatedDate(item?.updated_at, " DD-MM-YYYY - hh:mm A")}
+                                    {formatedDate(item?.updated_at, " MM/DD/YYYY - hh:mm A")}
 
                                   </td>
                                   <td className="tbl-action">
@@ -375,7 +375,7 @@ const Courses = (props) => {
                 <div className="course-wrapper">
                   <Row className="course-container">
                     {
-                      !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {                        
+                      !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {
                         return (
                           <Col md={"4"} key={index}>
                             <Card className="card-style-1">
@@ -391,7 +391,7 @@ const Courses = (props) => {
                                     <div className="selected-date-with-color">
                                       <div className="selected-date">
                                         <i className="material-symbols-outlined">calendar_month</i>
-                                        <p> {formatedDate(item?.updated_at, " DD-MM-YYYY - hh:mm A")}</p>
+                                        <p> {formatedDate(item?.updated_at, " MM/DD/YYYY - hh:mm A")}</p>
                                       </div>
                                       <div className="selected-color">
                                         <span className="color-code" style={{ backgroundColor: `${item?.course_color || "#239bc266"}` }}></span>

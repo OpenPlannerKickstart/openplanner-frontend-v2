@@ -645,7 +645,7 @@ const AddSyllabusEvents = (props) => {
                                     }
                                     }
                                     showTimeSelect
-                                    dateFormat="dd/MM/yyyy hh:mm aa"
+                                    dateFormat="MM/dd/yyyy hh:mm aa"
                                     timeIntervals={15}
                                     className="form-control"
                                     popperProps={{ strategy: "fixed" }}
@@ -672,7 +672,7 @@ const AddSyllabusEvents = (props) => {
                                     selected={eventFormData.values.end_date}
                                     onChange={(date) => eventFormData.setFieldValue("end_date", date)}
                                     showTimeSelect
-                                    dateFormat="dd/MM/yyyy hh:mm aa"
+                                    dateFormat="MM/dd/yyyy hh:mm aa"
                                     timeIntervals={15}
                                     className="form-control"
                                     popperProps={{ strategy: "fixed" }}

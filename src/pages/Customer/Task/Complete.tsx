@@ -107,9 +107,9 @@ const Complete = (props) => {
                     <td>
                       {!isNullUndefinedOrBlank(taskItem?.note) ? taskItem?.note : "-"}
                     </td>
-                    <td>{!isNullUndefinedOrBlank(taskItem?.due_date) ? formatedDate(taskItem?.due_date, "DD-MM-yyyy hh:mm A") : "-"}</td>
+                    <td>{!isNullUndefinedOrBlank(taskItem?.due_date) ? formatedDate(taskItem?.due_date, "MM/DD/yyyy hh:mm A") : "-"}</td>
 
-                    <td>{!isNullUndefinedOrBlank(taskItem?.updated_at) ? formatedDate(taskItem?.updated_at, "DD-MM-yyyy hh:mm A") : "-"}</td>
+                    <td>{!isNullUndefinedOrBlank(taskItem?.updated_at) ? formatedDate(taskItem?.updated_at, "MM/DD/yyyy hh:mm A") : "-"}</td>
                     <td className="tbl-action">
                       <div className="tbl-action-group">
                         {/* <button
