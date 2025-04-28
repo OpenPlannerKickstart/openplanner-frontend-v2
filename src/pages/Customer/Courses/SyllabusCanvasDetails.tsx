@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 import SyllabusDetails from './SyllabusDetails'
-import { Button, Offcanvas } from 'react-bootstrap'
+import { Button, Modal, Offcanvas } from 'react-bootstrap'
 import Events from './Events';
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
 import { ENUM_FOR_SYLLABUS_TAB } from '../../../interfaces/enum';
@@ -108,13 +108,14 @@ const SyllabusCanvasDetails = (props) => {
             </Toolbar>
         ),
         sidebarTabs: (defaultTabs) => [
-        
+
             defaultTabs[0], // Bookmarks tab
             defaultTabs[1], // Thumbnails tab
         ],
     });
 
-    // console.log(props?.selectedSyllabusObj?.syllabus_doc?.url)
+
+
     return (
         <>
             <div className="edit-course-canvas-wrapper">
@@ -222,7 +223,7 @@ const SyllabusCanvasDetails = (props) => {
                                         </div>
                                         {/* pdf viewer */}
                                         {!isNullUndefinedOrBlank(pdfPreviewLink) &&
-                                            isShowPdf ? 
+                                            isShowPdf ?
                                             <div className={`syllabus-view-box ${isShowPdf ? " d-block" : "d-none"}`}>
 
                                                 <div
@@ -240,21 +241,21 @@ const SyllabusCanvasDetails = (props) => {
                                                 </div>
 
                                             </div>
-                                       
-                                                :<><div className="no-preview-box">
-                                                    <div className="no-records-found no-records-found-inner h-100">
-                                                        <div className="no-records-found-image">
-                                                        <img src={notVoucherFound} alt="OpenPlaner" />
-                                                        </div>
-                                                        <div className="no-records-found-text">
-                                                        <h6>No preview available!</h6>
-                                                        </div>
-                                                    </div>
-                                                    </div>
-                                                </>
 
-                                            
-                                            
+                                            : <><div className="no-preview-box">
+                                                <div className="no-records-found no-records-found-inner h-100">
+                                                    <div className="no-records-found-image">
+                                                        <img src={notVoucherFound} alt="OpenPlaner" />
+                                                    </div>
+                                                    <div className="no-records-found-text">
+                                                        <h6>No preview available!</h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </>
+
+
+
                                         }
                                     </div>
 
@@ -267,6 +268,8 @@ const SyllabusCanvasDetails = (props) => {
             {/* Add/Edit event Start */}
             <AddEditEvent show={showAddEvent} setShow={setAddEventShow} handleGetData={async () => { handleGetEventData() }} setEditEventFormData={() => { }} editEventFormData={null} selectedCourse={props?.selectedSyllabusObj} />
             {/* Add/Edit event Event */}
+
+
         </>
     )
 }

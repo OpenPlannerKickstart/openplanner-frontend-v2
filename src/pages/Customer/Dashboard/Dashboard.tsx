@@ -656,7 +656,7 @@ const Dashboard = () => {
                         >
                           <div className="tab-content-container">
                             <FilterComponent syllabusDropDownData={syllabusDropDownData} setStartDate={setStartDate} setEndDate={setEndDate} setSearch={setSearch} setSyllabusId={setSyllabusId} startDate={startDate} endDate={endDate} search={search} syllabusId={syllabusId} />
-                            <CompletEvents eventData={eventData} handleEventListing={handleEventListing} handleShowShowNote={handleShowShowNote} />
+                            <CompletEvents eventData={eventData} handleEventListing={handleEventListing} handleShowShowNote={handleShowShowNote} getDashboardCount={getDashboardCount} handleEventChartData={handleEventChartData} />
                           </div>
                         </div>
                         <div

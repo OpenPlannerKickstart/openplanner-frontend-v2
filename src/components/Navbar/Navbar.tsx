@@ -89,7 +89,7 @@ const Navbar = (props) => {
                       src={!isNullUndefinedOrBlank(userData?.profile_image) ? userData?.profile_image : defaultAvatar} alt="Header Avatar" />
                     <span className="text-start">
                       <span className="d-none d-xl-inline-block  user-name-text">{(!isNullUndefinedOrBlank(userData?.firstname) && !isNullUndefinedOrBlank(userData?.lastname)) ? `${userData?.firstname} ${userData?.lastname}` : "User"}</span>
-                      <span className="d-none d-xl-block  user-name-sub-text">Student</span>
+                      {/* <span className="d-none d-xl-block  user-name-sub-text">Student</span> */}
                     </span>
                   </span>
                 </button>

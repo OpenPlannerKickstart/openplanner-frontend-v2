@@ -3,9 +3,10 @@ import { Badge, Button, Form, Modal, OverlayTrigger, Table, Tooltip } from 'reac
 import DatePicker from "react-datepicker";
 import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
-import { deleteEventAPI } from '../../../redux/Service/User/DashBoard/dashboard';
+import { deleteEventAPI, upadteEventStatusAPI } from '../../../redux/Service/User/DashBoard/dashboard';
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
+import { ENUMFORSTATUS } from '../../../interfaces/enum';
 
 const CompletEvents = (props) => {
     let dispatch: AppDispatch = useDispatch();
@@ -53,6 +54,27 @@ const CompletEvents = (props) => {
     }
 
     /** -------------------Delete Event end-------------------------*/
+
+    /** -------------------Event Pending Start-------------------------*/
+
+    const [SuccessShow, setSuccessShow] = useState(false);
+    const handleSuccessClose = () => setSuccessShow(false);
+    const handleSuccessShow = () => setSuccessShow(true);
+
+    const handleEventPending = async (id, status) => {
+        status = (status === ENUMFORSTATUS.COMPLETED) ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED
+        let response = await dispatch(upadteEventStatusAPI({ event_id: id, status }));
+        if (!isNullUndefinedOrBlank(response?.payload)) {
+            props?.handleEventListing();
+            props?.getDashboardCount();
+            props?.handleEventChartData();
+            handleSuccessShow();
+        }
+    }
+
+
+
+    /** -------------------Event complete End-------------------------*/
 
     return (
         <>
@@ -115,18 +137,18 @@ const CompletEvents = (props) => {
                                             <td>{!isNullUndefinedOrBlank(item.end_date) ? formatedDate(item?.end_date, "MM/DD/yyyy hh:mm A") : "-"}</td>
                                             <td className="tbl-action">
                                                 <div className="tbl-action-group">
-                                                    {/* <OverlayTrigger
+                                                    <OverlayTrigger
                                                         trigger={["hover", "hover"]}
                                                         placement="bottom"
-                                                        overlay={<Tooltip>Complete Event</Tooltip>}
+                                                        overlay={<Tooltip>Pending Event</Tooltip>}
                                                     >
                                                         <button
-                                                            className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
+                                                            className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleEventPending([item.id], item.status) }}
                                                         >
                                                             {" "}
-                                                            <i className="material-symbols-outlined">check_circle</i>
+                                                            <i className="material-symbols-outlined">unpublished</i>
                                                         </button>
-                                                    </OverlayTrigger> */}
+                                                    </OverlayTrigger>
                                                     <OverlayTrigger
                                                         trigger={["hover", "hover"]}
                                                         placement="bottom"
@@ -162,10 +184,10 @@ const CompletEvents = (props) => {
 
                     </>
                 }
-            </div>
+            </div >
 
             {/* Delete Modal */}
-            <Modal
+            < Modal
                 className="modal-theme modal-confirmation modal-reject"
                 show={deleteShow}
                 onHide={handleDeleteClose}
@@ -219,8 +241,34 @@ const CompletEvents = (props) => {
                         </Button>
                     </div>
                 </Modal.Body>
-            </Modal>
+            </Modal >
             {/* Delete Modal */}
+
+
+            {/* Success Modal */}
+            <Modal className='modal-theme modal-confirmation modal-approve' show={SuccessShow} onHide={handleSuccessClose} centered>
+                <Modal.Header>
+                    <h4 className="modal-title">Event Pending!</h4>
+                    <button type="button" className="btn-close" onClick={handleSuccessClose}>
+                        <i className="material-symbols-outlined">close</i>
+                    </button>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="modal-confirmation-container">
+                        <div className="modal-confirmation-icon">
+                            <i className="material-symbols-outlined">schedule</i>
+                        </div>
+                        <div className="modal-confirmation-content">
+                            <h5>The event is now marked as pending!</h5>
+                            <p>You can resume this event whenever you are ready.</p>
+                        </div>
+                    </div>
+                    <div className="modal-button-group modal-full-width-btn modal-footer-button">
+                        <Button variant="warning" className="btn-icon-text btn-md" onClick={handleSuccessClose}>Ok</Button>
+                    </div>
+                </Modal.Body>
+            </Modal>
+            {/* Success Modal */}
 
         </>
     )
