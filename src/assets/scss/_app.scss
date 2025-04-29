@@ -32,9 +32,11 @@
                     position: absolute;
                     left: 30px;
                     top: 30px;
-                    @media (max-width:1366px){
+
+                    @media (max-width:1366px) {
                         height: 50px;
                     }
+
                     img {
                         width: auto;
                         height: 100%;
@@ -45,24 +47,27 @@
                     max-width: 500px;
                     width: 100%;
                     height: auto;
-                    @media (max-width:1366px){
+
+                    @media (max-width:1366px) {
                         height: 100%;
                         max-height: 310px;
                         text-align: center;
                     }
+
                     img {
                         width: auto;
                         height: 100%;
                     }
-                }                
-                
-                .terms-condition-wrapper{
+                }
+
+                .terms-condition-wrapper {
                     position: absolute;
                     bottom: 30px;
                     text-align: center;
                     width: 100%;
                     left: 0;
-                    p{
+
+                    p {
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -110,9 +115,11 @@
                 justify-content: center;
                 position: relative;
                 overflow-X: auto;
-                @media (max-width:1366px){
+
+                @media (max-width:1366px) {
                     width: calc(100% - 170px);
                 }
+
                 .golf-men {
                     position: absolute;
                     right: 36px;
@@ -125,16 +132,19 @@
                         height: auto;
                     }
                 }
-                @media (max-width:1366px){
+
+                @media (max-width:1366px) {
                     padding: 20px;
                     overflow: auto;
                 }
-                .admin-auth-card-title{
-                    @media (max-width:1366px){
+
+                .admin-auth-card-title {
+                    @media (max-width:1366px) {
                         margin-bottom: 25px;
                     }
-                    .box-icon{
-                        @media (max-width:1366px){
+
+                    .box-icon {
+                        @media (max-width:1366px) {
                             margin-bottom: 15px;
                         }
                     }
@@ -144,49 +154,57 @@
     }
 }
 
-.admin-registration-wrapper{
-    .admin-auth-inner-wrapper{
-        .admin-auth-row{
-            .admin-auth-left{
+.admin-registration-wrapper {
+    .admin-auth-inner-wrapper {
+        .admin-auth-row {
+            .admin-auth-left {
                 align-items: start;
                 justify-content: start;
                 padding: 180px 30px 10px;
-                @media (max-width:1366px){
+
+                @media (max-width:1366px) {
                     padding: 115px 15px 10px;
                 }
-                .auth-text{
+
+                .auth-text {
                     max-width: 530px;
                     width: 100%;
                     margin-left: 70px;
                     height: auto;
-                    .side-main-title{
-                        h2{
+
+                    .side-main-title {
+                        h2 {
                             font-size: 28px;
-                            line-height: 36.4px;                            
+                            line-height: 36.4px;
                             text-align: left;
                             color: $text_black_color;
                             margin-bottom: 39px;
+
                             @media (max-width:1366px) {
                                 font-size: 23px;
                                 line-height: 31.4px;
                                 margin-bottom: 10px;
                             }
-                        }                        
+                        }
                     }
-                    .side-detail-wrapper{
-                        ul{
+
+                    .side-detail-wrapper {
+                        ul {
                             list-style: none;
                             display: flex;
                             gap: 15px 0;
                             flex-direction: column;
+
                             @media (max-width:1366px) {
-                                gap: 8px 0;              
+                                gap: 8px 0;
                             }
-                            li{
+
+                            li {
                                 padding: 14px;
                                 padding-left: 50px;
                                 position: relative;
-                                &::before{
+
+                                &::before {
                                     content: "\f075";
                                     font-family: "techhive" !important;
                                     font-style: normal;
@@ -196,31 +214,37 @@
                                     left: 6px;
                                     top: 8px;
                                     font-size: 23px;
-                                    @media (max-width:1366px){
+
+                                    @media (max-width:1366px) {
                                         top: 6px;
                                         font-size: 18px;
                                     }
                                 }
+
                                 @media (max-width:1366px) {
                                     padding: 10px 14px;
-                                    padding-left: 35px;                                
+                                    padding-left: 35px;
                                 }
-                                h5{
+
+                                h5 {
                                     font-size: 16px;
                                     line-height: 20.8px;
                                     color: $text_black_color;
                                     margin-bottom: 12px;
+
                                     @media (max-width:1366px) {
                                         font-size: 15px;
                                         line-height: 18.8px;
-                                        margin-bottom: 6px;                                    
+                                        margin-bottom: 6px;
                                     }
-                                }                                
-                                p{
+                                }
+
+                                p {
                                     font-weight: 400;
                                     font-size: 14px;
-                                    line-height: 23.8px;                                      
+                                    line-height: 23.8px;
                                     color: $text_color;
+
                                     @media (max-width:1366px) {
                                         font-size: 13px;
                                         line-height: 19.8px;
@@ -230,7 +254,8 @@
                         }
                     }
                 }
-                img.signup_bg-img{
+
+                img.signup_bg-img {
                     position: absolute;
                     left: 0;
                     bottom: 0;
@@ -238,7 +263,8 @@
                     max-width: 251px;
                     z-index: 0;
                 }
-                .terms-condition-wrapper{
+
+                .terms-condition-wrapper {
                     position: absolute;
                     bottom: 30px;
                     text-align: center;
@@ -277,7 +303,8 @@
             text-align: left;
             color: $text_black_color;
             margin-bottom: 14px;
-            @media (max-width:1366px){
+
+            @media (max-width:1366px) {
                 font-size: 23px;
                 line-height: 30.4px;
             }
@@ -289,6 +316,7 @@
             line-height: normal;
             color: $text_black_color;
             margin-bottom: 0px;
+
             span {
                 color: $secondary_color;
             }
@@ -300,6 +328,7 @@
 
         .card-body {
             padding: 0px;
+
             .auth-top-text-link {
                 margin: 24px 0;
                 display: block;
@@ -307,23 +336,28 @@
                 text-align: end;
                 width: 100%;
             }
-            .otp-resend-text{
-                p{
+
+            .otp-resend-text {
+                p {
                     display: flex;
                     justify-content: center;
                     align-items: center;
                     gap: 8px;
                     margin: 40px 0;
-                    a,button{
+
+                    a,
+                    button {
                         font-weight: 500;
                         font-size: 16px;
-                        color:$primary_color;
+                        color: $primary_color;
                     }
                 }
             }
-            .auth-bottom-text-link{
+
+            .auth-bottom-text-link {
                 margin-top: 40px;
-                p{
+
+                p {
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -333,13 +367,26 @@
                     font-weight: 400;
                     font-size: 16px;
                     line-height: normal;
-                    a,button{
+
+                    a,
+                    button {
                         font-weight: 500;
                         font-size: 16px;
-                        color:$primary_color;
+                        color: $primary_color;
                     }
                 }
             }
+        }
+    }
+}
+
+.shb-color-picker {
+    &.color-picker-with-box {
+        padding: 0 !important;
+
+        .shb-color-input {
+            padding: 5px calc(100% - 40px) 5px 12px;
+            width: 100%;
         }
     }
 }

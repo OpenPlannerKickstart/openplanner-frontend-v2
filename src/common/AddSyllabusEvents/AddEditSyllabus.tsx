@@ -50,7 +50,7 @@ export const AddEditSyllabus = (props) => {
     const syllabusDocRef: any = useRef(null);
     const initSyllabusData: addSyllabusData = {
         class_time: "",
-        course_color: "",
+        course_color: "#239BC2",
         title: "",
         professor_name: "",
         syllabus_doc: null,
@@ -340,11 +340,52 @@ export const AddEditSyllabus = (props) => {
                                                 </Row>
                                                 <Form.Group className='form-group form-group-sm'>
                                                     <Form.Label>Course Color</Form.Label>
-                                                    <div className="form-color-picker color-picker-with-box">
+
+                                                    {/* <Form.Control
+                                                        className=""
+                                                        type="color"
+                                                        title="Couse Color"
+                                                        {...syllabusFormData.getFieldProps(
+                                                            "course_color"
+                                                        )}
+
+                                                        onChange={(e) => {
+                                                            syllabusFormData.setFieldValue("course_color", e.target.value);
+                                                        }}
+                                                    /> */}
+
+
+                                                    <div className="form-color-picker color-picker-with-box shb-color-picker">
+
+
+                                                        <Form.Control
+                                                            className="shb-color-input"
+                                                            type="color"
+                                                            title="Couse Color"
+                                                            {...syllabusFormData.getFieldProps(
+                                                                "course_color"
+                                                            )}
+
+                                                            onChange={(e) => {
+                                                                syllabusFormData.setFieldValue("course_color", e.target.value);
+                                                            }}
+                                                        />
+                                                        {!isNullUndefinedOrBlank(
+                                                            syllabusFormData?.values?.course_color
+                                                        ) && (
+                                                                <p className="color-picker-code">
+                                                                    {syllabusFormData?.values?.course_color}
+                                                                </p>
+                                                            )}
+                                                    </div>
+
+                                                    {/* BACKUP */}
+                                                    {/* <div className="form-color-picker color-picker-with-box">
                                                         <i
                                                             className="th-bold-mouse-square"
                                                             style={{ color: syllabusFormData?.values?.course_color }}
                                                         ></i>
+
                                                         <InputColor
                                                             initialValue={
                                                                 syllabusFormData?.values?.course_color || "#239BC2"
@@ -360,7 +401,7 @@ export const AddEditSyllabus = (props) => {
                                                                     {syllabusFormData?.values?.course_color}
                                                                 </p>
                                                             )}
-                                                    </div>
+                                                    </div> */}
                                                 </Form.Group>
                                             </div>
                                         </div>

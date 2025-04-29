@@ -65,7 +65,7 @@ const SyllabusDetails = (props) => {
   const syllabusDocRef: any = useRef(null);
   const initSyllabusData: addSyllabusData = {
     class_time: "",
-    course_color: "",
+    course_color: "#239BC2",
     title: "",
     professor_name: "",
     syllabus_doc: null,
@@ -379,7 +379,30 @@ const SyllabusDetails = (props) => {
           </Form.Group>
           <Form.Group className="form-group">
             <Form.Label>Course Color</Form.Label>
-            <div className="form-color-picker color-picker-with-box">
+            <div className="form-color-picker color-picker-with-box shb-color-picker">
+
+
+              <Form.Control
+                className="shb-color-input"
+                type="color"
+                title="Couse Color"
+                {...syllabusFormData.getFieldProps(
+                  "course_color"
+                )}
+
+                onChange={(e) => {
+                  syllabusFormData.setFieldValue("course_color", e.target.value);
+                }}
+              />
+              {!isNullUndefinedOrBlank(
+                syllabusFormData?.values?.course_color
+              ) && (
+                  <p className="color-picker-code">
+                    {syllabusFormData?.values?.course_color}
+                  </p>
+                )}
+            </div>
+            {/* <div className="form-color-picker color-picker-with-box">
               <i
                 className="th-bold-mouse-square"
                 style={{ color: syllabusFormData?.values?.course_color }}
@@ -399,7 +422,7 @@ const SyllabusDetails = (props) => {
                     {syllabusFormData?.values?.course_color}
                   </p>
                 )}
-            </div>
+            </div> */}
           </Form.Group>
         </div>
       </div>
