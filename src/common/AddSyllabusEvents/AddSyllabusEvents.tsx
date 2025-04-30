@@ -597,11 +597,11 @@ const AddSyllabusEvents = (props) => {
                           </Row>
                           <Form.Group className='form-group'>
                             <Form.Label>Course Color</Form.Label>
-                            <div className="form-color-picker color-picker-with-box shb-color-picker">
+                            <div className="form-color-picker color-picker-with-box ">
 
 
                               <Form.Control
-                                className="shb-color-input"
+                                className="course-color-input"
                                 type="color"
                                 title="Couse Color"
                                 {...syllabusFormData.getFieldProps(
