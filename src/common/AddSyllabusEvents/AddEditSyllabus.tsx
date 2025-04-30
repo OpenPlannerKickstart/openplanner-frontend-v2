@@ -101,7 +101,7 @@ export const AddEditSyllabus = (props) => {
         const formData = new FormData();
         const reqBody = {
             title: syllabusFormData.values.title,
-            class_time: formatedDate(syllabusFormData.values.class_time, "hh:mm:ss"),
+            class_time: formatedDate(syllabusFormData.values.class_time, "HH:mm:ss"),
             course_color: syllabusFormData.values.course_color,
             professor_name: syllabusFormData.values.professor_name,
         }
@@ -299,12 +299,12 @@ export const AddEditSyllabus = (props) => {
                                                                 <DatePicker
                                                                     placeholderText="Select Class Time"
                                                                     selected={syllabusFormData.values.class_time}
-                                                                    onChange={(date) => syllabusFormData.setFieldValue("class_time", date)}
+                                                                    onChange={(date) => { console.log("first", date); syllabusFormData.setFieldValue("class_time", date) }}
                                                                     showTimeSelect
                                                                     showTimeSelectOnly
                                                                     timeIntervals={15}
                                                                     timeCaption="Time"
-                                                                    dateFormat="h:mm aa"
+                                                                    dateFormat="hh:mm aa"
                                                                     className="form-control"
                                                                     onBlur={() => {
                                                                         syllabusFormData.setFieldTouched("class_time", true)
@@ -338,23 +338,8 @@ export const AddEditSyllabus = (props) => {
                                                         </Form.Group>
                                                     </Col>
                                                 </Row>
-                                                <Form.Group className='form-group form-group-sm'>
+                                                <Form.Group className='form-group'>
                                                     <Form.Label>Course Color</Form.Label>
-
-                                                    {/* <Form.Control
-                                                        className=""
-                                                        type="color"
-                                                        title="Couse Color"
-                                                        {...syllabusFormData.getFieldProps(
-                                                            "course_color"
-                                                        )}
-
-                                                        onChange={(e) => {
-                                                            syllabusFormData.setFieldValue("course_color", e.target.value);
-                                                        }}
-                                                    /> */}
-
-
                                                     <div className="form-color-picker color-picker-with-box ">
 
 
@@ -378,30 +363,27 @@ export const AddEditSyllabus = (props) => {
                                                                 </p>
                                                             )}
                                                     </div>
-
-                                                    {/* BACKUP */}
                                                     {/* <div className="form-color-picker color-picker-with-box">
-                                                        <i
-                                                            className="th-bold-mouse-square"
-                                                            style={{ color: syllabusFormData?.values?.course_color }}
-                                                        ></i>
-
-                                                        <InputColor
-                                                            initialValue={
-                                                                syllabusFormData?.values?.course_color || "#239BC2"
-                                                            }
-                                                            onChange={(color) => {
-                                                                syllabusFormData.setFieldValue("course_color", color.hex);
-                                                            }}
-                                                        />
-                                                        {!isNullUndefinedOrBlank(
-                                                            syllabusFormData?.values?.course_color
-                                                        ) && (
-                                                                <p className="color-picker-code">
-                                                                    {syllabusFormData?.values?.course_color}
-                                                                </p>
-                                                            )}
-                                                    </div> */}
+                                                                             <i
+                                                                               className="th-bold-mouse-square"
+                                                                               style={{ color: syllabusFormData?.values?.course_color }}
+                                                                             ></i>
+                                                                             <InputColor
+                                                                               initialValue={
+                                                                                 syllabusFormData?.values?.course_color || "#239BC2"
+                                                                               }
+                                                                               onChange={(color) => {
+                                                                                 syllabusFormData.setFieldValue("course_color", color.hex);
+                                                                               }}
+                                                                             />
+                                                                             {!isNullUndefinedOrBlank(
+                                                                               syllabusFormData?.values?.course_color
+                                                                             ) && (
+                                                                                 <p className="color-picker-code">
+                                                                                   {syllabusFormData?.values?.course_color}
+                                                                                 </p>
+                                                                               )}
+                                                                           </div> */}
                                                 </Form.Group>
                                             </div>
                                         </div>

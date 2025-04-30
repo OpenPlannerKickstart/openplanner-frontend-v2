@@ -118,7 +118,7 @@ const SyllabusDetails = (props) => {
     const formData = new FormData();
     const reqBody = {
       title: syllabusFormData.values.title,
-      class_time: formatedDate(syllabusFormData.values.class_time, "hh:mm:ss"),
+      class_time: formatedDate(syllabusFormData.values.class_time, "HH:mm:ss"),
       course_color: syllabusFormData.values.course_color,
       professor_name: syllabusFormData.values.professor_name,
       doc_id: props?.selectedSyllabusObj?.doc_id,
@@ -342,9 +342,7 @@ const SyllabusDetails = (props) => {
               <DatePicker
                 placeholderText="Select Class Time"
                 selected={syllabusFormData.values.class_time}
-                onChange={(date) =>
-                  syllabusFormData.setFieldValue("class_time", date)
-                }
+                onChange={(date) => { syllabusFormData.setFieldValue("class_time", date) }}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={15}
@@ -391,6 +389,7 @@ const SyllabusDetails = (props) => {
                 )}
 
                 onChange={(e) => {
+                  console.log(e)
                   syllabusFormData.setFieldValue("course_color", e.target.value);
                 }}
               />
@@ -412,6 +411,7 @@ const SyllabusDetails = (props) => {
                   syllabusFormData?.values?.course_color || "#239BC2"
                 }
                 onChange={(color) => {
+                  console.log(color)
                   syllabusFormData.setFieldValue("course_color", color.hex);
                 }}
               />

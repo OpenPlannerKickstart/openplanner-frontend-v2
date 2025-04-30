@@ -120,7 +120,7 @@ const AddSyllabusEvents = (props) => {
     const formData = new FormData();
     const reqBody = {
       title: syllabusFormData.values.title,
-      class_time: formatedDate(syllabusFormData.values.class_time, "hh:mm:ss"),
+      class_time: formatedDate(syllabusFormData.values.class_time, "HH:mm:ss"),
       course_color: syllabusFormData.values.course_color,
       professor_name: syllabusFormData.values.professor_name,
     }
