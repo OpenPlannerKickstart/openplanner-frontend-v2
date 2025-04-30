@@ -254,31 +254,31 @@ const Dashboard = () => {
   }
 
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleSyllabusChartData();
-      handleTaskChartData();
-      handleEventChartData();
+  // useEffect(() => {
+  //   const delayDebounceFn = setTimeout(() => {
+  //     handleSyllabusChartData();
+  //     handleTaskChartData();
+  //     handleEventChartData();
 
-    }, 300);
-    return () => {
-      clearTimeout(delayDebounceFn);
-    }
+  //   }, 300);
+  //   return () => {
+  //     clearTimeout(delayDebounceFn);
+  //   }
 
-  }, [])
+  // }, [])
 
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (syllabusChartFilter) handleSyllabusChartData();
-      if (taskChartFilter) handleTaskChartData();
-      if (eventChartFilter) handleEventChartData();
-    }, 300);
-    return () => {
-      clearTimeout(delayDebounceFn);
-    }
+  // useEffect(() => {
+  //   const delayDebounceFn = setTimeout(() => {
+  //     if (syllabusChartFilter) handleSyllabusChartData();
+  //     if (taskChartFilter) handleTaskChartData();
+  //     if (eventChartFilter) handleEventChartData();
+  //   }, 300);
+  //   return () => {
+  //     clearTimeout(delayDebounceFn);
+  //   }
 
-  }, [eventChartFilter, taskChartFilter, syllabusChartFilter]);
+  // }, [eventChartFilter, taskChartFilter, syllabusChartFilter]);
 
   /** ---------------------chart data api end-----------------------*/
 
@@ -295,14 +295,14 @@ const Dashboard = () => {
     <>
       <div className="page-content dashboard-main">
         <div className="content-area">
-          <div className="page-title-wrapper">
+          {/* <div className="page-title-wrapper">
             <div className="page-title-left">
               <div className="page-title">
                 <h4>Dashboard</h4>
                 <p>View your upcoming events and progress for the week!</p>
               </div>
             </div>
-            {/* <div className="page-title-right">
+            <div className="page-title-right">
               <Form.Group className="form-group form-group-sm mb-0">
                 <div className="react-datepicker-container form-group-icon-start">
                   <i className="material-symbols-outlined control-icon">date_range</i>
@@ -316,12 +316,12 @@ const Dashboard = () => {
                   />
                 </div>
               </Form.Group>
-            </div> */}
-          </div>
+            </div>
+          </div> */}
           <div className="page-content-wrapper h-100">
             <div className="dashboard-main-wrapper">
               {/* chart box section */}
-              <div className="chart-main-box">
+              {/* <div className="chart-main-box">
                 <Row>
                   <Col md={4}>
                     <Card className="event-main-card">
@@ -332,12 +332,7 @@ const Dashboard = () => {
                           </div>
                           <div className="title-dropdown">
                             <Form.Group className="form-group form-group-sm" controlId="exampleForm.ControlInput1">
-                              {/* <Form.Select aria-label="Default select example">
-                                <option>This Week</option>
-                                <option value="1">This Week</option>
-                                <option value="2">Last Week</option>
-                                <option value="3">Last Day</option>
-                              </Form.Select> */}
+                              
                               <Select
                                 options={chartDropDownData}
                                 placeholder={<div>Select</div>}
@@ -360,7 +355,7 @@ const Dashboard = () => {
                           {!isEmptyObjectOrNullUndefiend(eventChartData) ?
                             <>
                               <div className="chart-box">
-                                {/* <img src={eventChart1} alt="OpenPlaner" /> */}
+                              
 
                                 <Chart
                                   chartType="PieChart"
@@ -388,11 +383,9 @@ const Dashboard = () => {
                             :
                             <>
                               <div className="no-records-found no-records-found-inner h-100">
-                                {/* <div className="no-records-found-image">
-                                  <img src={notVoucherFound} alt="OpenPlaner" />
-                                </div> */}
+                              
                                 <div className="no-records-found-text ">
-                                  {/* <img src={notVoucherFound} alt="OpenPlaner" /> */}
+                              
                                   <h6>No data found!</h6>
                                 </div>
                               </div>
@@ -412,12 +405,7 @@ const Dashboard = () => {
                           </div>
                           <div className="title-dropdown">
                             <Form.Group className="form-group form-group-sm" controlId="exampleForm.ControlInput1">
-                              {/* <Form.Select aria-label="Default select example">
-                                <option>This Week</option>
-                                <option value="1">This Week</option>
-                                <option value="2">Last Week</option>
-                                <option value="3">Last Day</option>
-                              </Form.Select> */}
+                            
 
                               <Select
                                 options={chartDropDownData}
@@ -443,7 +431,7 @@ const Dashboard = () => {
                             <>
 
                               <div className="chart-box">
-                                {/* <img src={eventChart2} alt="OpenPlaner" /> */}
+                              
                                 <Chart
                                   chartType="PieChart"
                                   height="140px"
@@ -469,9 +457,7 @@ const Dashboard = () => {
                             </> :
                             <>
                               <div className="no-records-found no-records-found-inner h-100">
-                                {/* <div className="no-records-found-image">
-                                  <img src={notVoucherFound} alt="OpenPlaner" />
-                                </div> */}
+                              
                                 <div className="no-records-found-text">
                                   <h6>No data found!</h6>
                                 </div>
@@ -493,13 +479,7 @@ const Dashboard = () => {
                           </div>
                           <div className="title-dropdown">
                             <Form.Group className="form-group form-group-sm" controlId="exampleForm.ControlInput1">
-                              {/* <Form.Select aria-label="Default select example">
-                                <option>This Week</option>
-                                <option value="1">This Week</option>
-                                <option value="2">Last Week</option>
-                                <option value="3">Last Day</option>
-                              </Form.Select> */}
-
+                             
 
                               <Select
                                 options={chartDropDownData}
@@ -525,7 +505,7 @@ const Dashboard = () => {
                             <>
 
                               <div className="chart-box">
-                                {/* <img src={eventChart3} alt="OpenPlaner" /> */}
+                          
                                 <Chart
                                   chartType="PieChart"
                                   height="140px"
@@ -552,9 +532,7 @@ const Dashboard = () => {
                             </> :
                             <>
                               <div className="no-records-found no-records-found-inner h-100">
-                                {/* <div className="no-records-found-image">
-                                  <img src={notVoucherFound} alt="OpenPlaner" />
-                                </div> */}
+                             
                                 <div className="no-records-found-text">
                                   <h6>No data found!</h6>
                                 </div>
@@ -567,7 +545,7 @@ const Dashboard = () => {
                     </Card>
                   </Col>
                 </Row>
-              </div>
+              </div> */}
               {/* data-table section */}
               <div className="weekly-data-container">
                 <div className="main-title">

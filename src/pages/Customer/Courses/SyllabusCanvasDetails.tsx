@@ -134,7 +134,7 @@ const SyllabusCanvasDetails = (props) => {
                         </button>
                     </Offcanvas.Header>
                     <Offcanvas.Body>
-                        <div className="edit-course-wrapper">
+                        <div className={`edit-course-wrapper ${!isShowPdf ? "abc" : ""}`}>
                             <div className="course-edit-container">
                                 <div className="syllabus-tab-wrapper">
                                     <div className="course-detail-box">
@@ -169,6 +169,7 @@ const SyllabusCanvasDetails = (props) => {
 
 
                                                     <Button variant="primary" size="sm" className="ms-auto" onClick={() => { handleAddEventShow() }}>Add New Event</Button>
+                                                    <a className="hide-btn" onClick={() => { setIsShowPdf(!isShowPdf) }}>{isShowPdf ? "Hide Preview" : "View Preview"}</a>
                                                 </div>
                                             </nav>
                                             <div className="tab-content" id="nav-tabContent">
