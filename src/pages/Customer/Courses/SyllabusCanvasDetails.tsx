@@ -134,7 +134,7 @@ const SyllabusCanvasDetails = (props) => {
                         </button>
                     </Offcanvas.Header>
                     <Offcanvas.Body>
-                        <div className={`edit-course-wrapper ${!isShowPdf ? "abc" : ""}`}>
+                        <div className={`edit-course-wrapper ${!isShowPdf ? "hide-syllabus-preview" : ""}`}>
                             <div className="course-edit-container">
                                 <div className="syllabus-tab-wrapper">
                                     <div className="course-detail-box">
@@ -224,7 +224,7 @@ const SyllabusCanvasDetails = (props) => {
                                         </div>
                                         {/* pdf viewer */}
                                         {!isNullUndefinedOrBlank(pdfPreviewLink) &&
-                                            isShowPdf ?
+                                            isShowPdf &&
                                             <div className={`syllabus-view-box ${isShowPdf ? " d-block" : "d-none"}`}>
 
                                                 <div
@@ -243,17 +243,7 @@ const SyllabusCanvasDetails = (props) => {
 
                                             </div>
 
-                                            : <><div className="no-preview-box">
-                                                <div className="no-records-found no-records-found-inner h-100">
-                                                    <div className="no-records-found-image">
-                                                        <img src={notVoucherFound} alt="OpenPlaner" />
-                                                    </div>
-                                                    <div className="no-records-found-text">
-                                                        <h6>No preview available!</h6>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            </>
+                                           
 
 
 

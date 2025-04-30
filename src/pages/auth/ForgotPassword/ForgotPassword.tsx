@@ -120,10 +120,10 @@ const ForgotPassword = (props) => {
                     <Card className="admin-auth-card">
                       <Card.Body>
                         <Form.Group className="form-group required">
-                          <Form.Label>Enter UserName</Form.Label>
+                          <Form.Label>Enter User Name</Form.Label>
                           <div className="form-group-icon-start">
                             <i className="material-symbols-outlined">mail</i>
-                            <Form.Control type="email" placeholder="Enter UserName"
+                            <Form.Control type="email" placeholder="Enter User Name"
                               {...emailFormData.getFieldProps("username")}
                               onKeyDown={(event) => { handleKeyPress(event) }}
                               onBlur={() => {

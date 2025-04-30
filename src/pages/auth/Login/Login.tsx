@@ -173,10 +173,10 @@ const Login = (props) => {
                                             <Card.Body>
 
                                                 <Form.Group className="form-group required" >
-                                                    <Form.Label>UserName/Email </Form.Label>
+                                                    <Form.Label>User Name/Email </Form.Label>
                                                     <div className="form-group-icon-start">
                                                         <i className='material-symbols-outlined'>person</i>
-                                                        <Form.Control type="text" placeholder="Enter Your UserName"
+                                                        <Form.Control type="text" placeholder="Enter Your User Name"
                                                             {...loginFormData.getFieldProps("identifier")}
                                                             maxLength={MAX_50}
                                                             onKeyDown={(event) => { handleKeyPress(event) }}

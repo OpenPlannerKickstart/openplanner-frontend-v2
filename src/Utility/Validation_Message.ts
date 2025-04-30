@@ -1,7 +1,7 @@
 export const EMAIL_INVALID = 'Please Enter a valid Email.';
 export const EMAIL_REQUIRED = 'Email is Required!!';
-export const USERNAME_EMAIL_IS_REQUIRED = 'UserName/Email is Required!!';
-export const USERNAME_EMAIL_VALIDATION = 'Enter a Valid UserName/Email. ';
+export const USERNAME_EMAIL_IS_REQUIRED = 'User Name/Email is Required!!';
+export const USERNAME_EMAIL_VALIDATION = 'Enter a Valid User Name/Email. ';
 export const PASSWORD_REQUIRED = 'Password is Required!!';
 export const FIRST_NAME_REQUIRED = 'First Name is Required!!';
 export const LAST_NAME_REQUIRED = 'Last Name is Required!!';

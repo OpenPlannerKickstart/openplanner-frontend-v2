@@ -1050,6 +1050,30 @@ $sm_sidebar_home_link_width: 270px;
                 .syllabus-pdf-container {
                     width: 100%;
                     max-width: 50%;
+                    transition: all .3s ease;
+                }
+                .syllabus-tab-wrapper{
+                    .hide-btn{
+                        font-size: 14px;
+                        line-height: normal;
+                        letter-spacing: 0.2px;
+                        text-decoration: underline;
+                        color: #239BC2;
+                        cursor: pointer;
+                        margin-left: 10px;
+                        display: none;
+                    }
+                }
+            }
+            &.hide-syllabus-preview{
+                .syllabus-tab-wrapper{
+                    max-width: 100%; 
+                    .hide-btn{
+                        display: block;
+                    }                   
+                }
+                .syllabus-pdf-container {
+                   display: none;
                 }
             }
         }
