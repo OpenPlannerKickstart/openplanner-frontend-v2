@@ -392,7 +392,7 @@ export const AddEditSyllabus = (props) => {
                                     {/* Add Event Body detail */}
                                     <div className="bottom-button-group">
                                         <Button type="button" className="btn btn-light-white me-auto"
-
+                                            onClick={() => { handleCloseAddSyllabusEvents() }}
                                         >
                                             Cancel
                                         </Button>
