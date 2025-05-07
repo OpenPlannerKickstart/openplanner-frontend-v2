@@ -537,7 +537,7 @@ const Task = (props) => {
                             dropdownMode="select"
                             isClearable={true}
                             dateFormat="MM/dd/yyyy h:mm aa"
-                            // showTimeSelect
+                            showTimeSelect
                             // timeFormat="hh:mm aa"
                             className="form-control"
                             popperProps={{ strategy: "fixed" }}

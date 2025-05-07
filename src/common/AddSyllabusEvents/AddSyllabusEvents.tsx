@@ -190,7 +190,15 @@ const AddSyllabusEvents = (props) => {
   const validationSchemaForEvent = yup.object({
     title: yup.string().required(TITLE_IS_REQUIRED),
     start_date: yup.string().required(START_DATE_IS_REQUIRED),
-    end_date: yup.string().required(END_DATE_IS_REQUIRED),
+    // end_date: yup.string().required(END_DATE_IS_REQUIRED),
+    end_date: yup
+      .string()
+      .required(END_DATE_IS_REQUIRED)
+      .test("is-greater", "End date must be greater than start date", function (value) {
+        const { start_date } = this.parent; // Access other fields in the schema
+        if (!value || !start_date) return true; // Skip validation if either is missing
+        return new Date(value) > new Date(start_date); // Check if end_date > start_date
+      }),
     syllabus_id: yup.string().required(SELECTION_IS_REQUIRED),
     is_reminder: yup.boolean(),
     reminder: yup.array()
@@ -676,6 +684,7 @@ const AddSyllabusEvents = (props) => {
                                     onBlur={() => {
                                       eventFormData.setFieldTouched("start_date", true)
                                     }}
+                                    minDate={new Date()}
 
                                   />
                                   {eventFormData.touched.start_date &&
@@ -701,6 +710,7 @@ const AddSyllabusEvents = (props) => {
                                     popperProps={{ strategy: "fixed" }}
                                     placeholderText="Select Date"
                                     minDate={eventFormData.values.start_date}
+
                                     onBlur={() => {
                                       eventFormData.setFieldTouched("end_date", true)
                                     }}

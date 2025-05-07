@@ -182,6 +182,7 @@ const Courses = (props) => {
       clearTimeout(delayDebounceFn);
     }
   }, [coursesData.isUpdatedEventData])
+  const [isAddNewData, setIsAddNewData] = useState(false);
   return (
     <>
       <div className="page-content">
@@ -472,7 +473,7 @@ const Courses = (props) => {
             {/***** Offcanvas end *****/}
 
             <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent}
-
+              setIsAddNewData={setIsAddNewData} isAddNewData={isAddNewData}
             />
 
 
