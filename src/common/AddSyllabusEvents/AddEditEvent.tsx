@@ -341,7 +341,7 @@ export const AddEditEvent = (props) => {
 
                                                                     selected={eventFormData.values.end_date}
                                                                     onChange={(date) => {
-                                                                        console.log(date, "end_date");
+
                                                                         eventFormData.setFieldValue("end_date", date);
                                                                     }}
                                                                     showTimeSelect
