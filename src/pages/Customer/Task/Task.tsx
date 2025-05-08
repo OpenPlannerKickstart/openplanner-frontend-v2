@@ -186,7 +186,7 @@ const Task = (props) => {
     if (!isNullUndefinedOrBlank(reqBody.due_date)) {
       reqBody = {
         ...reqBody,
-        due_date: getDate(reqBody.due_date, "yyyy-MM-DD")
+        due_date: getDate(reqBody.due_date)
       }
     }
     customJsonInclude(reqBody);
