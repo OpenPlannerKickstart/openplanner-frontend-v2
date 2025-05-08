@@ -337,8 +337,13 @@ export const AddEditEvent = (props) => {
                                                                 <i className="material-symbols-outlined control-icon">calendar_month</i>
                                                                 <DatePicker
                                                                     isClearable={true}
+
+
                                                                     selected={eventFormData.values.end_date}
-                                                                    onChange={(date) => { eventFormData.setFieldValue("end_date", date); }}
+                                                                    onChange={(date) => {
+                                                                        console.log(date, "end_date");
+                                                                        eventFormData.setFieldValue("end_date", date);
+                                                                    }}
                                                                     showTimeSelect
                                                                     dateFormat="MM/dd/yyyy hh:mm aa"
                                                                     timeIntervals={15}

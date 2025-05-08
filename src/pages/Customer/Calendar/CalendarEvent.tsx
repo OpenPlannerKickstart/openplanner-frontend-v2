@@ -134,8 +134,8 @@ const CalenderEvent = () => {
   const handleSelectEvent = (event) => {
     handleShow();
     setEditEventFormData({
-      ...event?.event_data, start_date: new Date(event?.event_data?.start_date),
-      end_date: new Date(event?.event_data?.end_date),
+      ...event?.event_data, start_date: new Date(formatedDate(event?.start, "YYYY-MM-DD HH:mm:ss")),
+      end_date: new Date(formatedDate(event?.end, "YYYY-MM-DD HH:mm:ss")),
 
     })
   };
@@ -166,17 +166,28 @@ const CalenderEvent = () => {
   const [syllabusId, setSyllabusId] = useState<any>([]);
   const [calenderData, setCalenderData] = useState<any>([]);
   function formatDate(dateStr) {
-    const date = moment(dateStr).utc();
+    const date: any = moment(dateStr).utc();
 
-    const year = date.year();
+    // const year = date.year();
     const month = date.month(); // No need to add 1 because `moment` handles it properly when creating a new Date
-    const day = date.date();
+    // const day = date.date();
     const hours = date.hour();
     const minutes = date.minute();
     const seconds = date.second();
 
+
+    const dayName = date.format('ddd'); // Day name (e.g., Mon)
+    const monthName = date.format('MMM'); // Month name (e.g., May)
+    const day = date.format('DD'); // Day of the month (e.g., 13)
+    const year = date.format('YYYY'); // Year (e.g., 2025)
+    const time = date.format('HH:mm:ss'); // Time in HH:MM:SS format
+    const timezoneOffset = "GMT+0000"; // Static for UTC
+    // Construct the desired format  
+    return `${dayName} ${monthName} ${day} ${year} ${time} ${timezoneOffset} (Coordinated Universal Time)`;
+
     // Return a Date object directly
-    return new Date(Date.UTC(year, month, day, hours, minutes, seconds));
+    // console.log(moment.utc(Date.UTC(year, month, day, hours, minutes, seconds)).toDate(), "date");
+    // return moment(Date.UTC(year, month, day, hours, minutes, seconds)).toDate();
   }
 
   const handleGetCalenderData = async () => {
@@ -458,7 +469,7 @@ const CalenderEvent = () => {
                             setCurrentDate(start ? start : currentDate);
                             setSearchByEndDate(end ? end : null);
                           }}
-                         
+
                           open={true}
                           startDate={searchByStartDate}
                           endDate={searchByEndDate}
@@ -466,7 +477,7 @@ const CalenderEvent = () => {
                           dateFormat="MM/dd/yyyy"
                           className="form-control"
                           placeholderText="Select a Date"
-                          inline                                              
+                          inline
                         />
                       </div>
                     </Form.Group>

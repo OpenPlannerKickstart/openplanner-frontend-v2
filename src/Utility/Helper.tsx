@@ -566,15 +566,14 @@ export const getDate = (
  * @returns {string} - The formatted date string or "Invalid Date" if the input date is not valid.
  */
 export const formatedDate = (date, format = " DD-MM-yyyy ") => {
-  const newD = new Date(date);
+  // const newD = new Date(date);
 
   /** Check if the input date is valid using moment.js.
 If valid, format the date according to the specified format.
 If not valid, return "Invalid Date".
  */
-  // console.log(moment(date).isValid()?"hello":"no hello");
-  return moment(newD).isValid()
-    ? moment(new Date(newD)).format(format)
+  return moment(date).isValid()
+    ? moment.utc(date).format(format)
     : "Invalid Date";
 };
 
