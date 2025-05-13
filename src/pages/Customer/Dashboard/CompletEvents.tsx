@@ -209,10 +209,10 @@ const CompletEvents = (props) => {
                             <i className="material-symbols-outlined">delete</i>
                         </div>
                         <div className="modal-confirmation-content">
-                            <h5> {!deleteSuccess ? "Want to Delete?" : "You have successfully deleted Event!"}</h5>
+                            <h5> {!deleteSuccess ? "Are You Sure?" : "You have successfully deleted Event!"}</h5>
                             <p>
                                 {!deleteSuccess ?
-                                    "Are you sure, you want to delete this event ?" :
+                                    "You want to delete this event ?" :
                                     "Get back to task page to add or complete the other event"
                                 }
 

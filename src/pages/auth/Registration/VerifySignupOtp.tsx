@@ -11,13 +11,14 @@ import authBGImage3 from "/assets/images/auth-bg-image3.svg";
 
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
-import { CODE_IS_REQUIRED } from '../../../Utility/Validation_Message';
+import { CODE_IS_REQUIRED, PLEASE_ENTER_OTP } from '../../../Utility/Validation_Message';
 import { sendSignupEmailOtp, verifySignupEmailOtp } from '../../../redux/Service/auth/signup';
 import { AppDispatch } from '../../../redux/store';
 import { renderError } from '../../../Utility/Helper';
 import OTPInput from 'react-otp-input';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
 import { setLoading } from '../../../redux/Loader/LoaderSlice';
+import { te } from '../../../Utility/Toaster';
 const VerifySignupOtp = (props) => {
     const { otpDetailsObj } = props;
     const dispatch: AppDispatch = useDispatch();
@@ -34,6 +35,7 @@ const VerifySignupOtp = (props) => {
     }
 
     const [otpData, setOtpData] = useState("");
+    const [errorMessage, setErrorMessage] = useState("")
     const handleOtpInput = (otp) => {
         setOtpData(otp);
 
@@ -41,6 +43,7 @@ const VerifySignupOtp = (props) => {
     const handleverifyCodeSubmit = async () => {
 
         if (otpData?.length !== 6) {
+            setErrorMessage(PLEASE_ENTER_OTP)
             return;
         }
 
@@ -50,7 +53,9 @@ const VerifySignupOtp = (props) => {
         }
         const verifyResponse = await dispatch(verifySignupEmailOtp(reqBody));
         if (verifyResponse) {
+            setErrorMessage("")
             if (otpDetailsObj?.isFromLogin) {
+
                 dispatch(setLoading(true));
                 setTimeout(() => {
                     props?.handleLoginData();
@@ -172,7 +177,12 @@ const VerifySignupOtp = (props) => {
                                                 />
                                             </div>
                                         </Form.Group>
+                                        <div className='text-center'>
 
+                                            {
+                                                errorMessage ? renderError(errorMessage) : <></>
+                                            }
+                                        </div>
                                         {canResend ? (
 
                                             <p className="text-center mt-4">Did not receive it? <span className="text-primary fw-600" onClick={() => { handleResendOtp(); }}>Resend Code</span></p>

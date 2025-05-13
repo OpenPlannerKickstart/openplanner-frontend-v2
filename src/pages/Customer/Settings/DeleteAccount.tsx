@@ -101,7 +101,6 @@ const DeleteAccount = () => {
                                 <Form.Control as="textarea" placeholder="Enter reason to delete account" rows={3}
                                     {...formData.getFieldProps("reason")}
                                     maxLength={MAX_200}
-
                                     onBlur={() => {
                                         handleBlurValueUpdate("reason");
                                     }} />

@@ -9,12 +9,12 @@ import DatePicker from "react-datepicker";
 import { AppDispatch } from '../../redux/store';
 import { useDispatch } from 'react-redux';
 import { addEvenData, addSyllabusData } from '../../interfaces/interface';
-import { CLASS_TIME_IS_REQUIRED, END_DATE_IS_REQUIRED, FILE_FORMATE_VALIDATION, PROFESSOR_NAME_IS_REQUIRED, SELECTION_IS_REQUIRED, START_DATE_IS_REQUIRED, SYLLABUS_COLOR_IS_REQUIRED, SYLLABUS_DOC_IS_REQUIRED, SYLLABUS_TITLE_IS_REQUIRED, TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
+import { CLASS_TIME_IS_REQUIRED, END_DATE_IS_REQUIRED, FILE_FORMATE_VALIDATION, PLEASE_ADD_VALID_PROFESSOR_NAME, PLEASE_ADD_VALID_TITLE, PROFESSOR_NAME_IS_REQUIRED, SELECTION_IS_REQUIRED, START_DATE_IS_REQUIRED, SYLLABUS_COLOR_IS_REQUIRED, SYLLABUS_DOC_IS_REQUIRED, SYLLABUS_TITLE_IS_REQUIRED, TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
 import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from '../../Utility/Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
 import { addEditEventDataAPI, addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
-import { MAX_3, MAX_300, MAX_50, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
+import { MAX_3, MAX_300, MAX_50, ONLY_ALPHABETS_AND_DOT, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import InputColor from 'react-input-color';
 import { ENUM_FOR_SYLLABUS_TAB } from '../../interfaces/enum';
 import GetImageIcon from '../GetImageIcon';
@@ -79,9 +79,9 @@ const AddSyllabusEvents = (props) => {
   const onSubmitForSyllabus = (values) => {
   }
   const validationSchemaForSyllabus = yup.object({
-    title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
+    title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED).matches(ONLY_ALPHABETS_AND_DOT, PLEASE_ADD_VALID_TITLE),
     class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
-    professor_name: yup.string().required(PROFESSOR_NAME_IS_REQUIRED),
+    professor_name: yup.string().required(PROFESSOR_NAME_IS_REQUIRED).matches(ONLY_ALPHABETS_AND_DOT, PLEASE_ADD_VALID_PROFESSOR_NAME),
     course_color: yup.string().required(SYLLABUS_COLOR_IS_REQUIRED),
     syllabus_doc: yup.mixed()
       .when(([syllabus_doc]) => {
@@ -750,7 +750,7 @@ const AddSyllabusEvents = (props) => {
                             </div>
                           </Form.Group>
                           <Form.Group className="form-group required" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Calender</Form.Label>
+                            <Form.Label>Calendar</Form.Label>
                             <Select
                               options={syllabusDropDownData}
                               placeholder={<div>Select </div>}

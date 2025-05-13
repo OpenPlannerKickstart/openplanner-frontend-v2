@@ -94,7 +94,7 @@ const Navbar = (props) => {
                   </span>
                 </button>
                 <div className="dropdown-menu dropdown-menu-end">
-                  <h6 className="dropdown-header" title={`${(!isNullUndefinedOrBlank(userData?.firstname) && !isNullUndefinedOrBlank(userData?.lastname)) ? `${userData?.firstname} ${userData?.lastname}` : "User"}!`}>Welcome {(!isNullUndefinedOrBlank(userData?.firstname) && !isNullUndefinedOrBlank(userData?.lastname)) ? `${userData?.firstname} ${userData?.lastname}` : "User"}!</h6>
+                  {/* <h6 className="dropdown-header" title={`${(!isNullUndefinedOrBlank(userData?.firstname) && !isNullUndefinedOrBlank(userData?.lastname)) ? `${userData?.firstname} ${userData?.lastname}` : "User"}!`}>Welcome {(!isNullUndefinedOrBlank(userData?.firstname) && !isNullUndefinedOrBlank(userData?.lastname)) ? `${userData?.firstname} ${userData?.lastname}` : "User"}!</h6> */}
                   <a className="dropdown-item" onClick={() => { navigate(ENUMFORROUTES.SETTINGS) }}>
                     <i className="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                     <span className="align-middle" >Profile</span>

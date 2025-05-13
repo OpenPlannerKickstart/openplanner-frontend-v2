@@ -204,7 +204,7 @@ const Courses = (props) => {
               <div className="form-control-wrapper">
                 <div className="form-group-icon-start">
                   <i className="material-symbols-outlined">search</i>
-                  <Form.Control type="text" placeholder="Search"
+                  <Form.Control type="text" placeholder="Search By course name  "
                     onChange={(e) => { setSeacrhValue(e.target.value) }}
                     value={searchValue}
 
@@ -492,8 +492,8 @@ const Courses = (props) => {
                     <i className="material-symbols-outlined">delete</i>
                   </div>
                   <div className="modal-confirmation-content">
-                    <h5>Want to Delete?</h5>
-                    <p>You want to Delete <b>{'Selected Reacord'}</b> ?</p>
+                    <h5>Are You Sure?</h5>
+                    <p>You want to Delete this Syllabus?</p>
                   </div>
                 </div>
                 <div className="modal-button-group modal-full-width-btn modal-footer-button">

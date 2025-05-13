@@ -1,6 +1,6 @@
 /* MAX length Varibles*/
 /**  Maximum length of 30 characters */
-export const MAX_30 = 30; 
+export const MAX_30 = 30;
 /**  Maximum length of 40 characters */
 export const MAX_40 = 40;
 /**  Maximum length of 500 characters*/
@@ -62,30 +62,30 @@ export const CITY_NAME = /^([a-zA-Z][a-zA-Z\s]*)$/;
 /**LANGUAGE_NAME pattern is used for validation */
 export const LANGUAGE_NAME = /^([a-zA-Z][a-zA-Z\s]*)$/;
 /** ONLY_NUMBERS pattern allows only numeric characters */
-export const ONLY_NUMBERS = /^[0-9]*$/; 
+export const ONLY_NUMBERS = /^[0-9]*$/;
 //   export const  ONLY_NUMBERS_AND_DOT = /^[0-9.]{1,15}$/;
 /** ONLY_NUMBERS_AND_DOT pattern allows numeric characters and dots */
 export const ONLY_NUMBERS_AND_DOT = /^[0-9]+(?:\.[0-9]+)?$/;
-/** ONLY_ALPHABETS_AND_DOT pattern allows alphabets, spaces, and dots */ 
-export const ONLY_ALPHABETS_AND_DOT = /^([a-zA-Z][a-zA-Z\s\.]*)$/; 
+/** ONLY_ALPHABETS_AND_DOT pattern allows alphabets, spaces, and dots */
+export const ONLY_ALPHABETS_AND_DOT = /^([a-zA-Z][a-zA-Z\s\.]*)$/;
 /** PATTERN_FOR_ALPHABATES_AND_SPACE_AND_DASH_DIGIT pattern allows alphanumeric characters, spaces, dashes*/
 export const PATTERN_FOR_ALPHABATES_AND_SPACE_AND_DASH_DIGIT =
   /^[a-zA-Z0-9- ]*$/;
-  /**    PATTERN_FOR_ALPHABATES_AND_SPACE_AND_DASH allows alphabets, spaces, and dashes   */ 
-export const PATTERN_FOR_ALPHABATES_AND_SPACE_AND_DASH = /^[a-zA-Z- ]*$/; 
+/**    PATTERN_FOR_ALPHABATES_AND_SPACE_AND_DASH allows alphabets, spaces, and dashes   */
+export const PATTERN_FOR_ALPHABATES_AND_SPACE_AND_DASH = /^[a-zA-Z- ]*$/;
 //   export const  PATTERN_FOR_ALPHABATES_AND_SPACE_AND_ROUND_BRACKETS = /^[a-zA-Z() ]*$/;
 /**   PATTERN_FOR_ALPHABATES_AND_SPACE_AND_ROUND_BRACKETS allows alphabets, spaces, and round brackets */
 export const PATTERN_FOR_ALPHABATES_AND_SPACE_AND_ROUND_BRACKETS = /^([a-zA-Z()][a-zA-Z() ]*)/;
 /**  LAB_MASTER_NAME ensures that the string has at least one non-whitespace character */
-export const LAB_MASTER_NAME = /.*\S.*/; 
-  // export const  ONLY_SPACE_NOT_ALLOW = /^\S*$/;
+export const LAB_MASTER_NAME = /.*\S.*/;
+// export const  ONLY_SPACE_NOT_ALLOW = /^\S*$/;
 
 
 
 /**ONLY_SPACE_NOT_ALLOW ensures that the string has at least one non-whitespace character*/
 export const ONLY_SPACE_NOT_ALLOW = /.*\S.*/;
 /**   LEADING_SPACE_NOT_ALLOW ensures that the string doesn't start with a space */
-export const LEADING_SPACE_NOT_ALLOW = /^([a-zA-Z0-9][a-zA-Z0-9\s]*)/; 
+export const LEADING_SPACE_NOT_ALLOW = /^([a-zA-Z0-9][a-zA-Z0-9\s]*)/;
 /** PATTERN_FOR_USER_ROLE_NAME ensures that the user role name starts with an alphabet,
 and can include alphabets, underscores, and spaces. */
 export const PATTERN_FOR_USER_ROLE_NAME = /^([a-zA-Z][a-zA-Z[\_\]\s]*)$/;
@@ -264,7 +264,7 @@ export const PATTERN_FOR_PASSWORD = /^[a-zA-Z0-9]{6,32}$/;
 It enforces the use of lowercase letters, digits, and special characters, with a
 length between 8 and 15 characters. Customize as needed. */
 export const PATTERN_FOR_PASSWORD_NEW =
-  /^(?=.*[a-z])(?=.*[a-z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,15}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,15}$/;
 /** PATTERN_FOR_BAR_COUNCIL_NO is a regular expression for validating bar council
 numbers. It enforces a pattern of two uppercase alphabets, a forward slash (/),
 followed by optional digits, another forward slash (/), and four numeric digits.
@@ -299,7 +299,7 @@ export const PATTERN_FOR_IFSC_CODE = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 It enforces a pattern of digits with a length between 9 and 18. Customize as needed. */
 export const PATTERN_FOR_ACCOUNT_NUMBER = /^\d{9,18}$/;
 
-export const PATTERN_FOR_MOBILE_NO=/^\+?\d{10,15}$/;
+export const PATTERN_FOR_MOBILE_NO = /^\+?\d{10,15}$/;
 
 
 
@@ -308,7 +308,7 @@ export const PATTERN_FOR_MOBILE_NO=/^\+?\d{10,15}$/;
 /* Validation Message */
 /**  PASSWORD_INVALID is a string message describing the criteria for a valid password.
 Customize the message based on your specific password policy. */
-export const PASSWORD_INVALID = 'Should contains 8+ chars, 1 uppercase, 1 lowercase, 1 digit, 1 special (*,@,$)';
+export const PASSWORD_INVALID = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character (*, @, or $)';
 /** CONFIRM_PASSWORD_NOT_MATCHED is a string message indicating that the entered password
 and the confirmed password do not match. Adjust the message as needed. */
 export const CONFIRM_PASSWORD_NOT_MATCHED = 'Password and Confirm password not equal.';

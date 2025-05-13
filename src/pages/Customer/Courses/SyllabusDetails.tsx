@@ -15,6 +15,8 @@ import {
   CLASS_TIME_IS_REQUIRED,
   FILE_FORMATE_VALIDATION,
   FILE_SIZE_VALIDATION,
+  PLEASE_ADD_VALID_PROFESSOR_NAME,
+  PLEASE_ADD_VALID_TITLE,
   PROFESSOR_NAME_IS_REQUIRED,
   SYLLABUS_COLOR_IS_REQUIRED,
   SYLLABUS_DOC_IS_REQUIRED,
@@ -32,7 +34,7 @@ import {
 } from "../../../Utility/Helper";
 import DatePicker from "react-datepicker";
 import InputColor from "react-input-color";
-import { MAX_50 } from "../../../Utility/Validation_Helper";
+import { MAX_50, ONLY_ALPHABETS_AND_DOT } from "../../../Utility/Validation_Helper";
 import { AppDispatch } from "../../../redux/store";
 import {
   addEditSyllabusDataAPI,
@@ -74,9 +76,9 @@ const SyllabusDetails = (props) => {
     useState<addSyllabusData>(initSyllabusData);
   const onSubmit = (values) => { };
   const validationSchema = yup.object({
-    title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
+    title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED).matches(ONLY_ALPHABETS_AND_DOT, PLEASE_ADD_VALID_TITLE),
     class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
-    professor_name: yup.string().required(PROFESSOR_NAME_IS_REQUIRED),
+    professor_name: yup.string().required(PROFESSOR_NAME_IS_REQUIRED).matches(ONLY_ALPHABETS_AND_DOT, PLEASE_ADD_VALID_PROFESSOR_NAME),
     course_color: yup.string().required(SYLLABUS_COLOR_IS_REQUIRED),
     syllabus_doc: yup.mixed().when(([syllabus_doc]) => {
       return typeof syllabus_doc === "object" && syllabus_doc !== null
@@ -479,8 +481,8 @@ const SyllabusDetails = (props) => {
               <i className="material-symbols-outlined">delete</i>
             </div>
             <div className="modal-confirmation-content">
-              <h5> Want to Delete?</h5>
-              <p>Are you sure, you want to delete this Syllabus ?</p>
+              <h5>Are You Sure?</h5>
+              <p>You want to delete this Syllabus ?</p>
             </div>
           </div>
           <div className="modal-button-group modal-full-width-btn modal-footer-button">

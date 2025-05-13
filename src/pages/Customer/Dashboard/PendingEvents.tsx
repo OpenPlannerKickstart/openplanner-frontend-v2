@@ -164,7 +164,7 @@ const PendingEvents = (props) => {
                                             </td>
                                             <td>
                                                 <Badge className='course_badge' bg="" title={!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"} style={{ backgroundColor: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)', color: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}><i className="material-symbols-outlined" style={{ color: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}>book_2</i>
-                                                <span>{!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"}</span></Badge>
+                                                    <span>{!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"}</span></Badge>
                                             </td>
                                             <td onClick={() => { props.handleShowShowNote(item.note) }}>
                                                 <a >View Notes</a>
@@ -247,9 +247,9 @@ const PendingEvents = (props) => {
                             <i className="material-symbols-outlined">delete</i>
                         </div>
                         <div className="modal-confirmation-content">
-                            <h5>Want to Delete?</h5>
+                            <h5>Are you sure?</h5>
                             <p>
-                                Are you sure, you want to delete this task ?
+                                You want to delete this task ?
                             </p>
                         </div>
                     </div>
@@ -340,10 +340,10 @@ const PendingEvents = (props) => {
                             <i className="material-symbols-outlined">delete</i>
                         </div>
                         <div className="modal-confirmation-content">
-                            <h5> {!deleteSuccess ? "Want to Delete?" : "You have successfully deleted Event!"}</h5>
+                            <h5> {!deleteSuccess ? "Are You Sure?" : "You have successfully deleted Event!"}</h5>
                             <p>
                                 {!deleteSuccess ?
-                                    "Are you sure, you want to delete this event ?" :
+                                    "You want to delete this event ?" :
                                     "Get back to task page to add or complete the other event"
                                 }
 

@@ -393,7 +393,7 @@ export const AddEditEvent = (props) => {
                                                     </div>
                                                 </Form.Group>
                                                 <Form.Group className="form-group required" controlId="exampleForm.ControlInput1">
-                                                    <Form.Label>Calender</Form.Label>
+                                                    <Form.Label>Calendar</Form.Label>
                                                     <Select
                                                         options={syllabusDropDownData}
                                                         placeholder={<div>Select </div>}
@@ -545,7 +545,7 @@ export const AddEditEvent = (props) => {
                                                     <>
                                                         <div className="form-group default-cal-group">
                                                             <div className="title-text">
-                                                                <p>Add On Your Default Calender</p>
+                                                                <p>Add On Your Default Calendar</p>
                                                             </div>
 
 

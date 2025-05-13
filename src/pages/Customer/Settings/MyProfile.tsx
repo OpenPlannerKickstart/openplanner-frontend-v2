@@ -9,8 +9,8 @@ import * as yup from 'yup';
 import { useState } from 'react';
 import { AppDispatch } from '../../../redux/store';
 import { connect, useDispatch } from 'react-redux';
-import { MAX_50 } from '../../../Utility/Validation_Helper';
-import { EMAIL_REQUIRED, FIRST_NAME_REQUIRED, LAST_NAME_REQUIRED, UNIVERSITY_NAME_REQUIRED } from '../../../Utility/Validation_Message';
+import { MAX_50, ONLY_ALPHABETS_AND_DOT } from '../../../Utility/Validation_Helper';
+import { EMAIL_REQUIRED, ENTER_VALID_FIRSTNAME, ENTER_VALID_LASTNAME, ENTER_VALID_UNIVERSITY, FIRST_NAME_REQUIRED, LAST_NAME_REQUIRED, UNIVERSITY_NAME_REQUIRED } from '../../../Utility/Validation_Message';
 import defaultAvatar from "/assets/images/avatar-default.svg";
 const MyProfile = (props) => {
     const dispatch: AppDispatch = useDispatch();
@@ -40,13 +40,15 @@ const MyProfile = (props) => {
             .required(EMAIL_REQUIRED),
         firstname: yup.string()
             .trim()
-            .required(FIRST_NAME_REQUIRED),
-
+            .required(FIRST_NAME_REQUIRED)
+            .matches(ONLY_ALPHABETS_AND_DOT, ENTER_VALID_FIRSTNAME),
         lastname: yup.string()
             .trim()
-            .required(LAST_NAME_REQUIRED),
+            .required(LAST_NAME_REQUIRED)
+            .matches(ONLY_ALPHABETS_AND_DOT, ENTER_VALID_LASTNAME),
         university_name: yup.string().trim().min(5, "Minimum 5 letters Required.").
-            required(UNIVERSITY_NAME_REQUIRED),
+            required(UNIVERSITY_NAME_REQUIRED)
+            .matches(ONLY_ALPHABETS_AND_DOT, ENTER_VALID_UNIVERSITY),
         file: yup.mixed()
             .nullable()
             .notRequired()
@@ -134,15 +136,29 @@ const MyProfile = (props) => {
     };
 
     useEffect(() => {
-        // console.log("first", formData.errors.file)
-        if (isNullUndefinedOrBlank(formData.errors.file) && !isNullUndefinedOrBlank(formData?.values?.file)) {
-            // console.log("first")
-            const url: any = URL.createObjectURL(formData.values.file as any);
-            formData.setFieldValue("profile_image", url);
-        }
+        const handleFileChange = async () => {
+            if (isNullUndefinedOrBlank(formData.errors.file) && !isNullUndefinedOrBlank(formData?.values?.file)) {
+                const url = URL.createObjectURL(formData.values.file as File);
+                await formData.setFieldValue("profile_image", url);
+            }
+            else {
+                if (!isNullUndefinedOrBlank(formData.values?.profile_image) && !isNullUndefinedOrBlank(formData.errors.file)) {
+                    if (imageRef?.current) {
+                        imageRef.current.value = null;
+                    }
+                    // await formData.setFieldValue("file", null);
+                    await formData.setFieldValue("profile_image", null);
+                }
+            }
+        };
+
+        handleFileChange();
+
         return () => {
-        }
-    }, [formData?.values?.file])
+            // Optional cleanup if needed in the future
+        };
+    }, [formData?.values?.file, formData?.errors?.file]);
+
 
     /** --------------------file Change start------------------------*/
 

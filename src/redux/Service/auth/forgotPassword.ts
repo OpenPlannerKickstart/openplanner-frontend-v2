@@ -46,6 +46,7 @@ export const sendNewPasswordDataAPI =
       try {
         const response: any = await post(SEND_NEW_PASSWORD_DATA_API, objBody);
         if (!response.data.error) {
+          ts(response.data.message)
           return dispatch(sendNewPasswordDataSuccess(response.data.data));
         } else {
           dispatch(sendNewPasswordDataFailure());

@@ -14,24 +14,24 @@ import { AppDispatch } from "../../store";
  */
 export const signupToSystem =
   (objBody: any = undefined) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setLoading(true));
-    // setTimeout(() => {
-    //   dispatch(setLoading(false));
-    // }, 2000);
-    try {
-      const response: any = await post(GET_REGISTER_DATA_API, objBody);
-      if (!response.data.error) {       
-        return  dispatch(getSignupSuccess(response.data.data));
-      } else {
+    async (dispatch: AppDispatch) => {
+      dispatch(setLoading(true));
+      // setTimeout(() => {
+      //   dispatch(setLoading(false));
+      // }, 2000);
+      try {
+        const response: any = await post(GET_REGISTER_DATA_API, objBody);
+        if (!response.data.error) {
+          return dispatch(getSignupSuccess(response.data.data));
+        } else {
+          dispatch(getSignupFailure());
+        }
+      } catch (err) {
         dispatch(getSignupFailure());
+      } finally {
+        dispatch(setLoading(false));
       }
-    } catch (err) {
-      dispatch(getSignupFailure());
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+    };
 
 
 /**
@@ -43,23 +43,23 @@ export const signupToSystem =
  */
 export const sendSignupEmailOtp =
   (objBody: any = undefined) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setLoading(true));
-   
-    try {
-      const response: any = await post(GET_RESEND_USER_OTP_DATA_API, objBody);
-      if (!response.data.error) {   
-        ts(response.data?.message) ;  
-        return  dispatch(sendSignUpEmailOtpSuccess(response.data.data));
-      } else {
+    async (dispatch: AppDispatch) => {
+      dispatch(setLoading(true));
+
+      try {
+        const response: any = await post(GET_RESEND_USER_OTP_DATA_API, objBody);
+        if (!response.data.error) {
+          ts(response.data?.message);
+          return dispatch(sendSignUpEmailOtpSuccess(response.data.data));
+        } else {
+          dispatch(sendSignUpEmailOtpFailure());
+        }
+      } catch (err) {
         dispatch(sendSignUpEmailOtpFailure());
+      } finally {
+        dispatch(setLoading(false));
       }
-    } catch (err) {
-      dispatch(sendSignUpEmailOtpFailure());
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+    };
 /**
  * Verify Email Otp 
  * @param {*} objBody
@@ -69,19 +69,20 @@ export const sendSignupEmailOtp =
  */
 export const verifySignupEmailOtp =
   (objBody: any = undefined) =>
-  async (dispatch: AppDispatch) => {
-    dispatch(setLoading(true));
-  
-    try {
-      const response: any = await post(GET_VERIFY_USER_OTP_DATA_API, objBody);
-      if (!response.data.error) {
-        return dispatch(verfiySignUpEmailOtpSuccess(response.data.data));
-      } else {
+    async (dispatch: AppDispatch) => {
+      dispatch(setLoading(true));
+
+      try {
+        const response: any = await post(GET_VERIFY_USER_OTP_DATA_API, objBody);
+        if (!response.data.error) {
+          ts(response.data.message)
+          return dispatch(verfiySignUpEmailOtpSuccess(response.data.data));
+        } else {
+          dispatch(verfiySignUpEmailOtpFailure());
+        }
+      } catch (err) {
         dispatch(verfiySignUpEmailOtpFailure());
+      } finally {
+        dispatch(setLoading(false));
       }
-    } catch (err) {
-      dispatch(verfiySignUpEmailOtpFailure());
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+    };

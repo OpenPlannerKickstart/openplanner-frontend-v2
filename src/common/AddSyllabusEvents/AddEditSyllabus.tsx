@@ -3,12 +3,12 @@ import { Button, Col, Form, Offcanvas, Row } from 'react-bootstrap'
 import { connect, useDispatch } from 'react-redux'
 import * as yup from 'yup';
 import { addSyllabusData } from '../../interfaces/interface';
-import { CLASS_TIME_IS_REQUIRED, FILE_FORMATE_VALIDATION, PROFESSOR_NAME_IS_REQUIRED, SYLLABUS_COLOR_IS_REQUIRED, SYLLABUS_DOC_IS_REQUIRED, SYLLABUS_TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
+import { CLASS_TIME_IS_REQUIRED, FILE_FORMATE_VALIDATION, PLEASE_ADD_VALID_PROFESSOR_NAME, PLEASE_ADD_VALID_TITLE, PROFESSOR_NAME_IS_REQUIRED, SYLLABUS_COLOR_IS_REQUIRED, SYLLABUS_DOC_IS_REQUIRED, SYLLABUS_TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
 import { customJsonInclude, formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from '../../Utility/Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import { AppDispatch } from '../../redux/store';
 import { addEditSyllabusDataAPI } from '../../redux/Service/User/Courses/courses';
-import { MAX_50 } from '../../Utility/Validation_Helper';
+import { MAX_50, ONLY_ALPHABETS_AND_DOT } from '../../Utility/Validation_Helper';
 import GetImageIcon from '../GetImageIcon';
 import DatePicker from "react-datepicker";
 import InputColor from 'react-input-color';
@@ -60,9 +60,9 @@ export const AddEditSyllabus = (props) => {
     const onSubmitForSyllabus = (values) => {
     }
     const validationSchemaForSyllabus = yup.object({
-        title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
+        title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED).matches(ONLY_ALPHABETS_AND_DOT, PLEASE_ADD_VALID_TITLE),
         class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
-        professor_name: yup.string().required(PROFESSOR_NAME_IS_REQUIRED),
+        professor_name: yup.string().required(PROFESSOR_NAME_IS_REQUIRED).matches(ONLY_ALPHABETS_AND_DOT, PLEASE_ADD_VALID_PROFESSOR_NAME),
         course_color: yup.string().required(SYLLABUS_COLOR_IS_REQUIRED),
         syllabus_doc: yup.mixed()
             .when(([syllabus_doc]) => {

@@ -192,8 +192,12 @@ const Task = (props) => {
     customJsonInclude(reqBody);
     const response = await dispatch(addEditTaskAPI(reqBody));
     if (!isNullUndefinedOrBlank(response?.payload)) {
+
       handleCloseAddNewCourse();
-      taskFormData.resetForm();
+      setTimeout(() => {
+
+        taskFormData.resetForm();
+      }, 300);
       getTaskListing()
     }
 
@@ -425,7 +429,7 @@ const Task = (props) => {
                         <div className="form-control-wrapper">
                           <div className="form-group-icon-start">
                             <i className="material-symbols-outlined">search</i>
-                            <Form.Control type="text" placeholder="Search" onChange={(e) => { setSearch(e.target.value) }} />
+                            <Form.Control type="text" placeholder="Search by Task name" onChange={(e) => { setSearch(e.target.value) }} />
                           </div>
                         </div>
                       </Form.Group>
@@ -711,9 +715,9 @@ const Task = (props) => {
                     <i className="material-symbols-outlined">delete</i>
                   </div>
                   <div className="modal-confirmation-content">
-                    <h5>Want to Delete?</h5>
+                    <h5>Are You Sure?</h5>
                     <p>
-                      Are you sure, you want to delete this task ?
+                      You want to delete this task ?
                     </p>
                   </div>
                 </div>
