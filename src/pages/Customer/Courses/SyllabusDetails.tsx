@@ -76,7 +76,7 @@ const SyllabusDetails = (props) => {
     useState<addSyllabusData>(initSyllabusData);
   const onSubmit = (values) => { };
   const validationSchema = yup.object({
-    title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED).matches(ONLY_ALPHABETS_AND_DOT, PLEASE_ADD_VALID_TITLE),
+    title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
     class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
     professor_name: yup.string().required(PROFESSOR_NAME_IS_REQUIRED).matches(ONLY_ALPHABETS_AND_DOT, PLEASE_ADD_VALID_PROFESSOR_NAME),
     course_color: yup.string().required(SYLLABUS_COLOR_IS_REQUIRED),
