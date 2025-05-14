@@ -205,7 +205,7 @@ const NewPassword = (props) => {
                     </div>
                     {canResend ? (
 
-                        <p className="text-center">Did not receive it? <span className="text-primary fw-600" onClick={() => { handleResentEmailCode(); }}>Resend Code</span></p>
+                        <p className="text-center">Did not receive it? <span className="text-primary fw-600 cursor-pointer" onClick={() => { handleResentEmailCode(); }}>Resend Code</span></p>
                     ) : (
                       <p className="mt-4 text-gray-600 text-center mb-0">You can resend code in <span className="text-primary fw-600">{timer}</span> seconds.</p>
                     )}

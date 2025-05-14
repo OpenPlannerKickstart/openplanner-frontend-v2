@@ -218,7 +218,7 @@ const Login = (props) => {
 
                                                 <div className="btn-full-group">
 
-                                                    <NavLink className="auth-top-text-link text-link text-primary fw-500" to={ENUMFORROUTES.FORGOTPASSWORD}>Forgot Password?</NavLink>
+                                                    <NavLink className="auth-top-text-link text-link text-primary fw-500 ms-auto" to={ENUMFORROUTES.FORGOTPASSWORD}>Forgot Password?</NavLink>
                                                     <Button variant='primary' className='w-100 mt-4' onClick={() => {
 
                                                         handleLoginData()

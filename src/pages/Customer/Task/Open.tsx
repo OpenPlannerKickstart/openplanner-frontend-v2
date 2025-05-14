@@ -207,7 +207,7 @@ const Open = (props) => {
                 <Modal.Body>
                     <div className="modal-confirmation-container">
                         <div className="modal-confirmation-icon">
-                            <i className="material-symbols-outlined">mood</i>
+                            <i className="material-symbols-outlined">delete</i>
                         </div>
                         <div className="modal-confirmation-content">
                             <h5> {!deleteSuccess ? "Are You Sure?" : "You have successfully deleted Task!"}</h5>

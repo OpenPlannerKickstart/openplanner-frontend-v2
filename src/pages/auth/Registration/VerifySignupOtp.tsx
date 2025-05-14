@@ -168,7 +168,8 @@ const VerifySignupOtp = (props) => {
                                                 <OTPInput
                                                     value={otpData}
                                                     numInputs={6}
-                                                    inputType="number"
+                                                    inputType="text"
+                                                    
                                                     onChange={handleOtpInput}
                                                     containerStyle={""}
                                                     shouldAutoFocus={true}
@@ -185,7 +186,7 @@ const VerifySignupOtp = (props) => {
                                         </div>
                                         {canResend ? (
 
-                                            <p className="text-center mt-4">Did not receive it? <span className="text-primary fw-600" onClick={() => { handleResendOtp(); }}>Resend Code</span></p>
+                                            <p className="text-center mt-4">Did not receive it? <span className="text-primary fw-600 cursor-pointer" onClick={() => { handleResendOtp(); }}>Resend Code</span></p>
                                         ) : (
                                             <p className="mt-4 text-gray-600 text-center ">You can resend code in <span className="text-primary fw-600">{timer}</span> seconds.</p>
                                         )}

@@ -852,7 +852,7 @@ $sm_sidebar_home_link_width: 270px;
                                         justify-content: space-between;
                                         gap: 5px;
                                         flex-wrap: wrap;
-                                        margin-bottom: 15px;
+                                        margin-bottom: 0;
 
                                         .title-text {
                                             h4 {
@@ -868,12 +868,16 @@ $sm_sidebar_home_link_width: 270px;
                                     .remider-fields {
                                         display: flex;
                                         width: 100%;
-                                        align-items: flex-end;
+                                        align-items: flex-start;
                                         gap: 15px;
+                                        margin: 15px 0;
 
                                         .form-group {
                                             margin-bottom: 0;
                                             width: 100%;
+                                        }
+                                        button {
+                                            margin-top: 24px;
                                         }
                                     }
                                 }
@@ -1195,7 +1199,7 @@ $sm_sidebar_home_link_width: 270px;
                             justify-content: space-between;
                             gap: 5px;
                             flex-wrap: wrap;
-                            margin-bottom: 15px;
+                            margin-bottom: 0px;
 
                             .title-text {
                                 h4 {
@@ -1209,14 +1213,18 @@ $sm_sidebar_home_link_width: 270px;
                         }
 
                         .remider-fields {
-                            display: flex;
+                             display: flex;
                             width: 100%;
-                            align-items: flex-end;
+                            align-items: flex-start;
                             gap: 15px;
+                            margin: 15px 0;
 
                             .form-group {
                                 margin-bottom: 0;
                                 width: 100%;
+                            }
+                             button {
+                                margin-top: 24px;
                             }
                         }
                     }

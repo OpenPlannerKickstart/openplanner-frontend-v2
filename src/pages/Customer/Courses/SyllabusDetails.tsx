@@ -201,7 +201,7 @@ const SyllabusDetails = (props) => {
       <div className="tab-body-container">
         <div className="syllabus-details-box">
           <Form.Group
-            className="form-group"
+            className="form-group required"
             controlId="exampleForm.ControlInput1"
           >
             <Form.Label>Course Title</Form.Label>
@@ -337,7 +337,7 @@ const SyllabusDetails = (props) => {
               </button>
             </div>
           </div> */}
-          <Form.Group className="form-group">
+          <Form.Group className="form-group required">
             <Form.Label>Class Time</Form.Label>
             <div className="react-datepicker-container form-group-icon-start">
               <i className="material-symbols-outlined control-icon">schedule</i>
@@ -359,7 +359,7 @@ const SyllabusDetails = (props) => {
               : null}
           </Form.Group>
           <Form.Group
-            className="form-group"
+            className="form-group required"
             controlId="exampleForm.ControlInput1"
           >
             <Form.Label>Professor Name</Form.Label>
