@@ -117,7 +117,7 @@ const Dashboard = () => {
   const [syllabusDropDownData, setSyllabusDropDownData] = useState([]);
   const handleGetDropDownData = async () => {
     const response = await dispatch(syllabusDropDownAPI());
-    if (!isNullUndefinedOrBlank(response) && !isEmptyObjectOrNullUndefiend(response?.payload)) {
+    if (!isNullUndefinedOrBlank(response)) {
       setSyllabusDropDownData(response?.payload)
     }
   }
@@ -144,7 +144,7 @@ const Dashboard = () => {
       filter: 'due_date'
     }
     const response = await dispatch(taskListingAPI(requestBody));
-    if (!isNullUndefinedOrBlank(response) && !isEmptyObjectOrNullUndefiend(response?.payload?.tasks)) {
+    if (!isNullUndefinedOrBlank(response)) {
       setTaskData(response?.payload?.tasks);
       getDashboardCount();
       handleTaskChartData();

@@ -126,10 +126,10 @@ const NewPassword = (props) => {
                 <Card className="admin-auth-card">
                   <Card.Body>
                     <Form.Group className="form-group required">
-                      <Form.Label>Email Code</Form.Label>
+                      <Form.Label>Verification Code</Form.Label>
                       <div className="form-group-icon-start">
                         <i className="material-symbols-outlined">password</i>
-                        <Form.Control type="email" placeholder="Enter Email Code"
+                        <Form.Control type="email" placeholder="Enter Verification Code"
                           {...resetPasswordForm.getFieldProps("code")}
 
                         />
@@ -205,7 +205,7 @@ const NewPassword = (props) => {
                     </div>
                     {canResend ? (
 
-                        <p className="text-center">Did not receive it? <span className="text-primary fw-600 cursor-pointer" onClick={() => { handleResentEmailCode(); }}>Resend Code</span></p>
+                      <p className="text-center">Did not receive it? <span className="text-primary fw-600 cursor-pointer" onClick={() => { handleResentEmailCode(); }}>Resend Code</span></p>
                     ) : (
                       <p className="mt-4 text-gray-600 text-center mb-0">You can resend code in <span className="text-primary fw-600">{timer}</span> seconds.</p>
                     )}
