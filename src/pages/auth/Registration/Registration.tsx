@@ -8,7 +8,7 @@ import { connect, useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { AppDispatch } from "../../../redux/store";
-import { MAX_5, MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_MOBILE_NO, PATTERN_FOR_PASSWORD_NEW, PATTERN_NOT_ALLOW_SPACE } from "../../../Utility/Validation_Helper";
+import { MAX_15, MAX_5, MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_MOBILE_NO, PATTERN_FOR_PASSWORD_NEW, PATTERN_NOT_ALLOW_SPACE } from "../../../Utility/Validation_Helper";
 import { SignUpData } from "../../../interfaces/interface";
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from "formik";
 import * as yup from "yup";
@@ -47,13 +47,13 @@ const Registeration = (props) => {
     username: "",
     mobile: "+1"
 
-  //   "first_name": "Test",
-  //   "last_name": "Teshhive",
-  //   "university_name": "Teshhive",
-  //   "email": "youttauseiddumoi-9760@yopmail.com",
-  //   "password": "Test@123",
-  // username: "TestTechhive",
-  //   mobile: "+195854785415"
+    //   "first_name": "Test",
+    //   "last_name": "Teshhive",
+    //   "university_name": "Teshhive",
+    //   "email": "youttauseiddumoi-9760@yopmail.com",
+    //   "password": "Test@123",
+    // username: "TestTechhive",
+    //   mobile: "+195854785415"
 
 
   }
@@ -75,7 +75,7 @@ const Registeration = (props) => {
       .required(EMAIL_REQUIRED),
     first_name: yup.string().required(FIRST_NAME_REQUIRED),
     last_name: yup.string().required(LAST_NAME_REQUIRED),
-    university_name: yup.string().required(UNIVERSITY_NAME_REQUIRED).min(5,"Manimum 5 letters Required."),
+    university_name: yup.string().required(UNIVERSITY_NAME_REQUIRED).min(5, "Minimum 5 letters Required."),
     mobile: yup.string().required(MOBILE_NO_IS_REQUIRED).matches(PATTERN_FOR_MOBILE_NO, MOBILE_NO_VALIDATION_MESSAGE),
     username: yup.string().required(USERNAME_IS_REQUIRED).matches(PATTERN_NOT_ALLOW_SPACE, USERNAME_SPACE_VALIDATION),
 
@@ -134,18 +134,18 @@ const Registeration = (props) => {
     customJsonInclude(reqBody);
     const response = await dispatch(signupToSystem(reqBody));
 
-    if (response) {    
+    if (response) {
 
-        setOtpDetailsObj(
-          {
-            isFromLogin: false,
-            detailsObj: {
-              ...reqBody
-            }
+      setOtpDetailsObj(
+        {
+          isFromLogin: false,
+          detailsObj: {
+            ...reqBody
           }
-        )
+        }
+      )
 
-      
+
 
     }
   }
@@ -247,7 +247,7 @@ const Registeration = (props) => {
                             <Form.Group className="form-group required">
                               <Form.Label>First Name</Form.Label>
                               <div className="form-group-icon-start">
-                              <i className="material-symbols-outlined">person</i>
+                                <i className="material-symbols-outlined">person</i>
                                 <Form.Control
                                   type="text"
                                   placeholder="Enter First Name"
@@ -268,7 +268,7 @@ const Registeration = (props) => {
                             <Form.Group className="form-group required">
                               <Form.Label>Last Name</Form.Label>
                               <div className="form-group-icon-start">
-                              <i className="material-symbols-outlined">person</i>
+                                <i className="material-symbols-outlined">person</i>
                                 <Form.Control
                                   type="text"
                                   placeholder="Enter Last Name"
@@ -290,13 +290,13 @@ const Registeration = (props) => {
                         <Form.Group className="form-group required">
                           <Form.Label>User Name</Form.Label>
                           <div className="form-group-icon-start">
-                          <i className="material-symbols-outlined">mail</i>
+                            <i className="material-symbols-outlined">mail</i>
                             <Form.Control type="text" placeholder="Enter User Name"
                               {...signUpFormData.getFieldProps("username")}
                               maxLength={MAX_50}
                               onBlur={() => {
                                 handleBlurValueUpdate("username");
-                              }}                              
+                              }}
                             />
                           </div>
                           {signUpFormData.touched.username &&
@@ -307,7 +307,7 @@ const Registeration = (props) => {
                         <Form.Group className="form-group required">
                           <Form.Label>Email Address</Form.Label>
                           <div className="form-group-icon-start">
-                          <i className="material-symbols-outlined">mail</i>
+                            <i className="material-symbols-outlined">mail</i>
                             <Form.Control type="email" placeholder="Enter Email"
                               {...signUpFormData.getFieldProps("email")}
                               maxLength={MAX_50}
@@ -330,15 +330,15 @@ const Registeration = (props) => {
                               value={signUpFormData?.values?.mobile}
                               onChange={(value) => {
                                 const formattedValue = value.startsWith('+') ? value : `+${value}`;
-                                signUpFormData.setFieldValue("mobile",formattedValue);                               
-                              }}  
-                              onBlur={()=>{
-                                signUpFormData?.setFieldTouched("mobile",true);
-                              }}   
+                                signUpFormData.setFieldValue("mobile", formattedValue);
+                              }}
+                              onBlur={() => {
+                                signUpFormData?.setFieldTouched("mobile", true);
+                              }}
                               inputProps={{
                                 name: 'mobile',
-                                required: true,                                
-                              }}                  
+                                required: true,
+                              }}
                               placeholder="Enter your Mobile Number"
                             />
                           </div>
@@ -351,7 +351,7 @@ const Registeration = (props) => {
                         <Form.Group className="form-group required">
                           <Form.Label>University Name</Form.Label>
                           <div className="form-group-icon-start">
-                          <i className="material-symbols-outlined">home_work</i>
+                            <i className="material-symbols-outlined">home_work</i>
                             <Form.Control
                               type="text"
                               placeholder="Enter University Name"
@@ -372,12 +372,13 @@ const Registeration = (props) => {
                         <Form.Group className="form-group required">
                           <Form.Label>Password</Form.Label>
                           <div className="form-group-icon-start form-group-password">
-                          <i className="material-symbols-outlined">lock</i>
+                            <i className="material-symbols-outlined">lock</i>
                             <Form.Control
+
                               type={eyeToggle ? "text" : "password"}
                               placeholder="Enter Password"
                               {...signUpFormData.getFieldProps("password")}
-                              maxLength={MAX_50}
+                              maxLength={MAX_15}
                             />
                             <button
                               onClick={() => setEyeToggle(!eyeToggle)}
@@ -389,7 +390,7 @@ const Registeration = (props) => {
                                   : "th-outline-eye-slash"
                                   }`}
                               ></i> */}
-                                      <i className="material-symbols-outlined">{eyeToggle ? "visibility" : "visibility_off"}</i>
+                              <i className="material-symbols-outlined">{eyeToggle ? "visibility" : "visibility_off"}</i>
                             </button>
                           </div>
                           {signUpFormData.touched.password &&
@@ -402,7 +403,7 @@ const Registeration = (props) => {
                           <Button variant="primary" className="w-100 mt-4"
                             onClick={() => { handleSignUpData(); }}
                           >
-                            Gert started
+                            Sign Up
                           </Button>
                         </div>
 

@@ -14,7 +14,7 @@ import { customJsonInclude, isEmptyObjectOrNullUndefiend, renderError, setCookie
 import { NavLink } from "react-router-dom";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { LoginData } from "../../../interfaces";
-import { MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_EMAIL_OR_USERNAME, PATTERN_FOR_PASSWORD_NEW } from "../../../Utility/Validation_Helper";
+import { MAX_15, MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_EMAIL_OR_USERNAME, PATTERN_FOR_PASSWORD_NEW } from "../../../Utility/Validation_Helper";
 import { EMAIL_INVALID, EMAIL_REQUIRED, PASSWORD_REQUIRED, USERNAME_EMAIL_IS_REQUIRED, USERNAME_EMAIL_VALIDATION } from "../../../Utility/Validation_Message";
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from "formik";
 import { sendSignupEmailOtp } from "../../../redux/Service/auth/signup";
@@ -198,7 +198,7 @@ const Login = (props) => {
                                                         <i className="material-symbols-outlined">lock</i>
                                                         <Form.Control type={eyeToggle ? "text" : "password"} placeholder='Enter Password'
                                                             {...loginFormData.getFieldProps("password")}
-                                                            maxLength={MAX_50}
+                                                            maxLength={MAX_15}
                                                             onKeyDown={(event) => { handleKeyPress(event) }}
                                                         />
                                                         <button onClick={() => setEyeToggle(!eyeToggle)} className='btn-password'>

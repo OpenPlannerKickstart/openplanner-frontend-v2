@@ -6,7 +6,7 @@ import { connect, useDispatch } from "react-redux";
 import { AppDispatch } from "../../../redux/store";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
-import { CONFIRM_PASSWORD_NOT_MATCHED, PATTERN_FOR_PASSWORD_NEW } from "../../../Utility/Validation_Helper";
+import { CONFIRM_PASSWORD_NOT_MATCHED, MAX_15, PATTERN_FOR_PASSWORD_NEW } from "../../../Utility/Validation_Helper";
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
 import { CONFIRM_PASSWORD_REQUIRED, EMAIL_CODE_IS_REQUIRED, NEW_PASSWORD_REQUIRED, PASSWORD_INVALID } from "../../../Utility/Validation_Message";
@@ -145,6 +145,7 @@ const NewPassword = (props) => {
                         <i className="material-symbols-outlined">lock</i>
                         <Form.Control
                           type={eyeToggle ? "text" : "password"}
+                          maxLength={MAX_15}
                           placeholder="Enter Password"
                           {...resetPasswordForm.getFieldProps("new_password")}
                           autoComplete="new-password"

@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { useState } from 'react';
 import { customJsonInclude, renderError } from '../../../Utility/Helper';
 import { NEW_PASSWORD_IS_REQUIRED, OLD_PASSWORD_IS_REQUIRED } from '../../../Utility/Validation_Message';
-import { CONFIRM_PASSWORD_NOT_MATCHED, MAX_50, PASSWORD_INVALID, PATTERN_FOR_PASSWORD, PATTERN_FOR_PASSWORD_NEW } from '../../../Utility/Validation_Helper';
+import { CONFIRM_PASSWORD_NOT_MATCHED, MAX_15, MAX_50, PASSWORD_INVALID, PATTERN_FOR_PASSWORD, PATTERN_FOR_PASSWORD_NEW } from '../../../Utility/Validation_Helper';
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
 import { changePasswordAPI } from '../../../redux/Service/User/Settings/settings';
@@ -104,7 +104,8 @@ const ChangePassword = () => {
                                     <i className="material-symbols-outlined">lock</i>
                                     <Form.Control type={eyeToggle ? "text" : "password"} placeholder='Enter current password'
                                         {...formData.getFieldProps("oldPassword")}
-                                        maxLength={MAX_50}
+                                        maxLength={MAX_15}
+
                                         onBlur={() => {
                                             handleBlurValueUpdate("oldPassword");
                                         }}
