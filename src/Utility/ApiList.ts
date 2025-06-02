@@ -61,3 +61,9 @@ export const DASHBOARD_EVENTS_DATA_API = "dashboardEventsData";
 export const DASHBOARD_EVENT_LISTING_API = "dashboardEventListing";
 export const GET_SYLLABUS_DROPDOWN_API = "getSyllabusDropDown";
 
+
+
+export const GET_ALL_NOTIFICATION_API = "getNotificationData";
+export const GET_COUNT_OF_UNREAD_NOTIFICATION_API = "countNotification";
+export const READ_NOTIFICATION_API = "markAsRead";
+export const CLEAR_NOTIFICATION_API = "deleteNotifiction";

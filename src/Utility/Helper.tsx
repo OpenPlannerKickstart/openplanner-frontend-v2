@@ -593,6 +593,16 @@ If not valid, return "Invalid Date".
   // console.log(moment(date).isValid()?"hello":"no hello");
   return moment(date).isValid() ? moment(date).format(format) : "Invalid Date";
 };
+
+export const formatTime = (time, formatString = 'HH:mm:ss') => {
+  // Handle time-only strings
+  if (typeof time === 'string' && time.match(/^\d{2}:\d{2}:\d{2}$/)) {
+    return moment(time, 'HH:mm:ss').format(formatString);
+  }
+  // Handle general cases
+  return moment(time).format(formatString);
+}
+
 /**
  * Function to check if a given date is before the current date.
  * @param {string} date - The input date string.

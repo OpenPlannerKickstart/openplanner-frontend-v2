@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react'
 // import logo from "../../assets/images/dummy-logo.svg";
 import defaultAvatar from "../../assets/images/avatar-default.svg";
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Offcanvas } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
-import { getUserFirstLastName, isNullUndefinedOrBlank, removeCookieByName } from '../../Utility/Helper';
-import { connect, useDispatch } from 'react-redux';
-import { AppDispatch } from '../../redux/store';
+import notVoucherFound from "/assets/images/not-voucher-found.svg";
+import { formatedDate, getUserFirstLastName, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, removeCookieByName } from '../../Utility/Helper';
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../redux/store';
 import { logoutFromSystem } from '../../redux/Service/auth/login';
 import { ENUMFORROUTES } from '../../interfaces/enum';
 import { getUserAPI } from '../../redux/Service/User/Settings/settings';
+import { NotificationData } from '../../interfaces/interface';
+import { clearNotificationAPI, getAllNotificationAPI, getCountOfUnreadNotificationAPI, readNotificationAPI } from '../../redux/Service/User/Notification/notification';
 
 const Navbar = (props) => {
   const [SidebarSize, setSidebarSize] = useState('lg');
@@ -52,6 +55,125 @@ const Navbar = (props) => {
     }
   }, [props.userData])
 
+  /** --------------------Notification start------------------------*/
+
+  const [notificationShow, setNotificationShow] = useState(false);
+
+  const handleNotificationClose = () => setNotificationShow(false);
+  const handleNotificationsShow = () => setNotificationShow(true);
+
+  const [notificationList, setNotiFicationList] = useState<Array<NotificationData>>([]);
+  const [notificationCount, setNotificationCount] = useState<any>("");
+  const notificationData: any = useSelector(
+    (state: RootState) => state.NotificationReducer.notificationData);
+  const countOfUnreadNotificationData: any = useSelector(
+    (state: RootState) => state.NotificationReducer.countOfUnreadNotificationData);
+  const [is_readAll, setis_readAll] = useState<boolean>(false);
+
+
+  const openNotificationModal = async () => {
+    const response = await dispatch(getAllNotificationAPI());
+    if (response) {
+      handleNotificationsShow();
+    }
+
+  }
+  const readNotification = async (notificationId) => {
+    if (isNullUndefinedOrBlank(notificationId)) {
+      return;
+    }
+
+    let reqNotificationId: any = [];
+    if (notificationId instanceof Array) {
+      reqNotificationId = notificationId;
+    }
+    else {
+      reqNotificationId = [notificationId];
+    }
+    const reqBody = {
+      id: reqNotificationId,
+      is_read: true
+
+    }
+
+    const response = await dispatch(readNotificationAPI(reqBody));
+
+    if (!isNullUndefinedOrBlank(response.payload)) {
+      await dispatch(getAllNotificationAPI());
+    }
+  }
+
+  const clearNotification = async (notificationId) => {
+    if (isNullUndefinedOrBlank(notificationId)) {
+      return;
+    }
+
+    let reqNotificationId: any = [];
+    if (notificationId instanceof Array) {
+      reqNotificationId = notificationId;
+    }
+    else {
+      reqNotificationId = [notificationId];
+    }
+    const reqBody = {
+      id: reqNotificationId,
+
+
+    }
+
+    const response = await dispatch(clearNotificationAPI(reqBody));
+    // console.log(response);
+    if (!isNullUndefinedOrBlank(response.payload)) {
+      await dispatch(getAllNotificationAPI());
+    }
+  }
+
+
+
+  const countUnreadNotification = async () => {
+    const response = await dispatch(getCountOfUnreadNotificationAPI());
+
+  }
+  useEffect(() => {
+    if (!notificationShow) {
+      countUnreadNotification();
+    }
+
+  }, [notificationShow])
+
+
+  useEffect(() => {
+    // console.log(props.notificationData);
+    if (!isEmptyObjectOrNullUndefiend(notificationData)) {
+      setNotiFicationList(notificationData);
+      // setNotiFicationList([]);
+    }
+    else {
+      setNotiFicationList([]);
+    }
+
+  }, [notificationData])
+
+
+  useEffect(() => {
+
+    // console.log(props.countOfUnreadNotificationData);
+
+    if (!isNullUndefinedOrBlank(countOfUnreadNotificationData)) {
+      setNotificationCount(countOfUnreadNotificationData);
+    }
+  }, [countOfUnreadNotificationData])
+  useEffect(() => {
+    if (!isEmptyObjectOrNullUndefiend(notificationList)) {
+      const newData = [...notificationList];
+      const statusCheck = newData.some((val) => val.is_read === false);
+      // console.log(statusCheck,"statusCheck");
+      setis_readAll(statusCheck);
+    }
+
+  }, [notificationList])
+  /** --------------------Notification end------------------------*/
+  console.log("Navbar Rendered", notificationList);
 
   return (
     <>
@@ -77,8 +199,13 @@ const Navbar = (props) => {
             <div className="navbar-header-right d-flex align-items-center">
 
               <div className="dropdown topbar-head-dropdown notification-button header-item" id="notificationDropdown">
-                <button type="button" className="btn btn-lg btn-outline-white btn-icon rounded-pill " >
+                <button type="button" className="btn btn-lg btn-outline-white btn-icon rounded-pill " onClick={() => { openNotificationModal(); }} >
                   <i className="material-symbols-outlined">notifications</i>
+                  {
+                    notificationCount > 0 ?
+                      <div className='header-counter'>{!isNullUndefinedOrBlank(notificationCount) ? notificationCount : 0}</div>
+                      : <></>
+                  }
                 </button>
               </div>
               <div className="dropdown header-item topbar-user">
@@ -116,6 +243,78 @@ const Navbar = (props) => {
           </div>
         </div>
       </header>
+      <Offcanvas show={notificationShow} placement="end" className="op-offcanvas notification-offcanvas">
+        <Offcanvas.Header>
+          <Offcanvas.Title>Notifications</Offcanvas.Title>
+          <button type="button" className="btn-close" onClick={handleNotificationClose}><i className="bi bi-x"></i>
+          </button>
+          {!isEmptyObjectOrNullUndefiend(notificationList) ?
+
+            <div className="button-group">
+
+
+              {
+                is_readAll && <>
+                  <button className="btn btn-link text-info" onClick={() => { const allId = notificationList.map((val) => { return val.id }); readNotification(allId) }}>Mark all as read</button>
+                  <div className="vr"></div>
+                </>
+              }
+              <button className="btn btn-link text-danger" onClick={() => { const allId = notificationList.map((val) => { return val.id }); clearNotification(allId); }}>Clear All</button>
+            </div> : <></>
+          }
+        </Offcanvas.Header>
+        <Offcanvas.Body className='p-0'>{
+          !isEmptyObjectOrNullUndefiend(notificationList) ?
+
+            <div className="notification-box">
+              <ul className="list-unstyled">
+                {notificationList.map((item, index) => (
+                  <li className={`${item.isNew ? "new" : ""} ${!item.is_read ? "unread" : ""} `} key={item.id}>
+                    <div className="noti-details">
+                      {/* <h6>SHK Diamond removed diamond</h6> */}
+                      <p title={item.message}>{item.message}</p>
+                      <span>{(formatedDate(item.created_at, `MMM DD, [at] HH:mm a`))}</span>
+                      {/* <span>{!isNullUndefinedOrBlank(item.duration) ? item.duration==="0 seconds"?"now":`${item.duration} ago` : "-"}</span> */}
+                    </div>
+                    <div className='noti-action'>
+                      {
+                        item.is_read ? <>
+                        </> :
+                          <>
+                            <button className="btn btn-link text-info" onClick={() => { readNotification(item.id) }}>Mark as read</button>
+                            <div className="vr"></div>
+                          </>
+                      }
+                      <button className="btn btn-link text-danger" onClick={() => { clearNotification(item.id) }}>Clear</button>
+                    </div>
+                  </li>
+                ))}
+
+                {/* <li className="unread">
+                 <div className="noti-details">
+                   <h6>SHK Diamond removed diamond</h6>
+                   <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+                   <span>02 September 2023 11:30 am</span>
+                 </div>
+                 <div className='noti-action'>
+                   <button className="btn btn-link text-info">Mark as read</button>
+                   <div className="vr"></div>
+                   <button className="btn btn-link text-danger">Clear</button>
+                 </div>
+               </li> */}
+
+              </ul>
+            </div>
+            :
+            <div className="no-notification">
+              <img src={notVoucherFound} alt="D Navinchandra" />
+              <p>You have no new notifications.</p>
+            </div>}
+        </Offcanvas.Body>
+        {/* <div className="offcanvas-footer">
+         <button className="btn btn-link text-primary">View All Notification</button>
+       </div> */}
+      </Offcanvas>
     </>
   )
 }

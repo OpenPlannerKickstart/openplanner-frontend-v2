@@ -214,3 +214,15 @@ export interface Reminder {
   unit: string
   value: string;
 }
+
+export interface NotificationData {
+
+  id: any;
+  user_id: any;
+  message: any;
+  userType: any;
+  is_read: any;
+  created_at: any;
+  duration: any;
+  isNew?: boolean;
+}

@@ -18,7 +18,7 @@ import AddSyllabusEvents from "../../../common/AddSyllabusEvents/AddSyllabusEven
 import { AppDispatch, RootState } from "../../../redux/store";
 import { deleteSyllabusDataAPI, getCoursesListDataAPI, updateSyllabusStatusDataAPI } from "../../../redux/Service/User/Courses/courses";
 import { addSyllabusData, SyllabusResponseType } from "../../../interfaces/interface";
-import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, NO_RECORD_FOUND_MSG } from "../../../Utility/Helper";
+import { formatedDate, formatedTime, formatTime, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, NO_RECORD_FOUND_MSG } from "../../../Utility/Helper";
 import { ENUM_FOR_DISPLAY_VIEW } from "../../../interfaces/enum";
 import SyllabusCanvasDetails from "./SyllabusCanvasDetails";
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
@@ -272,6 +272,7 @@ const Courses = (props) => {
                       </th> */}
                           <th>Course Name</th>
                           <th>Course Color</th>
+                          <th>Class Time</th>
                           <th>No of Events</th>
                           <th>Last Update Date</th>
                           <th className="text-center">Action</th>
@@ -302,6 +303,10 @@ const Courses = (props) => {
                                   </td>
                                   <td>
                                     <span className="color-box" style={{ backgroundColor: `${item?.course_color || "#239bc266"}` }}></span>
+                                  </td>
+                                  <td>
+                                    {formatTime(item?.class_time, "hh:mm A")}
+
                                   </td>
                                   <td>
                                     <a>{item?.no_of_events || "0"}</a>
