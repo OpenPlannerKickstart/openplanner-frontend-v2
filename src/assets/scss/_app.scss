@@ -383,41 +383,7 @@
 
 // Notification
 .notification-offcanvas {
-    &.offcanvas-end {
-        width: 500px;
-    }
-
-    .offcanvas-header {
-        border-bottom: 1px solid #EAECF0;
-        padding: 10px 20px;
-
-        .offcanvas-title {
-            font-size: 18px;
-            color: #344054;
-        }
-
-        .btn-close {
-            position: absolute;
-            left: -15px;
-            background-color: $primary_color;
-            border: 2px solid #fff;
-            color: $white_color;
-            opacity: 1;
-            border-radius: 50%;
-            padding: 0;
-            height: 26px;
-            width: 26px;
-            font-size: 18px;
-            background-image: none;
-        }
-
-        .button-group {
-            .btn {
-                font-size: 13px;
-            }
-        }
-    }
-
+    
     .notification-box {
         ul {
             padding: 0;
@@ -431,7 +397,7 @@
                 position: relative;
 
                 &.unread {
-                    background-color: #EEF5EF;
+                    background-color: $primary_bg_color;
 
                 }
 

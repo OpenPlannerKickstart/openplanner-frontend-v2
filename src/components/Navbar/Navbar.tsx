@@ -243,73 +243,82 @@ const Navbar = (props) => {
           </div>
         </div>
       </header>
-      <Offcanvas show={notificationShow} placement="end" className="op-offcanvas notification-offcanvas">
+      <Offcanvas show={notificationShow} placement="end" className="notification-offcanvas op-offcanvas style-1">
         <Offcanvas.Header>
           <Offcanvas.Title>Notifications</Offcanvas.Title>
-          <button type="button" className="btn-close" onClick={handleNotificationClose}><i className="bi bi-x"></i>
+          <button type="button" className="btn-close" onClick={handleNotificationClose}>
+            <i className='material-symbols-outlined'>close</i>
           </button>
-          {!isEmptyObjectOrNullUndefiend(notificationList) ?
+         
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <div className="Add-new-task-container">
+            <div className="op-offcanvas-body-container">
+              {
+              !isEmptyObjectOrNullUndefiend(notificationList) ?
 
-            <div className="button-group">
+              <div className="notification-box">
+                <ul className="list-unstyled">
+                  {notificationList.map((item, index) => (
+                    <li className={`${item.isNew ? "new" : ""} ${!item.is_read ? "unread" : ""} `} key={item.id}>
+                      <div className="noti-details">
+                        {/* <h6>SHK Diamond removed diamond</h6> */}
+                        <p title={item.message}>{item.message}</p>
+                        <span>{(formatedDate(item.created_at, `MMM DD, [at] HH:mm a`))}</span>
+                        {/* <span>{!isNullUndefinedOrBlank(item.duration) ? item.duration==="0 seconds"?"now":`${item.duration} ago` : "-"}</span> */}
+                      </div>
+                      <div className='noti-action'>
+                        {
+                          item.is_read ? <>
+                          </> :
+                            <>
+                              <button className="btn btn-sm btn-link text-info" onClick={() => { readNotification(item.id) }}>Mark as read</button>
+                              <div className="vr"></div>
+                            </>
+                        }
+                        <button className="btn btn-sm btn-link text-danger" onClick={() => { clearNotification(item.id) }}>Clear</button>
+                      </div>
+                    </li>
+                  ))}
 
+                  {/* <li className="unread">
+                  <div className="noti-details">
+                    <h6>SHK Diamond removed diamond</h6>
+                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+                    <span>02 September 2023 11:30 am</span>
+                  </div>
+                  <div className='noti-action'>
+                    <button className="btn btn-link text-info">Mark as read</button>
+                    <div className="vr"></div>
+                    <button className="btn btn-link text-danger">Clear</button>
+                  </div>
+                </li> */}
 
+                </ul>
+              </div>
+              :
+              <div className="no-notification">
+                <img src={notVoucherFound} alt="D Navinchandra" />
+                <p>You have no new notifications.</p>
+              </div>}
+            </div>
+          
+             {!isEmptyObjectOrNullUndefiend(notificationList) ?
+            <div className="bottom-button-group">
               {
                 is_readAll && <>
-                  <button className="btn btn-link text-info" onClick={() => { const allId = notificationList.map((val) => { return val.id }); readNotification(allId) }}>Mark all as read</button>
-                  <div className="vr"></div>
+                  <Button type="button" className="btn btn-primary ms-auto" onClick={() => { const allId = notificationList.map((val) => { return val.id }); readNotification(allId) }}>
+                    Mark all as read
+                  </Button>
                 </>
               }
-              <button className="btn btn-link text-danger" onClick={() => { const allId = notificationList.map((val) => { return val.id }); clearNotification(allId); }}>Clear All</button>
+              <Button type="button" className="btn btn-light-white" onClick={() => { const allId = notificationList.map((val) => { return val.id }); clearNotification(allId); }}>
+                Clear All
+              </Button>
+              
             </div> : <></>
           }
-        </Offcanvas.Header>
-        <Offcanvas.Body className='p-0'>{
-          !isEmptyObjectOrNullUndefiend(notificationList) ?
-
-            <div className="notification-box">
-              <ul className="list-unstyled">
-                {notificationList.map((item, index) => (
-                  <li className={`${item.isNew ? "new" : ""} ${!item.is_read ? "unread" : ""} `} key={item.id}>
-                    <div className="noti-details">
-                      {/* <h6>SHK Diamond removed diamond</h6> */}
-                      <p title={item.message}>{item.message}</p>
-                      <span>{(formatedDate(item.created_at, `MMM DD, [at] HH:mm a`))}</span>
-                      {/* <span>{!isNullUndefinedOrBlank(item.duration) ? item.duration==="0 seconds"?"now":`${item.duration} ago` : "-"}</span> */}
-                    </div>
-                    <div className='noti-action'>
-                      {
-                        item.is_read ? <>
-                        </> :
-                          <>
-                            <button className="btn btn-link text-info" onClick={() => { readNotification(item.id) }}>Mark as read</button>
-                            <div className="vr"></div>
-                          </>
-                      }
-                      <button className="btn btn-link text-danger" onClick={() => { clearNotification(item.id) }}>Clear</button>
-                    </div>
-                  </li>
-                ))}
-
-                {/* <li className="unread">
-                 <div className="noti-details">
-                   <h6>SHK Diamond removed diamond</h6>
-                   <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
-                   <span>02 September 2023 11:30 am</span>
-                 </div>
-                 <div className='noti-action'>
-                   <button className="btn btn-link text-info">Mark as read</button>
-                   <div className="vr"></div>
-                   <button className="btn btn-link text-danger">Clear</button>
-                 </div>
-               </li> */}
-
-              </ul>
-            </div>
-            :
-            <div className="no-notification">
-              <img src={notVoucherFound} alt="D Navinchandra" />
-              <p>You have no new notifications.</p>
-            </div>}
+          </div>
         </Offcanvas.Body>
         {/* <div className="offcanvas-footer">
          <button className="btn btn-link text-primary">View All Notification</button>
