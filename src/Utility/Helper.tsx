@@ -111,6 +111,14 @@ export const getDecodeIDToken = (): any => {
     return decodeIDToken;
   }
 };
+
+export const getUserSubId = (): any => {
+  const decodeIDToken: any = getDecodeIDToken();
+  if (decodeIDToken) {
+    return decodeIDToken.sub;
+  }
+  return null;
+}
 /** Function to get the refresh token of the logged-in user from local storage. */
 export const getRefreshToken = (): returnTypeForString => {
   return getCookieByName("planner_refreshToken");

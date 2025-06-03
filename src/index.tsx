@@ -25,21 +25,24 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  // <StompSessionProvider
+  <StompSessionProvider
 
-  // url={WEB_SOCKET_CONNECTION_URL}
-  // debug={(str) => {
-  //   console.log(str);
+    url={WEB_SOCKET_CONNECTION_URL}
+    debug={(str) => {
+      console.log(str);
 
-  // }}>
-  <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-    <Provider store={store}>
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    </Provider>
-  </Worker>
-  // </StompSessionProvider>
+    }}
+    heartbeatIncoming={2000}
+    heartbeatOutgoing={2000}
+  >
+    <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+      <Provider store={store}>
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      </Provider>
+    </Worker>
+  </StompSessionProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

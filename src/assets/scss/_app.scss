@@ -383,7 +383,7 @@
 
 // Notification
 .notification-offcanvas {
-    
+
     .notification-box {
         ul {
             padding: 0;
@@ -532,4 +532,17 @@
             margin-top: 20px
         }
     }
+}
+
+
+
+.my-toast-container {
+    position: fixed !important;
+    top: 120px;
+    /* custom top */
+    left: 100px;
+    /* custom left */
+    z-index: 9999;
+    pointer-events: none;
+    /* optional: lets clicks pass through */
 }

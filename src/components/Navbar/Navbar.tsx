@@ -4,7 +4,7 @@ import defaultAvatar from "../../assets/images/avatar-default.svg";
 import { Button, Form, Offcanvas } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
-import { formatedDate, getUserFirstLastName, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, removeCookieByName } from '../../Utility/Helper';
+import { formatedDate, getUserFirstLastName, getUserSubId, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, removeCookieByName } from '../../Utility/Helper';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../redux/store';
 import { logoutFromSystem } from '../../redux/Service/auth/login';
@@ -12,7 +12,13 @@ import { ENUMFORROUTES } from '../../interfaces/enum';
 import { getUserAPI } from '../../redux/Service/User/Settings/settings';
 import { NotificationData } from '../../interfaces/interface';
 import { clearNotificationAPI, getAllNotificationAPI, getCountOfUnreadNotificationAPI, readNotificationAPI } from '../../redux/Service/User/Notification/notification';
-
+import {
+  useStompClient,
+  // StompSessionProvider,
+  useSubscription,
+} from "react-stomp-hooks";
+import { NOTIFICATION_ALERT } from '../../Utility/ApiList';
+import { ts } from '../../Utility/Toaster';
 const Navbar = (props) => {
   const [SidebarSize, setSidebarSize] = useState('lg');
   const windowSize = document.documentElement.clientWidth;
@@ -64,6 +70,7 @@ const Navbar = (props) => {
 
   const [notificationList, setNotiFicationList] = useState<Array<NotificationData>>([]);
   const [notificationCount, setNotificationCount] = useState<any>("");
+  const [notificationAlert, setNotificationAlert] = useState<boolean>(false);
   const notificationData: any = useSelector(
     (state: RootState) => state.NotificationReducer.notificationData);
   const countOfUnreadNotificationData: any = useSelector(
@@ -75,6 +82,7 @@ const Navbar = (props) => {
     const response = await dispatch(getAllNotificationAPI());
     if (response) {
       handleNotificationsShow();
+      countUnreadNotification();
     }
 
   }
@@ -157,10 +165,10 @@ const Navbar = (props) => {
 
   useEffect(() => {
 
-    // console.log(props.countOfUnreadNotificationData);
-
     if (!isNullUndefinedOrBlank(countOfUnreadNotificationData)) {
       setNotificationCount(countOfUnreadNotificationData);
+    } else {
+      setNotificationCount(0)
     }
   }, [countOfUnreadNotificationData])
   useEffect(() => {
@@ -172,8 +180,36 @@ const Navbar = (props) => {
     }
 
   }, [notificationList])
+
+
+  useSubscription(`${NOTIFICATION_ALERT}${getUserSubId()}`, async (item) => {
+
+    if (!isNullUndefinedOrBlank(item)) {
+
+      try {
+        const newNotificationObj = typeof item.body === "string" && item.body !== "" ? JSON.parse(item.body) : item.body;
+        ts(`📅 ${newNotificationObj?.message}`, true)
+        // Show the notification alert
+        setNotificationAlert(true);
+
+        // Hide the alert after 8 seconds
+        setTimeout(() => {
+          setNotificationAlert(false);
+        }, 8000);
+        setNotiFicationList([{ ...newNotificationObj, message: `📅 ${newNotificationObj?.message}` }, ...notificationList]);
+        setNotificationCount(notificationCount + 1);
+        // Dispatch actions to fetch notifications and unread count
+        // await dispatch(getAllNotificationAPI());
+        // await dispatch(getCountOfUnreadNotificationAPI());
+      } catch (error) {
+        console.log(error)
+        console.error("Error handling subscription item:", error);
+      }
+    }
+  });
+
   /** --------------------Notification end------------------------*/
-  console.log("Navbar Rendered", notificationList);
+
 
   return (
     <>
@@ -199,7 +235,7 @@ const Navbar = (props) => {
             <div className="navbar-header-right d-flex align-items-center">
 
               <div className="dropdown topbar-head-dropdown notification-button header-item" id="notificationDropdown">
-                <button type="button" className="btn btn-lg btn-outline-white btn-icon rounded-pill " onClick={() => { openNotificationModal(); }} >
+                <button type="button" className={`btn btn-lg btn-outline-white btn-icon rounded-pill ${notificationAlert ? "new-notification" : ""}`} onClick={() => { openNotificationModal(); }} >
                   <i className="material-symbols-outlined">notifications</i>
                   {
                     notificationCount > 0 ?
@@ -249,39 +285,39 @@ const Navbar = (props) => {
           <button type="button" className="btn-close" onClick={handleNotificationClose}>
             <i className='material-symbols-outlined'>close</i>
           </button>
-         
+
         </Offcanvas.Header>
         <Offcanvas.Body>
           <div className="Add-new-task-container">
             <div className="op-offcanvas-body-container">
               {
-              !isEmptyObjectOrNullUndefiend(notificationList) ?
+                !isEmptyObjectOrNullUndefiend(notificationList) ?
 
-              <div className="notification-box">
-                <ul className="list-unstyled">
-                  {notificationList.map((item, index) => (
-                    <li className={`${item.isNew ? "new" : ""} ${!item.is_read ? "unread" : ""} `} key={item.id}>
-                      <div className="noti-details">
-                        {/* <h6>SHK Diamond removed diamond</h6> */}
-                        <p title={item.message}>{item.message}</p>
-                        <span>{(formatedDate(item.created_at, `MMM DD, [at] HH:mm a`))}</span>
-                        {/* <span>{!isNullUndefinedOrBlank(item.duration) ? item.duration==="0 seconds"?"now":`${item.duration} ago` : "-"}</span> */}
-                      </div>
-                      <div className='noti-action'>
-                        {
-                          item.is_read ? <>
-                          </> :
-                            <>
-                              <button className="btn btn-sm btn-link text-info" onClick={() => { readNotification(item.id) }}>Mark as read</button>
-                              <div className="vr"></div>
-                            </>
-                        }
-                        <button className="btn btn-sm btn-link text-danger" onClick={() => { clearNotification(item.id) }}>Clear</button>
-                      </div>
-                    </li>
-                  ))}
+                  <div className="notification-box">
+                    <ul className="list-unstyled">
+                      {notificationList.map((item, index) => (
+                        <li className={`${item.isNew ? "new" : ""} ${!item.is_read ? "unread" : ""} `} key={item.id}>
+                          <div className="noti-details">
+                            {/* <h6>SHK Diamond removed diamond</h6> */}
+                            <p title={item.message}>{item.message}</p>
+                            <span>{(formatedDate(item.created_at, `MMM DD, [at] HH:mm a`))}</span>
+                            {/* <span>{!isNullUndefinedOrBlank(item.duration) ? item.duration==="0 seconds"?"now":`${item.duration} ago` : "-"}</span> */}
+                          </div>
+                          <div className='noti-action'>
+                            {
+                              item.is_read ? <>
+                              </> :
+                                <>
+                                  <button className="btn btn-sm btn-link text-info" onClick={() => { readNotification(item.id) }}>Mark as read</button>
+                                  <div className="vr"></div>
+                                </>
+                            }
+                            <button className="btn btn-sm btn-link text-danger" onClick={() => { clearNotification(item.id) }}>Clear</button>
+                          </div>
+                        </li>
+                      ))}
 
-                  {/* <li className="unread">
+                      {/* <li className="unread">
                   <div className="noti-details">
                     <h6>SHK Diamond removed diamond</h6>
                     <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
@@ -294,30 +330,30 @@ const Navbar = (props) => {
                   </div>
                 </li> */}
 
-                </ul>
-              </div>
-              :
-              <div className="no-notification">
-                <img src={notVoucherFound} alt="D Navinchandra" />
-                <p>You have no new notifications.</p>
-              </div>}
+                    </ul>
+                  </div>
+                  :
+                  <div className="no-notification">
+                    <img src={notVoucherFound} alt="D Navinchandra" />
+                    <p>You have no new notifications.</p>
+                  </div>}
             </div>
-          
-             {!isEmptyObjectOrNullUndefiend(notificationList) ?
-            <div className="bottom-button-group">
-              {
-                is_readAll && <>
-                  <Button type="button" className="btn btn-primary ms-auto" onClick={() => { const allId = notificationList.map((val) => { return val.id }); readNotification(allId) }}>
-                    Mark all as read
-                  </Button>
-                </>
-              }
-              <Button type="button" className="btn btn-light-white" onClick={() => { const allId = notificationList.map((val) => { return val.id }); clearNotification(allId); }}>
-                Clear All
-              </Button>
-              
-            </div> : <></>
-          }
+
+            {!isEmptyObjectOrNullUndefiend(notificationList) ?
+              <div className="bottom-button-group">
+                {
+                  is_readAll && <>
+                    <Button type="button" className="btn btn-primary ms-auto" onClick={() => { const allId = notificationList.map((val) => { return val.id }); readNotification(allId) }}>
+                      Mark all as read
+                    </Button>
+                  </>
+                }
+                <Button type="button" className="btn btn-light-white" onClick={() => { const allId = notificationList.map((val) => { return val.id }); clearNotification(allId); }}>
+                  Clear All
+                </Button>
+
+              </div> : <></>
+            }
           </div>
         </Offcanvas.Body>
         {/* <div className="offcanvas-footer">
