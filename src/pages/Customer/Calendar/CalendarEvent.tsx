@@ -487,6 +487,7 @@ const CalenderEvent = () => {
                         </h4>
                       </div>
                     </div>
+                    <div className="classes-details-wrapper">
                     <div className="classes-details">
                       {!isEmptyObjectOrNullUndefiend(syllabusDropDownData) ?
                         syllabusDropDownData?.map((item, index) => {
@@ -562,6 +563,7 @@ const CalenderEvent = () => {
                                                     <span></span>
                                                 </div>
                                             </div> */}
+                    </div>
                     </div>
                   </div>
                   {/* <div>

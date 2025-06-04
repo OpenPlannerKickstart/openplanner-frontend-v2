@@ -98,10 +98,10 @@ export const Sidebar = () => {
                   </NavLink>
                 </li>
               </ul> */}
-              <button className="add-event-button" onClick={() => { setShowEvent(true) }}>
+              {/* <button className="add-event-button" onClick={() => { setShowEvent(true) }}>
                 <i className='material-symbols-outlined'>add_circle</i>
                 Add New Event/Syllabus
-              </button>
+              </button> */}
               <div className="sidebar-footer">
                 <p>© 2025 Open Planner</p>
               </div>
