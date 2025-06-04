@@ -561,7 +561,7 @@ export const isEmpty = (value: string | null) => {
  */
 export const getDate = (
   date: moment.MomentInput,
-  format = "yyyy-MM-DDTHH:mm:ss"
+  format = "yyyy-MM-DDTHH:mm:ssZ"
 ) => {
   /**If the input date is not provided, use the current date and time.  */
   return !date ? moment().format(format) : moment(date).format(format);
@@ -573,15 +573,14 @@ export const getDate = (
  * @param {string} format - The format in which the date string should be returned.
  * @returns {string} - The formatted date string or "Invalid Date" if the input date is not valid.
  */
-export const formatedDate = (date, format = " DD-MM-yyyy ") => {
-  // const newD = new Date(date);
-
-  /** Check if the input date is valid using moment.js.
-If valid, format the date according to the specified format.
-If not valid, return "Invalid Date".
- */
+export const formatedDate = (date, format = "DD-MM-yyyy") => {
+  /** 
+   * Check if the input date is valid using moment.js.
+   * If valid, format the date according to the specified format.
+   * If not valid, return "Invalid Date".
+   */
   return moment(date).isValid()
-    ? moment.utc(date).format(format)
+    ? moment(date).format(format) // Formats date in the user's local timezone
     : "Invalid Date";
 };
 

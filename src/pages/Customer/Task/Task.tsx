@@ -190,6 +190,7 @@ const Task = (props) => {
       }
     }
     customJsonInclude(reqBody);
+    console.log(reqBody, "reqBody");
     const response = await dispatch(addEditTaskAPI(reqBody));
     if (!isNullUndefinedOrBlank(response?.payload)) {
 

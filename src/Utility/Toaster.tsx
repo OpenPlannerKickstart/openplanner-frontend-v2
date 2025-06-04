@@ -9,7 +9,7 @@ export const ts = (message: any, isCustom?: boolean, position?: any) => {
       </div>,
       {
         position: position ? position : "bottom-right",
-        duration: Infinity,
+        // duration: Infinity,
         className: "my-toast-container", // Custom class for container
       }
     );

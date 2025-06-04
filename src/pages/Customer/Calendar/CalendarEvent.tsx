@@ -176,7 +176,7 @@ const CalenderEvent = () => {
     const seconds = date.second();
 
     // Return a Date object directly
-    const dateStrVal = moment.utc(Date.UTC(year, month, day, hours, minutes, seconds)).format("YYYY-MM-DD HH:mm:ss")
+    const dateStrVal = moment(Date.UTC(year, month, day, hours, minutes, seconds)).format("YYYY-MM-DD HH:mm:ss")
 
     return new Date(dateStrVal);
   }
