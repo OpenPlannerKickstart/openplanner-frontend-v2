@@ -300,7 +300,7 @@ const Navbar = (props) => {
                           <div className="noti-details">
                             {/* <h6>SHK Diamond removed diamond</h6> */}
                             <p title={item.message}>{item.message}</p>
-                            <span>{(formatedDate(item.created_at, `MMM DD, [at] HH:mm a`))}</span>
+                            <span>{(formatedDate(item.created_at, `MMM DD, [at] hh:mm a`))}</span>
                             {/* <span>{!isNullUndefinedOrBlank(item.duration) ? item.duration==="0 seconds"?"now":`${item.duration} ago` : "-"}</span> */}
                           </div>
                           <div className='noti-action'>
