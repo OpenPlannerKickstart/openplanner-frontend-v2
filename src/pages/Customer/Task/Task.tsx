@@ -411,7 +411,7 @@ const Task = (props) => {
                         onClick={() => { onChangeTab(ENUMFORTASK.OPEN) }}
                       >
 
-                        Open  <Badge bg="light-grey">{!isNullUndefinedOrBlank(count) ? count : 0}</Badge>
+                        To do  <Badge bg="light-grey">{!isNullUndefinedOrBlank(count) ? count : 0}</Badge>
                       </button>
 
                       <button

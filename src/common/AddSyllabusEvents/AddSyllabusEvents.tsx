@@ -93,7 +93,7 @@ const AddSyllabusEvents = (props) => {
           :
           !isNullUndefinedOrBlank(syllabus_doc) ?
             yup.mixed().nullable()
-            : yup.object().required(SYLLABUS_DOC_IS_REQUIRED)
+            : yup.object().nullable()
 
       }),
   })
@@ -668,11 +668,16 @@ const AddSyllabusEvents = (props) => {
                                   <i className="material-symbols-outlined control-icon">calendar_month</i>
                                   <DatePicker
                                     dropdownMode="select"
-                                    isClearable={true}
+                                    // isClearable={true}
                                     selected={eventFormData.values.start_date}
                                     onChange={(date) => {
                                       eventFormData.setFieldValue("start_date", date)
-                                      eventFormData.setFieldValue("end_date", null)
+                                      // eventFormData.setFieldValue("end_date", null)
+                                      // Calculate the end date as 30 minutes after the start date
+                                      const endDate = new Date(date.getTime() + 30 * 60 * 1000);
+
+                                      // Set the calculated end date
+                                      eventFormData.setFieldValue("end_date", endDate);
                                     }
                                     }
                                     showTimeSelect
@@ -700,7 +705,7 @@ const AddSyllabusEvents = (props) => {
                                 <div className="react-datepicker-container form-group-icon-end">
                                   <i className="material-symbols-outlined control-icon">calendar_month</i>
                                   <DatePicker
-                                    isClearable={true}
+                                    // isClearable={true}
                                     selected={eventFormData.values.end_date}
                                     onChange={(date) => eventFormData.setFieldValue("end_date", date)}
                                     showTimeSelect

@@ -97,6 +97,7 @@ const Events = (props) => {
   const [eventStatus, setEventStatus] = useState(null)
 
   const handleEventCompleted = async (id, status) => {
+    // console.log("handleEventCompleted", id, status)
     let event_id: any = [];
     if (id instanceof Array) {
       event_id = id;
@@ -313,10 +314,11 @@ const Events = (props) => {
                                                     placement="bottom"
                                                     overlay={<Tooltip>Complete</Tooltip>}
                                                   >
-                                                    <button
-                                                      className="btn btn-xs btn-icon btn-transparent check-icon" onClick={handleSuccessShow}
+                                                    <button className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => {
+
+                                                      handleEventCompleted(parentItem?.id, parentItem?.status)
+                                                    }}
                                                     >
-                                                      {" "}
                                                       <i className="material-symbols-outlined">check_circle</i>
                                                     </button>
                                                   </OverlayTrigger>

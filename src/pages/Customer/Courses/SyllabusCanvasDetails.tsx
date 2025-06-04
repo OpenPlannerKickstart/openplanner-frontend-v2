@@ -23,8 +23,7 @@ const SyllabusCanvasDetails = (props) => {
         setShowDetails(false);
         props.handleCloseCourse();
         setTimeout(() => {
-
-            setSelectedTab(ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS);
+            setSelectedTab(ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS);
         }, 200);
 
     }
@@ -40,7 +39,7 @@ const SyllabusCanvasDetails = (props) => {
         }
     }, [props?.showCourse])
     /* --------------------------- selected Tab Start --------------------------- */
-    const [selectedTab, setSelectedTab] = useState<any>(ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS);
+    const [selectedTab, setSelectedTab] = useState<any>(ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS);
     const handleTabChange = (tabName) => {
         if (selectedTab !== tabName) {
             setSelectedTab(tabName);
@@ -146,17 +145,6 @@ const SyllabusCanvasDetails = (props) => {
                                                     role="tablist"
                                                 >
                                                     <button
-                                                        className={`nav-link ${selectedTab === ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS ? "active" : ""}`}
-                                                        id="nav-SyllabusDetails-tab"
-                                                        type="button"
-                                                        role="tab"
-
-                                                        onClick={() => handleTabChange(ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS)}
-                                                    >
-                                                        Syllabus Details
-                                                    </button>
-
-                                                    <button
                                                         className={`nav-link ${selectedTab === ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS ? "active" : ""}`}
                                                         id="nav-Events-tab"
                                                         type="button"
@@ -165,6 +153,18 @@ const SyllabusCanvasDetails = (props) => {
                                                         onClick={() => handleTabChange(ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS)}
                                                     >
                                                         Events
+                                                    </button>
+
+
+                                                    <button
+                                                        className={`nav-link ${selectedTab === ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS ? "active" : ""}`}
+                                                        id="nav-SyllabusDetails-tab"
+                                                        type="button"
+                                                        role="tab"
+
+                                                        onClick={() => handleTabChange(ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS)}
+                                                    >
+                                                        Syllabus Details
                                                     </button>
 
 
@@ -243,7 +243,7 @@ const SyllabusCanvasDetails = (props) => {
 
                                             </div>
 
-                                           
+
 
 
 

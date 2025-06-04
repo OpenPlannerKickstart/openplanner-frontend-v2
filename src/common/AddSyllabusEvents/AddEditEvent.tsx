@@ -308,9 +308,16 @@ export const AddEditEvent = (props) => {
                                                                 <i className="material-symbols-outlined control-icon">calendar_month</i>
                                                                 <DatePicker
                                                                     dropdownMode="select"
-                                                                    isClearable={true}
+                                                                    // isClearable={true}
                                                                     selected={eventFormData.values.start_date}
-                                                                    onChange={(date) => { eventFormData.setFieldValue("start_date", date); eventFormData.setFieldValue('end_date', null) }}
+                                                                    onChange={(date) => {
+                                                                        eventFormData.setFieldValue("start_date", date);
+                                                                        // Calculate the end date as 30 minutes after the start date
+                                                                        const endDate = new Date(date.getTime() + 30 * 60 * 1000);
+
+                                                                        // Set the calculated end date
+                                                                        eventFormData.setFieldValue("end_date", endDate);
+                                                                    }}
                                                                     showTimeSelect
                                                                     dateFormat="MM/dd/yyyy hh:mm aa"
                                                                     timeIntervals={15}
@@ -336,7 +343,7 @@ export const AddEditEvent = (props) => {
                                                             <div className="react-datepicker-container form-group-icon-end">
                                                                 <i className="material-symbols-outlined control-icon">calendar_month</i>
                                                                 <DatePicker
-                                                                    isClearable={true}
+                                                                    // isClearable={true}
 
 
                                                                     selected={eventFormData.values.end_date}

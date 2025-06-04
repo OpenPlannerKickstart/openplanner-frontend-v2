@@ -549,7 +549,7 @@ const Dashboard = () => {
               {/* data-table section */}
               <div className="weekly-data-container">
                 <div className="main-title">
-                  <h4>My Week</h4>
+                  <h4>Home</h4>
                 </div>
                 <div className="weekly-content-box">
                   <div className="nav-tabs-outer nav-tabs-style2">

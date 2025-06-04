@@ -74,7 +74,7 @@ export const AddEditSyllabus = (props) => {
                     :
                     !isNullUndefinedOrBlank(syllabus_doc) ?
                         yup.mixed().nullable()
-                        : yup.object().required(SYLLABUS_DOC_IS_REQUIRED)
+                        : yup.object().nullable()
 
             }),
     })
@@ -106,21 +106,21 @@ export const AddEditSyllabus = (props) => {
             professor_name: syllabusFormData.values.professor_name,
         }
 
-        console.log(reqBody, "reqBody");
+        // console.log(reqBody, "reqBody");
 
-        // if (!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) && typeof syllabusFormData?.values?.syllabus_doc === "object") {
+        if (!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) && typeof syllabusFormData?.values?.syllabus_doc === "object") {
 
-        //     formData.append("syllabus_doc", syllabusFormData?.values?.syllabus_doc[0]);
-        // }
+            formData.append("syllabus_doc", syllabusFormData?.values?.syllabus_doc[0]);
+        }
 
-        // customJsonInclude(reqBody);
-        // formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
-        // const response = await dispatch(addEditSyllabusDataAPI(formData));
-        // if (response) {
-        //     handleCloseAddSyllabusEvents();
-        //     props?.handleGetData();
-        //     dispatch(isUpdatedSyllabus(true));
-        // }
+        customJsonInclude(reqBody);
+        formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
+        const response = await dispatch(addEditSyllabusDataAPI(formData));
+        if (response) {
+            handleCloseAddSyllabusEvents();
+            props?.handleGetData();
+            dispatch(isUpdatedSyllabus(true));
+        }
 
 
     }

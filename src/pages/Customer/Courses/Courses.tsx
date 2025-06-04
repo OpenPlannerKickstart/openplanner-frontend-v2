@@ -56,7 +56,7 @@ const Courses = (props) => {
 
 
   /* ------------------------ Handle Display View start ----------------------- */
-  const [selectedView, setSelectedView] = useState<any>(ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW);
+  const [selectedView, setSelectedView] = useState<any>(ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW);
   const handleChangeView = (view) => {
     if (selectedView !== view) {
       setSelectedView(view);
@@ -200,7 +200,7 @@ const Courses = (props) => {
         </div>
         <div className="page-filters p-3 mb-0">
           <div className="page-filters-left">
-            <Form.Group className="form-group form-group-sm form-group-inline-control">
+            {/* <Form.Group className="form-group form-group-sm form-group-inline-control">
               <div className="form-control-wrapper">
                 <div className="form-group-icon-start">
                   <i className="material-symbols-outlined">search</i>
@@ -211,7 +211,7 @@ const Courses = (props) => {
                   />
                 </div>
               </div>
-            </Form.Group>
+            </Form.Group> */}
             {/* <Form.Group className="form-group form-group-sm">
               <div className="react-datepicker-container form-group-icon-end">
                 <i className="material-symbols-outlined control-icon">date_range</i>
@@ -229,16 +229,16 @@ const Courses = (props) => {
           <div className="page-filters-right">
             <div className="list-view-group">
               <ul className="list-view-wrapper">
-                <li className={`${selectedView === ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW ? "active" : ""}`} onClick={() => { handleChangeView(ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW) }}>
-                  <a className="">
-                    <i className="material-symbols-outlined">menu</i>
-                  </a>
-                </li>
                 <li className={`${selectedView === ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW ? "active" : ""}`}
                   onClick={() => { handleChangeView(ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW) }}
                 >
                   <a className="">
                     <i className="material-symbols-outlined">grid_on</i>
+                  </a>
+                </li>
+                <li className={`${selectedView === ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW ? "active" : ""}`} onClick={() => { handleChangeView(ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW) }}>
+                  <a className="">
+                    <i className="material-symbols-outlined">menu</i>
                   </a>
                 </li>
               </ul>
@@ -397,7 +397,10 @@ const Courses = (props) => {
                                     <div className="selected-date-with-color">
                                       <div className="selected-date">
                                         <i className="material-symbols-outlined">calendar_month</i>
-                                        <p> {formatedDate(item?.updated_at, " MM/DD/YYYY - hh:mm A")}</p>
+                                        {/* <p> {formatedDate(item?.updated_at, " MM/DD/YYYY - hh:mm A")}</p> */}
+                                        <p> {formatTime(item?.class_time, "hh:mm A")}</p>
+
+
                                       </div>
                                       <div className="selected-color">
                                         <span className="color-code" style={{ backgroundColor: `${item?.course_color || "#239bc266"}` }}></span>
@@ -528,7 +531,7 @@ const Courses = (props) => {
                   </div>
                   <div className="modal-confirmation-content">
 
-                    <h5>All the Events of this course will be marked as completed.</h5>
+                    <h5>This action will mark only the syllabus for this course as completed.</h5>
                     <p>Do you want to proceed?</p>
 
                   </div>

@@ -95,7 +95,7 @@ const SyllabusDetails = (props) => {
           )
         : !isNullUndefinedOrBlank(syllabus_doc)
           ? yup.mixed().nullable()
-          : yup.object().required(SYLLABUS_DOC_IS_REQUIRED);
+          : yup.object().nullable();
     }),
   });
   const syllabusFormData = useFormik({
@@ -127,16 +127,12 @@ const SyllabusDetails = (props) => {
       id: props?.selectedSyllabusObj?.id,
     };
 
-    if (
-      !isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) &&
-      typeof syllabusFormData?.values?.syllabus_doc === "object"
-    ) {
-      formData.append(
-        "syllabus_doc",
-        syllabusFormData?.values?.syllabus_doc[0]
-      );
+    if (!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) &&
+      typeof syllabusFormData?.values?.syllabus_doc === "object") {
+      formData.append("syllabus_doc", syllabusFormData?.values?.syllabus_doc[0]);
     } else {
       reqBody["url"] = syllabusFormData?.values?.syllabus_doc;
+      // reqBody["doc_id"] = null
     }
 
     customJsonInclude(reqBody);
