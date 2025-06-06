@@ -463,7 +463,7 @@ const AddSyllabusEvents = (props) => {
                               ? renderError(syllabusFormData.errors.title as any)
                               : null}
                           </Form.Group>
-                          <Form.Group className="form-group required">
+                          <Form.Group className="form-group">
                             <Form.Label>Upload Syllabus Here</Form.Label>
                             <div className='attachments-container'>
                               <div className='attachments-content'>
@@ -671,10 +671,18 @@ const AddSyllabusEvents = (props) => {
                                     // isClearable={true}
                                     selected={eventFormData.values.start_date}
                                     onChange={(date) => {
-                                      eventFormData.setFieldValue("start_date", date)
-                                      // eventFormData.setFieldValue("end_date", null)
-                                      // Calculate the end date as 30 minutes after the start date
-                                      const endDate = new Date(date.getTime() + 30 * 60 * 1000);
+                                      const now = new Date();
+                                      const selectedDate = new Date(date);
+
+                                      // Only default the time if it hasn't been explicitly set
+                                      if (!date.getHours() && !date.getMinutes()) {
+                                        selectedDate.setHours(now.getHours());
+                                        selectedDate.setMinutes(now.getMinutes());
+                                      }
+
+                                      // Set the selected date and time as the start date
+                                      eventFormData.setFieldValue("start_date", selectedDate);
+                                      const endDate = new Date(selectedDate.getTime() + 30 * 60 * 1000);
 
                                       // Set the calculated end date
                                       eventFormData.setFieldValue("end_date", endDate);
@@ -690,7 +698,18 @@ const AddSyllabusEvents = (props) => {
                                       eventFormData.setFieldTouched("start_date", true)
                                     }}
                                     minDate={new Date()}
+                                    filterTime={(time) => {
+                                      const now = new Date();
+                                      const selectedDate = eventFormData.values.start_date || new Date();
 
+                                      // Disable times earlier than the current time for today's date
+                                      if (selectedDate.toDateString() === now.toDateString()) {
+                                        return time.getTime() >= now.getTime();
+                                      }
+
+                                      // Allow all times for future dates
+                                      return true;
+                                    }}
                                   />
                                   {eventFormData.touched.start_date &&
                                     eventFormData.errors.start_date
@@ -718,6 +737,18 @@ const AddSyllabusEvents = (props) => {
 
                                     onBlur={() => {
                                       eventFormData.setFieldTouched("end_date", true)
+                                    }}
+                                    filterTime={(time) => {
+                                      const now = new Date();
+                                      const selectedDate = eventFormData.values.start_date || new Date();
+
+                                      // Disable times earlier than the current time for today's date
+                                      if (selectedDate.toDateString() === now.toDateString()) {
+                                        return time.getTime() >= now.getTime();
+                                      }
+
+                                      // Allow all times for future dates
+                                      return true;
                                     }}
                                   />
                                   {eventFormData.touched.end_date &&

@@ -311,9 +311,18 @@ export const AddEditEvent = (props) => {
                                                                     // isClearable={true}
                                                                     selected={eventFormData.values.start_date}
                                                                     onChange={(date) => {
-                                                                        eventFormData.setFieldValue("start_date", date);
+
+                                                                        const now = new Date();
+                                                                        const selectedDate = new Date(date);
+
+                                                                        // Only default the time if it hasn't been explicitly set
+                                                                        if (!date.getHours() && !date.getMinutes()) {
+                                                                            selectedDate.setHours(now.getHours());
+                                                                            selectedDate.setMinutes(now.getMinutes());
+                                                                        }
+                                                                        eventFormData.setFieldValue("start_date", selectedDate);
                                                                         // Calculate the end date as 30 minutes after the start date
-                                                                        const endDate = new Date(date.getTime() + 30 * 60 * 1000);
+                                                                        const endDate = new Date(selectedDate.getTime() + 30 * 60 * 1000);
 
                                                                         // Set the calculated end date
                                                                         eventFormData.setFieldValue("end_date", endDate);
@@ -329,6 +338,18 @@ export const AddEditEvent = (props) => {
                                                                     }}
                                                                     minDate={new Date()}
                                                                     disabled={eventFormData?.values?.is_all_day_event}
+                                                                    filterTime={(time) => {
+                                                                        const now = new Date();
+                                                                        const selectedDate = eventFormData.values.start_date || new Date();
+
+                                                                        // Disable times earlier than the current time for today's date
+                                                                        if (selectedDate.toDateString() === now.toDateString()) {
+                                                                            return time.getTime() >= now.getTime();
+                                                                        }
+
+                                                                        // Allow all times for future dates
+                                                                        return true;
+                                                                    }}
                                                                 />
 
                                                             </div>
@@ -363,6 +384,18 @@ export const AddEditEvent = (props) => {
                                                                     }}
                                                                     disabled={eventFormData?.values?.is_all_day_event}
                                                                     minDate={eventFormData?.values?.start_date}
+                                                                    filterTime={(time) => {
+                                                                        const now = new Date();
+                                                                        const selectedDate = eventFormData.values.start_date || new Date();
+
+                                                                        // Disable times earlier than the current time for today's date
+                                                                        if (selectedDate.toDateString() === now.toDateString()) {
+                                                                            return time.getTime() >= now.getTime();
+                                                                        }
+
+                                                                        // Allow all times for future dates
+                                                                        return true;
+                                                                    }}
 
                                                                 />
                                                             </div>
@@ -628,7 +661,7 @@ export const AddEditEvent = (props) => {
                                                                     endDate={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
                                                                     startTime={!isNullUndefinedOrBlank(eventFormData?.values?.start_date) ? formatedDate(eventFormData?.values?.start_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
                                                                     endTime={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
-                                                                    timeZone="America/New_York"
+                                                                    timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone}
                                                                     description={!isNullUndefinedOrBlank(eventFormData?.values?.note) ? eventFormData?.values?.note : ""}
                                                                     options="'Apple','Google','Outlook.com'"
                                                                     buttonsList

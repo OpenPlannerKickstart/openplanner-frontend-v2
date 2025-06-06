@@ -1870,7 +1870,6 @@ $sm_sidebar_home_link_width: 170px;
 .calender-content-area {
     padding: 0 !important;
     border-radius: 0 !important;
-    overflow: hidden !important;
 
     .sidebar-with-calendar {
         display: flex;
@@ -1970,10 +1969,12 @@ $sm_sidebar_home_link_width: 170px;
                             }
                         }
                     }
-                    .classes-details-wrapper{
+
+                    .classes-details-wrapper {
                         height: calc(100vh - 525px);
                         overflow-y: auto;
                     }
+
                     .classes-details {
                         display: flex;
                         flex-direction: column;
@@ -2031,7 +2032,7 @@ $sm_sidebar_home_link_width: 170px;
 
             .rbc-calendar {
                 width: 100%;
-                
+
                 .calendar-header {
                     display: flex;
                     justify-content: space-between;
@@ -2144,8 +2145,6 @@ $sm_sidebar_home_link_width: 170px;
 
                 .rbc-month-view {
                     border-color: $stock_light;
-                    max-height: calc(100vh - 193px);
-                    overflow-y: scroll;
 
                     .rbc-header {
                         padding: 7px 10px;

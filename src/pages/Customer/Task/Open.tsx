@@ -78,7 +78,7 @@ const Open = (props) => {
     const handleUpdateTask = (data: Task) => {
         props?.setSavedtaskFormData({
             task_id: data.id,
-            due_date: data.due_date,
+            due_date: new Date(formatedDate(data.due_date, "yyyy-MM-DD HH:mm:ss")),
             task_name: data.task_name,
             note: data.note,
             is_reminder: data.is_reminder,

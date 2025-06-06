@@ -198,7 +198,7 @@ export const AddEditSyllabus = (props) => {
                                                         ? renderError(syllabusFormData.errors.title as any)
                                                         : null}
                                                 </Form.Group>
-                                                <Form.Group className="form-group required">
+                                                <Form.Group className="form-group">
                                                     <Form.Label>Upload Syllabus Here</Form.Label>
                                                     <div className='attachments-container'>
                                                         <div className='attachments-content'>

@@ -58,6 +58,7 @@ export const updateUserAPI =
             try {
                 const response: any = await post(UPDATE_USER_API, objBody);
                 if (!response.data.error) {
+                    ts(response?.data?.message)
                     return dispatch(updateUserSuccess(response.data.data));
                 } else {
                     dispatch(updateUserFailure());

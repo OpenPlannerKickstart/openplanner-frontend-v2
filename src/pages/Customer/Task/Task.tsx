@@ -6,7 +6,7 @@ import Open from "./Open";
 import Complete from "./Complete";
 import { setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
-import { customJsonInclude, getDate, isEmpty, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError } from "../../../Utility/Helper";
+import { customJsonInclude, formatedDate, getDate, isEmpty, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError } from "../../../Utility/Helper";
 import { TASK_DATE_IS_REQUIRED, TASK_NAME_IS_REQUIRED, TASK_NOTE_IS_REQUIRED } from "../../../Utility/Validation_Message";
 import { MAX_3, MAX_300, MAX_5, MAX_50, ONLY_NUMBERS } from "../../../Utility/Validation_Helper";
 import { reminderUnitDropDownData } from "../../../Utility/staticDropDown";
@@ -334,8 +334,10 @@ const Task = (props) => {
       search: search,
       start_date: startDate,
       end_date: endDate,
+
       filter: "due_date"
     }
+    customJsonInclude(reqBody);
     const response = await dispatch(taskListingAPI(reqBody));
     if (!isNullUndefinedOrBlank(response?.payload)) {
       setTaskList(response?.payload?.tasks);
@@ -548,11 +550,31 @@ const Task = (props) => {
                             popperProps={{ strategy: "fixed" }}
                             placeholderText={"Select Due Date"}
                             minDate={new Date()}
-                            selected={taskFormData.values.due_date ? new Date(taskFormData.values.due_date) : null}
+                            selected={taskFormData.values.due_date}
                             onChange={(date) => {
-                              taskFormData.setFieldValue("due_date", date);
+                              const now = new Date();
+                              const selectedDate = new Date(date);
+
+                              // Only default the time if it hasn't been explicitly set
+                              if (!date.getHours() && !date.getMinutes()) {
+                                selectedDate.setHours(now.getHours());
+                                selectedDate.setMinutes(now.getMinutes());
+                              }
+                              taskFormData.setFieldValue("due_date", selectedDate ? selectedDate : null);
                             }
                             }
+                            filterTime={(time) => {
+                              const now = new Date();
+                              const selectedDate = taskFormData.values.due_date || new Date();
+
+                              // Disable times earlier than the current time for today's date
+                              if (selectedDate.toDateString() === now.toDateString()) {
+                                return time.getTime() >= now.getTime();
+                              }
+
+                              // Allow all times for future dates
+                              return true;
+                            }}
                           />
                         </div>
                         {

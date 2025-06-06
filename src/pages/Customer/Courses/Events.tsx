@@ -172,8 +172,8 @@ const Events = (props) => {
                                             </div>
                                           </div>
                                         </td>
-                                        <td>{!isNullUndefinedOrBlank(childItem?.start_date) ? formatedDate(childItem?.start_date, "MM/DD/yyyy") : NO_START_DATE_ADDED}</td>
-                                        <td>{!isNullUndefinedOrBlank(childItem?.end_date) ? formatedDate(childItem?.end_date, "MM/DD/yyyy") : NO_END_DATE_ADDED}</td>
+                                        <td>{!isNullUndefinedOrBlank(childItem?.start_date) ? formatedDate(childItem?.start_date, "hh:mm a") : NO_START_DATE_ADDED}</td>
+                                        <td>{!isNullUndefinedOrBlank(childItem?.end_date) ? formatedDate(childItem?.end_date, "hh:mm a") : NO_END_DATE_ADDED}</td>
                                         <td className="tbl-action">
                                           <div className="tbl-action-group">
 
@@ -285,8 +285,8 @@ const Events = (props) => {
                                               </div>
                                             </div>
                                           </td>
-                                          <td>{!isNullUndefinedOrBlank(parentItem?.start_date) ? formatedDate(parentItem?.start_date, "MM/DD/yyyy") : NO_START_DATE_ADDED}</td>
-                                          <td>{!isNullUndefinedOrBlank(parentItem?.end_date) ? formatedDate(parentItem?.end_date, "MM/DD/yyyy") : NO_END_DATE_ADDED}</td>
+                                          <td>{!isNullUndefinedOrBlank(parentItem?.start_date) ? formatedDate(parentItem?.start_date, "MM/DD/yyyy hh:mm a") : NO_START_DATE_ADDED}</td>
+                                          <td>{!isNullUndefinedOrBlank(parentItem?.end_date) ? formatedDate(parentItem?.end_date, "MM/DD/yyyy hh:mm a") : NO_END_DATE_ADDED}</td>
                                           <td className="tbl-action">
                                             <div className="tbl-action-group">
 
