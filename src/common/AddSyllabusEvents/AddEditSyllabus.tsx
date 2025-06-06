@@ -227,12 +227,12 @@ export const AddEditSyllabus = (props) => {
                                                             <div className='attachments-upload-row'>
                                                                 <div className='attachments-upload-col'>
                                                                     <div className='card-attachments-upload'>
-                                                                        <div className='attachments-image'>
-                                                                            {/* <img src={DefaultAvtar} alt="DefaultAvtar" /> */}
-                                                                            <GetImageIcon
+                                                                        {/* <div className='attachments-image'> */}
+                                                                        {/* <img src={DefaultAvtar} alt="DefaultAvtar" /> */}
+                                                                        {/* <GetImageIcon
                                                                                 image={syllabusFormData?.values?.syllabus_doc_name}
-                                                                            />
-                                                                        </div>
+                                                                            /> */}
+                                                                        {/* </div> */}
                                                                         {
                                                                             !isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) &&
                                                                             <div className="attachments-text">

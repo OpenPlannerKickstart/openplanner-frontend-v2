@@ -264,13 +264,13 @@ const SyllabusDetails = (props) => {
                   <div className="attachments-upload-row">
                     <div className="attachments-upload-col">
                       <div className="card-attachments-upload">
-                        <div className="attachments-image">
-                          {/* <img src={DefaultAvtar} alt="DefaultAvtar" /> */}
-                          <GetImageIcon
+                        {/* <div className="attachments-image"> */}
+                        {/* <img src={DefaultAvtar} alt="DefaultAvtar" /> */}
+                        {/* <GetImageIcon
                             image={syllabusFormData?.values?.syllabus_doc_name}
-                          />
-                        </div>
-                        <button
+                          /> */}
+                        {/* </div> */}
+                        {/* <button
                           className="btn-close"
                           onClick={() => {
                             handleShow();
@@ -278,14 +278,23 @@ const SyllabusDetails = (props) => {
                           }}
                         >
                           <i className="material-symbols-outlined">close</i>
-                        </button>
+                        </button> */}
+                        {
+                          !isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) &&
+                          <div className="attachments-text">
+                            <p title={!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"} >{!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"}</p>
+                          </div>
+                        }
+                        <button className="btn-close"
+                          onClick={() => { handleRemoveSyllabusDoc() }}
+                        ><i className='material-symbols-outlined'>close</i></button>
                       </div>
-                      {
+                      {/* {
                         !isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) &&
                         <div className="attachments-text">
                           <p title={!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"} >{!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"}</p>
                         </div>
-                      }
+                      } */}
 
                     </div>
                   </div>

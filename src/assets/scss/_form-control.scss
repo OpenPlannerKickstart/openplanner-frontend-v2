@@ -511,6 +511,7 @@
 /*                       Attachments - File Upload Start                      */
 /* -------------------------------------------------------------------------- */
 .attachments-container {
+    margin-bottom: 10px;
     position: relative;
     border: 2px dashed $stock_dark;
     padding: 15px 25px;
@@ -569,7 +570,7 @@
 }
 
 .attachments-upload-grid-container {
-    margin-top: 15px;
+    margin-top: 0px;
 
     .attachments-upload-row {
         display: flex;
@@ -578,7 +579,7 @@
         gap: 14px;
 
         .attachments-upload-col {
-            max-width: 100px;
+            max-width: 200px;
             padding: 0 0px;
         }
 
@@ -643,7 +644,7 @@
                 width: 16px;
                 position: absolute;
                 top: 10px;
-                right: 10px;
+                right: 5px;
 
                 i {
                     transition: 0.70s;
@@ -669,12 +670,13 @@
     margin-top: 5px;
 
     p {
-        font-size: 10px;
+        font-size: 12px;
         color: $text_black_color;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
         padding: 6px;
+        padding-right: 20px;
     }
 }
 
