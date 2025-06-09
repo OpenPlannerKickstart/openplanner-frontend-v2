@@ -128,7 +128,7 @@ const PendingEvents = (props) => {
                                             />
                                             <label htmlFor="tbl-checkbox"></label>
                                         </div> */}
-                                        #
+                                        Action
                                     </div>
                                 </th>
                                 <th>Title Name</th>
@@ -147,16 +147,20 @@ const PendingEvents = (props) => {
 
                                         <tr key={index}>
                                             <td className="tbl-user tbl-srno">
-                                                <div className="tbl-user-checkbox-srno">
-                                                    {/* <div className="checkbox checkbox-primary checkbox-small">
-                                                        <input
-                                                            type="checkbox"
-                                                            id="tbl-checkbox1"
-                                                            className="material-inputs filled-in"
-                                                        />
-                                                        <label htmlFor="tbl-checkbox1"></label>
-                                                    </div> */}
-                                                    <span>{index + 1}.</span>
+                                                <div className="tbl-action-group">
+                                                    <OverlayTrigger
+                                                        trigger={["hover", "hover"]}
+                                                        placement="bottom"
+                                                        overlay={<Tooltip>Complete</Tooltip>}
+                                                    >
+                                                        <button
+                                                            className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleEventCompleted([item.id], item?.status) }}
+                                                        >
+                                                            {" "}
+                                                            <i className="material-symbols-outlined">check_circle</i>
+                                                        </button>
+                                                    </OverlayTrigger>
+
                                                 </div>
                                             </td>
                                             <td className='tbl-title'>
@@ -174,7 +178,7 @@ const PendingEvents = (props) => {
                                             <td>{!isNullUndefinedOrBlank(item.end_date) ? formatedDate(item?.end_date, "MM/DD/yyyy hh:mm A") : "-"}</td>
                                             <td className="tbl-action">
                                                 <div className="tbl-action-group">
-                                                    <OverlayTrigger
+                                                    {/* <OverlayTrigger
                                                         trigger={["hover", "hover"]}
                                                         placement="bottom"
                                                         overlay={<Tooltip>Complete</Tooltip>}
@@ -185,7 +189,7 @@ const PendingEvents = (props) => {
                                                             {" "}
                                                             <i className="material-symbols-outlined">check_circle</i>
                                                         </button>
-                                                    </OverlayTrigger>
+                                                    </OverlayTrigger> */}
                                                     <OverlayTrigger
                                                         trigger={["hover", "hover"]}
                                                         placement="bottom"

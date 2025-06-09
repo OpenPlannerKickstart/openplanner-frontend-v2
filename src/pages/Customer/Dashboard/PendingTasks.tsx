@@ -87,7 +87,7 @@ const PendingTasks = (props) => {
                                             />
                                             <label htmlFor="tbl-checkbox"></label>
                                         </div> */}
-                                        #
+                                        Action
                                     </div>
                                 </th>
                                 <th>Task Name</th>
@@ -144,16 +144,16 @@ const PendingTasks = (props) => {
                                     return (
                                         <tr key={taskIndex}>
                                             <td className="tbl-user tbl-srno">
-                                                <div className="tbl-user-checkbox-srno">
-                                                    {/* <div className="checkbox checkbox-primary checkbox-small">
-                                                        <input
-                                                            type="checkbox"
-                                                            id="tbl-checkbox1"
-                                                            className="material-inputs filled-in"
-                                                        />
-                                                        <label htmlFor="tbl-checkbox1"></label>
-                                                    </div> */}
-                                                    <span>{taskIndex + 1}</span>
+                                                <div className="tbl-action-group">
+                                                    <button
+                                                        className="btn btn-xs btn-icon btn-transparent check-icon"
+                                                        onClick={() => { handleTaskCompleted([taskItem?.id]) }}
+                                                    >
+                                                        <i className="material-symbols-outlined">check_circle</i>
+                                                    </button>
+                                                    {/* <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow([...deleteTaskData, taskItem]) }}>
+                                                        <i className="material-symbols-outlined">delete</i>
+                                                    </button> */}
                                                 </div>
                                             </td>
                                             <td>
@@ -162,12 +162,12 @@ const PendingTasks = (props) => {
 
                                             <td className="tbl-action">
                                                 <div className="tbl-action-group">
-                                                    <button
+                                                    {/* <button
                                                         className="btn btn-xs btn-icon btn-transparent check-icon"
                                                         onClick={() => { handleTaskCompleted([taskItem?.id]) }}
                                                     >
                                                         <i className="material-symbols-outlined">check_circle</i>
-                                                    </button>
+                                                    </button> */}
                                                     <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow([...deleteTaskData, taskItem]) }}>
                                                         <i className="material-symbols-outlined">delete</i>
                                                     </button>

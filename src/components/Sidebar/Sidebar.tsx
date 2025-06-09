@@ -50,7 +50,7 @@ export const Sidebar = () => {
                 {/* <li className="menu-title"><span data-key="t-menu">MAIN HOME</span></li> */}
                 <li className="nav-item">
                   <NavLink className="nav-link menu-link " to="/dashboard">
-                    <i className="material-symbols-outlined">cottage</i> <span data-key="t-widgets">Home</span>
+                    <i className="material-symbols-outlined">cottage</i> <span data-key="t-widgets">My Week</span>
                   </NavLink>
                 </li>
                 <li className="nav-item">
