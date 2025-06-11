@@ -20,7 +20,7 @@ import {
 import { io } from 'socket.io-client';
 import { NOTIFICATION_ALERT } from '../../Utility/ApiList';
 import { ts } from '../../Utility/Toaster';
-import { WEB_SOCKET_CONNECTION_URL } from '../../Utility/Config';
+import { API_URL, WEB_SOCKET_CONNECTION_URL } from '../../Utility/Config';
 const Navbar = (props) => {
   const [SidebarSize, setSidebarSize] = useState('lg');
   const windowSize = document.documentElement.clientWidth;
@@ -78,7 +78,7 @@ const Navbar = (props) => {
   const countOfUnreadNotificationData: any = useSelector(
     (state: RootState) => state.NotificationReducer.countOfUnreadNotificationData);
   const [is_readAll, setis_readAll] = useState<boolean>(false);
-  const socket = io("http://192.168.1.109:4003");
+  const socket = io(API_URL);
 
   const openNotificationModal = async () => {
     const response = await dispatch(getAllNotificationAPI());
