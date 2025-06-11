@@ -91,7 +91,8 @@ const VerifySignupOtp = (props) => {
         const sendEmailOtpResponse = await dispatch(sendSignupEmailOtp(sendEmailOtpReqBody));
         if (sendEmailOtpResponse) {
             setOtpData("");
-
+            setTimer(60);
+            setCanResend(false);
         }
     }
     /* ------------------------- handle Resend Otp End ------------------------ */
@@ -169,7 +170,7 @@ const VerifySignupOtp = (props) => {
                                                     value={otpData}
                                                     numInputs={6}
                                                     inputType="text"
-                                                    
+
                                                     onChange={handleOtpInput}
                                                     containerStyle={""}
                                                     shouldAutoFocus={true}

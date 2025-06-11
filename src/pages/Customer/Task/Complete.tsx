@@ -177,7 +177,7 @@ const Complete = (props) => {
               <p>
                 {!deleteSuccess ?
                   "You want to delete this task ?" :
-                  "Get back to task page to add or complete the other task"
+                  "Get back to task page to complete the other task"
                 }
 
               </p>

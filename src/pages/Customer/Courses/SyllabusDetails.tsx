@@ -74,6 +74,7 @@ const SyllabusDetails = (props) => {
   };
   const [savedSyllabusFormData, setSavedSyllabusFormData] =
     useState<addSyllabusData>(initSyllabusData);
+  const [loading, setloading] = useState(false)
   const onSubmit = (values) => { };
   const validationSchema = yup.object({
     title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
@@ -137,11 +138,13 @@ const SyllabusDetails = (props) => {
 
     customJsonInclude(reqBody);
     formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
+    setloading(true);
     const response = await dispatch(addEditSyllabusDataAPI(formData));
     if (response) {
       props.handleCloseSyllabusDetails();
       props.handleGetCourseList();
     }
+    setloading(false);
   };
 
   const handleRemoveSyllabusDoc = () => {
@@ -568,6 +571,33 @@ const SyllabusDetails = (props) => {
       </Modal>
 
       {/* Success Modal */}
+
+      {loading && (
+        <div className="loader-container">
+          <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+            <rect
+              className="track"
+              x="2.5"
+              y="2.5"
+              fill="none"
+              stroke-width="5px"
+              width="32.5"
+              height="32.5"
+            />
+            <rect
+              className="car"
+              x="2.5"
+              y="2.5"
+              fill="none"
+              stroke-width="5px"
+              width="32.5"
+              height="32.5"
+              pathLength="100"
+            />
+          </svg>
+        </div>
+      )}
+
     </>
   );
 };

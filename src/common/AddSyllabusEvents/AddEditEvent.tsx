@@ -311,22 +311,36 @@ export const AddEditEvent = (props) => {
                                                                     // isClearable={true}
                                                                     selected={eventFormData.values.start_date}
                                                                     onChange={(date) => {
+                                                                        if (date === null) {
+                                                                            eventFormData.setFieldValue("start_date", null);
+                                                                            eventFormData.setFieldValue("end_date", null);
+                                                                            return;
+                                                                        }
 
                                                                         const now = new Date();
                                                                         const selectedDate = new Date(date);
 
-                                                                        // Only default the time if it hasn't been explicitly set
-                                                                        if (!date.getHours() && !date.getMinutes()) {
+                                                                        // Check if the selected date is the current date (ignoring time)
+                                                                        const isSameDate =
+                                                                            now.getFullYear() === selectedDate.getFullYear() &&
+                                                                            now.getMonth() === selectedDate.getMonth() &&
+                                                                            now.getDate() === selectedDate.getDate();
+
+                                                                        // Only apply time logic if the selected date is the current date
+                                                                        if (isSameDate && !date?.getHours() && !date?.getMinutes()) {
                                                                             selectedDate.setHours(now.getHours());
                                                                             selectedDate.setMinutes(now.getMinutes());
                                                                         }
+
                                                                         eventFormData.setFieldValue("start_date", selectedDate);
+
                                                                         // Calculate the end date as 30 minutes after the start date
                                                                         const endDate = new Date(selectedDate.getTime() + 30 * 60 * 1000);
 
                                                                         // Set the calculated end date
                                                                         eventFormData.setFieldValue("end_date", endDate);
                                                                     }}
+
                                                                     showTimeSelect
                                                                     dateFormat="MM/dd/yyyy hh:mm aa"
                                                                     timeIntervals={15}

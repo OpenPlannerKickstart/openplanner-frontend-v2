@@ -225,7 +225,7 @@ const PendingTasks = (props) => {
                             <p>
                                 {!deleteSuccess ?
                                     "You want to delete this task ?" :
-                                    "Get back to task page to add or complete the other task"
+                                    "Get back to task page to complete the other task"
                                 }
 
                             </p>
@@ -273,7 +273,7 @@ const PendingTasks = (props) => {
                         <div className="modal-confirmation-content">
                             <h5>You have successfully
                                 completed  Task!</h5>
-                            <p>Get back to task page to add or complete the other task</p>
+                            <p>Get back to task page to complete the other task</p>
                         </div>
                     </div>
                     <div className="modal-button-group modal-full-width-btn modal-footer-button">

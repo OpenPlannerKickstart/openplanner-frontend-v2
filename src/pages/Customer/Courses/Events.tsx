@@ -404,7 +404,7 @@ const Events = (props) => {
                   <p>
                     {!deleteSuccess ?
                       "You want to delete this event ?" :
-                      "Get back to task page to add or complete the other event"
+                      "Get back to Event page to add or complete the other event"
                     }
 
                   </p>

@@ -304,7 +304,7 @@ const PendingEvents = (props) => {
                             <h5>You have successfully
                                 deleted Task!</h5>
                             <p>
-                                Get back to task page to add or complete the other task
+                                Get back to My Week page to complete the other task
                             </p>
                         </div>
                     </div>
@@ -348,7 +348,7 @@ const PendingEvents = (props) => {
                             <p>
                                 {!deleteSuccess ?
                                     "You want to delete this event ?" :
-                                    "Get back to task page to add or complete the other event"
+                                    "Get back to My Week page to complete the other event"
                                 }
 
                             </p>
@@ -395,7 +395,7 @@ const PendingEvents = (props) => {
                         <div className="modal-confirmation-content">
                             <h5>You have successfully
                                 completed  Event!</h5>
-                            <p>Get back to task page to add or complete the other Event</p>
+                            <p>Get back to My Week page to complete the other Event</p>
                         </div>
                     </div>
                     <div className="modal-button-group modal-full-width-btn modal-footer-button">

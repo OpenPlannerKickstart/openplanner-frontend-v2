@@ -76,6 +76,7 @@ const AddSyllabusEvents = (props) => {
 
   }
   const [savedSyllabusFormData, setSavedSyllabusFormData] = useState<addSyllabusData>(initSyllabusData);
+  const [loading, setloading] = useState(false)
   const onSubmitForSyllabus = (values) => {
   }
   const validationSchemaForSyllabus = yup.object({
@@ -134,13 +135,14 @@ const AddSyllabusEvents = (props) => {
 
     customJsonInclude(reqBody);
     formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
+    setloading(true);
     const response = await dispatch(addEditSyllabusDataAPI(formData));
     if (response) {
       handleCloseAddSyllabusEvents();
       dispatch(isUpdatedSyllabus(true));
 
     }
-
+    setloading(false);
 
   }
 
@@ -671,23 +673,36 @@ const AddSyllabusEvents = (props) => {
                                     // isClearable={true}
                                     selected={eventFormData.values.start_date}
                                     onChange={(date) => {
+                                      if (date === null) {
+                                        eventFormData.setFieldValue("start_date", null);
+                                        eventFormData.setFieldValue("end_date", null);
+                                        return;
+                                      }
+
                                       const now = new Date();
                                       const selectedDate = new Date(date);
 
-                                      // Only default the time if it hasn't been explicitly set
-                                      if (!date.getHours() && !date.getMinutes()) {
+                                      // Check if the selected date is the current date (ignoring time)
+                                      const isSameDate =
+                                        now.getFullYear() === selectedDate.getFullYear() &&
+                                        now.getMonth() === selectedDate.getMonth() &&
+                                        now.getDate() === selectedDate.getDate();
+
+                                      // Only apply time logic if the selected date is the current date
+                                      if (isSameDate && !date?.getHours() && !date?.getMinutes()) {
                                         selectedDate.setHours(now.getHours());
                                         selectedDate.setMinutes(now.getMinutes());
                                       }
 
-                                      // Set the selected date and time as the start date
                                       eventFormData.setFieldValue("start_date", selectedDate);
+
+                                      // Calculate the end date as 30 minutes after the start date
                                       const endDate = new Date(selectedDate.getTime() + 30 * 60 * 1000);
 
                                       // Set the calculated end date
                                       eventFormData.setFieldValue("end_date", endDate);
-                                    }
-                                    }
+                                    }}
+
                                     showTimeSelect
                                     dateFormat="MM/dd/yyyy hh:mm aa"
                                     timeIntervals={15}
@@ -943,6 +958,33 @@ const AddSyllabusEvents = (props) => {
         </Offcanvas>
       </div>
       {/***** Offcanvas end *****/}
+
+      {loading && (
+        <div className="loader-container">
+          <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+            <rect
+              className="track"
+              x="2.5"
+              y="2.5"
+              fill="none"
+              stroke-width="5px"
+              width="32.5"
+              height="32.5"
+            />
+            <rect
+              className="car"
+              x="2.5"
+              y="2.5"
+              fill="none"
+              stroke-width="5px"
+              width="32.5"
+              height="32.5"
+              pathLength="100"
+            />
+          </svg>
+        </div>
+      )}
+
     </>
   )
 }

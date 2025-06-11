@@ -337,7 +337,7 @@ const Task = (props) => {
 
       filter: "due_date"
     }
-    customJsonInclude(reqBody);
+    // customJsonInclude(reqBody);
     const response = await dispatch(taskListingAPI(reqBody));
     if (!isNullUndefinedOrBlank(response?.payload)) {
       setTaskList(response?.payload?.tasks);
@@ -552,11 +552,20 @@ const Task = (props) => {
                             minDate={new Date()}
                             selected={taskFormData.values.due_date}
                             onChange={(date) => {
+                              if (date === null) {
+                                taskFormData.setFieldValue("due_date", null);
+                                return;
+                              }
                               const now = new Date();
                               const selectedDate = new Date(date);
 
                               // Only default the time if it hasn't been explicitly set
-                              if (!date.getHours() && !date.getMinutes()) {
+                              const isSameDate =
+                                now.getFullYear() === selectedDate.getFullYear() &&
+                                now.getMonth() === selectedDate.getMonth() &&
+                                now.getDate() === selectedDate.getDate();
+
+                              if (isSameDate && !date.getHours() && !date.getMinutes()) {
                                 selectedDate.setHours(now.getHours());
                                 selectedDate.setMinutes(now.getMinutes());
                               }
@@ -791,7 +800,7 @@ const Task = (props) => {
                     <h5>You have successfully
                       deleted Task!</h5>
                     <p>
-                      Get back to task page to add or complete the other task
+                      Get back to task page to complete the other task
                     </p>
                   </div>
                 </div>
@@ -825,7 +834,7 @@ const Task = (props) => {
                   <div className="modal-confirmation-content">
                     <h5>You have successfully
                       completed  Task!</h5>
-                    <p>Get back to task page to add or complete the other task</p>
+                    <p>Get back to task page to complete the other task</p>
                   </div>
                 </div>
                 <div className="modal-button-group modal-full-width-btn modal-footer-button">

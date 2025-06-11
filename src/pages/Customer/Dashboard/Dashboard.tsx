@@ -683,9 +683,9 @@ const Dashboard = () => {
         <Modal.Body className='pt-0'>
           <div className="modal-event-container">
             <div>
-              <p>
+              <div className='notes'>
                 {!isNullUndefinedOrBlank(noteData) ? noteData : "You have not Added any Note!!"}
-              </p>
+              </div>
             </div>
           </div>
           <div className="modal-button-group">

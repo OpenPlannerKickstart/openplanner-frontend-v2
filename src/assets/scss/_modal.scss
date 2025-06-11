@@ -1,7 +1,7 @@
 .modal-theme {
     .modal-content {
         border: 0;
-        border-radius: 15px;        
+        border-radius: 15px;
 
         .modal-header {
             padding: 18px 19px;
@@ -10,9 +10,21 @@
         .modal-body {
             padding: 14px 18px;
             color: #2D3C5C;
-            .modal-footer-button{
+
+            .modal-footer-button {
                 border-top: 1px solid $stock_light;
                 padding-top: 22px;
+            }
+
+
+            p {
+                white-space: pre-wrap;
+
+
+            }
+
+            .notes {
+                word-break: break-all;
             }
         }
 

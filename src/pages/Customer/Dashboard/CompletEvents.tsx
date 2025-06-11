@@ -135,7 +135,7 @@ const CompletEvents = (props) => {
                                                 <Badge className='course_badge' title={!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"} bg="" style={{ backgroundColor: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)', color: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}><i className="material-symbols-outlined" style={{ color: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}>book_2</i><span>{!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"}</span></Badge>
                                             </td>
                                             <td onClick={() => { props.handleShowShowNote(item.note) }}>
-                                                <a >View Notes</a>
+                                                <a>View Notes</a>
                                             </td>
                                             <td>{!isNullUndefinedOrBlank(item.start_date) ? formatedDate(item?.start_date, "MM/DD/yyyy hh:mm A") : "-"}</td>
                                             <td>{!isNullUndefinedOrBlank(item.end_date) ? formatedDate(item?.end_date, "MM/DD/yyyy hh:mm A") : "-"}</td>
@@ -217,7 +217,7 @@ const CompletEvents = (props) => {
                             <p>
                                 {!deleteSuccess ?
                                     "You want to delete this event ?" :
-                                    "Get back to task page to add or complete the other event"
+                                    "Get back to My Week page to complete the other event"
                                 }
 
                             </p>

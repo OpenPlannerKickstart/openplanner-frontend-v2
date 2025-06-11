@@ -9,7 +9,7 @@ import "./Loader.scss";
 function Loader({ loading }: any) {
   return (
     <>
-      {loading && (
+      {/* {loading && (
         <div className="loader-container">
           <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
             <rect
@@ -33,7 +33,7 @@ function Loader({ loading }: any) {
             />
           </svg>
         </div>
-      )}
+      )} */}
     </>
   );
 }

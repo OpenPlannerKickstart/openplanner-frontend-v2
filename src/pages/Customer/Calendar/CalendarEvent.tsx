@@ -185,6 +185,7 @@ const CalenderEvent = () => {
     let reqBody: any = {
       syllabus_id: syllabusId,
     };
+
     customJsonInclude(reqBody);
     if (!isNullUndefinedOrBlank(searchByStartDate)) {
       reqBody.start_date = getDate(searchByStartDate, "yyyy-MM-DD");
@@ -207,6 +208,7 @@ const CalenderEvent = () => {
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
+
       handleGetCalenderData();
     }, 300);
     return () => {
@@ -488,56 +490,56 @@ const CalenderEvent = () => {
                       </div>
                     </div>
                     <div className="classes-details-wrapper">
-                    <div className="classes-details">
-                      {!isEmptyObjectOrNullUndefiend(syllabusDropDownData) ?
-                        syllabusDropDownData?.map((item, index) => {
-                          return (
-                            <>
-                              <div className="class-main">
-                                <div className="checkbox checkbox-primary classes-checkbox checkbox-small">
-                                  <input
-                                    id={`${index} -checkbox`}
-                                    className="material-inputs filled-in"
-                                    type="checkbox"
-                                    // name={`syllabus-${item.value}`}
+                      <div className="classes-details">
+                        {!isEmptyObjectOrNullUndefiend(syllabusDropDownData) ?
+                          syllabusDropDownData?.map((item, index) => {
+                            return (
+                              <>
+                                <div className="class-main">
+                                  <div className="checkbox checkbox-primary classes-checkbox checkbox-small">
+                                    <input
+                                      id={`${index} -checkbox`}
+                                      className="material-inputs filled-in"
+                                      type="checkbox"
+                                      // name={`syllabus-${item.value}`}
 
-                                    onChange={() => {
-                                      handleCheckSyllabusID(item.value);
-                                    }}
-                                    checked={syllabusId.includes(item.value)}
-                                  />
-                                  <label htmlFor={`${index} -checkbox`}>
-                                    {item.label}
-                                  </label>
+                                      onChange={() => {
+                                        handleCheckSyllabusID(item.value);
+                                      }}
+                                      checked={syllabusId.includes(item.value)}
+                                    />
+                                    <label htmlFor={`${index} -checkbox`}>
+                                      {item.label}
+                                    </label>
+                                  </div>
+                                  <div className="color-box">
+                                    <span
+                                      style={{
+                                        backgroundColor: `${!isNullUndefinedOrBlank(item.other.course_color)
+                                          ? item?.other?.course_color
+                                          : "#000000"
+                                          }`,
+                                      }}
+                                    ></span>
+                                  </div>
                                 </div>
-                                <div className="color-box">
-                                  <span
-                                    style={{
-                                      backgroundColor: `${!isNullUndefinedOrBlank(item.other.course_color)
-                                        ? item?.other?.course_color
-                                        : "#000000"
-                                        }`,
-                                    }}
-                                  ></span>
-                                </div>
+                              </>
+                            );
+                          })
+                          :
+                          <>
+                            <div className="no-records-found no-records-found-inner h-100">
+                              <div className="no-records-found-image">
+                                <img src={notVoucherFound} alt="OpenPlaner" />
                               </div>
-                            </>
-                          );
-                        })
-                        :
-                        <>
-                          <div className="no-records-found no-records-found-inner h-100">
-                            <div className="no-records-found-image">
-                              <img src={notVoucherFound} alt="OpenPlaner" />
+                              <div className="no-records-found-text">
+                                <h6>No data found!</h6>
+                              </div>
                             </div>
-                            <div className="no-records-found-text">
-                              <h6>No data found!</h6>
-                            </div>
-                          </div>
 
-                        </>
-                      }
-                      {/* <div className="class-main">
+                          </>
+                        }
+                        {/* <div className="class-main">
                                                 <div className="checkbox checkbox-primary classes-checkbox">
                                                     <input
                                                         type="checkbox"
@@ -563,7 +565,7 @@ const CalenderEvent = () => {
                                                     <span></span>
                                                 </div>
                                             </div> */}
-                    </div>
+                      </div>
                     </div>
                   </div>
                   {/* <div>
