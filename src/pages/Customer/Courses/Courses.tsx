@@ -159,9 +159,9 @@ const Courses = (props) => {
     if (!isNullUndefinedOrBlank(response?.payload)) {
       handleGetCourseList();
       handleConfirmationClose();
-      setTimeout(() => {
-        handleSuccessShow();
-      }, 300);
+      // setTimeout(() => {
+      //   handleSuccessShow();
+      // }, 300);
     }
   }
   /** -------------------Complete syllabus end-------------------------*/

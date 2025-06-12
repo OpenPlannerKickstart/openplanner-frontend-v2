@@ -11,7 +11,7 @@ import CompletTasks from './CompletTasks';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { dashboardCoursesDataAPI, dashboardEventListingAPI, dashboardEventsDataAPI, dashboardListingCountAPI, dashboardTasksDataAPI, syllabusDropDownAPI } from '../../../redux/Service/User/DashBoard/dashboard';
-import { customJsonInclude, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
+import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import { FilterComponent } from './FilterComponent';
 import { ENUMFORDASHBORD, ENUMFORSTATUS, ENUMFORTASK } from '../../../interfaces/enum';
 import { taskListingAPI } from '../../../redux/Service/task';
@@ -20,6 +20,8 @@ import { chartDropDownData } from '../../../Utility/staticDropDown';
 import Chart from "react-google-charts";
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
 import { isUpdatedSyllabus } from '../../../redux/User/Courses/coursesSlice';
+import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
+import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 
 
 const Dashboard = () => {
@@ -45,6 +47,7 @@ const Dashboard = () => {
   const [startDate, setStartDate] = useState<any>(null);
   const [endDate, setEndDate] = useState<any>(null);
   const [syllabusId, setSyllabusId] = useState<any>(null);
+  const [eventPriority, setEventPriority] = useState<any>(null);
   const [search, setSearch] = useState<any>("");
 
   const handleEventListing = async () => {
@@ -53,7 +56,8 @@ const Dashboard = () => {
       status: getStatus(),
       start_date: startDate ? getDate(startDate, "yyyy-MM-DD") : "",
       end_date: endDate ? getDate(endDate, "yyyy-MM-DD") : "",
-      syllabus_id: syllabusId
+      syllabus_id: syllabusId,
+      priority: eventPriority
     }
     customJsonInclude(reqBody)
     let response = await dispatch(dashboardEventListingAPI(reqBody));
@@ -75,7 +79,7 @@ const Dashboard = () => {
     return () => {
       setEventData([]);
     }
-  }, [startDate, endDate, search, syllabusId, selectedTab])
+  }, [startDate, endDate, search, syllabusId, selectedTab, eventPriority])
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -291,6 +295,31 @@ const Dashboard = () => {
   /** -------------------- show notes End------------------------*/
 
 
+  /** -----------------Add/Edit Event start---------------------------*/
+  const [show, setShow] = useState(false);
+  const handleShow = () => setShow(true);
+  /** -----------------Add/Edit Event end---------------------------*/
+  /** ---------------Edit event start-----------------------------*/
+  const [editEventFormData, setEditEventFormData] = useState<any>(null);
+  const handleSelectEvent = (event) => {
+    handleShow();
+    setEditEventFormData({
+
+      ...event, start_date: new Date(formatedDate(event?.start_date, "yyyy-MM-DD HH:mm:ss")),
+      end_date: new Date(formatedDate(event?.end_date, "yyyy-MM-DD HH:mm:ss")),
+
+    })
+  };
+  const handleGetUpdatedData = () => {
+    handleEventListing();
+    getDashboardCount();
+    handleEventChartData();
+  }
+  /** --------------------Edit event End------------------------*/
+  /** -----------------Add/Edit syllabus start---------------------------*/
+  const [showSyllabus, setShowSyllabus] = useState(false);
+  const handleSyllabusShow = () => setShowSyllabus(true);
+  /** -----------------Add/Edit Syllabus end---------------------------*/
   return (
     <>
       <div className="page-content dashboard-main">
@@ -622,8 +651,12 @@ const Dashboard = () => {
                           aria-labelledby="nav-pendingevent-tab"
                         >
                           <div className="tab-content-container">
-                            <FilterComponent syllabusDropDownData={syllabusDropDownData} setStartDate={setStartDate} setEndDate={setEndDate} setSearch={setSearch} setSyllabusId={setSyllabusId} startDate={startDate} endDate={endDate} search={search} syllabusId={syllabusId} />
-                            <PendingEvents eventData={eventData} handleEventListing={handleEventListing} handleShowShowNote={handleShowShowNote} handleEventChartData={handleEventChartData} getDashboardCount={getDashboardCount} />
+                            <FilterComponent
+                              setEventPriority={setEventPriority}
+                              eventPriority={eventPriority}
+
+                              syllabusDropDownData={syllabusDropDownData} setStartDate={setStartDate} setEndDate={setEndDate} setSearch={setSearch} setSyllabusId={setSyllabusId} startDate={startDate} endDate={endDate} search={search} syllabusId={syllabusId} />
+                            <PendingEvents handleSelectEvent={handleSelectEvent} eventData={eventData} handleEventListing={handleEventListing} handleShowShowNote={handleShowShowNote} handleEventChartData={handleEventChartData} getDashboardCount={getDashboardCount} />
                           </div>
                         </div>
                         <div
@@ -633,8 +666,10 @@ const Dashboard = () => {
                           aria-labelledby="nav-completevent-tab"
                         >
                           <div className="tab-content-container">
-                            <FilterComponent syllabusDropDownData={syllabusDropDownData} setStartDate={setStartDate} setEndDate={setEndDate} setSearch={setSearch} setSyllabusId={setSyllabusId} startDate={startDate} endDate={endDate} search={search} syllabusId={syllabusId} />
-                            <CompletEvents eventData={eventData} handleEventListing={handleEventListing} handleShowShowNote={handleShowShowNote} getDashboardCount={getDashboardCount} handleEventChartData={handleEventChartData} />
+                            <FilterComponent setEventPriority={setEventPriority}
+
+                              eventPriority={eventPriority} syllabusDropDownData={syllabusDropDownData} setStartDate={setStartDate} setEndDate={setEndDate} setSearch={setSearch} setSyllabusId={setSyllabusId} startDate={startDate} endDate={endDate} search={search} syllabusId={syllabusId} />
+                            <CompletEvents handleSelectEvent={handleSelectEvent} eventData={eventData} handleEventListing={handleEventListing} handleShowShowNote={handleShowShowNote} getDashboardCount={getDashboardCount} handleEventChartData={handleEventChartData} />
                           </div>
                         </div>
                         <div
@@ -660,6 +695,22 @@ const Dashboard = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <div className="page-title-right">
+                  <button type="button" className="btn btn-primary" onClick={() => { handleShow() }}>
+                    Add Event
+                  </button>
+                  <button type="button" className="btn btn-warning" onClick={() => { handleSyllabusShow() }}>
+                    Add Syllabus
+                  </button>
+                  {/* <button
+              type="button"
+              className="btn btn-primary"
+              onClick={toggleShowEditEvent}
+            >
+              Edit Event
+            </button> */}
                 </div>
               </div>
             </div>
@@ -700,7 +751,12 @@ const Dashboard = () => {
         </Modal.Body>
       </Modal>
       {/* note modal end */}
-
+      {/* Add/Edit event Start */}
+      <AddEditEvent show={show} setShow={setShow} handleGetData={handleGetUpdatedData} setEditEventFormData={setEditEventFormData} editEventFormData={editEventFormData} />
+      {/* Add/Edit event Event */}
+      {/* Add/Edit event Start */}
+      <AddEditSyllabus showSyllabus={showSyllabus} setShowSyllabus={setShowSyllabus} handleGetData={handleGetUpdatedData} />
+      {/* Add/Edit event Event */}
     </>
   )
 }

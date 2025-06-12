@@ -41,7 +41,7 @@ const CompletTasks = (props) => {
         setDeleteShow(false);
         setTimeout(() => {
             setDeleteTaskData([]);
-            setDeleteSuccess(false);
+
         }, 300);
     }
     const handleDeleteShow = (data) => {
@@ -49,15 +49,16 @@ const CompletTasks = (props) => {
         setDeleteShow(true)
     }
     const [deleteTaskData, setDeleteTaskData] = useState<Array<Task>>([]);
-    const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
+
 
     const handleDeleteData = async () => {
         let param = deleteTaskData?.map((data) => data.id)
         const response = await dispatch(deleteTaskAPI({ task_id: param }));
         if (!isNullUndefinedOrBlank(response?.payload)) {
-            setDeleteSuccess(true);
+
             props?.handleSetTaskData();
 
+            handleDeleteClose();
         }
     }
 
@@ -201,7 +202,7 @@ const CompletTasks = (props) => {
                 centered
             >
                 <Modal.Header>
-                    <h4 className="modal-title">{deleteSuccess ? "Task Deleted!" : "Delete Task"}</h4>
+                    <h4 className="modal-title">Delete Task</h4>
                     <button
                         type="button"
                         className="btn-close"
@@ -216,19 +217,16 @@ const CompletTasks = (props) => {
                             <i className="material-symbols-outlined">delete</i>
                         </div>
                         <div className="modal-confirmation-content">
-                            <h5> {!deleteSuccess ? "Are You Sure?" : "You have successfully deleted Task!"}</h5>
+                            <h5> Are You Sure?</h5>
                             <p>
-                                {!deleteSuccess ?
-                                    "You want to delete this task ?" :
-                                    "Get back to task page to complete the other task"
-                                }
+                                You want to delete this task ?
 
                             </p>
                         </div>
                     </div>
                     <div className="modal-button-group modal-full-width-btn modal-footer-button">
                         {
-                            !deleteSuccess &&
+                            
                             <Button
                                 variant="light-white"
                                 className="btn-md"
@@ -238,13 +236,13 @@ const CompletTasks = (props) => {
                             </Button>
                         }
                         <Button
-                            variant={!deleteSuccess ? "danger" : "success"}
+                            variant= "danger"
                             className="btn-icon-text btn-md"
                             onClick={() => {
-                                !deleteSuccess ? handleDeleteData() : handleDeleteClose()
+                               handleDeleteData()
                             }}
                         >
-                            {!deleteSuccess ? "Delete" : "Ok"}
+                             Delete
                         </Button>
                     </div>
                 </Modal.Body>

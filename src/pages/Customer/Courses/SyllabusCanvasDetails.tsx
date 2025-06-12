@@ -5,7 +5,7 @@ import Events from './Events';
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
 import { ENUM_FOR_SYLLABUS_TAB } from '../../../interfaces/enum';
 import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
-import { isNullUndefinedOrBlank } from '../../../Utility/Helper';
+import { formatedDate, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import { getEventListDataAPI } from '../../../redux/Service/User/Courses/courses';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../../redux/store';
@@ -59,7 +59,20 @@ const SyllabusCanvasDetails = (props) => {
         }
     }, [props?.selectedSyllabusObj]);
 
+  const [editEventFormData, setEditEventFormData] = useState<any>(null);
+  
+  
+    const handleSelectEvent = (event) => {        
+        handleAddEventShow();
+        setEditEventFormData({
 
+            ...event, start_date: new Date(formatedDate(event?.start_date, "yyyy-MM-DD HH:mm:ss")),
+            end_date: new Date(formatedDate(event?.end_date, "yyyy-MM-DD HH:mm:ss")),
+
+        })
+    };
+   
+    /** --------------------Edit event End------------------------*/
     /** --------------------get eventData------------------------*/
 
     const handleGetEventData = async () => {
@@ -198,6 +211,7 @@ const SyllabusCanvasDetails = (props) => {
                                                     <Events
                                                         selectedSyllabusObj={props.selectedSyllabusObj}
                                                         selectedTab={selectedTab}
+                                                        handleSelectEvent={handleSelectEvent}
                                                     />
                                                     <div className="bottom-button-group">
                                                         {/* <Button type="button" className="btn btn-light-white me-auto">
@@ -257,7 +271,7 @@ const SyllabusCanvasDetails = (props) => {
                 </Offcanvas>
             </div>
             {/* Add/Edit event Start */}
-            <AddEditEvent show={showAddEvent} setShow={setAddEventShow} handleGetData={async () => { handleGetEventData() }} setEditEventFormData={() => { }} editEventFormData={null} selectedCourse={props?.selectedSyllabusObj} />
+            <AddEditEvent show={showAddEvent} setShow={setAddEventShow} handleGetData={async () => { handleGetEventData() }} setEditEventFormData={setEditEventFormData} editEventFormData={editEventFormData} selectedCourse={props?.selectedSyllabusObj} />
             {/* Add/Edit event Event */}
 
 

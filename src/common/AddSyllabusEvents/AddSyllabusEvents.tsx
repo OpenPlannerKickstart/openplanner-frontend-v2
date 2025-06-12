@@ -16,9 +16,9 @@ import * as yup from 'yup';
 import { addEditEventDataAPI, addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
 import { MAX_3, MAX_300, MAX_50, ONLY_ALPHABETS_AND_DOT, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import InputColor from 'react-input-color';
-import { ENUM_FOR_SYLLABUS_TAB } from '../../interfaces/enum';
+import { ENUM_FOR_EVENT_PRIORITY, ENUM_FOR_SYLLABUS_TAB } from '../../interfaces/enum';
 import GetImageIcon from '../GetImageIcon';
-import { reminderUnitDropDownData } from '../../Utility/staticDropDown';
+import { eventPriorityDropDownData, reminderUnitDropDownData } from '../../Utility/staticDropDown';
 import { isUpdatedEvent, isUpdatedSyllabus } from '../../redux/User/Courses/coursesSlice';
 const AddSyllabusEvents = (props) => {
   const dispatch: AppDispatch = useDispatch();
@@ -185,6 +185,7 @@ const AddSyllabusEvents = (props) => {
     is_reminder: false,
     reminder: [],
     syllabus_id: null,
+    priority: ENUM_FOR_EVENT_PRIORITY.LOW
 
   }
   const [savedEventFormData, setSavedEventFormData] = useState<addEvenData>(initEventData);
@@ -353,11 +354,6 @@ const AddSyllabusEvents = (props) => {
 
 
   }
-
-
-
-
-  /* -------------------------- Add Event Data End -------------------------- */
 
 
 
@@ -827,6 +823,31 @@ const AddSyllabusEvents = (props) => {
                             {eventFormData.touched.syllabus_id &&
                               eventFormData.errors.syllabus_id
                               && renderError(eventFormData.errors.syllabus_id as any)}
+                          </Form.Group>
+                          <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
+                            <Form.Label>Priority</Form.Label>
+                            <Select
+                              options={eventPriorityDropDownData}
+                              placeholder={<div>Select Priority </div>}
+                              onChange={(selectedOption) => {
+                                eventFormData.setFieldValue("priority", selectedOption?.value ? selectedOption?.value : null);
+
+
+                              }}
+                              value={eventPriorityDropDownData?.filter(({ value }) => {
+                                return (
+                                  value ===
+                                  eventFormData.values.priority
+                                );
+                              })}
+                              // onBlur={() => {
+                              //     // objectiveDetailsFormData.setFieldTouched("theme_id", true)
+                              //     handleUpdateDetails()
+                              // }}
+                              // isClearable
+                              menuPosition="fixed"
+                              className="react-select-container"
+                            />                            
                           </Form.Group>
                           <div className="Reminder-box">
                             <div className="title-with-switch">

@@ -17,6 +17,12 @@ export const ENUMFORSTONEMASTERTAB = {
   SIEVES: "SIEVES",
 
 }
+export const ENUM_FOR_EVENT_PRIORITY={
+  LOW:"Low",
+  MEDIUM:"Medium",
+  HIGH:"High"
+
+}
 
 
 /**
