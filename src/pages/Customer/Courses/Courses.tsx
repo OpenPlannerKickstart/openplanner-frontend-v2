@@ -19,10 +19,11 @@ import { AppDispatch, RootState } from "../../../redux/store";
 import { deleteSyllabusDataAPI, getCoursesListDataAPI, updateSyllabusStatusDataAPI } from "../../../redux/Service/User/Courses/courses";
 import { addSyllabusData, SyllabusResponseType } from "../../../interfaces/interface";
 import { formatedDate, formatedTime, formatTime, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, NO_RECORD_FOUND_MSG } from "../../../Utility/Helper";
-import { ENUM_FOR_DISPLAY_VIEW } from "../../../interfaces/enum";
+import { ENUM_FOR_DISPLAY_VIEW, ENUMFORROUTES } from "../../../interfaces/enum";
 import SyllabusCanvasDetails from "./SyllabusCanvasDetails";
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
 import { isUpdatedSyllabus } from "../../../redux/User/Courses/coursesSlice";
+import { useNavigate } from "react-router-dom";
 
 const Courses = (props) => {
   const dispatch: AppDispatch = useDispatch();
@@ -40,11 +41,11 @@ const Courses = (props) => {
 
   const [selectedSyllabusObj, setSelectedSyllabusObj] = useState<addSyllabusData>({} as addSyllabusData);
 
-  const handleUpdateCourse = (syllabusObj) => {
-    handleShowCourse()
-    setSelectedSyllabusObj(syllabusObj);
+  // const handleUpdateCourse = (syllabusObj) => {
+  //   handleShowCourse()
+  //   setSelectedSyllabusObj(syllabusObj);
 
-  }
+  // }
 
 
   // Add syllabus event offcanvas
@@ -183,6 +184,10 @@ const Courses = (props) => {
     }
   }, [coursesData.isUpdatedEventData])
   const [isAddNewData, setIsAddNewData] = useState(false);
+  const navigate = useNavigate();
+    const handleUpdateCourse = (syllabusObj) => {
+    navigate(ENUMFORROUTES.EDIT_COURSE, { state: { syllabusObj } });
+  };
   return (
     <>
       <div className="page-content">
@@ -212,7 +217,7 @@ const Courses = (props) => {
                 </div>
               </div>
             </Form.Group> */}
-            {/* <Form.Group className="form-group form-group-sm">
+            <Form.Group className="form-group form-group-sm">
               <div className="react-datepicker-container form-group-icon-end">
                 <i className="material-symbols-outlined control-icon">date_range</i>
                 <DatePicker
@@ -224,9 +229,9 @@ const Courses = (props) => {
                   placeholderText="Date Range"
                 />
               </div>
-            </Form.Group> */}
+            </Form.Group>
           </div>
-          <div className="page-filters-right">
+          {/* <div className="page-filters-right">
             <div className="list-view-group">
               <ul className="list-view-wrapper">
                 <li className={`${selectedView === ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW ? "active" : ""}`}
@@ -243,7 +248,7 @@ const Courses = (props) => {
                 </li>
               </ul>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="content-area  content-area-title-filter">

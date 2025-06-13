@@ -1116,6 +1116,351 @@ $sm_sidebar_home_link_width: 170px;
     }
 }
 
+// EDIT PAGE CSS
+.page-content-wrapper{
+    .edit-course-canvas{
+        width: 100% !important;
+        max-width: 100%;
+        .edit-course-wrapper {
+            .course-edit-container {
+                display: flex;
+                width: 100%;
+                flex-wrap: wrap;
+
+            .syllabus-tab-wrapper,
+            .syllabus-pdf-container {
+                width: 100%;
+                max-width: 50%;
+                transition: all .3s ease;
+            }
+
+            .syllabus-tab-wrapper {
+                .hide-btn {
+                    font-size: 14px;
+                    line-height: normal;
+                    letter-spacing: 0.2px;
+                    text-decoration: underline;
+                    color: #239BC2;
+                    cursor: pointer;
+                    margin-left: 10px;
+                    display: none;
+                }
+            }
+            }
+
+            &.hide-syllabus-preview {
+                .syllabus-tab-wrapper {
+                    max-width: 100%;
+
+                    .hide-btn {
+                        display: block;
+                    }
+                }
+
+                .syllabus-pdf-container {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+.edit-course-box-wrapper{
+    .content-area{
+        padding: 0 !important;
+        min-height: calc(100vh - 130px) !important;        
+        max-height: calc(100vh - 130px) !important;        
+        .course-detail-box {
+            .nav-tabs-style2 {
+                .tab-pane {
+                    .tab-content-container {
+                        .tab-body-container{
+                            height: calc(100vh - 255px);
+                        }               
+                    }
+                }
+            }
+        }
+    }
+}
+.course-detail-box .nav-tabs-style2 .tab-pane .tab-body-container{
+    height: calc(100vh - 230px);
+}
+
+.course-detail-box {
+    .nav-tabs-style2 {
+        .nav-tabs {
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            border-width: 2px;
+
+            .nav-link {
+                padding: 17px;
+                letter-spacing: 0.2px;
+            }
+        }
+
+        .tab-pane {
+            padding: 15px 0px 0;
+
+            .tab-content-container {
+                .tab-body-container {
+                    height: calc(100vh - 198px);
+                    overflow-y: auto;
+                    padding: 0 20px;
+
+                    .syllabus-details-box {
+                        .Reminder-box {
+                            background: #E9F7FB;
+                            border-radius: 10px;
+                            padding: 14px;
+                            margin-bottom: 14px;
+
+                            .title-with-switch {
+                                display: flex;
+                                justify-content: space-between;
+                                gap: 5px;
+                                flex-wrap: wrap;
+                                margin-bottom: 0;
+
+                                .title-text {
+                                    h4 {
+                                        font-size: 16px;
+                                        line-height: normal;
+                                        letter-spacing: 0.2px;
+                                        margin-bottom: 0;
+                                        font-weight: 500;
+                                    }
+                                }
+                            }
+
+                            .remider-fields {
+                                display: flex;
+                                width: 100%;
+                                align-items: flex-start;
+                                gap: 15px;
+                                margin: 15px 0;
+
+                                .form-group {
+                                    margin-bottom: 0;
+                                    width: 100%;
+                                }
+
+                                button {
+                                    margin-top: 24px;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            .tab-body-container {
+                height: calc(100vh - 198px);
+                overflow-y: auto;
+                padding: 0 20px;
+
+                .event-main-wrapper {
+                    .event-card {
+                        &:last-child {
+                            border-bottom: none;
+                        }
+
+                        table {
+                            .active-table {
+                                td {
+                                    background-color: $success_bg_color;
+
+                                    .check-icon {
+                                        i {
+                                            color: $success_color;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    .event-card {
+                        padding-bottom: 16px;
+                        border-bottom: 1px solid $stock_light;
+                        margin-bottom: 16px;
+
+                        .due-event-box {
+                            .card-title {
+                                padding: 14px;
+                                background: #E9F7FB;
+                                border-radius: 10px;
+                                margin-bottom: 8px;
+
+                                h4 {
+                                    margin-bottom: 0;
+                                    font-size: 16px;
+                                    line-height: normal;
+                                    letter-spacing: 0.2px;
+                                }
+
+                                .event-collapes-btn {
+                                    width: 100%;
+                                    min-height: fit-content;
+                                    background: transparent;
+                                    color: #292D32;
+                                    display: flex;
+                                    justify-content: space-between;
+                                    border: none;
+                                    padding: 0;
+                                    font-size: 16px;
+                                    line-height: normal;
+                                    letter-spacing: 0.2px;
+
+                                    .collapes-btn {
+                                        padding: 0 !important;
+                                        border: transparent;
+                                        height: fit-content !important;
+                                        background: transparent !important;
+                                        color: #4B5563 !important;
+
+                                        &:hover {
+                                            background-color: transparent;
+                                            border: transparent;
+                                        }
+                                    }
+                                }
+                            }
+
+                            .event-name-tooltip {
+                                .enevt-name {
+                                    h3 {
+                                        font-size: 14px;
+                                        line-height: 160%;
+                                        letter-spacing: 0.2px;
+                                        margin-bottom: 4px;
+                                        font-weight: 500;
+                                    }
+
+                                    &.cursor-pointer {
+                                        cursor: pointer;
+                                    }
+                                }
+                            }
+
+                            &.post-event {
+                                .card-title {
+                                    background-color: $bg_light;
+                                    border: 1px solid $stock_light ;
+
+                                    .event-collapes-btn[aria-expanded="true"] {
+                                        .collapes-btn {
+                                            i {
+                                                transform: rotate(90deg);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            .bottom-button-group {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                width: 100%;
+                padding: 15px 20px;
+                border-top: 1px solid $stock_light;
+            }
+        }
+    }
+
+    .form-group {
+        .form-label {
+            /*font-size: 16px;*/
+        }
+    }
+}
+
+.syllabus-preview-wrapper {
+    .title-text {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 5px;
+        flex-wrap: wrap;
+        padding: 11px 14px;
+        border-bottom: 2px solid $stock_light;
+
+        h4 {
+            margin: 0;
+            font-size: 20px;
+            line-height: normal;
+            letter-spacing: 0px;
+        }
+
+        a.hide-btn {
+            font-size: 14px;
+            line-height: normal;
+            letter-spacing: 0.2px;
+            text-decoration: underline;
+            color: $primary_color;
+            cursor: pointer;
+        }
+    }
+
+    .syllabus-view-box {
+        /*height: calc(100vh - 140px);*/
+        padding: 15px;
+        overflow-y: auto;
+
+    }
+}
+
+.edit-course-wrapper {
+    .course-edit-container {
+        display: flex;
+        width: 100%;
+        flex-wrap: wrap;
+
+        .syllabus-tab-wrapper,
+        .syllabus-pdf-container {
+            width: 100%;
+            max-width: 50%;
+            transition: all .3s ease;
+        }
+
+        .syllabus-tab-wrapper {
+            .hide-btn {
+                font-size: 14px;
+                line-height: normal;
+                letter-spacing: 0.2px;
+                text-decoration: underline;
+                color: #239BC2;
+                cursor: pointer;
+                margin-left: 10px;
+                display: none;
+            }
+        }
+    }
+
+    &.hide-syllabus-preview {
+        .syllabus-tab-wrapper {
+            max-width: 100%;
+
+            .hide-btn {
+                display: block;
+            }
+        }
+
+        .syllabus-pdf-container {
+            display: none;
+        }
+    }
+}
+// EDIT PAGE CSS
+
 // Add syllabus event offcanvas
 .add-syllabus-event {
     width: 100% !important;
@@ -1883,7 +2228,7 @@ $sm_sidebar_home_link_width: 170px;
             width: 100%;
             min-width: 331px;
             max-width: 331px;
-            background: $bg_grey;
+            background: $white_color;
             border-right: 1px solid $stock_light;
 
             @media (max-width:1366px) {
@@ -1952,6 +2297,17 @@ $sm_sidebar_home_link_width: 170px;
                     .react-datepicker-container {
                         display: flex;
                         justify-content: center;
+                        .react-datepicker__header{
+                            background-color: $white_color;
+                        }
+                        .react-datepicker__navigation-icon{
+                            &::before{
+                                border-color: $stock_dark;
+                            }
+                        }
+                        .react-datepicker__current-month{
+                            color: $text_black_color;
+                        }
                     }
                 }
 
@@ -1990,6 +2346,11 @@ $sm_sidebar_home_link_width: 170px;
                             align-items: center;
 
                             .checkbox {
+                                margin: 0;
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                                flex-wrap: wrap;
                                 [type=checkbox]+label {
                                     padding-left: 30px;
                                     font-size: 14px;
@@ -2020,7 +2381,6 @@ $sm_sidebar_home_link_width: 170px;
                             width: 17px;
                             height: 17px;
                             cursor: pointer;
-                            border: 2px solid #000;
                             border-radius: 5px;
                             background-color: #ffffff;
 
