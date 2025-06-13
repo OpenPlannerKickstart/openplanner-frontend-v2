@@ -66,6 +66,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Worker } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { NotificationProvider } from './context/SocketContext';
 
 const SOCKET_SERVER_URL = 'http://localhost:3000'; // Update with your server URL
 
@@ -96,9 +97,9 @@ root.render(
   <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
     <Provider store={store}>
       <React.StrictMode>
-        {/* <NotificationProvider> */}
-        <App />
-        {/* </NotificationProvider> */}
+        <NotificationProvider>
+          <App />
+        </NotificationProvider>
       </React.StrictMode>
     </Provider>
   </Worker>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 // import logo from "../../assets/images/dummy-logo.svg";
 import defaultAvatar from "../../assets/images/avatar-default.svg";
 import { Button, Form, Offcanvas } from 'react-bootstrap';
@@ -21,6 +21,7 @@ import { io } from 'socket.io-client';
 import { NOTIFICATION_ALERT } from '../../Utility/ApiList';
 import { ts } from '../../Utility/Toaster';
 import { API_URL, WEB_SOCKET_CONNECTION_URL } from '../../Utility/Config';
+import { useNotifications } from '../../context/SocketContext';
 const Navbar = (props) => {
   const [SidebarSize, setSidebarSize] = useState('lg');
   const windowSize = document.documentElement.clientWidth;
@@ -71,7 +72,7 @@ const Navbar = (props) => {
   const handleNotificationsShow = () => setNotificationShow(true);
 
   const [notificationList, setNotiFicationList] = useState<Array<NotificationData>>([]);
-  const [notificationCount, setNotificationCount] = useState<any>("");
+  const [notificationCount, setNotificationCount] = useState<any>(0);
   const [notificationAlert, setNotificationAlert] = useState<boolean>(false);
   const notificationData: any = useSelector(
     (state: RootState) => state.NotificationReducer.notificationData);
@@ -254,6 +255,49 @@ const Navbar = (props) => {
   // }, [notificationList, notificationCount]);
   /** --------------------Notification end------------------------*/
 
+  const { subscribeToPath, unsubscribeFromPath } = useNotifications();
+
+  // useCallback ensures the same function reference
+  const handleNotification = useCallback((data: any) => {
+    if (data?.message) {
+      try {
+        const newNotificationObj =
+          typeof data.message === 'string' && data.message !== '' ? JSON.parse(data?.message) : data?.message;
+
+        ts(`📅 ${newNotificationObj?.message}`, true);
+
+        setNotificationAlert(true);
+        setTimeout(() => {
+          setNotificationAlert(false);
+        }, 8000);
+
+        setNotiFicationList([
+          { ...newNotificationObj, message: `📅 ${newNotificationObj?.message}` },
+          ...notificationList,
+        ]);
+        setNotificationCount((prev) => prev + 1);
+      } catch (error) {
+        console.error('Error handling notification:', error);
+      }
+    }
+  }, [notificationList]);
+
+  useEffect(() => {
+    const path = `receiveNotification/${getUserSubId()}`;
+    subscribeToPath(path, handleNotification);
+    return () => {
+      unsubscribeFromPath(path, handleNotification);
+    };
+  }, [subscribeToPath, unsubscribeFromPath, handleNotification]);
+  // const handleSendNotification = () => {
+  //   const path = 'notifications/send';
+  //   const data = {
+  //     message: 'Hello, this is a test notification!',
+  //     userId: 123,
+  //   };
+
+  //   sendNotification(path, data);
+  // };
 
   return (
     <>

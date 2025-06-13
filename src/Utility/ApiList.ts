@@ -67,6 +67,8 @@ export const GET_ALL_NOTIFICATION_API = "getNotificationData";
 export const GET_COUNT_OF_UNREAD_NOTIFICATION_API = "countNotification";
 export const READ_NOTIFICATION_API = "markAsRead";
 export const CLEAR_NOTIFICATION_API = "deleteNotifiction";
-
+export const NOTIFICATION_SETTING = "addEditNotificationSetting"
+export const GET_NOTIFICATION_SETTINGS_API = "getNotificationSettingData"
 // socket api 
 export const NOTIFICATION_ALERT = `/topic/notification/`;
+

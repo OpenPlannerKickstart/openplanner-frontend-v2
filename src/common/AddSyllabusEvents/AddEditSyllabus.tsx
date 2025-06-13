@@ -155,6 +155,33 @@ export const AddEditSyllabus = (props) => {
 
     /* ------------------------- Add Syllabus Data End ------------------------ */
 
+    const colorPalette = [
+        "#f44336", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3",
+        "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39",
+        "#ffeb3b", "#ffc107", "#ff9800", "#ff5722", "#795548", "#607d8b"
+    ];
+
+    const [showColorPopover, setShowColorPopover] = useState(false);
+    const colorInputRef = useRef(null);
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (
+                colorInputRef.current &&
+                !(colorInputRef.current as HTMLElement)?.contains(event.target) &&
+                !event.target.closest('.color-palette-popover')
+            ) {
+                setShowColorPopover(false);
+            }
+        }
+        if (showColorPopover) {
+            document.addEventListener("mousedown", handleClickOutside);
+        } else {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showColorPopover]);
     return (
         <>
             {/***** Offcanvas start *****/}
@@ -342,7 +369,7 @@ export const AddEditSyllabus = (props) => {
                                                         </Form.Group>
                                                     </Col>
                                                 </Row>
-                                                <Form.Group className='form-group'>
+                                                {/* <Form.Group className='form-group'>
                                                     <Form.Label>Course Color</Form.Label>
                                                     <div className="form-color-picker color-picker-with-box ">
 
@@ -366,28 +393,115 @@ export const AddEditSyllabus = (props) => {
                                                                     {syllabusFormData?.values?.course_color}
                                                                 </p>
                                                             )}
+                                                    </div> */}
+
+                                                <Form.Group className='form-group'>
+                                                    <Form.Label>Course Color</Form.Label>
+                                                    <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 8 }}>
+                                                        {/* Color preview square */}
+                                                        <span
+                                                            className="color-square"
+                                                            style={{
+                                                                background: syllabusFormData.values.course_color,
+                                                                width: 32,
+                                                                height: 32,
+                                                                borderRadius: "15px",
+                                                                border: "2px solid #ccc",
+                                                                cursor: "pointer",
+                                                                display: "inline-block"
+                                                            }}
+                                                            onClick={() => setShowColorPopover(true)}
+                                                            title="Pick a color"
+                                                        />
+                                                        {/* Input box for hex code */}
+                                                        <input
+                                                            ref={colorInputRef}
+                                                            type="text"
+                                                            className="form-control"
+                                                            style={{ width: 120 }}
+                                                            value={syllabusFormData.values.course_color}
+                                                            onChange={e => syllabusFormData.setFieldValue("course_color", e.target.value)}
+                                                            onClick={() => setShowColorPopover(true)}
+                                                            placeholder="#hexcode"
+                                                            readOnly
+                                                        />
+                                                        {/* Popover */}
+                                                        {showColorPopover && (
+                                                            <div
+                                                                className="color-palette-popover"
+                                                                style={{
+                                                                    position: "absolute",
+                                                                    top: 44,
+                                                                    left: 0,
+                                                                    background: "#fff",
+                                                                    border: "1px solid #ddd",
+                                                                    borderRadius: 8,
+                                                                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                                                                    padding: 12,
+                                                                    zIndex: 1000,
+                                                                    minWidth: 180
+                                                                }}
+                                                            >
+
+                                                                {/* Color palette grid */}
+
+                                                                <div
+                                                                    style={{
+                                                                        display: "grid",
+                                                                        gridTemplateColumns: "repeat(6, 32px)",
+                                                                        gridTemplateRows: "repeat(3, 32px)",
+                                                                        gap: 8,
+                                                                        marginBottom: 8,
+                                                                    }}
+                                                                >
+                                                                    {colorPalette.map((color) => (
+                                                                        <span
+                                                                            key={color}
+                                                                            className={`color-square${syllabusFormData.values.course_color === color ? " selected" : ""}`}
+                                                                            style={{
+                                                                                background: color,
+                                                                                width: 32,
+                                                                                height: 32,
+                                                                                borderRadius: "15px",
+                                                                                border: syllabusFormData.values.course_color === color ? "3px solid #000" : "2px solid #fff",
+                                                                                boxShadow: "0 0 2px #aaa",
+                                                                                cursor: "pointer",
+                                                                                display: "inline-block",
+                                                                                position: "relative"
+                                                                            }}
+                                                                            onClick={() => {
+                                                                                syllabusFormData.setFieldValue("course_color", color);
+                                                                                setShowColorPopover(false);
+                                                                            }}
+                                                                        >
+                                                                            {syllabusFormData.values.course_color === color && (
+                                                                                <span
+                                                                                    style={{
+                                                                                        position: "absolute",
+                                                                                        top: 4,
+                                                                                        right: 3,
+                                                                                        color: "#fff",
+                                                                                        background: "#000a",
+                                                                                        borderRadius: "50%",
+                                                                                        width: 18,
+                                                                                        height: 18,
+                                                                                        display: "flex",
+                                                                                        alignItems: "center",
+                                                                                        justifyContent: "center",
+                                                                                        fontSize: 14,
+                                                                                    }}
+                                                                                >
+                                                                                    <i className="material-symbols-outlined" style={{ fontSize: 16 }}>check</i>
+                                                                                </span>
+                                                                            )}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                                {/* Manual hex input inside popover (optional, can remove if not needed) */}
+
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    {/* <div className="form-color-picker color-picker-with-box">
-                                                                             <i
-                                                                               className="th-bold-mouse-square"
-                                                                               style={{ color: syllabusFormData?.values?.course_color }}
-                                                                             ></i>
-                                                                             <InputColor
-                                                                               initialValue={
-                                                                                 syllabusFormData?.values?.course_color || "#239BC2"
-                                                                               }
-                                                                               onChange={(color) => {
-                                                                                 syllabusFormData.setFieldValue("course_color", color.hex);
-                                                                               }}
-                                                                             />
-                                                                             {!isNullUndefinedOrBlank(
-                                                                               syllabusFormData?.values?.course_color
-                                                                             ) && (
-                                                                                 <p className="color-picker-code">
-                                                                                   {syllabusFormData?.values?.course_color}
-                                                                                 </p>
-                                                                               )}
-                                                                           </div> */}
                                                 </Form.Group>
                                             </div>
                                         </div>

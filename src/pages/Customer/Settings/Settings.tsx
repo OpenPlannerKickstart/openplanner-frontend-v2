@@ -140,7 +140,7 @@ const Settings = () => {
                                         aria-labelledby="nav-notification-tab"
                                     >
                                         <div className="tab-content-container">
-                                            <Notification />
+                                            <Notification selectedTab={selectedTab} />
                                         </div>
                                     </div>
                                     <div

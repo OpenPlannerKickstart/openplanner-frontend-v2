@@ -6,6 +6,8 @@ interface SettingsInitializeState {
     updateUserResponse: any;
     deleteUserResponse: any;
     changePasswordResponse: any;
+    getSettingsData: any;
+    updateSettingsData: any
     loading: boolean;
 }
 
@@ -14,6 +16,8 @@ const initialState: SettingsInitializeState = {
     updateUserResponse: null,
     deleteUserResponse: null,
     changePasswordResponse: null,
+    getSettingsData: null,
+    updateSettingsData: null,
     loading: false,
 };
 
@@ -61,6 +65,26 @@ const settingsSlice = createSlice({
             state.changePasswordResponse = null;
             state.loading = false;
         },
+
+
+        getSettingsDataSuccess: (state: SettingsInitializeState = initialState, action: PayloadAction<any>) => {
+            state.getSettingsData = action.payload;
+            state.loading = false;
+        },
+        getSettingsDataFailure: (state) => {
+            state.getSettingsData = null;
+            state.loading = false;
+        },
+
+
+        updateSettingsSuccess: (state: SettingsInitializeState = initialState, action: PayloadAction<any>) => {
+            state.updateSettingsData = action.payload;
+            state.loading = false;
+        },
+        updateSettingsFailure: (state) => {
+            state.updateSettingsData = null;
+            state.loading = false;
+        },
     },
 });
 
@@ -73,6 +97,10 @@ export const {
     deleteUserFailure,
     changePasswordSuccess,
     changePasswordFailure,
+    getSettingsDataFailure,
+    getSettingsDataSuccess,
+    updateSettingsFailure,
+    updateSettingsSuccess
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

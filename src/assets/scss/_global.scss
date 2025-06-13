@@ -293,13 +293,22 @@ img {
                 max-height: calc(100vh - 130px);
                 min-height: calc(100vh - 130px);
             }
+
             &.content-area-title-filter {
                 max-height: calc(100vh - 188px);
                 min-height: calc(100vh - 188px);
             }
+
             &.content-area-title-pera {
                 max-height: calc(100vh - 139px);
                 min-height: calc(100vh - 139px);
+            }
+
+            &.content-area-calender-krupa {
+                display: flex;
+                flex-direction: row;
+                height: 100vh;
+                /* Make the entire container take full viewport height */
             }
         }
 
@@ -320,7 +329,7 @@ img {
 
 
 /* ------------------------- no-records-found ------------------------ */
-.no-records-found{
+.no-records-found {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -328,29 +337,33 @@ img {
     gap: 0;
     padding: 35px 0;
 
-    .no-records-found-image{
+    .no-records-found-image {
         margin-top: 15px;
         width: auto;
         height: auto;
-        img{
+
+        img {
             width: auto;
             height: auto;
         }
     }
-    .no-records-found-text{
+
+    .no-records-found-text {
         display: flex;
         align-items: center;
         flex-direction: column;
         justify-content: center;
         gap: 10px;
-        h6{
+
+        h6 {
             font-size: 19.16px;
             font-weight: 600;
             line-height: 24.91px;
             color: $text_black_color;
             margin-bottom: 0px;
         }
-        p{
+
+        p {
             font-size: 16px;
             font-weight: 400;
             line-height: 20.4px;
@@ -360,4 +373,5 @@ img {
         }
     }
 }
+
 /* ------------------------- no-records-found ------------------------ */

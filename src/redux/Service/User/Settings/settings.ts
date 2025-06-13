@@ -3,6 +3,8 @@ import {
     UPDATE_USER_API,
     DELETE_USER_API,
     CHANGE_PASSWORD_API,
+    NOTIFICATION_SETTING,
+    GET_NOTIFICATION_SETTINGS_API,
 } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
 import {
@@ -14,6 +16,10 @@ import {
     deleteUserFailure,
     changePasswordSuccess,
     changePasswordFailure,
+    updateSettingsSuccess,
+    updateSettingsFailure,
+    getSettingsDataSuccess,
+    getSettingsDataFailure,
 } from "../../../User/Settings/settingsSlice"; // Adjust path based on your folder structure
 import { setLoading } from "../../../Loader/LoaderSlice";
 import { AppDispatch } from "../../../store";
@@ -117,6 +123,59 @@ export const changePasswordAPI =
                 }
             } catch (err) {
                 dispatch(changePasswordFailure());
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+
+
+/**
+ * setting Notification 
+ * @param {*} objBody
+ * @method notificationSettingAPI
+ * @url /addEditNotificationSetting
+ * @returns addEditNotificationSetting 
+ */
+export const notificationSettingAPI =
+    (objBody: any = undefined) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const response: any = await post(NOTIFICATION_SETTING, objBody);
+                if (!response.data.error) {
+                    ts(response?.data?.message)
+                    return dispatch(updateSettingsSuccess(response.data.data));
+                } else {
+                    dispatch(updateSettingsFailure());
+                }
+            } catch (err) {
+                dispatch(updateSettingsFailure());
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+/**
+ * setting Notification get data
+ * @param {*} objBody
+ * @method notificationSettingAPI
+ * @url /addEditNotificationSetting
+ * @returns addEditNotificationSetting 
+ */
+export const getNotificationSettingAPI =
+    (objBody: any = undefined) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const response: any = await get(GET_NOTIFICATION_SETTINGS_API);
+                if (!response.data.error) {
+                    // ts(response?.data?.message)
+                    return dispatch(getSettingsDataSuccess(response.data.data));
+                } else {
+                    dispatch(getSettingsDataFailure());
+                }
+            } catch (err) {
+                dispatch(getSettingsDataFailure());
             } finally {
                 dispatch(setLoading(false));
             }

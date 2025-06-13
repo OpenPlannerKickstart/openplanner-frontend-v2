@@ -538,6 +538,9 @@ const CalenderEvent = () => {
   /** -------------------Delete Event end-------------------------*/
 
 
+  console.log("view - console", currentView)
+
+
   return (
     <>
       <div className="page-content">
@@ -743,7 +746,7 @@ const CalenderEvent = () => {
                   onSelectEvent={(event) => {
                     handleSelectEvent(event);
                   }}
-                  view={currentView}
+                  // view={currentView}
                   date={currentDate}
                   onView={(view) => setCurrentView(view)} // Sync view change
                   onNavigate={(date) => setCurrentDate(date)} // Sync date chang
@@ -764,37 +767,7 @@ const CalenderEvent = () => {
 
                 />
               </div> */}
-              {/* <div className="calendar-outer2">
-                <Calendar
-                  scrollToTime={new Date(new Date().setHours(12, 50, 0, 0))}
-                  localizer={localizer}
-                  events={calenderData}
-                  startAccessor="start"
-                  endAccessor="end"
-                  onSelectEvent={(event) => {
-                    handleSelectEvent(event);
-                  }}
-                  view={currentView}
-                  date={currentDate}
-                  onView={(view) => setCurrentView(view)} // Sync view change
-                  onNavigate={(date) => setCurrentDate(date)} // Sync date chang
-                  selectable={true}
-                  components={{
-                    showMore: CustomShowMore,
-                    month: {
-                      dateHeader: CustomDateHeader,
-                    },
-                    event: customEventView,
-                    toolbar: customToolbar,
 
-                  }}
-                  // popup={true}
-                  // showAllEvents={true}
-                  showMoreLabel="Show More"
-                  style={{ height: "100vh", width: "100%" }}
-
-                />
-              </div> */}
               <div className="calendar-outer2">
                 <DndProvider backend={HTML5Backend}>
                   <DragAndDropCalendar
