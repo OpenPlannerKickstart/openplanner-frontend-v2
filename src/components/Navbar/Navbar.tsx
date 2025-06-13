@@ -78,7 +78,7 @@ const Navbar = (props) => {
   const countOfUnreadNotificationData: any = useSelector(
     (state: RootState) => state.NotificationReducer.countOfUnreadNotificationData);
   const [is_readAll, setis_readAll] = useState<boolean>(false);
-  const socket = io(API_URL);
+  // const socket = io(API_URL);
 
   const openNotificationModal = async () => {
     const response = await dispatch(getAllNotificationAPI());
@@ -211,47 +211,47 @@ const Navbar = (props) => {
   // });
 
 
-  useEffect(() => {
-    // Connect and listen for notifications
-    socket.on(`receiveNotification/${getUserSubId()}`, (item) => {
-      // console.log(item, "item from socket");
-      if (item?.message) {
-        try {
-          const newNotificationObj =
-            typeof item.message === 'string' && item.message !== '' ? JSON.parse(item?.message) : item?.message;
+  // useEffect(() => {
+  //   // Connect and listen for notifications
+  //   socket.on(`receiveNotification/${getUserSubId()}`, (item) => {
+  //     // console.log(item, "item from socket");
+  //     if (item?.message) {
+  //       try {
+  //         const newNotificationObj =
+  //           typeof item.message === 'string' && item.message !== '' ? JSON.parse(item?.message) : item?.message;
 
-          ts(`📅 ${newNotificationObj?.message}`, true);
+  //         ts(`📅 ${newNotificationObj?.message}`, true);
 
-          // Show the notification alert
-          setNotificationAlert(true);
+  //         // Show the notification alert
+  //         setNotificationAlert(true);
 
-          // Hide the alert after 8 seconds
-          setTimeout(() => {
-            setNotificationAlert(false);
-          }, 8000);
+  //         // Hide the alert after 8 seconds
+  //         setTimeout(() => {
+  //           setNotificationAlert(false);
+  //         }, 8000);
 
-          // Update the notification list and count
-          setNotiFicationList([
-            { ...newNotificationObj, message: `📅 ${newNotificationObj?.message}` },
-            ...notificationList,
-          ]);
+  //         // Update the notification list and count
+  //         setNotiFicationList([
+  //           { ...newNotificationObj, message: `📅 ${newNotificationObj?.message}` },
+  //           ...notificationList,
+  //         ]);
 
-          setNotificationCount(notificationCount + 1);
+  //         setNotificationCount(notificationCount + 1);
 
-          // Dispatch actions if needed (uncomment and add logic for your actions)
-          // await dispatch(getAllNotificationAPI());
-          // await dispatch(getCountOfUnreadNotificationAPI());
-        } catch (error) {
-          console.error('Error handling notification:', error);
-        }
-      }
-    });
+  //         // Dispatch actions if needed (uncomment and add logic for your actions)
+  //         // await dispatch(getAllNotificationAPI());
+  //         // await dispatch(getCountOfUnreadNotificationAPI());
+  //       } catch (error) {
+  //         console.error('Error handling notification:', error);
+  //       }
+  //     }
+  //   });
 
-    // Cleanup: Remove the listener when the component unmounts
-    return () => {
-      socket.off(`receiveNotification/${getUserSubId()}`);
-    };
-  }, [notificationList, notificationCount]);
+  //   // Cleanup: Remove the listener when the component unmounts
+  //   return () => {
+  //     socket.off(`receiveNotification/${getUserSubId()}`);
+  //   };
+  // }, [notificationList, notificationCount]);
   /** --------------------Notification end------------------------*/
 
 

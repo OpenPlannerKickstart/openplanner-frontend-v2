@@ -3,16 +3,12 @@ import {
   customJsonInclude,
   formatedDate,
   getDate,
-  hexToRgb,
   isEmptyObjectOrNullUndefiend,
   isNullUndefinedOrBlank,
 } from "../../../Utility/Helper";
-import Select, { components, ControlProps } from "react-select";
 import moment from "moment";
-import { Calendar, momentLocalizer } from "react-big-calendar";
-import appleLogo from "/assets/images/apple-logo.svg";
-import calendarLogo from "/assets/images/calendar-logo.svg";
-import outlookLogo from "/assets/images/outlook-logo.svg";
+import { momentLocalizer } from "react-big-calendar";
+
 import { AppDispatch, RootState } from "../../../redux/store";
 import { connect, useDispatch, useSelector } from "react-redux";
 import {
@@ -20,13 +16,19 @@ import {
   getSyllabusDropDownDataAPI,
 } from "../../../redux/Service/User/Calender/calender";
 import DatePicker from "react-datepicker";
-import { Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
+import { Button, Form, Modal, OverlayTrigger, Popover } from "react-bootstrap";
 import AddEditEvent from "../../../common/AddSyllabusEvents/AddEditEvent";
-import { addEvenData } from "../../../interfaces/interface";
 import AddEditSyllabus from "../../../common/AddSyllabusEvents/AddEditSyllabus";
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
 import { isUpdatedEvent, isUpdatedSyllabus } from "../../../redux/User/Courses/coursesSlice";
+import { Calendar } from 'react-big-calendar';
+import DnDCalendar from 'react-big-calendar/lib/addons/dragAndDrop';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { addEditEventDataAPI, deleteEventDataAPI } from "../../../redux/Service/User/Courses/courses";
 
+
+const DragAndDropCalendar = DnDCalendar(Calendar);
 const localizer: any = momentLocalizer(moment);
 const CalenderEvent = () => {
   const coursesData: any = useSelector(
@@ -131,14 +133,14 @@ const CalenderEvent = () => {
 
   /** ---------------Edit event start-----------------------------*/
   const [editEventFormData, setEditEventFormData] = useState<any>(null);
-  const handleSelectEvent = (event) => {
-    handleShow();
-    setEditEventFormData({
-      ...event?.event_data, start_date: new Date(formatedDate(event?.event_data?.start_date, "yyyy-MM-DD HH:mm:ss")),
-      end_date: new Date(formatedDate(event?.event_data?.end_date, "yyyy-MM-DD HH:mm:ss")),
+  // const handleSelectEvent = (event) => {
+  //   handleShow();
+  //   setEditEventFormData({
+  //     ...event?.event_data, start_date: new Date(formatedDate(event?.event_data?.start_date, "yyyy-MM-DD HH:mm:ss")),
+  //     end_date: new Date(formatedDate(event?.event_data?.end_date, "yyyy-MM-DD HH:mm:ss")),
 
-    })
-  };
+  //   })
+  // };
   /** --------------------Edit event End------------------------*/
   function customEventView({ event }) {
     const isCompleted = event?.event_data?.status === "Completed" ? true : false
@@ -399,7 +401,143 @@ const CalenderEvent = () => {
     return () => {
       clearTimeout(delayDebounceFn);
     }
-  }, [coursesData.isUpdatedSyllabusData])
+  }, [coursesData.isUpdatedSyllabusData]);
+
+
+  /** -------------------drag and drop start-------------------------*/
+  const handleEventDrop = async ({ event, start, end }) => {
+    // console.log("Event dropped:", event, "Start:", start, "End:", end);
+    // Step 1: Update the event in the local state
+    // const updatedEvents = calenderData.map((existingEvent) => {
+    //   if (existingEvent.id === event.id) {
+    //     return { ...existingEvent, start, end }; // Update the event with new dates
+    //   }
+    //   return existingEvent;
+    // });
+    // setCalenderData(updatedEvents);
+
+    // Step 2: Prepare the request body for the API
+    const reqBody = {
+      event_id: event?.event_data?.id,
+      title: event?.event_data?.title,
+      start_date: start.toISOString(), // Convert to ISO string
+      end_date: end.toISOString(), // Convert to ISO string
+      syllabus_id: event?.event_data?.syllabus_id,
+      is_all_day_event: event?.event_data?.is_all_day_event,
+      is_reminder: event?.event_data?.is_reminder,
+      note: event?.event_data?.note,
+      priority: event?.event_data?.priority,
+      reminder: event?.event_data?.reminder,
+    };
+    customJsonInclude(reqBody)
+    try {
+      // Step 3: Call the editEvent API
+      const response = await dispatch(addEditEventDataAPI(reqBody));
+
+      if (response) {
+        // Step 4: Fetch the latest calendar data
+        // await props.handleGetData(); // Assuming this fetches the updated calendar data
+        handleGetCalenderData();
+      }
+    } catch (error) {
+      console.error("Error updating the event:", error);
+    }
+  };
+
+  /** ----------------------drag and drop end----------------------*/
+
+  /** --------------------add event start------------------------*/
+  const handleSelectSlot = ({ start }) => {
+
+    const startDate = new Date(start); // Start date at 12:00 AM
+    const endDate = new Date(start); // Clone the date for end time
+    endDate.setMinutes(30, 0); // Set end time to 11:59:59 PM
+
+    setEditEventFormData({
+      ...editEventFormData,
+      start_date: startDate,
+      end_date: endDate,
+      is_reminder: false,
+      reminder: [],
+    });
+    handleShow();
+  };
+
+  /** --------------------add event end------------------------*/
+
+
+  /** ---------------------preview Data start-----------------------*/
+  const handleEditEvent = (event) => {
+
+    handleCloseModal();
+    handleShow();
+    setEditEventFormData({
+      ...event?.event_data, start_date: new Date(formatedDate(event?.event_data?.start_date, "yyyy-MM-DD HH:mm:ss")),
+      end_date: new Date(formatedDate(event?.event_data?.end_date, "yyyy-MM-DD HH:mm:ss")),
+
+    })
+  };
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+
+  const handleSelectEvent = (event) => {
+    setSelectedEvent(event); // Set the selected event
+    setShowModal(true); // Show the modal
+  };
+
+  const handleCloseModal = () => {
+    setSelectedEvent(null);
+    setShowModal(false); // Hide the modal
+  };
+
+  /** ---------------------preview Data end-----------------------*/
+
+
+
+  /** -------------------Delete event start-------------------------*/
+  const [deleteShow, setDeleteShow] = useState(false);
+  const [selectedEventObj, setSelectedEventObj] = useState<any>(null);
+
+  const handleDeleteClose = () => {
+    setDeleteShow(false);
+    setTimeout(() => {
+      setSelectedEventObj(null);
+      setDeleteSuccess(false);
+    }, 300);
+  }
+  const handleDeleteShow = (data) => {
+    // console.log(data)
+    setDeleteShow(true)
+    setSelectedEventObj(data);
+  }
+
+  const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
+
+  const handleDeleteData = async (eventId) => {
+    // console.log(eventId)
+    let event_id: any = [];
+    if (eventId instanceof Array) {
+      event_id = eventId;
+    }
+    else {
+      event_id = [eventId];
+    }
+    const reqBody = {
+      event_id: event_id,
+    }
+
+    const response = await dispatch(deleteEventDataAPI(reqBody));
+    if (!isNullUndefinedOrBlank(response?.payload)) {
+      handleGetCalenderData();
+      handleDeleteClose();
+      handleCloseModal();
+    }
+  }
+
+  /** -------------------Delete Event end-------------------------*/
+
+
   return (
     <>
       <div className="page-content">
@@ -497,7 +635,7 @@ const CalenderEvent = () => {
                               <>
                                 <div className="class-main">
                                   <div className="checkbox checkbox-primary classes-checkbox checkbox-small">
-                                    <input
+                                    {/* <input
                                       id={`${index} -checkbox`}
                                       className="material-inputs filled-in"
                                       type="checkbox"
@@ -507,22 +645,26 @@ const CalenderEvent = () => {
                                         handleCheckSyllabusID(item.value);
                                       }}
                                       checked={syllabusId.includes(item.value)}
-                                    />
+                                    /> */}
+                                    <div
+                                      className={`check-box ${syllabusId.includes(item.value) ? "active" : ""}`}
+                                      onClick={() => {
+                                        handleCheckSyllabusID(item.value);
+                                      }}
+                                      style={{
+                                        // @ts-ignore
+                                        ["--course-color" as any]: item.other.course_color, // Pass dynamic color as a CSS variable
+                                      }}
+                                    >
+                                      {syllabusId.includes(item.value) && <i className="material-symbols-outlined">check</i>}
+                                    </div>
+
                                     <label htmlFor={`${index} -checkbox`}>
                                       {item.label}
                                     </label>
                                   </div>
-                                  <div className="color-box">
-                                    <span
-                                      style={{
-                                        backgroundColor: `${!isNullUndefinedOrBlank(item.other.course_color)
-                                          ? item?.other?.course_color
-                                          : "#000000"
-                                          }`,
-                                      }}
-                                    ></span>
-                                  </div>
                                 </div>
+
                               </>
                             );
                           })
@@ -591,8 +733,9 @@ const CalenderEvent = () => {
                   </div> */}
                 </div>
               </div>
-              <div className="calendar-outer">
+              {/* <div className="calendar-outer">
                 <Calendar
+                  // scrollToTime={new Date(new Date().setHours(12, 50, 0, 0))}
                   localizer={localizer}
                   events={calenderData}
                   startAccessor="start"
@@ -600,12 +743,41 @@ const CalenderEvent = () => {
                   onSelectEvent={(event) => {
                     handleSelectEvent(event);
                   }}
-                  view={currentView} // Controlled view
-                  date={currentDate} // Controlled date
+                  view={currentView}
+                  date={currentDate}
                   onView={(view) => setCurrentView(view)} // Sync view change
-                  onNavigate={(date) => setCurrentDate(date)} // Sync date change
+                  onNavigate={(date) => setCurrentDate(date)} // Sync date chang
+                  selectable={true}
+                  components={{
 
+                    month: {
+                      dateHeader: CustomDateHeader,
+                    },
+                    event: customEventView,
+                    toolbar: customToolbar,
 
+                  }}
+                  // popup={true}
+                  showAllEvents={true}
+                // showMoreLabel="Show More"
+                // style={{ height: "100%", width: "100%" }}
+
+                />
+              </div> */}
+              {/* <div className="calendar-outer2">
+                <Calendar
+                  scrollToTime={new Date(new Date().setHours(12, 50, 0, 0))}
+                  localizer={localizer}
+                  events={calenderData}
+                  startAccessor="start"
+                  endAccessor="end"
+                  onSelectEvent={(event) => {
+                    handleSelectEvent(event);
+                  }}
+                  view={currentView}
+                  date={currentDate}
+                  onView={(view) => setCurrentView(view)} // Sync view change
+                  onNavigate={(date) => setCurrentDate(date)} // Sync date chang
                   selectable={true}
                   components={{
                     showMore: CustomShowMore,
@@ -617,13 +789,40 @@ const CalenderEvent = () => {
 
                   }}
                   // popup={true}
-                  showAllEvents={true}
-                // showMoreLabel="Show More"
-                // style={{ height: "100vh", width: "100%" }}
+                  // showAllEvents={true}
+                  showMoreLabel="Show More"
+                  style={{ height: "100vh", width: "100%" }}
 
                 />
-              </div>
+              </div> */}
+              <div className="calendar-outer2">
+                <DndProvider backend={HTML5Backend}>
+                  <DragAndDropCalendar
+                    scrollToTime={new Date(new Date().setHours(12, 50, 0, 0))}
+                    localizer={localizer}
+                    events={calenderData}
+                    onSelectSlot={handleSelectSlot}
+                    onEventDrop={handleEventDrop} // Handle drag-and-drop events
+                    // onSelectEvent={(event) => handleSelectEvent(event)}
+                    onSelectEvent={handleSelectEvent}
+                    showAllEvents={true}
+                    date={currentDate}
+                    onView={(view) => setCurrentView(view)} // Sync view change
+                    onNavigate={(date) => setCurrentDate(date)} // Sync date change
+                    selectable={true}
+                    components={{
 
+                      month: {
+                        dateHeader: CustomDateHeader,
+                      },
+                      event: customEventView,
+                      toolbar: customToolbar,
+                    }}
+
+                    style={{ height: "100vh", width: "100%" }}
+                  />
+                </DndProvider>
+              </div>
             </div>
           </div>
 
@@ -638,6 +837,102 @@ const CalenderEvent = () => {
       {/* Add/Edit event Start */}
       <AddEditSyllabus showSyllabus={showSyllabus} setShowSyllabus={setShowSyllabus} handleGetData={handleGetDropDownData} />
       {/* Add/Edit event Event */}
+
+
+      {/* Modal for Event Details */}
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>{selectedEvent?.event_data.title || "Event Details"}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedEvent ? (
+            <>
+              <p>
+                <strong>Start:</strong>{" "}
+                {new Date(selectedEvent.start).toLocaleString()}
+              </p>
+              <p>
+                <strong>End:</strong>{" "}
+                {new Date(selectedEvent.end).toLocaleString()}
+              </p>
+              <p>
+                <strong>Description:</strong>{" "}
+                {selectedEvent.event_data.note || "No description available"}
+              </p>
+            </>
+          ) : (
+            <p>No event selected.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => { handleEditEvent(selectedEvent) }}>
+            Edit
+          </Button>
+          <Button variant="primary" onClick={() => { handleDeleteShow(selectedEvent) }}>
+            Delete
+          </Button>
+          <Button variant="primary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        className="modal-theme modal-confirmation modal-reject"
+        show={deleteShow}
+        onHide={handleDeleteClose}
+        centered
+      >
+        <Modal.Header>
+          <h4 className="modal-title">Delete Event</h4>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={handleDeleteClose}
+          >
+            <i className="material-symbols-outlined">close</i>
+          </button>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="modal-confirmation-container">
+            <div className="modal-confirmation-icon">
+              <i className="material-symbols-outlined">delete</i>
+            </div>
+            <div className="modal-confirmation-content">
+              <h5> {!deleteSuccess ? "Are You Sure?" : "You have successfully deleted Event!"}</h5>
+              <p>
+                {!deleteSuccess ?
+                  "You want to delete this event ?" :
+                  "Get back to Event page to add or complete the other event"
+                }
+
+              </p>
+            </div>
+          </div>
+          <div className="modal-button-group modal-full-width-btn modal-footer-button">
+            {
+              !deleteSuccess &&
+              <Button
+                variant="light-white"
+                className="btn-md"
+                onClick={handleDeleteClose}
+              >
+                No, Change My Mind
+              </Button>
+            }
+            <Button
+              variant={!deleteSuccess ? "danger" : "success"}
+              className="btn-icon-text btn-md"
+              onClick={() => {
+                !deleteSuccess ? handleDeleteData(selectedEventObj?.event_data?.id) : handleDeleteClose()
+              }}
+            >
+              {!deleteSuccess ? "Delete" : "Ok"}
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   );
 };
