@@ -3,6 +3,7 @@ import { Form } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import DatePicker from "react-datepicker";
 import Select, { components, ControlProps } from "react-select";
+import { eventPriorityDropDownData } from '../../../Utility/staticDropDown';
 
 export const FilterComponent = (props) => {
     return (
@@ -33,6 +34,25 @@ export const FilterComponent = (props) => {
                                 value === props?.syllabusId
                             );
                         })}
+                    />
+                </Form.Group>
+                <Form.Group className="form-group form-group-sm " controlId="exampleForm.ControlInput1">
+                    <Select
+                        options={eventPriorityDropDownData}
+                        placeholder={<div>Search Priority </div>}
+                        onChange={(selectedOption) => {
+                            props?.setEventPriority(selectedOption?.value ? selectedOption?.value : null);
+
+
+                        }}
+                        value={eventPriorityDropDownData?.filter(({ value }) => {
+                            return (
+                                value ===
+                                props.eventPriority
+                            );
+                        })}
+                        isClearable
+                        className="react-select-container"
                     />
                 </Form.Group>
                 <Form.Group className="form-group form-group-sm">

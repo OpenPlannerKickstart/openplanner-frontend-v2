@@ -32,7 +32,7 @@ const PendingEvents = (props) => {
         setDeleteShow(false);
         setTimeout(() => {
             setdeleteEventData([]);
-            setDeleteSuccess(false);
+         
         }, 300);
     }
     const handleDeleteShow = (data) => {
@@ -40,14 +40,15 @@ const PendingEvents = (props) => {
         setDeleteShow(true)
     }
     const [deleteEventData, setdeleteEventData] = useState<Array<any>>([]);
-    const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
+
 
     const handleDeleteData = async () => {
         let param = deleteEventData?.map((data) => data.id)
         const response = await dispatch(deleteEventAPI({ event_id: param }));
         if (!isNullUndefinedOrBlank(response?.payload)) {
-            setDeleteSuccess(true);
+     
             props?.handleEventListing();
+            handleDeleteClose();
 
         }
     }
@@ -68,14 +69,13 @@ const PendingEvents = (props) => {
             props?.handleEventListing();
             props?.getDashboardCount();
             props?.handleEventChartData();
-            handleSuccessShow();
+            // handleSuccessShow();
         }
     }
 
 
 
     /** -------------------Event complete End-------------------------*/
-
 
     return (
         <>
@@ -133,6 +133,7 @@ const PendingEvents = (props) => {
                                 </th>
                                 <th>Title Name</th>
                                 <th>Course Name</th>
+                                <th>Priority</th>
                                 <th>Notes</th>
                                 <th>Start Date</th>
                                 <th>Due Date</th>
@@ -163,12 +164,19 @@ const PendingEvents = (props) => {
 
                                                 </div>
                                             </td>
-                                            <td className='tbl-title'>
+                                            <td className='tbl-title cursor-pointer'
+                                                onDoubleClick={() => {
+                                                props.handleSelectEvent(item)
+                                                }}
+                                            >
                                                 {!isNullUndefinedOrBlank(item.title) ? item.title : ""}
                                             </td>
                                             <td>
                                                 <Badge className='course_badge' bg="" title={!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"} style={{ backgroundColor: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)', color: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}><i className="material-symbols-outlined" style={{ color: item.course_color ? `rgba(${parseInt(item.course_color.slice(1, 3), 16)}, ${parseInt(item.course_color.slice(3, 5), 16)}, ${parseInt(item.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}>book_2</i>
                                                     <span>{!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"}</span></Badge>
+                                            </td>
+                                            <td>
+                                                {!isNullUndefinedOrBlank(item?.priority)?item?.priority:""}
                                             </td>
                                             <td onClick={() => { props.handleShowShowNote(item.note) }}>
                                                 <a >View Notes</a>
@@ -329,7 +337,7 @@ const PendingEvents = (props) => {
                 centered
             >
                 <Modal.Header>
-                    <h4 className="modal-title">{deleteSuccess ? "Event Deleted!" : "Delete Event"}</h4>
+                    <h4 className="modal-title"> Delete Event</h4>
                     <button
                         type="button"
                         className="btn-close"
@@ -344,19 +352,17 @@ const PendingEvents = (props) => {
                             <i className="material-symbols-outlined">delete</i>
                         </div>
                         <div className="modal-confirmation-content">
-                            <h5> {!deleteSuccess ? "Are You Sure?" : "You have successfully deleted Event!"}</h5>
+                            <h5> Are You Sure?</h5>
                             <p>
-                                {!deleteSuccess ?
-                                    "You want to delete this event ?" :
-                                    "Get back to My Week page to complete the other event"
-                                }
+                                
+                                    You want to delete this event ?
 
                             </p>
                         </div>
                     </div>
                     <div className="modal-button-group modal-full-width-btn modal-footer-button">
                         {
-                            !deleteSuccess &&
+                           
                             <Button
                                 variant="light-white"
                                 className="btn-md"
@@ -366,13 +372,13 @@ const PendingEvents = (props) => {
                             </Button>
                         }
                         <Button
-                            variant={!deleteSuccess ? "danger" : "success"}
+                            variant= "danger"
                             className="btn-icon-text btn-md"
                             onClick={() => {
-                                !deleteSuccess ? handleDeleteData() : handleDeleteClose()
+                                 handleDeleteData()
                             }}
                         >
-                            {!deleteSuccess ? "Delete" : "Ok"}
+                           Delete
                         </Button>
                     </div>
                 </Modal.Body>
@@ -406,6 +412,7 @@ const PendingEvents = (props) => {
                 </Modal.Body>
             </Modal>
             {/* Success Modal */}
+      
         </>
     )
 }

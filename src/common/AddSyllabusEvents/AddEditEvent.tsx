@@ -8,11 +8,11 @@ import * as yup from 'yup';
 import { MAX_3, MAX_300, MAX_50, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError } from '../../Utility/Helper';
-import { addEditEventDataAPI } from '../../redux/Service/User/Courses/courses';
-import { Button, Col, Form, Offcanvas, Row } from 'react-bootstrap';
+import { addEditEventDataAPI, deleteEventDataAPI } from '../../redux/Service/User/Courses/courses';
+import { Button, Col, Form, Modal, Offcanvas, Row } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import Select, { components, ControlProps } from "react-select";
-import { reminderUnitDropDownData } from '../../Utility/staticDropDown';
+import { eventPriorityDropDownData, reminderUnitDropDownData } from '../../Utility/staticDropDown';
 import appleLogo from "/assets/images/apple-logo.svg";
 import calendarLogo from "/assets/images/calendar-logo.svg";
 import outlookLogo from "/assets/images/outlook-logo.svg";
@@ -20,6 +20,7 @@ import moment from 'moment';
 import { AddToCalendarButton } from 'add-to-calendar-button-react';
 import 'add-to-calendar-button';
 import { isUpdatedEvent } from '../../redux/User/Courses/coursesSlice';
+import { ENUM_FOR_EVENT_PRIORITY } from '../../interfaces/enum';
 
 
 export const AddEditEvent = (props) => {
@@ -81,6 +82,7 @@ export const AddEditEvent = (props) => {
         note: "",
         is_reminder: false,
         reminder: [],
+        priority: ENUM_FOR_EVENT_PRIORITY.LOW
 
     }
     const [savedEventFormData, setSavedEventFormData] = useState<addEvenData>(initEventData);
@@ -173,7 +175,8 @@ export const AddEditEvent = (props) => {
             reminder: eventFormData.values.reminder,
             syllabus_id: eventFormData.values.syllabus_id,
             event_id: eventFormData.values.id,
-            is_all_day_event: eventFormData?.values?.is_all_day_event
+            is_all_day_event: eventFormData?.values?.is_all_day_event,
+            priority: eventFormData?.values?.priority
 
         }
         customJsonInclude(reqBody);
@@ -266,7 +269,46 @@ export const AddEditEvent = (props) => {
 
 
     /* -------------------------- Add Event Data End -------------------------- */
+    /** -------------------Delete event start-------------------------*/
+    const [deleteShow, setDeleteShow] = useState(false);
+    const [selectedEventObj, setSelectedEventObj] = useState<any>(null);
 
+    const handleDeleteClose = () => {
+        setDeleteShow(false);
+        setTimeout(() => {
+            setSelectedEventObj(null);
+            setDeleteSuccess(false);
+        }, 300);
+    }
+    const handleDeleteShow = (data) => {
+        setDeleteShow(true)
+        setSelectedEventObj(data);
+    }
+
+    const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
+
+    const handleDeleteData = async (eventId) => {
+        let event_id: any = [];
+        if (eventId instanceof Array) {
+            event_id = eventId;
+        }
+        else {
+            event_id = [eventId];
+        }
+        const reqBody = {
+            event_id: event_id,
+        }
+
+        const response = await dispatch(deleteEventDataAPI(reqBody));
+        if (!isNullUndefinedOrBlank(response?.payload)) {
+            handleCloseAddSyllabusEvents();
+            dispatch(isUpdatedEvent(true));
+            props?.handleGetData();
+            handleDeleteClose();
+        }
+    }
+
+    /** -------------------Delete Event end-------------------------*/
 
     return (
         <>
@@ -475,6 +517,32 @@ export const AddEditEvent = (props) => {
                                                     {eventFormData.touched.syllabus_id &&
                                                         eventFormData.errors.syllabus_id
                                                         && renderError(eventFormData.errors.syllabus_id as any)}
+                                                </Form.Group>
+                                                <Form.Group className="form-group " controlId="exampleForm.ControlInput1">
+                                                    <Form.Label>Priority</Form.Label>
+                                                    <Select
+                                                        options={eventPriorityDropDownData}
+                                                        placeholder={<div>Select Priority </div>}
+                                                        onChange={(selectedOption) => {
+                                                            eventFormData.setFieldValue("priority", selectedOption?.value ? selectedOption?.value : null);
+
+
+                                                        }}
+                                                        value={eventPriorityDropDownData?.filter(({ value }) => {
+                                                            return (
+                                                                value ===
+                                                                eventFormData.values.priority
+                                                            );
+                                                        })}
+                                                        // onBlur={() => {
+                                                        //     // objectiveDetailsFormData.setFieldTouched("theme_id", true)
+                                                        //     handleUpdateDetails()
+                                                        // }}
+                                                        // isClearable
+                                                        menuPosition="fixed"
+                                                        className="react-select-container"
+                                                    />
+
                                                 </Form.Group>
                                                 {
                                                     !isNullUndefinedOrBlank(eventFormData?.values?.id) &&
@@ -699,6 +767,15 @@ export const AddEditEvent = (props) => {
                                         >
                                             Cancel
                                         </Button>
+
+                                        {
+                                            eventFormData?.values?.id &&
+                                            <Button type="button"  className="btn btn-light-danger"
+                                                onClick={() => { handleDeleteShow(eventFormData.values) }}
+                                            >
+                                                Delete
+                                            </Button>
+                                        }
                                         <Button type="button" className="btn btn-light-white"
                                             onClick={() => { handleClearData() }}
                                         >
@@ -718,6 +795,59 @@ export const AddEditEvent = (props) => {
                 </Offcanvas>
             </div>
             {/***** Offcanvas end *****/}
+            {/* Delete Modal */}
+            <Modal
+                className="modal-theme modal-confirmation modal-reject"
+                show={deleteShow}
+                onHide={handleDeleteClose}
+                centered
+            >
+                <Modal.Header>
+                    <h4 className="modal-title">Delete Event</h4>
+                    <button
+                        type="button"
+                        className="btn-close"
+                        onClick={handleDeleteClose}
+                    >
+                        <i className="material-symbols-outlined">close</i>
+                    </button>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="modal-confirmation-container">
+                        <div className="modal-confirmation-icon">
+                            <i className="material-symbols-outlined">delete</i>
+                        </div>
+                        <div className="modal-confirmation-content">
+                            <h5> Are You Sure?</h5>
+                            <p>  You want to delete this event ?
+
+                            </p>
+                        </div>
+                    </div>
+                    <div className="modal-button-group modal-full-width-btn modal-footer-button">
+                        {
+                            // !deleteSuccess &&
+                            <Button
+                                variant="light-white"
+                                className="btn-md"
+                                onClick={handleDeleteClose}
+                            >
+                                No, Change My Mind
+                            </Button>
+                        }
+                        <Button
+                            variant={"danger"}
+                            className="btn-icon-text btn-md"
+                            onClick={() => {
+                                handleDeleteData(selectedEventObj?.id)
+                            }}
+                        >
+                            Delete
+                        </Button>
+                    </div>
+                </Modal.Body>
+            </Modal>
+            {/* Delete Modal */}
         </>
     )
 }

@@ -49,7 +49,7 @@ const Task = (props) => {
   // Define initial values
   const initFormValues = {
     task_name: "",
-    due_date: "",
+    due_date: null,
     note: "",
     is_reminder: false,
     reminder: [],

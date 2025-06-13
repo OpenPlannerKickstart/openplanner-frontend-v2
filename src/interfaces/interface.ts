@@ -181,6 +181,7 @@ export interface addEvenData {
   syllabus?: SyllabusResponseType;
   id?: any;
   status?: any;
+  priority?:any;
 }
 
 export interface dueEventData {

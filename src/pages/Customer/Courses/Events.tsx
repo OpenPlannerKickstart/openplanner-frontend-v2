@@ -56,8 +56,7 @@ const Events = (props) => {
   const handleDeleteClose = () => {
     setDeleteShow(false);
     setTimeout(() => {
-      setSelectedEventObj(null);
-      setDeleteSuccess(false);
+      setSelectedEventObj(null);    
     }, 300);
   }
   const handleDeleteShow = (data) => {
@@ -65,7 +64,7 @@ const Events = (props) => {
     setSelectedEventObj(data);
   }
 
-  const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
+
 
   const handleDeleteData = async (eventId) => {
     let event_id: any = [];
@@ -82,7 +81,7 @@ const Events = (props) => {
     const response = await dispatch(deleteEventDataAPI(reqBody));
     if (!isNullUndefinedOrBlank(response?.payload)) {
       getEventListData();
-      setDeleteSuccess(true);
+      handleDeleteClose();
     }
   }
 
@@ -125,6 +124,8 @@ const Events = (props) => {
   useEffect(() => {
     if (!isEmptyObjectOrNullUndefiend(props?.eventData)) {
       setEventListData(props?.eventData)
+    } else {
+      setEventListData({} as EventResponseType);
     }
   }, [props?.eventData])
 
@@ -151,6 +152,7 @@ const Events = (props) => {
                               <thead className="border-less">
                                 <tr>
                                   <th>Event Name</th>
+                                  <th>Priority</th>
                                   <th>Start Date</th>
                                   <th>End Date</th>
                                   <th className="text-center">Actions</th>
@@ -164,13 +166,16 @@ const Events = (props) => {
                                       <tr className={`${childItem?.status === "Completed" ? "active-table" : ""}`} key={index}>
                                         <td>
                                           <div className="event-name-tooltip">
-                                            <div className="enevt-name"><h3>{childItem?.title || ""}</h3></div>
+                                            <div className="enevt-name cursor-pointer" onDoubleClick={() => { props.handleSelectEvent(childItem) }}><h3>{childItem?.title || ""}</h3></div>
                                             <div className="event-tool">
                                               <Badge className='course_badge' title={!isNullUndefinedOrBlank(childItem.syllabus?.title) ? childItem.syllabus?.title : "-"} bg="" style={{ backgroundColor: childItem.syllabus?.course_color ? `rgba(${parseInt(childItem.syllabus?.course_color?.slice(1, 3), 16)}, ${parseInt(childItem.syllabus?.course_color?.slice(3, 5), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)', color: childItem.syllabus?.course_color ? `rgba(${parseInt(childItem.syllabus?.course_color.slice(1, 3), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(3, 5), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}><i className="material-symbols-outlined" style={{ color: childItem.syllabus?.course_color ? `rgba(${parseInt(childItem.syllabus?.course_color.slice(1, 3), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(3, 5), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}>book_2</i><span>{!isNullUndefinedOrBlank(childItem.syllabus?.title) ? childItem.syllabus?.title : "-"}</span></Badge>
 
                                               {/* <Badge style={{ backgroundColor: `${childItem?.syllabus?.course_color || "#239bc266"}`, opacity: 0.4 }}><i className="material-symbols-outlined">book_2</i>{childItem?.syllabus?.title || ""}</Badge> */}
                                             </div>
                                           </div>
+                                        </td>
+                                        <td>
+                                          {!isNullUndefinedOrBlank(childItem?.priority) ? childItem?.priority : ""}
                                         </td>
                                         <td>{!isNullUndefinedOrBlank(childItem?.start_date) ? formatedDate(childItem?.start_date, "hh:mm a") : NO_START_DATE_ADDED}</td>
                                         <td>{!isNullUndefinedOrBlank(childItem?.end_date) ? formatedDate(childItem?.end_date, "hh:mm a") : NO_END_DATE_ADDED}</td>
@@ -266,6 +271,7 @@ const Events = (props) => {
                                   <thead className="border-less">
                                     <tr>
                                       <th>Event Name</th>
+                                      <th>Priority</th>
                                       <th>Start Date</th>
                                       <th>End Date</th>
                                       <th className="text-center">Actions</th>
@@ -279,11 +285,14 @@ const Events = (props) => {
                                         <tr className={`${parentItem?.status === "Completed" ? "active-table" : ""}`} key={index}>
                                           <td>
                                             <div className="event-name-tooltip">
-                                              <div className="enevt-name"><h3>{parentItem?.title || ""} </h3></div>
+                                              <div className="enevt-name cursor-pointer" onDoubleClick={() => { props.handleSelectEvent(parentItem) }}><h3>{parentItem?.title || ""} </h3></div>
                                               <div className="event-tool">
                                                 <Badge className='course_badge' title={parentItem?.syllabus?.title || ""} style={{ backgroundColor: `${parentItem?.syllabus?.course_color || "#239bc266"}`, opacity: 0.4 }}><i className="material-symbols-outlined">book_2</i><span>{parentItem?.syllabus?.title || ""}</span></Badge>
                                               </div>
                                             </div>
+                                          </td>
+                                          <td>
+                                            {!isNullUndefinedOrBlank(parentItem?.priority) ? parentItem?.priority : ""}
                                           </td>
                                           <td>{!isNullUndefinedOrBlank(parentItem?.start_date) ? formatedDate(parentItem?.start_date, "MM/DD/yyyy hh:mm a") : NO_START_DATE_ADDED}</td>
                                           <td>{!isNullUndefinedOrBlank(parentItem?.end_date) ? formatedDate(parentItem?.end_date, "MM/DD/yyyy hh:mm a") : NO_END_DATE_ADDED}</td>
@@ -400,19 +409,17 @@ const Events = (props) => {
                   <i className="material-symbols-outlined">delete</i>
                 </div>
                 <div className="modal-confirmation-content">
-                  <h5> {!deleteSuccess ? "Are You Sure?" : "You have successfully deleted Event!"}</h5>
+                  <h5> Are You Sure?</h5>
                   <p>
-                    {!deleteSuccess ?
-                      "You want to delete this event ?" :
-                      "Get back to Event page to add or complete the other event"
-                    }
+                    
+                      You want to delete this event ?
 
                   </p>
                 </div>
               </div>
               <div className="modal-button-group modal-full-width-btn modal-footer-button">
                 {
-                  !deleteSuccess &&
+                
                   <Button
                     variant="light-white"
                     className="btn-md"
@@ -422,13 +429,13 @@ const Events = (props) => {
                   </Button>
                 }
                 <Button
-                  variant={!deleteSuccess ? "danger" : "success"}
+                  variant= "danger"
                   className="btn-icon-text btn-md"
                   onClick={() => {
-                    !deleteSuccess ? handleDeleteData(selectedEventObj?.id) : handleDeleteClose()
+                     handleDeleteData(selectedEventObj?.id)
                   }}
                 >
-                  {!deleteSuccess ? "Delete" : "Ok"}
+                Delete
                 </Button>
               </div>
             </Modal.Body>

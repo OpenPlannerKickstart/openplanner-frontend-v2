@@ -991,6 +991,10 @@ $sm_sidebar_home_link_width: 170px;
                                                 margin-bottom: 4px;
                                                 font-weight: 500;
                                             }
+
+                                            &.cursor-pointer {
+                                                cursor: pointer;
+                                            }
                                         }
                                     }
 
