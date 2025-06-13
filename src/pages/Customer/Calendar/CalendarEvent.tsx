@@ -840,22 +840,33 @@ const CalenderEvent = () => {
 
 
       {/* Modal for Event Details */}
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>{selectedEvent?.event_data.title || "Event Details"}</Modal.Title>
+      <Modal className='modal-theme modal-confirmation modal-approve'
+      show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header className="border-bottom">
+          <h4 className="modal-title">Event Details</h4>
+          <button type="button" className="btn-close" onClick={handleCloseModal}>
+            <i className="material-symbols-outlined">close</i>
+          </button>
         </Modal.Header>
         <Modal.Body>
           {selectedEvent ? (
             <>
-              <p>
+              <p className="mb-1 fs-15">
+                <strong>Event Title:</strong>{" "}
+                {selectedEvent?.event_data.title || "Event Details"}
+              </p>
+              <p className="mb-1 fs-15">
+                <strong>Priority:</strong>{" "} Hight
+              </p>
+              <p className="mb-1 fs-15">
                 <strong>Start:</strong>{" "}
                 {new Date(selectedEvent.start).toLocaleString()}
               </p>
-              <p>
+              <p className="mb-1 fs-15">
                 <strong>End:</strong>{" "}
                 {new Date(selectedEvent.end).toLocaleString()}
               </p>
-              <p>
+              <p className="mb-0 fs-15">
                 <strong>Description:</strong>{" "}
                 {selectedEvent.event_data.note || "No description available"}
               </p>
@@ -863,18 +874,15 @@ const CalenderEvent = () => {
           ) : (
             <p>No event selected.</p>
           )}
+          <div className="modal-button-group modal-full-width-btn modal-footer-button">
+            <Button variant="light-white" onClick={() => { handleEditEvent(selectedEvent) }}>
+            Edit Event
+            </Button>
+            <Button variant="danger" onClick={() => { handleDeleteShow(selectedEvent) }}>
+              Delete
+            </Button>
+          </div>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={() => { handleEditEvent(selectedEvent) }}>
-            Edit
-          </Button>
-          <Button variant="primary" onClick={() => { handleDeleteShow(selectedEvent) }}>
-            Delete
-          </Button>
-          <Button variant="primary" onClick={handleCloseModal}>
-            Close
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {/* Delete Modal */}

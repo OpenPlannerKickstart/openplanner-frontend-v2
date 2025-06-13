@@ -43,7 +43,8 @@ export const ENUMFORROUTES = {
   TASK: "/task",
   CALENDAR: "/calendar",
   SETTINGS: "/settings",
-  VERIFY_SIGNUP_OTP: "/verify-user-otp"
+  VERIFY_SIGNUP_OTP: "/verify-user-otp",
+  EDIT_COURSE:"/edit-course"
 
 }
 
