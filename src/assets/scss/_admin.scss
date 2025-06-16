@@ -1117,35 +1117,36 @@ $sm_sidebar_home_link_width: 170px;
 }
 
 // EDIT PAGE CSS
-.page-content-wrapper{
-    .edit-course-canvas{
+.page-content-wrapper {
+    .edit-course-canvas {
         width: 100% !important;
         max-width: 100%;
+
         .edit-course-wrapper {
             .course-edit-container {
                 display: flex;
                 width: 100%;
                 flex-wrap: wrap;
 
-            .syllabus-tab-wrapper,
-            .syllabus-pdf-container {
-                width: 100%;
-                max-width: 50%;
-                transition: all .3s ease;
-            }
-
-            .syllabus-tab-wrapper {
-                .hide-btn {
-                    font-size: 14px;
-                    line-height: normal;
-                    letter-spacing: 0.2px;
-                    text-decoration: underline;
-                    color: #239BC2;
-                    cursor: pointer;
-                    margin-left: 10px;
-                    display: none;
+                .syllabus-tab-wrapper,
+                .syllabus-pdf-container {
+                    width: 100%;
+                    max-width: 50%;
+                    transition: all .3s ease;
                 }
-            }
+
+                .syllabus-tab-wrapper {
+                    .hide-btn {
+                        font-size: 14px;
+                        line-height: normal;
+                        letter-spacing: 0.2px;
+                        text-decoration: underline;
+                        color: #239BC2;
+                        cursor: pointer;
+                        margin-left: 10px;
+                        display: none;
+                    }
+                }
             }
 
             &.hide-syllabus-preview {
@@ -1164,25 +1165,28 @@ $sm_sidebar_home_link_width: 170px;
         }
     }
 }
-.edit-course-box-wrapper{
-    .content-area{
+
+.edit-course-box-wrapper {
+    .content-area {
         padding: 0 !important;
-        min-height: calc(100vh - 130px) !important;        
-        max-height: calc(100vh - 130px) !important;        
+        min-height: calc(100vh - 130px) !important;
+        max-height: calc(100vh - 130px) !important;
+
         .course-detail-box {
             .nav-tabs-style2 {
                 .tab-pane {
                     .tab-content-container {
-                        .tab-body-container{
+                        .tab-body-container {
                             height: calc(100vh - 255px);
-                        }               
+                        }
                     }
                 }
             }
         }
     }
 }
-.course-detail-box .nav-tabs-style2 .tab-pane .tab-body-container{
+
+.course-detail-box .nav-tabs-style2 .tab-pane .tab-body-container {
     height: calc(100vh - 230px);
 }
 
@@ -1459,6 +1463,7 @@ $sm_sidebar_home_link_width: 170px;
         }
     }
 }
+
 // EDIT PAGE CSS
 
 // Add syllabus event offcanvas
@@ -2216,19 +2221,40 @@ $sm_sidebar_home_link_width: 170px;
 }
 
 // Calender css
-.calender-content-area-old {
+.calender-content-area {
     padding: 0 !important;
     border-radius: 0 !important;
 
     .sidebar-with-calendar {
+        position: relative;
         display: flex;
         align-items: stretch;
 
         .sider-bar {
-            width: 100%;
+            position: fixed;
+
+            left: 175px;
+
+            top: 10;
+
+            height: 100vh;
+
             min-width: 331px;
+
             max-width: 331px;
-            background: $white_color;
+
+            z-index: 10;
+
+            overflow-y: auto;
+
+            width: 100%;
+
+            min-width: 331px;
+
+            max-width: 331px;
+
+            background: $bg_grey;
+
             border-right: 1px solid $stock_light;
 
             @media (max-width:1366px) {
@@ -2297,15 +2323,18 @@ $sm_sidebar_home_link_width: 170px;
                     .react-datepicker-container {
                         display: flex;
                         justify-content: center;
-                        .react-datepicker__header{
+
+                        .react-datepicker__header {
                             background-color: $white_color;
                         }
-                        .react-datepicker__navigation-icon{
-                            &::before{
+
+                        .react-datepicker__navigation-icon {
+                            &::before {
                                 border-color: $stock_dark;
                             }
                         }
-                        .react-datepicker__current-month{
+
+                        .react-datepicker__current-month {
                             color: $text_black_color;
                         }
                     }
@@ -2351,6 +2380,7 @@ $sm_sidebar_home_link_width: 170px;
                                 align-items: center;
                                 gap: 10px;
                                 flex-wrap: wrap;
+
                                 [type=checkbox]+label {
                                     padding-left: 30px;
                                     font-size: 14px;
@@ -2689,7 +2719,8 @@ $sm_sidebar_home_link_width: 170px;
 
         .calendar-outer2 {
             width: 100%;
-
+            height: 100vh;
+            margin-left: 331px;
 
             .rbc-calendar {
                 width: 100%;
@@ -2949,7 +2980,7 @@ $sm_sidebar_home_link_width: 170px;
     }
 }
 
-.calender-content-area {
+.calender-content-area-old {
 
     padding: 0 !important;
 
