@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Badge, Button, Card, Col, Form, Modal, Row, Tooltip } from 'react-bootstrap';
+import { Badge, Button, Card, Col, Form, Modal, Row, Table, Tooltip } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import eventChart1 from "/assets/images/chart-1.svg";
 import eventChart2 from "/assets/images/chart-2.svg";
@@ -324,394 +324,180 @@ const Dashboard = () => {
     <>
       <div className="page-content dashboard-main">
         <div className="content-area">
-          {/* <div className="page-title-wrapper">
-            <div className="page-title-left">
-              <div className="page-title">
-                <h4>Dashboard</h4>
-                <p>View your upcoming events and progress for the week!</p>
-              </div>
-            </div>
-            <div className="page-title-right">
-              <Form.Group className="form-group form-group-sm mb-0">
-                <div className="react-datepicker-container form-group-icon-start">
-                  <i className="material-symbols-outlined control-icon">date_range</i>
-                  <DatePicker
-                    dropdownMode="select"
-                    isClearable={true}
-                    dateFormat="dd/MM/yyyy"
-                    className="form-control"
-                    popperProps={{ strategy: "fixed" }}
-                    placeholderText="Date Range"
-                  />
-                </div>
-              </Form.Group>
-            </div>
-          </div> */}
           <div className="page-content-wrapper h-100">
             <div className="dashboard-main-wrapper">
-              {/* chart box section */}
-              {/* <div className="chart-main-box">
-                <Row>
-                  <Col md={4}>
-                    <Card className="event-main-card">
-                      <Card.Body>
-                        <div className="card-title-dropdown">
-                          <div className="title-text">
-                            <h3>Events</h3>
-                          </div>
-                          <div className="title-dropdown">
-                            <Form.Group className="form-group form-group-sm" controlId="exampleForm.ControlInput1">
-                              
-                              <Select
-                                options={chartDropDownData}
-                                placeholder={<div>Select</div>}
-                                menuPosition="fixed"
-                                className="react-select-container"
-                                onChange={(selectedOption: any) => {
-                                  setEventChartFilter(selectedOption?.value)
-                                }}
-                                isClearable={true}
-                                value={chartDropDownData?.filter(({ value }) => {
-                                  return (
-                                    value === eventChartFilter
-                                  );
-                                })}
-                              />
-                            </Form.Group>
-                          </div>
-                        </div>
-                        <div className="chart-with-details primary-chart">
-                          {!isEmptyObjectOrNullUndefiend(eventChartData) ?
-                            <>
-                              <div className="chart-box">
-                              
-
-                                <Chart
-                                  chartType="PieChart"
-                                  height="140px"
-                                  width="100%"
-                                  data={eventChartData}
-                                  options={eventOptions}
-                                />
-                              </div>
-                              <div className="chart-details">
-                                <div className="event-deta total-event">
-                                  <div className="event-title">
-                                    <h4><span></span>Total Events</h4>
-                                  </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(eventChartData) ? eventChartData[1][1] + eventChartData[2][1] : 0}</h4></div>
-                                </div>
-                                <div className="event-deta complet-event">
-                                  <div className="event-title">
-                                    <h4><span></span>Completed Events</h4>
-                                  </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(eventChartData) ? eventChartData[1][1] : 0}</h4></div>
-                                </div>
-                              </div>
-                            </>
-                            :
-                            <>
-                              <div className="no-records-found no-records-found-inner h-100">
-                              
-                                <div className="no-records-found-text ">
-                              
-                                  <h6>No data found!</h6>
-                                </div>
-                              </div>
-
-                            </>
-                          }
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                  <Col md={4}>
-                    <Card className="event-main-card">
-                      <Card.Body>
-                        <div className="card-title-dropdown">
-                          <div className="title-text">
-                            <h3>Tasks</h3>
-                          </div>
-                          <div className="title-dropdown">
-                            <Form.Group className="form-group form-group-sm" controlId="exampleForm.ControlInput1">
-                            
-
-                              <Select
-                                options={chartDropDownData}
-                                placeholder={<div>Select</div>}
-                                menuPosition="fixed"
-                                className="react-select-container"
-                                onChange={(selectedOption: any) => {
-                                  setTaskChartFilter(selectedOption?.value)
-                                }}
-                                isClearable={true}
-                                value={chartDropDownData?.filter(({ value }) => {
-                                  return (
-                                    value === taskChartFilter
-                                  );
-                                })}
-                              />
-                            </Form.Group>
-                          </div>
-                        </div>
-                        <div className="chart-with-details success-chart">
-
-                          {!isEmptyObjectOrNullUndefiend(taskChartData) ?
-                            <>
-
-                              <div className="chart-box">
-                              
-                                <Chart
-                                  chartType="PieChart"
-                                  height="140px"
-                                  width="100%"
-                                  data={taskChartData}
-                                  options={taskOptions}
-                                />
-                              </div>
-                              <div className="chart-details">
-                                <div className="event-deta total-event">
-                                  <div className="event-title">
-                                    <h4><span></span>Total Tasks</h4>
-                                  </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(taskChartData) ? taskChartData[1][1] + taskChartData[2][1] : 0}</h4></div>
-                                </div>
-                                <div className="event-deta complet-event">
-                                  <div className="event-title">
-                                    <h4><span></span>Completed Tasks</h4>
-                                  </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(taskChartData) ? taskChartData[1][1] : 0}</h4></div>
-                                </div>
-                              </div>
-                            </> :
-                            <>
-                              <div className="no-records-found no-records-found-inner h-100">
-                              
-                                <div className="no-records-found-text">
-                                  <h6>No data found!</h6>
-                                </div>
-                              </div>
-
-                            </>
-                          }
-
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                  <Col md={4}>
-                    <Card className="event-main-card">
-                      <Card.Body>
-                        <div className="card-title-dropdown">
-                          <div className="title-text">
-                            <h3>Courses</h3>
-                          </div>
-                          <div className="title-dropdown">
-                            <Form.Group className="form-group form-group-sm" controlId="exampleForm.ControlInput1">
-                             
-
-                              <Select
-                                options={chartDropDownData}
-                                placeholder={<div>Select</div>}
-                                menuPosition="fixed"
-                                className="react-select-container"
-                                onChange={(selectedOption: any) => {
-                                  setSyllabusChartFilter(selectedOption?.value)
-                                }}
-                                isClearable={true}
-                                value={chartDropDownData?.filter(({ value }) => {
-                                  return (
-                                    value === syllabusChartFilter
-                                  );
-                                })}
-                              />
-                            </Form.Group>
-                          </div>
-                        </div>
-                        <div className="chart-with-details warning-chart">
-
-                          {!isEmptyObjectOrNullUndefiend(syllabusChartData) ?
-                            <>
-
-                              <div className="chart-box">
-                          
-                                <Chart
-                                  chartType="PieChart"
-                                  height="140px"
-                                  width="100%"
-                                  data={syllabusChartData}
-                                  options={syllabusOptions}
-                                />
-
-                              </div>
-                              <div className="chart-details">
-                                <div className="event-deta total-event">
-                                  <div className="event-title">
-                                    <h4><span></span>Total Courses</h4>
-                                  </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(syllabusChartData) ? syllabusChartData[1][1] + syllabusChartData[2][1] : 0}</h4></div>
-                                </div>
-                                <div className="event-deta complet-event">
-                                  <div className="event-title">
-                                    <h4><span></span>Completed Courses</h4>
-                                  </div>
-                                  <div className="event-nub"><h4>{!isEmptyObjectOrNullUndefiend(syllabusChartData) ? syllabusChartData[1][1] : 0}</h4></div>
-                                </div>
-                              </div>
-                            </> :
-                            <>
-                              <div className="no-records-found no-records-found-inner h-100">
-                             
-                                <div className="no-records-found-text">
-                                  <h6>No data found!</h6>
-                                </div>
-                              </div>
-
-                            </>
-                          }
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  </Col>
-                </Row>
-              </div> */}
-              {/* data-table section */}
               <div className="weekly-data-container">
-                <div className="main-title">
-                  <h4>My Week</h4>
-                </div>
-                <div className="weekly-content-box">
-                  <div className="nav-tabs-outer nav-tabs-style2">
-                    <nav>
-                      <div className="nav nav-tabs" id="nav-tab" role="tablist">
-                        <div className="button-group">
-                          <button
-                            className={`nav-link ${selectedTab === ENUMFORDASHBORD.PENDING_EVENT ? "active" : ""}`}
-                            id="nav-pendingevent-tab"
-                            data-bs-toggle="tab"
-                            data-bs-target="#nav-pendingevent"
-                            type="button"
-                            role="tab"
-                            aria-controls="nav-pendingevent"
-                            aria-selected="true"
-                            onClick={() => { onChangeTab(ENUMFORDASHBORD.PENDING_EVENT) }}
-                          >
-                            Pending Events <Badge bg="light-grey" className='rounded-pill'>{!isNullUndefinedOrBlank(dashBoardCountData?.SyllabusEvent?.pendingResult) ? dashBoardCountData?.SyllabusEvent?.pendingResult : 0}</Badge>
+
+                {/* PAGE HEADER */}
+                <div className="weekly-page-header">
+                  <div className="weekly-page-content-left">
+                    <div className="weekly-page-content-header-group">
+                      <h4 className='d-inline-block mb-0'>My Week</h4>
+                      <div className='weekly-page-content-calendar'>
+                        <button type="button" className="btn btn-outline-primary">
+                          Today
+                        </button>
+                        <div className="weekly-shuffle-date-action">
+                          <button type="button" className="btn btn-outline-white">
+                            <span className="material-symbols-outlined">
+                            arrow_forward_ios
+                            </span>
                           </button>
-                          <button
-                            className={`nav-link ${selectedTab === ENUMFORDASHBORD.COMPLETED_EVENT ? "active" : ""}`}
-                            id="nav-completevent-tab"
-                            data-bs-toggle="tab"
-                            data-bs-target="#nav-completevent"
-                            type="button"
-                            role="tab"
-                            aria-controls="nav-completevent"
-                            aria-selected="false"
-                            onClick={() => { onChangeTab(ENUMFORDASHBORD.COMPLETED_EVENT) }}
-                          >
-                            Completed Events <Badge bg="light-grey" className='rounded-pill'>{!isNullUndefinedOrBlank(dashBoardCountData?.SyllabusEvent?.completedResult) ? dashBoardCountData?.SyllabusEvent?.completedResult : 0}</Badge>
-                          </button>
-                          <button
-                            className={`nav-link ${selectedTab === ENUMFORDASHBORD.PENDING_TASK ? "active" : ""}`}
-                            id="nav-pendingtask-tab"
-                            data-bs-toggle="tab"
-                            data-bs-target="#nav-pendingtask"
-                            type="button"
-                            role="tab"
-                            aria-controls="nav-pendingtask"
-                            aria-selected="false"
-                            onClick={() => { onChangeTab(ENUMFORDASHBORD.PENDING_TASK) }}
-                          >
-                            Pending Tasks <Badge bg="light-grey" className='rounded-pill'>{!isNullUndefinedOrBlank(dashBoardCountData?.Task?.pendingResult) ? dashBoardCountData?.Task?.pendingResult : 0}</Badge>
-                          </button>
-                          <button
-                            className={`nav-link ${selectedTab === ENUMFORDASHBORD.COMPLETED_TASK ? "active" : ""}`}
-                            id="nav-complettask-tab"
-                            data-bs-toggle="tab"
-                            data-bs-target="#nav-complettask"
-                            type="button"
-                            role="tab"
-                            aria-controls="nav-complettask"
-                            aria-selected="false"
-                            onClick={() => { onChangeTab(ENUMFORDASHBORD.COMPLETED_TASK) }}
-                          >
-                            Completed Tasks <Badge bg="light-grey" className='rounded-pill'>{!isNullUndefinedOrBlank(dashBoardCountData?.Task?.completedResult) ? dashBoardCountData?.Task?.completedResult : 0}</Badge>
+                            March 01 - March 07
+                          <button type="button" className="btn btn-outline-white">
+                            <span className="material-symbols-outlined">
+                            arrow_back_ios
+                            </span>
                           </button>
                         </div>
+
+                        
                       </div>
-                    </nav>
+                    </div>
                   </div>
-                  <div className="dash-data-table">
-                    <div>
-                      <div className="tab-content" id="nav-tabContent">
-                        <div
-                          className={`tab-pane fade ${ENUMFORDASHBORD.PENDING_EVENT == selectedTab ? "show active" : ""}`}
-                          id="nav-pendingevent"
-                          role="tabpanel"
-                          aria-labelledby="nav-pendingevent-tab"
-                        >
-                          <div className="tab-content-container">
-                            <FilterComponent
-                              setEventPriority={setEventPriority}
-                              eventPriority={eventPriority}
 
-                              syllabusDropDownData={syllabusDropDownData} setStartDate={setStartDate} setEndDate={setEndDate} setSearch={setSearch} setSyllabusId={setSyllabusId} startDate={startDate} endDate={endDate} search={search} syllabusId={syllabusId} />
-                            <PendingEvents handleSelectEvent={handleSelectEvent} eventData={eventData} handleEventListing={handleEventListing} handleShowShowNote={handleShowShowNote} handleEventChartData={handleEventChartData} getDashboardCount={getDashboardCount} />
-                          </div>
-                        </div>
-                        <div
-                          className={`tab-pane fade ${ENUMFORDASHBORD.COMPLETED_EVENT == selectedTab ? "show active" : ""}`}
-                          id="nav-completevent"
-                          role="tabpanel"
-                          aria-labelledby="nav-completevent-tab"
-                        >
-                          <div className="tab-content-container">
-                            <FilterComponent setEventPriority={setEventPriority}
-
-                              eventPriority={eventPriority} syllabusDropDownData={syllabusDropDownData} setStartDate={setStartDate} setEndDate={setEndDate} setSearch={setSearch} setSyllabusId={setSyllabusId} startDate={startDate} endDate={endDate} search={search} syllabusId={syllabusId} />
-                            <CompletEvents handleSelectEvent={handleSelectEvent} eventData={eventData} handleEventListing={handleEventListing} handleShowShowNote={handleShowShowNote} getDashboardCount={getDashboardCount} handleEventChartData={handleEventChartData} />
-                          </div>
-                        </div>
-                        <div
-                          className={`tab-pane fade ${ENUMFORDASHBORD.PENDING_TASK == selectedTab ? "show active" : ""}`}
-                          id="nav-pendingtask"
-                          role="tabpanel"
-                          aria-labelledby="nav-pendingtask-tab"
-                        >
-                          <div className="tab-content-container">
-                            <PendingTasks taskData={taskData} handleSetTaskData={handleSetTaskData} handleTaskChartData={handleTaskChartData} getDashboardCount={getDashboardCount} />
-                          </div>
-                        </div>
-                        <div
-                          className={`tab-pane fade ${ENUMFORDASHBORD.COMPLETED_TASK == selectedTab ? "show active" : ""}`}
-                          id="nav-complettask"
-                          role="tabpanel"
-                          aria-labelledby="nav-complettask-tab"
-                        >
-                          <div className="tab-content-container">
-                            <CompletTasks taskData={taskData} handleSetTaskData={handleSetTaskData} />
-                          </div>
-                        </div>
-                      </div>
+                  <div className="weekly-page-content-right">
+                    <div className="weekly-page-cta-button-group">
+                      <button type="button" className="btn btn-primary" onClick={() => { handleShow() }}>
+                        Add Event
+                      </button>
+                      <button type="button" className="btn btn-warning" onClick={() => { handleSyllabusShow() }}>
+                        Add Syllabus
+                      </button>
+                      {/* <button type="button" className="btn btn-primary" onClick={toggleShowEditEvent}>
+                        Edit Event
+                      </button> */}
                     </div>
                   </div>
                 </div>
 
-                <div className="page-title-right">
-                  <button type="button" className="btn btn-primary" onClick={() => { handleShow() }}>
-                    Add Event
-                  </button>
-                  <button type="button" className="btn btn-warning" onClick={() => { handleSyllabusShow() }}>
-                    Add Syllabus
-                  </button>
-                  {/* <button
-              type="button"
-              className="btn btn-primary"
-              onClick={toggleShowEditEvent}
-            >
-              Edit Event
-            </button> */}
+                {/* VARIOUS BADGES */}
+                <div className="weekly-page-badge-group">
+                  <Badge bg='none'>
+                    <span className="badge-color" style={{background:"#E890E7"}}></span>
+                    <span className="badge-text">TCU Academic Calendar</span>
+                  </Badge>
+                  <Badge bg='none'>
+                    <span className="badge-color" style={{background:"#CDDC39"}}></span>
+                    <span className="badge-text">History Unfolded</span>
+                  </Badge>
                 </div>
+                
+                {/* WEEKLY TO-DO's */}
+                <div className="weekly-content-box">
+                  <Table responsive className="table-responsive table-borderless table-weekly-event">
+                    <thead>
+                      <tr>
+                        <th>Actions</th>
+                        <th>Time</th>
+                        <th>Priority</th>
+                        <th>Event Name</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+
+                      {/* GROUP 1 */}
+                      <tr className='table-row-blank-timestamp'>
+                        <td colSpan={5}>Due on Friday, March 7</td>
+                      </tr>
+                      <tr className='table-row-bordered selected'>
+                        <td className="text-center">
+                            <div className="checkbox checkbox-primary checkbox-small">
+                                <button className="btn btn-xs btn-icon btn-transparent check-icon">
+                                  <i className="material-symbols-outlined">check_circle</i>
+                                </button>
+                            </div>
+                        </td>
+                        <td className='position-relative'>
+                          <div className='d-flex gap-2 align-items-center ps-4'>
+                            <div className="content-identifier-bar" style={{background: "#E890E7"}}></div>
+                            <div>08:25 PM 02:36 PM</div>
+                          </div>
+                        </td>
+                        <td className="weekly-task-priority weekly-task-priority-high">High</td>
+                        <td>Innovative Approaches to Modern Education</td>
+                        <td>
+                          <button className="btn btn-xs btn-icon btn-transparent text-danger">
+                              <i className="material-symbols-outlined">delete</i>
+                            </button>
+                          </td>
+                      </tr>
+                      <tr className='table-row-bordered'>
+                        <td className="text-center">
+                            <div className="checkbox checkbox-primary checkbox-small">
+                              <button className="btn btn-xs btn-icon btn-transparent check-icon">
+                                  <i className="material-symbols-outlined">check_circle</i>
+                                </button>
+                          </div>
+                        </td>
+                        <td className='position-relative'>
+                          <div className='d-flex gap-2 align-items-center ps-4'>
+                            <div className="content-identifier-bar" style={{background: "#CDDC39"}}></div>
+                            <div>08:25 PM 02:36 PM</div>
+                          </div>
+                        </td>
+                        <td className="weekly-task-priority weekly-task-priority-medium">Medium</td>
+                        <td>Innovative Approaches to Modern Education</td>
+                        <td>
+                          <button className="btn btn-xs btn-icon btn-transparent text-danger">
+                              <i className="material-symbols-outlined">delete</i>
+                            </button>
+                          </td>
+                      </tr>
+
+                      {/* GROUP 2 */}
+                      <tr className='table-row-blank-timestamp'>
+                        <td colSpan={5}>Due on Friday, March 7</td>
+                      </tr>
+                      <tr className='table-row-bordered selected'>
+                        <td className="text-center">
+                            <div className="checkbox checkbox-primary checkbox-small">
+                                <button className="btn btn-xs btn-icon btn-transparent check-icon">
+                                  <i className="material-symbols-outlined">check_circle</i>
+                                </button>
+                            </div>
+                        </td>
+                        <td className='position-relative'>
+                          <div className='d-flex gap-2 align-items-center ps-4'>
+                            <div className="content-identifier-bar" style={{background: "#E890E7"}}></div>
+                            <div>08:25 PM 02:36 PM</div>
+                          </div>
+                        </td>
+                        <td className="weekly-task-priority weekly-task-priority-high">High</td>
+                        <td>Innovative Approaches to Modern Education</td>
+                        <td>
+                          <button className="btn btn-xs btn-icon btn-transparent text-danger">
+                              <i className="material-symbols-outlined">delete</i>
+                            </button>
+                          </td>
+                      </tr>
+                      <tr className='table-row-bordered'>
+                        <td className="text-center">
+                            <div className="checkbox checkbox-primary checkbox-small">
+                              <button className="btn btn-xs btn-icon btn-transparent check-icon">
+                                  <i className="material-symbols-outlined">check_circle</i>
+                                </button>
+                          </div>
+                        </td>
+                        <td className='position-relative'>
+                          <div className='d-flex gap-2 align-items-center ps-4'>
+                            <div className="content-identifier-bar" style={{background: "#CDDC39"}}></div>
+                            <div>08:25 PM 02:36 PM</div>
+                          </div>
+                        </td>
+                        <td className="weekly-task-priority weekly-task-priority-medium">Medium</td>
+                        <td>Innovative Approaches to Modern Education</td>
+                        <td>
+                          <button className="btn btn-xs btn-icon btn-transparent text-danger">
+                              <i className="material-symbols-outlined">delete</i>
+                            </button>
+                          </td>
+                      </tr>
+                    </tbody>
+                      </Table>
+                </div>
+
               </div>
             </div>
           </div>

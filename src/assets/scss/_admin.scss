@@ -1466,6 +1466,11 @@ $sm_sidebar_home_link_width: 170px;
 
 // EDIT PAGE CSS
 
+
+// START >> WEEKLY PAGE REDESIGN << SHB
+
+// FINISH >> WEEKLY PAGE REDESIGN << SHB
+
 // Add syllabus event offcanvas
 .add-syllabus-event {
     width: 100% !important;
@@ -2216,9 +2221,237 @@ $sm_sidebar_home_link_width: 170px;
                     }
                 }
             }
+
+
+            // SHB >> WEEKLY PAGE HEADER REDESIGN
+            .weekly-page-header {
+                display: flex;
+                grid-gap: 16px;
+                align-items: center;
+                justify-content: space-between;
+
+                .weekly-page-content-left {
+                    display: flex;
+                    grid-gap: 16px;
+                    align-items: center;
+                    justify-content: space-between;
+
+                    h4{
+                        color: #292D32;
+                    }
+
+                    .weekly-page-content-header-group {
+                        display: flex;
+                        grid-gap: 10px;
+                    }
+                }
+
+                .weekly-page-content-right {
+                    display: flex;
+                    grid-gap: 16px;
+                    align-items: center;
+                    justify-content: space-between;
+
+                    .weekly-page-cta-button-group {
+                        display: flex;
+                        grid-gap: 10px;
+                        align-items: center;
+                        justify-content: space-between;
+                    }
+                }
+            }
+
+
+            .weekly-page-badge-group{
+                margin-top: 28px;
+                display: flex;
+                align-items: center;
+                grid-gap: 10px;
+                overflow-y: auto;
+                padding: 6px 0;
+
+
+                .badge {
+                    background: #F3F4F6;
+                    color: #111827;
+                    display: flex;
+                    align-items: center;
+                    grid-gap: 6px;
+                    font-weight: 600;
+                    font-size: 12px;
+                    line-height: 1.3;
+                    padding: 8px;
+
+                    .badge-color{
+                        width: 12px;
+                        height: 16px;
+                        border-radius: 50px;
+                    }
+                }
+            }
+
+            .weekly-content-box{
+                .table-responsive {
+                    border: none;
+                }
+
+                .table-borderless > :not(caption) > * > * {
+                    border-bottom-width: inherit;
+                }
+
+                .table-borderless {
+                    $table_borderless_radius: 6px;
+                    border: none;
+                    border-collapse: separate;
+                    border-spacing: 0 10px;
+
+                    thead {
+                        border: 1px solid $stock_light;
+                        tr {
+                            th {
+                                color: #6B7280;
+                                background-color: #F3F4F6;
+
+                                &:first-child {
+                                    width: 50px;
+                                    border-top-left-radius: $table_borderless_radius;
+                                    border-bottom-left-radius: $table_borderless_radius;
+                                }
+                                &:last-child {
+                                    width: 50px;
+                                    border-top-right-radius: $table_borderless_radius;
+                                    border-bottom-right-radius: $table_borderless_radius;
+                                }
+                            }
+                        }
+                    }
+
+                    tbody {
+                        tr {
+                            &.table-row-blank-timestamp{
+                                font-size: 16px;
+                                font-weight: 700;
+                                line-height: 150%;
+
+                                td{
+                                    padding-bottom: 0;
+                                    padding-left: 0;
+                                }
+                            }
+
+                            &.table-row-bordered  {
+                                box-shadow: 0px 1px 2px 0px #0A0D120D;
+
+                                &.selected{
+                                    td{
+                                        background: #EEEFF2;
+                                    }
+                                }
+
+                                td {
+                                    border: 1px solid $stock_light;
+                                    padding-top: 25px;
+                                    padding-bottom: 25px;
+
+                                    &:first-child{
+                                        border-top-left-radius: $table_borderless_radius;
+                                        border-bottom-left-radius: $table_borderless_radius;
+                                    }
+                                    &:last-child{
+                                        border-top-right-radius: $table_borderless_radius;
+                                        border-bottom-right-radius: $table_borderless_radius;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .table-weekly-event{
+                    thead{
+                        tr{
+                            th{
+                                &:first-child{
+                                    width: 50px;
+                                }
+                                &:nth-child(2){
+                                    width: 225px;
+                                }
+                                &:nth-child(3){
+                                    width: 150px;
+                                }
+                                &:last-child{
+                                    width: 50px;
+                                }
+                            }
+                        }
+                    }
+                    tbody{
+                        tr{
+                            &.table-row-bordered{
+                                td{
+                                    &:first-child{
+                                        border-right: none;
+                                    }
+                                    &:nth-child(2){
+                                        border-left: none;
+                                        border-right: none;
+                                    }
+                                    &:nth-child(4){
+                                        border-left: none;
+                                        border-right: none;
+                                    }
+                                    &:last-child{
+                                        border-left: none;
+                                    }
+                                }
+                            } 
+                        }
+                    }
+                }
+
+                .content-identifier-bar{
+                    width: 7px;
+                    height: calc(100% - 20px);
+                    border-radius: 12px;
+                    position: absolute;
+                    left: 10px;
+                    top: 10px;;
+                }
+
+                .weekly-task-priority-low{
+                    color: $success_color;
+                }
+
+                .weekly-task-priority-medium{
+                    color: #E6BC15;
+                }
+
+                .weekly-task-priority-high{
+                    color: $danger_color;
+                }
+            }
+
+            .weekly-page-content-calendar {
+                display: flex;
+                align-items: center;
+                grid-gap: 10px;
+                font-weight: 700;
+                font-size: 13px;
+                line-height: 150%;
+                color: #111827;
+            }
+
+            .weekly-shuffle-date-action {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                grid-gap: 10px;
+            }
         }
-    }
+    }    
 }
+
 
 // Calender css
 .calender-content-area {
