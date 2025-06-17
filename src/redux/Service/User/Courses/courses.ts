@@ -175,6 +175,7 @@ export const updateEventStatusDataAPI =
       try {
         const response: any = await post(UPDATE_EVENT_STATUS_DATA_API, objBody);
         if (!response.data.error) {
+          ts(response?.data?.message)
           return dispatch(updateEventStatusDataSuccess(response.data.data));
         } else {
           dispatch(updateEventStatusDataFailure());

@@ -56,7 +56,7 @@ const Events = (props) => {
   const handleDeleteClose = () => {
     setDeleteShow(false);
     setTimeout(() => {
-      setSelectedEventObj(null);    
+      setSelectedEventObj(null);
     }, 300);
   }
   const handleDeleteShow = (data) => {
@@ -129,6 +129,16 @@ const Events = (props) => {
     }
   }, [props?.eventData])
 
+  const getPriorityColour = (priority) => {
+    const priorityLower = priority.toLowerCase();
+    const priorityMap = {
+      high: 'priority-high',
+      medium: 'priority-medium',
+      low: 'priority-low',
+    };
+
+    return priorityMap[priorityLower] || '';
+  };
 
   return (
     <>
@@ -174,7 +184,7 @@ const Events = (props) => {
                                             </div>
                                           </div>
                                         </td>
-                                        <td>
+                                        <td className={`${getPriorityColour(childItem?.priority)}`}>
                                           {!isNullUndefinedOrBlank(childItem?.priority) ? childItem?.priority : ""}
                                         </td>
                                         <td>{!isNullUndefinedOrBlank(childItem?.start_date) ? formatedDate(childItem?.start_date, "hh:mm a") : NO_START_DATE_ADDED}</td>
@@ -291,7 +301,7 @@ const Events = (props) => {
                                               </div>
                                             </div>
                                           </td>
-                                          <td>
+                                          <td className={`${getPriorityColour(parentItem?.priority)}`}>
                                             {!isNullUndefinedOrBlank(parentItem?.priority) ? parentItem?.priority : ""}
                                           </td>
                                           <td>{!isNullUndefinedOrBlank(parentItem?.start_date) ? formatedDate(parentItem?.start_date, "MM/DD/yyyy hh:mm a") : NO_START_DATE_ADDED}</td>
@@ -411,15 +421,15 @@ const Events = (props) => {
                 <div className="modal-confirmation-content">
                   <h5> Are You Sure?</h5>
                   <p>
-                    
-                      You want to delete this event ?
+
+                    You want to delete this event ?
 
                   </p>
                 </div>
               </div>
               <div className="modal-button-group modal-full-width-btn modal-footer-button">
                 {
-                
+
                   <Button
                     variant="light-white"
                     className="btn-md"
@@ -429,13 +439,13 @@ const Events = (props) => {
                   </Button>
                 }
                 <Button
-                  variant= "danger"
+                  variant="danger"
                   className="btn-icon-text btn-md"
                   onClick={() => {
-                     handleDeleteData(selectedEventObj?.id)
+                    handleDeleteData(selectedEventObj?.id)
                   }}
                 >
-                Delete
+                  Delete
                 </Button>
               </div>
             </Modal.Body>

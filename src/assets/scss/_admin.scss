@@ -2236,7 +2236,7 @@ $sm_sidebar_home_link_width: 170px;
                     align-items: center;
                     justify-content: space-between;
 
-                    h4{
+                    h4 {
                         color: #292D32;
                     }
 
@@ -2262,7 +2262,7 @@ $sm_sidebar_home_link_width: 170px;
             }
 
 
-            .weekly-page-badge-group{
+            .weekly-page-badge-group {
                 margin-top: 28px;
                 display: flex;
                 align-items: center;
@@ -2282,7 +2282,7 @@ $sm_sidebar_home_link_width: 170px;
                     line-height: 1.3;
                     padding: 8px;
 
-                    .badge-color{
+                    .badge-color {
                         width: 12px;
                         height: 16px;
                         border-radius: 50px;
@@ -2290,12 +2290,12 @@ $sm_sidebar_home_link_width: 170px;
                 }
             }
 
-            .weekly-content-box{
+            .weekly-content-box {
                 .table-responsive {
                     border: none;
                 }
 
-                .table-borderless > :not(caption) > * > * {
+                .table-borderless> :not(caption)>*>* {
                     border-bottom-width: inherit;
                 }
 
@@ -2307,6 +2307,7 @@ $sm_sidebar_home_link_width: 170px;
 
                     thead {
                         border: 1px solid $stock_light;
+
                         tr {
                             th {
                                 color: #6B7280;
@@ -2317,6 +2318,7 @@ $sm_sidebar_home_link_width: 170px;
                                     border-top-left-radius: $table_borderless_radius;
                                     border-bottom-left-radius: $table_borderless_radius;
                                 }
+
                                 &:last-child {
                                     width: 50px;
                                     border-top-right-radius: $table_borderless_radius;
@@ -2328,22 +2330,22 @@ $sm_sidebar_home_link_width: 170px;
 
                     tbody {
                         tr {
-                            &.table-row-blank-timestamp{
+                            &.table-row-blank-timestamp {
                                 font-size: 16px;
                                 font-weight: 700;
                                 line-height: 150%;
 
-                                td{
+                                td {
                                     padding-bottom: 0;
                                     padding-left: 0;
                                 }
                             }
 
-                            &.table-row-bordered  {
+                            &.table-row-bordered {
                                 box-shadow: 0px 1px 2px 0px #0A0D120D;
 
-                                &.selected{
-                                    td{
+                                &.selected {
+                                    td {
                                         background: #EEEFF2;
                                     }
                                 }
@@ -2353,11 +2355,12 @@ $sm_sidebar_home_link_width: 170px;
                                     padding-top: 25px;
                                     padding-bottom: 25px;
 
-                                    &:first-child{
+                                    &:first-child {
                                         border-top-left-radius: $table_borderless_radius;
                                         border-bottom-left-radius: $table_borderless_radius;
                                     }
-                                    &:last-child{
+
+                                    &:last-child {
                                         border-top-right-radius: $table_borderless_radius;
                                         border-bottom-right-radius: $table_borderless_radius;
                                     }
@@ -2367,69 +2370,66 @@ $sm_sidebar_home_link_width: 170px;
                     }
                 }
 
-                .table-weekly-event{
-                    thead{
-                        tr{
-                            th{
-                                &:first-child{
+                .table-weekly-event {
+                    thead {
+                        tr {
+                            th {
+                                &:first-child {
                                     width: 50px;
                                 }
-                                &:nth-child(2){
+
+                                &:nth-child(2) {
                                     width: 225px;
                                 }
-                                &:nth-child(3){
+
+                                &:nth-child(3) {
                                     width: 150px;
                                 }
-                                &:last-child{
+
+                                &:last-child {
                                     width: 50px;
                                 }
                             }
                         }
                     }
-                    tbody{
-                        tr{
-                            &.table-row-bordered{
-                                td{
-                                    &:first-child{
+
+                    tbody {
+                        tr {
+                            &.table-row-bordered {
+                                td {
+                                    &:first-child {
                                         border-right: none;
                                     }
-                                    &:nth-child(2){
+
+                                    &:nth-child(2) {
                                         border-left: none;
                                         border-right: none;
                                     }
-                                    &:nth-child(4){
+
+                                    &:nth-child(4) {
                                         border-left: none;
                                         border-right: none;
                                     }
-                                    &:last-child{
+
+                                    &:last-child {
                                         border-left: none;
                                     }
                                 }
-                            } 
+                            }
                         }
                     }
                 }
 
-                .content-identifier-bar{
+                .content-identifier-bar {
                     width: 7px;
                     height: calc(100% - 20px);
                     border-radius: 12px;
                     position: absolute;
                     left: 10px;
-                    top: 10px;;
+                    top: 10px;
+                    ;
                 }
 
-                .weekly-task-priority-low{
-                    color: $success_color;
-                }
-
-                .weekly-task-priority-medium{
-                    color: #E6BC15;
-                }
-
-                .weekly-task-priority-high{
-                    color: $danger_color;
-                }
             }
 
             .weekly-page-content-calendar {
@@ -2449,7 +2449,19 @@ $sm_sidebar_home_link_width: 170px;
                 grid-gap: 10px;
             }
         }
-    }    
+    }
+}
+
+.priority-low {
+    color: $success_color !important;
+}
+
+.priority-medium {
+    color: #E6BC15 !important;
+}
+
+.priority-high {
+    color: $danger_color !important;
 }
 
 

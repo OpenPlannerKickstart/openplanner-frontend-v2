@@ -155,7 +155,7 @@ const CalenderEvent = () => {
           }}
         >
           <p>
-            <b className="text-black" style={{ textDecoration: isCompleted ? 'line-through' : "none" }}>{event.title} </b>
+            <b className={isCompleted ? '' : "text-black"} style={{ textDecoration: isCompleted ? 'line-through' : "none" }}>{event.title} </b>
           </p>
         </div>
       </div>
@@ -814,7 +814,7 @@ const CalenderEvent = () => {
 
       {/* Modal for Event Details */}
       <Modal className='modal-theme modal-confirmation modal-approve'
-      show={showModal} onHide={handleCloseModal} centered>
+        show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header className="border-bottom">
           <h4 className="modal-title">Event Details</h4>
           <button type="button" className="btn-close" onClick={handleCloseModal}>
@@ -849,7 +849,7 @@ const CalenderEvent = () => {
           )}
           <div className="modal-button-group modal-full-width-btn modal-footer-button">
             <Button variant="light-white" onClick={() => { handleEditEvent(selectedEvent) }}>
-            Edit Event
+              Edit Event
             </Button>
             <Button variant="danger" onClick={() => { handleDeleteShow(selectedEvent) }}>
               Delete

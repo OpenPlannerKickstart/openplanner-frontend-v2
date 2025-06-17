@@ -185,8 +185,19 @@ const Courses = (props) => {
   }, [coursesData.isUpdatedEventData])
   const [isAddNewData, setIsAddNewData] = useState(false);
   const navigate = useNavigate();
-    const handleUpdateCourse = (syllabusObj) => {
+  const handleUpdateCourse = (syllabusObj) => {
     navigate(ENUMFORROUTES.EDIT_COURSE, { state: { syllabusObj } });
+  };
+
+  const getPriorityColour = (priority) => {
+    const priorityLower = priority.toLowerCase();
+    const priorityMap = {
+      high: 'weekly-task-priority-high',
+      medium: 'weekly-task-priority-medium',
+      low: 'weekly-task-priority-low',
+    };
+
+    return priorityMap[priorityLower] || '';
   };
   return (
     <>
