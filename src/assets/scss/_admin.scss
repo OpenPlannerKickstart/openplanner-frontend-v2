@@ -2564,9 +2564,11 @@ $sm_sidebar_home_link_width: 170px;
             }
 
             .cal-side-body {
+                background-color: white;
                 min-height: calc(100vh - 46px);
                 overflow-y: auto;
                 padding: 12px 20px;
+
                 display: flex;
                 flex-direction: column;
                 gap: 8px;
@@ -2643,6 +2645,7 @@ $sm_sidebar_home_link_width: 170px;
                                 align-items: center;
                                 gap: 10px;
                                 flex-wrap: wrap;
+
 
                                 [type=checkbox]+label {
                                     padding-left: 30px;

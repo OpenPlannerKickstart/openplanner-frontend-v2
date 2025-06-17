@@ -113,7 +113,7 @@ const Events = (props) => {
       getEventListData();
       await dispatch(isUpdatedEvent(true));
       setEventStatus(status);
-      handleSuccessShow();
+      // handleSuccessShow();
     }
   }
 
@@ -176,9 +176,12 @@ const Events = (props) => {
                                       <tr className={`${childItem?.status === "Completed" ? "selected" : ""}`} key={index}>
                                         <td>
                                           <div className="event-name-tooltip">
-                                            <div className="enevt-name cursor-pointer" onDoubleClick={() => { props.handleSelectEvent(childItem) }}><h3>{childItem?.title || ""}</h3></div>
+                                            <div className="enevt-name cursor-pointer" onDoubleClick={() => { props.handleSelectEvent(childItem) }} style={{ textDecoration: childItem?.status == ENUMFORSTATUS.COMPLETED ? 'line-through' : "none" }}><h3>{childItem?.title || ""}</h3></div>
                                             <div className="event-tool">
-                                              <Badge className='course_badge' title={!isNullUndefinedOrBlank(childItem.syllabus?.title) ? childItem.syllabus?.title : "-"} bg="" style={{ backgroundColor: childItem.syllabus?.course_color ? `rgba(${parseInt(childItem.syllabus?.course_color?.slice(1, 3), 16)}, ${parseInt(childItem.syllabus?.course_color?.slice(3, 5), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)', color: childItem.syllabus?.course_color ? `rgba(${parseInt(childItem.syllabus?.course_color.slice(1, 3), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(3, 5), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}><i className="material-symbols-outlined" style={{ color: childItem.syllabus?.course_color ? `rgba(${parseInt(childItem.syllabus?.course_color.slice(1, 3), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(3, 5), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}>book_2</i><span>{!isNullUndefinedOrBlank(childItem.syllabus?.title) ? childItem.syllabus?.title : "-"}</span></Badge>
+                                              <Badge className='course_badge' title={!isNullUndefinedOrBlank(childItem.syllabus?.title) ? childItem.syllabus?.title : "-"} bg="" style={{ backgroundColor: childItem.syllabus?.course_color ? `rgba(${parseInt(childItem.syllabus?.course_color?.slice(1, 3), 16)}, ${parseInt(childItem.syllabus?.course_color?.slice(3, 5), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)', color: childItem.syllabus?.course_color ? `rgba(${parseInt(childItem.syllabus?.course_color.slice(1, 3), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(3, 5), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}>
+                                                <i className="material-symbols-outlined" style={{ color: childItem.syllabus?.course_color ? `rgba(${parseInt(childItem.syllabus?.course_color.slice(1, 3), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(3, 5), 16)}, ${parseInt(childItem.syllabus?.course_color.slice(5, 7), 16)})` : 'rgba(0, 0, 0, 0.2)' }}>book_2</i>
+                                                <span>{!isNullUndefinedOrBlank(childItem.syllabus?.title) ? childItem.syllabus?.title : "-"}</span>
+                                              </Badge>
 
                                               {/* <Badge style={{ backgroundColor: `${childItem?.syllabus?.course_color || "#239bc266"}`, opacity: 0.4 }}><i className="material-symbols-outlined">book_2</i>{childItem?.syllabus?.title || ""}</Badge> */}
                                             </div>
@@ -295,7 +298,7 @@ const Events = (props) => {
                                         <tr className={`${parentItem?.status === "Completed" ? "selected" : ""}`} key={index}>
                                           <td>
                                             <div className="event-name-tooltip">
-                                              <div className="enevt-name cursor-pointer" onDoubleClick={() => { props.handleSelectEvent(parentItem) }}><h3>{parentItem?.title || ""} </h3></div>
+                                              <div className="enevt-name cursor-pointer" onDoubleClick={() => { props.handleSelectEvent(parentItem) }} style={{ textDecoration: parentItem?.status == ENUMFORSTATUS.COMPLETED ? 'line-through' : "none" }}><h3>{parentItem?.title || ""} </h3></div>
                                               <div className="event-tool">
                                                 <Badge className='course_badge' title={parentItem?.syllabus?.title || ""} style={{ backgroundColor: `${parentItem?.syllabus?.course_color || "#239bc266"}`, opacity: 0.4 }}><i className="material-symbols-outlined">book_2</i><span>{parentItem?.syllabus?.title || ""}</span></Badge>
                                               </div>

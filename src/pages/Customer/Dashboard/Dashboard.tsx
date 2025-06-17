@@ -353,8 +353,8 @@ const Dashboard = () => {
                                             </div>
                                           </td>
                                           <td className={`weekly-task-priority ${getPriorityColour(eventData?.priority)}`}>{eventData?.priority}</td>
-                                          <td>{eventData?.syllabus?.title}</td>
-                                          <td>{eventData?.title}</td>
+                                          <td >{eventData?.syllabus?.title}</td>
+                                          <td style={{ textDecoration: eventData?.status == ENUMFORSTATUS.COMPLETED ? 'line-through' : "none" }}>{eventData?.title}</td>
                                           <td>
                                             <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow([...deleteEventData, eventData]) }}>
                                               <i className="material-symbols-outlined">delete</i>

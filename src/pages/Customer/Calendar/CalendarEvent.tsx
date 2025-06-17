@@ -581,7 +581,7 @@ const CalenderEvent = () => {
               <div
                 className={`sider-bar ${isSideBarOpen ? "d-block" : "d-none"}`}
               >
-                <div className="cal-side-title">
+                {/* <div className="cal-side-title">
                   <div className="title-text">
                     <h4>Filter</h4>
                   </div>
@@ -593,12 +593,12 @@ const CalenderEvent = () => {
                   >
                     <a>Reset Filters </a>
                   </div>
-                </div>
+                </div> */}
                 <div className="cal-side-body">
                   <div className="filter-date">
-                    <div className="title-text">
+                    {/* <div className="title-text">
                       <h4>Date</h4>
-                    </div>
+                    </div> */}
                     <Form.Group className="form-group">
                       <div className="react-datepicker-container filter-calendar">
 
@@ -645,7 +645,7 @@ const CalenderEvent = () => {
                             return (
                               <>
                                 <div className="class-main">
-                                  <div className="checkbox checkbox-primary classes-checkbox checkbox-small">
+                                  <div className="checkbox checkbox-primary classes-checkbox checkbox-small" >
                                     {/* <input
                                       id={`${index} -checkbox`}
                                       className="material-inputs filled-in"
@@ -658,6 +658,7 @@ const CalenderEvent = () => {
                                       checked={syllabusId.includes(item.value)}
                                     /> */}
                                     <div
+                                      // style={{ border: "2px solid black" }}
                                       className={`check-box ${syllabusId.includes(item.value) ? "active" : ""}`}
                                       onClick={() => {
                                         handleCheckSyllabusID(item.value);
@@ -665,6 +666,7 @@ const CalenderEvent = () => {
                                       style={{
                                         // @ts-ignore
                                         ["--course-color" as any]: item.other.course_color, // Pass dynamic color as a CSS variable
+                                        border: `3px solid ${item.other.course_color}`
                                       }}
                                     >
                                       {syllabusId.includes(item.value) && <i className="material-symbols-outlined">check</i>}
