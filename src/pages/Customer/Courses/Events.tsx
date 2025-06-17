@@ -173,7 +173,7 @@ const Events = (props) => {
                                 {
                                   parentItem?.eventData?.map((childItem, index) => {
                                     return (
-                                      <tr className={`${childItem?.status === "Completed" ? "active-table" : ""}`} key={index}>
+                                      <tr className={`${childItem?.status === "Completed" ? "selected" : ""}`} key={index}>
                                         <td>
                                           <div className="event-name-tooltip">
                                             <div className="enevt-name cursor-pointer" onDoubleClick={() => { props.handleSelectEvent(childItem) }}><h3>{childItem?.title || ""}</h3></div>
@@ -292,7 +292,7 @@ const Events = (props) => {
                                     {!isEmptyObjectOrNullUndefiend(eventListData?.pastEventData) ? eventListData?.pastEventData?.map((parentItem, index) => {
                                       return (
 
-                                        <tr className={`${parentItem?.status === "Completed" ? "active-table" : ""}`} key={index}>
+                                        <tr className={`${parentItem?.status === "Completed" ? "selected" : ""}`} key={index}>
                                           <td>
                                             <div className="event-name-tooltip">
                                               <div className="enevt-name cursor-pointer" onDoubleClick={() => { props.handleSelectEvent(parentItem) }}><h3>{parentItem?.title || ""} </h3></div>

@@ -111,7 +111,7 @@ const CalenderEvent = () => {
           </div>
         </div>
         <div className="hide-filter-button button-group">
-          <Button
+          {/* <Button
             variant="outline-white"
             className="btn-icon-text "
             onClick={() => {
@@ -122,7 +122,7 @@ const CalenderEvent = () => {
               {isSideBarOpen ? "keyboard_backspace" : "menu"}
             </i>
             {isSideBarOpen ? "Hide Filter" : "Show Filter"}
-          </Button>
+          </Button> */}
           {/* <Button variant="outline-white" className="btn-icon-text ">
                         <i className="material-symbols-outlined btn-outline"> keyboard_backspace </i>Show Filter
                     </Button> */}
@@ -145,12 +145,20 @@ const CalenderEvent = () => {
   function customEventView({ event }) {
     const isCompleted = event?.event_data?.status === "Completed" ? true : false
     // console.log(isCompleted, "isCompleted", event?.event_data)
+
     return (
       <div key={Math.random()}>
         <div
           className={`rbc-event-primary`}
           style={{
-            backgroundColor: event?.event_data?.course_color ? `rgba(${parseInt(event.event_data.course_color.slice(1, 3), 16)}, ${parseInt(event.event_data.course_color.slice(3, 5), 16)}, ${parseInt(event.event_data.course_color.slice(5, 7), 16)}, 0.2)` : 'rgba(0, 0, 0, 0.2)',
+            backgroundColor:
+              event?.event_data?.status === 'Completed'
+                ? '#EEEFF2'
+                : event?.event_data?.course_color
+                  ? `rgba(${parseInt(event.event_data.course_color.slice(1, 3), 16)}, 
+                         ${parseInt(event.event_data.course_color.slice(3, 5), 16)}, 
+                         ${parseInt(event.event_data.course_color.slice(5, 7), 16)}, 0.2)`
+                  : 'rgba(0, 0, 0, 0.2)',
             borderColor: event?.event_data?.course_color,
           }}
         >
@@ -508,6 +516,7 @@ const CalenderEvent = () => {
   }
   const handleDeleteShow = (data) => {
     // console.log(data)
+    handleCloseModal();
     setDeleteShow(true)
     setSelectedEventObj(data);
   }
@@ -538,7 +547,6 @@ const CalenderEvent = () => {
   /** -------------------Delete Event end-------------------------*/
 
 
-  console.log("view - console", currentView)
 
 
   return (
@@ -829,7 +837,7 @@ const CalenderEvent = () => {
                 {selectedEvent?.event_data.title || "Event Details"}
               </p>
               <p className="mb-1 fs-15">
-                <strong>Priority:</strong>{" "} Hight
+                <strong>Priority:</strong>{" "} {selectedEvent?.event_data.priority}
               </p>
               <p className="mb-1 fs-15">
                 <strong>Start:</strong>{" "}

@@ -172,6 +172,7 @@ export const deleteEventAPI =
             dispatch(setLoading(true));
             try {
                 const response: any = await post(DELETE_EVENT_DATA_API, objBody);
+                // console.log("hello")
                 if (!response.data.error) {
                     ts(response?.data?.message)
                     return dispatch(deleteEventSuccess(response.data.data));

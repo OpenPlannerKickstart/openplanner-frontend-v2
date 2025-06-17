@@ -189,16 +189,7 @@ const Courses = (props) => {
     navigate(ENUMFORROUTES.EDIT_COURSE, { state: { syllabusObj } });
   };
 
-  const getPriorityColour = (priority) => {
-    const priorityLower = priority.toLowerCase();
-    const priorityMap = {
-      high: 'weekly-task-priority-high',
-      medium: 'weekly-task-priority-medium',
-      low: 'weekly-task-priority-low',
-    };
 
-    return priorityMap[priorityLower] || '';
-  };
   return (
     <>
       <div className="page-content">
@@ -214,9 +205,9 @@ const Courses = (props) => {
             </button>
           </div>
         </div>
-        <div className="page-filters p-3 mb-0">
-          <div className="page-filters-left">
-            {/* <Form.Group className="form-group form-group-sm form-group-inline-control">
+        {/* <div className="page-filters p-3 mb-0"> */}
+        {/* <div className="page-filters-left"> */}
+        {/* <Form.Group className="form-group form-group-sm form-group-inline-control">
               <div className="form-control-wrapper">
                 <div className="form-group-icon-start">
                   <i className="material-symbols-outlined">search</i>
@@ -228,7 +219,7 @@ const Courses = (props) => {
                 </div>
               </div>
             </Form.Group> */}
-            <Form.Group className="form-group form-group-sm">
+        {/* <Form.Group className="form-group form-group-sm">
               <div className="react-datepicker-container form-group-icon-end">
                 <i className="material-symbols-outlined control-icon">date_range</i>
                 <DatePicker
@@ -240,9 +231,9 @@ const Courses = (props) => {
                   placeholderText="Date Range"
                 />
               </div>
-            </Form.Group>
-          </div>
-          {/* <div className="page-filters-right">
+            </Form.Group> */}
+        {/* </div> */}
+        {/* <div className="page-filters-right">
             <div className="list-view-group">
               <ul className="list-view-wrapper">
                 <li className={`${selectedView === ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW ? "active" : ""}`}
@@ -260,7 +251,7 @@ const Courses = (props) => {
               </ul>
             </div>
           </div> */}
-        </div>
+        {/* </div> */}
 
         <div className="content-area  content-area-title-filter">
           <div className="page-content-wrapper h-100">

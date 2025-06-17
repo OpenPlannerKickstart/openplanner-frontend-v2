@@ -932,6 +932,12 @@ $sm_sidebar_home_link_width: 170px;
                                             }
                                         }
                                     }
+
+                                    .selected {
+                                        td {
+                                            background: #EEEFF2;
+                                        }
+                                    }
                                 }
                             }
 
@@ -1280,6 +1286,12 @@ $sm_sidebar_home_link_width: 170px;
                                             color: $success_color;
                                         }
                                     }
+                                }
+                            }
+
+                            .selected {
+                                td {
+                                    background: #EEEFF2;
                                 }
                             }
                         }
@@ -2216,6 +2228,12 @@ $sm_sidebar_home_link_width: 170px;
                                     color: $primary_color;
                                     text-decoration: underline;
                                 }
+                            }
+                        }
+
+                        .selected {
+                            td {
+                                background: #EEEFF2;
                             }
                         }
                     }
