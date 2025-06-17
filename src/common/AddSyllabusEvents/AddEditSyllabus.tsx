@@ -405,7 +405,7 @@ export const AddEditSyllabus = (props) => {
                                                                 background: syllabusFormData.values.course_color,
                                                                 width: 32,
                                                                 height: 32,
-                                                                borderRadius: "15px",
+                                                                borderRadius: "9px",
                                                                 border: "2px solid #ccc",
                                                                 cursor: "pointer",
                                                                 display: "inline-block"
@@ -417,7 +417,7 @@ export const AddEditSyllabus = (props) => {
                                                         <input
                                                             ref={colorInputRef}
                                                             type="text"
-                                                            className="form-control"
+                                                            className="form-control w-100"
                                                             style={{ width: 120 }}
                                                             value={syllabusFormData.values.course_color}
                                                             onChange={e => syllabusFormData.setFieldValue("course_color", e.target.value)}
@@ -445,6 +445,8 @@ export const AddEditSyllabus = (props) => {
 
                                                                 {/* Color palette grid */}
 
+                                                                <p className="fw-600">Course Color</p>
+
                                                                 <div
                                                                     style={{
                                                                         display: "grid",
@@ -462,7 +464,7 @@ export const AddEditSyllabus = (props) => {
                                                                                 background: color,
                                                                                 width: 32,
                                                                                 height: 32,
-                                                                                borderRadius: "15px",
+                                                                                borderRadius: "9px",
                                                                                 border: syllabusFormData.values.course_color === color ? "3px solid #000" : "2px solid #fff",
                                                                                 boxShadow: "0 0 2px #aaa",
                                                                                 cursor: "pointer",
