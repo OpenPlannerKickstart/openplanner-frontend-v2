@@ -2642,9 +2642,9 @@ $sm_sidebar_home_link_width: 170px;
                             .checkbox {
                                 margin: 0;
                                 display: flex;
-                                align-items: center;
+                                align-items: flex-start;
                                 gap: 10px;
-                                flex-wrap: wrap;
+                                flex-wrap: nowrap;
 
 
                                 [type=checkbox]+label {
@@ -2674,6 +2674,7 @@ $sm_sidebar_home_link_width: 170px;
                             display: flex;
                             align-items: center;
                             justify-content: center;
+                            min-width: 17px;
                             width: 17px;
                             height: 17px;
                             cursor: pointer;
@@ -5130,4 +5131,9 @@ $sm_sidebar_home_link_width: 170px;
 
 .Toastify__toast-container--top-right {
     top: 100px;
+}
+
+.rbc-time-view,
+.rbc-month-row{
+    cursor: pointer !important;
 }
