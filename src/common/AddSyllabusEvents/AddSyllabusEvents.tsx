@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Col, Form, Offcanvas, Row } from 'react-bootstrap'
+import { Button, Col, Form, Offcanvas, Overlay, Popover, Row } from 'react-bootstrap'
 import DefaultAvtar from '/assets/images/avatar-default.svg'
 import Select, { components, ControlProps } from "react-select";
 import syllabustitleLogo from "/assets/images/syllabus-title-img.svg";
@@ -393,28 +393,30 @@ const AddSyllabusEvents = (props) => {
     "#ffeb3b", "#ffc107", "#ff9800", "#ff5722", "#795548", "#607d8b"
   ];
 
+  // const [showColorPopover, setShowColorPopover] = useState(false);
+  // const colorInputRef = useRef(null);
+  // useEffect(() => {
+  //   function handleClickOutside(event) {
+  //     if (
+  //       colorInputRef.current &&
+  //       !(colorInputRef.current as HTMLElement)?.contains(event.target) &&
+  //       !event.target.closest('.color-palette-popover')
+  //     ) {
+  //       setShowColorPopover(false);
+  //     }
+  //   }
+  //   if (showColorPopover) {
+  //     document.addEventListener("mousedown", handleClickOutside);
+  //   } else {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   }
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [showColorPopover]);
   const [showColorPopover, setShowColorPopover] = useState(false);
+  const [popoverTarget, setPopoverTarget] = useState<any>(null);
   const colorInputRef = useRef(null);
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        colorInputRef.current &&
-        !(colorInputRef.current as HTMLElement)?.contains(event.target) &&
-        !event.target.closest('.color-palette-popover')
-      ) {
-        setShowColorPopover(false);
-      }
-    }
-    if (showColorPopover) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showColorPopover]);
-
   return (
     <>
       {/***** Offcanvas start *****/}
@@ -692,99 +694,92 @@ const AddSyllabusEvents = (props) => {
                                   cursor: "pointer",
                                   display: "inline-block"
                                 }}
-                                onClick={() => setShowColorPopover(true)}
+                                ref={colorInputRef}
+                                onClick={e => {
+                                  setPopoverTarget(e.target);
+                                  setShowColorPopover(!showColorPopover);
+                                }}
                                 title="Pick a color"
                               />
                               {/* Input box for hex code */}
                               <input
-                                ref={colorInputRef}
                                 type="text"
                                 className="form-control w-100"
                                 style={{ width: 120 }}
                                 value={syllabusFormData.values.course_color}
                                 onChange={e => syllabusFormData.setFieldValue("course_color", e.target.value)}
-                                onClick={() => setShowColorPopover(true)}
+                                onClick={e => {
+                                  setPopoverTarget(e.target);
+                                  setShowColorPopover(true);
+                                }}
                                 placeholder="#hexcode"
                                 readOnly
                               />
-                              {/* Popover */}
-                              {showColorPopover && (
-                                <div
-                                  className="color-palette-popover"
-                                  style={{
-                                    position: "absolute",
-                                    top: 44,
-                                    left: 0,
-                                    background: "#fff",
-                                    border: "1px solid #ddd",
-                                    borderRadius: 8,
-                                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                                    padding: 12,
-                                    zIndex: 1000,
-                                    minWidth: 180
-                                  }}
-                                >
 
-                                  {/* Color palette grid */}
-
-                                  <p className="fw-600">Course Color</p>
-
-                                  <div
-                                    style={{
+                              {/* Bootstrap Popover */}
+                              <Overlay
+                                show={showColorPopover}
+                                target={popoverTarget}
+                                placement="top"
+                                containerPadding={20}
+                                rootClose
+                                onHide={() => setShowColorPopover(false)}
+                              >
+                                <Popover id="color-popover">
+                                  <Popover.Body>
+                                    <div style={{
                                       display: "grid",
                                       gridTemplateColumns: "repeat(6, 32px)",
                                       gridTemplateRows: "repeat(3, 32px)",
                                       gap: 8,
                                       marginBottom: 8,
-                                    }}
-                                  >
-                                    {colorPalette.map((color) => (
-                                      <span
-                                        key={color}
-                                        className={`color-square${syllabusFormData.values.course_color === color ? " selected" : ""}`}
-                                        style={{
-                                          background: color,
-                                          width: 32,
-                                          height: 32,
-                                          borderRadius: "9px",
-                                          border: syllabusFormData.values.course_color === color ? "3px solid #000" : "2px solid #fff",
-                                          boxShadow: "0 0 2px #aaa",
-                                          cursor: "pointer",
-                                          display: "inline-block",
-                                          position: "relative"
-                                        }}
-                                        onClick={() => {
-                                          syllabusFormData.setFieldValue("course_color", color);
-                                          setShowColorPopover(false);
-                                        }}
-                                      >
-                                        {syllabusFormData.values.course_color === color && (
-                                          <span
-                                            style={{
-                                              position: "absolute",
-                                              top: 4,
-                                              right: 4,
-                                              color: "#fff",
-                                              background: "#000a",
-                                              borderRadius: "50%",
-                                              width: 18,
-                                              height: 18,
-                                              display: "flex",
-                                              alignItems: "center",
-                                              justifyContent: "center",
-                                              fontSize: 14,
-                                            }}
-                                          >
-                                            <i className="material-symbols-outlined" style={{ fontSize: 16 }}>check</i>
-                                          </span>
-                                        )}
-                                      </span>
-                                    ))}
-                                  </div>
-                                  {/* Manual hex input inside popover (optional, can remove if not needed) */}
-
-                                </div>
-                              )}
+                                    }}>
+                                      {colorPalette.map((color) => (
+                                        <span
+                                          key={color}
+                                          className={`color-square${syllabusFormData.values.course_color === color ? " selected" : ""}`}
+                                          style={{
+                                            background: color,
+                                            width: 32,
+                                            height: 32,
+                                            borderRadius: "9px",
+                                            border: syllabusFormData.values.course_color === color ? "3px solid #000" : "2px solid #fff",
+                                            boxShadow: "0 0 2px #aaa",
+                                            cursor: "pointer",
+                                            display: "inline-block",
+                                            position: "relative"
+                                          }}
+                                          onClick={() => {
+                                            syllabusFormData.setFieldValue("course_color", color);
+                                            setShowColorPopover(false);
+                                          }}
+                                        >
+                                          {syllabusFormData.values.course_color === color && (
+                                            <span
+                                              style={{
+                                                position: "absolute",
+                                                top: 4,
+                                                right: 4,
+                                                color: "#fff",
+                                                background: "#000a",
+                                                borderRadius: "50%",
+                                                width: 18,
+                                                height: 18,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontSize: 14,
+                                              }}
+                                            >
+                                              <i className="material-symbols-outlined" style={{ fontSize: 16 }}>check</i>
+                                            </span>
+                                          )}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </Popover.Body>
+                                </Popover>
+                              </Overlay>
                             </div>
 
                           </Form.Group>

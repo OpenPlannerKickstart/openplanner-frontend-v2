@@ -676,43 +676,8 @@ export const AddEditEvent = (props) => {
 
 
 
-                                                            <div className="button-group social-cal"
-                                                                onClick={() => {
-                                                                    // Generate the .ics file content
-                                                                    const title = eventFormData?.values?.title || 'Event';
-                                                                    const description = eventFormData?.values?.note || '';
-                                                                    const startDate = formatedDate(
-                                                                        eventFormData?.values?.start_date || new Date(),
-                                                                        'yyyyMMDDTHHmmss'
-                                                                    );
-                                                                    const endDate = formatedDate(
-                                                                        eventFormData?.values?.end_date || new Date(),
-                                                                        'yyyyMMDDTHHmmss'
-                                                                    );
-
-                                                                    const icsContent = `
-                                                        BEGIN:VCALENDAR
-                                                        VERSION:2.0
-                                                        PRODID:-//YourAppName//EN
-                                                        CALSCALE:GREGORIAN
-                                                        BEGIN:VEVENT
-                                                        SUMMARY:${title}
-                                                        DESCRIPTION:${description}
-                                                        DTSTART:${startDate}Z
-                                                        DTEND:${endDate}Z
-                                                        LOCATION:America/New_York
-                                                        END:VEVENT
-                                                        END:VCALENDAR`;
-
-                                                                    // Create a Blob for the .ics file
-                                                                    const blob = new Blob([icsContent], { type: 'text/calendar' });
-
-                                                                    // Trigger download
-                                                                    const link = document.createElement('a');
-                                                                    link.href = URL.createObjectURL(blob);
-                                                                    link.download = `${title}.ics`;
-                                                                    link.click();
-                                                                }}>
+                                                            <div className=""
+                                                            >
                                                                 {/* <Button
                                                                     variant="outline-white"
                                                                     className="btn-icon-text "
@@ -750,7 +715,6 @@ export const AddEditEvent = (props) => {
                                                                     hideTextLabelButton
                                                                     buttonStyle="round"
                                                                     lightMode="bodyScheme"
-
                                                                 ></add-to-calendar-button>
                                                             </div>
                                                         </div>
@@ -770,7 +734,7 @@ export const AddEditEvent = (props) => {
 
                                         {
                                             eventFormData?.values?.id &&
-                                            <Button type="button"  className="btn btn-light-danger"
+                                            <Button type="button" className="btn btn-light-danger"
                                                 onClick={() => { handleDeleteShow(eventFormData.values) }}
                                             >
                                                 Delete

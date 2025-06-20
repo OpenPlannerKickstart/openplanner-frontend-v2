@@ -428,8 +428,8 @@ const CalenderEvent = () => {
     const reqBody = {
       event_id: event?.event_data?.id,
       title: event?.event_data?.title,
-      start_date: start.toISOString(), // Convert to ISO string
-      end_date: end.toISOString(), // Convert to ISO string
+      start_date: getDate(start.toISOString()), // Convert to ISO string
+      end_date: getDate(end.toISOString()), // Convert to ISO string
       syllabus_id: event?.event_data?.syllabus_id,
       is_all_day_event: event?.event_data?.is_all_day_event,
       is_reminder: event?.event_data?.is_reminder,
@@ -455,11 +455,11 @@ const CalenderEvent = () => {
   /** ----------------------drag and drop end----------------------*/
 
   /** --------------------add event start------------------------*/
-  const handleSelectSlot = ({ start }) => {
-
+  const handleSelectSlot = ({ start, end }) => {
+    // console.log(formatedDate(start), "start", formatedDate(end), "end")
     const startDate = new Date(start); // Start date at 12:00 AM
-    const endDate = new Date(start); // Clone the date for end time
-    endDate.setMinutes(30, 0); // Set end time to 11:59:59 PM
+    const endDate = new Date(end); // Clone the date for end time
+    // endDate.setMinutes(30, 0); // Set end time to 11:59:59 PM
 
     setEditEventFormData({
       ...editEventFormData,
@@ -843,11 +843,11 @@ const CalenderEvent = () => {
               </p>
               <p className="mb-1 fs-15">
                 <strong>Start:</strong>{" "}
-                {new Date(selectedEvent.start).toLocaleString()}
+                {formatedDate(selectedEvent.start, "MM/DD/YYYY [at] hh:mm A")}
               </p>
               <p className="mb-1 fs-15">
                 <strong>End:</strong>{" "}
-                {new Date(selectedEvent.end).toLocaleString()}
+                {formatedDate(selectedEvent.end, "MM/DD/YYYY [at] hh:mm A")}
               </p>
               <p className="mb-0 fs-15">
                 <strong>Description:</strong>{" "}

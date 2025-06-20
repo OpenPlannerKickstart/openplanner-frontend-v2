@@ -223,7 +223,7 @@ const MyProfile = (props) => {
                                     >
                                         <Form.Label>First Name</Form.Label>
                                         <div className="form-group">
-                                            <Form.Control type="text" placeholder="Clair"
+                                            <Form.Control type="text" placeholder="Enter First Name"
                                                 {...formData.getFieldProps("firstname")}
                                                 maxLength={MAX_50}
                                                 onBlur={() => {
@@ -244,7 +244,7 @@ const MyProfile = (props) => {
                                     >
                                         <Form.Label>Last Name</Form.Label>
                                         <div className="form-group">
-                                            <Form.Control type="text" placeholder="Wilson"
+                                            <Form.Control type="text" placeholder="Enter Last Name"
                                                 {...formData.getFieldProps("lastname")}
                                                 maxLength={MAX_50}
                                                 onBlur={() => {
@@ -263,7 +263,7 @@ const MyProfile = (props) => {
                             <Form.Group className="form-group required">
                                 <Form.Label>Email Address</Form.Label>
                                 <div className="form-group">
-                                    <Form.Control type="email" placeholder="wonghashitoma545@gmail.com"
+                                    <Form.Control type="email" placeholder="Enter Email"
                                         {...formData.getFieldProps("email")}
                                         maxLength={MAX_50}
                                         disabled={true}
@@ -283,7 +283,7 @@ const MyProfile = (props) => {
                                 <div className="form-group">
                                     <Form.Control
                                         type="text"
-                                        placeholder="Greenwood University"
+                                        placeholder="Enter University Name"
                                         {...formData.getFieldProps("university_name")}
                                         maxLength={MAX_50}
                                         onBlur={() => {

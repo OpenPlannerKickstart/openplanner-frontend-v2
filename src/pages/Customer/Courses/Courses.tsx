@@ -205,9 +205,9 @@ const Courses = (props) => {
             </button>
           </div>
         </div>
-        {/* <div className="page-filters p-3 mb-0"> */}
-        {/* <div className="page-filters-left"> */}
-        {/* <Form.Group className="form-group form-group-sm form-group-inline-control">
+        <div className="page-filters p-3 mb-0">
+          <div className="page-filters-left">
+            {/* <Form.Group className="form-group form-group-sm form-group-inline-control">
               <div className="form-control-wrapper">
                 <div className="form-group-icon-start">
                   <i className="material-symbols-outlined">search</i>
@@ -219,7 +219,7 @@ const Courses = (props) => {
                 </div>
               </div>
             </Form.Group> */}
-        {/* <Form.Group className="form-group form-group-sm">
+            {/* <Form.Group className="form-group form-group-sm">
               <div className="react-datepicker-container form-group-icon-end">
                 <i className="material-symbols-outlined control-icon">date_range</i>
                 <DatePicker
@@ -232,8 +232,8 @@ const Courses = (props) => {
                 />
               </div>
             </Form.Group> */}
-        {/* </div> */}
-        {/* <div className="page-filters-right">
+          </div>
+          <div className="page-filters-right">
             <div className="list-view-group">
               <ul className="list-view-wrapper">
                 <li className={`${selectedView === ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW ? "active" : ""}`}
@@ -250,8 +250,8 @@ const Courses = (props) => {
                 </li>
               </ul>
             </div>
-          </div> */}
-        {/* </div> */}
+          </div>
+        </div>
 
         <div className="content-area  content-area-title-filter">
           <div className="page-content-wrapper h-100">

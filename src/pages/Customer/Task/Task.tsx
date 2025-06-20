@@ -369,7 +369,7 @@ const Task = (props) => {
 
   /** ---------------------Task Listing End-----------------------*/
 
-
+  console.log(savedtaskFormData, "savedtaskFormData")
   return (
     <>
       <div className="page-content">
@@ -507,7 +507,7 @@ const Task = (props) => {
               >
                 <Offcanvas.Header>
                   <Offcanvas.Title>
-                    {!isEmptyObjectOrNullUndefiend(savedtaskFormData) ? "Edit" : "Add New"}  <span>Task</span>
+                    {!isNullUndefinedOrBlank(savedtaskFormData?.id) ? "Edit" : "Add New"}  <span>Task</span>
                   </Offcanvas.Title>
                   <button type="button" className="btn-close" onClick={handleCloseAddNewCourse}>
                     <i className='material-symbols-outlined'>close</i>

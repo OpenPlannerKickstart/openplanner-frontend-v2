@@ -163,8 +163,8 @@ const Events = (props) => {
                                 <tr>
                                   <th>Event Name</th>
                                   <th>Priority</th>
-                                  <th>Start Date</th>
-                                  <th>End Date</th>
+                                  <th>Start Time</th>
+                                  <th>End Time</th>
                                   <th className="text-center">Actions</th>
                                 </tr>
                               </thead>
