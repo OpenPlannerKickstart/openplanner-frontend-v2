@@ -837,22 +837,22 @@ const CalenderEvent = () => {
         <Modal.Body>
           {selectedEvent ? (
             <>
-              <p className="mb-1 fs-15">
+              <p className="event-details-items mb-1 fs-15">
                 <strong>Event Title:</strong>{" "}
                 {selectedEvent?.event_data.title || "Event Details"}
               </p>
-              <p className="mb-1 fs-15">
+              <p className="event-details-items mb-1 fs-15">
                 <strong>Priority:</strong>{" "} {selectedEvent?.event_data.priority}
               </p>
-              <p className="mb-1 fs-15">
+              <p className="event-details-items mb-1 fs-15">
                 <strong>Start:</strong>{" "}
                 {formatedDate(selectedEvent.start, "MM/DD/YYYY [at] hh:mm A")}
               </p>
-              <p className="mb-1 fs-15">
+              <p className="event-details-items mb-1 fs-15">
                 <strong>End:</strong>{" "}
                 {formatedDate(selectedEvent.end, "MM/DD/YYYY [at] hh:mm A")}
               </p>
-              <p className="mb-0 fs-15">
+              <p className="event-details-items mb-0 fs-15">
                 <strong>Description:</strong>{" "}
                 {selectedEvent.event_data.note || "No description available"}
               </p>

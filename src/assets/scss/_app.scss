@@ -546,3 +546,15 @@
     pointer-events: none;
     /* optional: lets clicks pass through */
 }
+
+
+
+.event-details-items{
+    display: flex;
+    gap: 0 10px;
+    word-break: break-all;
+    strong {
+       min-width: 150px;
+       display: block;
+    }
+}
