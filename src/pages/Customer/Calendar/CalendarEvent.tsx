@@ -456,10 +456,13 @@ const CalenderEvent = () => {
 
   /** --------------------add event start------------------------*/
   const handleSelectSlot = ({ start, end }) => {
-    // console.log(formatedDate(start), "start", formatedDate(end), "end")
+    console.log(formatedDate(start, "DD/MM/YYYY [at] hh:mm A"), "start", formatedDate(end, "DD/MM/YYYY [at] hh:mm A"), "end")
     const startDate = new Date(start); // Start date at 12:00 AM
-    const endDate = new Date(end); // Clone the date for end time
-    // endDate.setMinutes(30, 0); // Set end time to 11:59:59 PM
+    let endDate = new Date(end); // Clone the date for end time
+    if (currentView == "month") {
+      endDate = new Date(start);
+      endDate.setMinutes(30, 0); // Set end time to 11:59:59 PM
+    }
 
     setEditEventFormData({
       ...editEventFormData,
