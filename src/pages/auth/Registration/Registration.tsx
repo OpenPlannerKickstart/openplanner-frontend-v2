@@ -8,16 +8,16 @@ import { connect, useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { AppDispatch } from "../../../redux/store";
-import { MAX_15, MAX_5, MAX_50, ONLY_ALPHABETS_AND_DOT, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_EMAIL_OR_USERNAME, PATTERN_FOR_MOBILE_NO, PATTERN_FOR_PASSWORD_NEW, PATTERN_NOT_ALLOW_SPACE } from "../../../Utility/Validation_Helper";
+import { MAX_15, MAX_5, MAX_50, ONLY_ALPHABETS_AND_DOT, ONLY_NUMBERS, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_EMAIL_OR_USERNAME, PATTERN_FOR_MOBILE_NO, PATTERN_FOR_PASSWORD_NEW, PATTERN_NOT_ALLOW_SPACE } from "../../../Utility/Validation_Helper";
 import { SignUpData } from "../../../interfaces/interface";
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from "formik";
 import * as yup from "yup";
 import { EMAIL_INVALID, EMAIL_REQUIRED, FIRST_NAME_REQUIRED, LAST_NAME_REQUIRED, MOBILE_NO_IS_REQUIRED, MOBILE_NO_VALIDATION_MESSAGE, PASSWORD_REQUIRED, UNIVERSITY_NAME_REQUIRED, USERNAME_IS_REQUIRED, USERNAME_SPACE_VALIDATION } from "../../../Utility/Validation_Message";
-import { customJsonInclude, isEmptyObjectOrNullUndefiend, renderError } from "../../../Utility/Helper";
-import { sendSignupEmailOtp, signupToSystem } from "../../../redux/Service/auth/signup";
+import { customJsonInclude, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError } from "../../../Utility/Helper";
+import { addUniversityAPI, getUniversityListAPI, sendSignupEmailOtp, signupToSystem } from "../../../redux/Service/auth/signup";
 import VerifySignupOtp from "./VerifySignupOtp";
 import PhoneInput from "react-phone-input-2";
-
+import Select, { components, ControlProps } from "react-select";
 const Registeration = (props) => {
   const [eyeToggle, setEyeToggle] = useState<boolean>(false);
   const dispatch: AppDispatch = useDispatch();
@@ -162,8 +162,99 @@ const Registeration = (props) => {
   }, [otpDetailsObj])
 
 
-
   /* ------------------------- Signup Form Validation ------------------------- */
+
+
+  /** -----------------------get university drop down start---------------------*/
+  const [univercityData, setUnivercityData] = useState<any>([])
+  const handleGetUniversityData = async () => {
+    const data = await dispatch(getUniversityListAPI());
+    if (data || data?.payload) {
+      let other = [{
+        value: "Other",
+        label: "Other"
+      }]
+
+      setUnivercityData([...other, ...data?.payload])
+    }
+  }
+
+  useEffect(() => {
+    handleGetUniversityData();
+    return () => {
+      setUnivercityData([]);
+    }
+  }, [])
+
+
+
+
+  // Define initial values
+  const initFormValues = {
+    unitid: null,
+    institution_name: "",
+    // Add other fields here
+  };
+
+  // useState for saved form data
+  const [savedFormData, setSavedFormData] = useState(initFormValues);
+
+  // Define validation schema
+  const validationSchema = yup.object({
+    unitid: yup.string().nullable(),
+    institution_name: yup.string()
+      .trim()
+      .required('Institution name is required.'),
+    // Add validation rules for other fields
+  });
+
+  // onSubmit function
+  const onSubmit = async (values, onSubmitProps) => {
+    // Handle form submission logic
+  };
+
+  // useFormik instance
+  const formData = useFormik({
+    initialValues: savedFormData || initFormValues,
+    validationSchema,
+    onSubmit,
+    enableReinitialize: true,
+  });
+
+  // Utility function to handle blur updates
+  const handleAddUniBlurValueUpdate = (key) => {
+    formData.setFieldValue(key, formData.values[key].trim());
+    setTimeout(() => {
+      formData.setFieldTouched(key, true);
+    }, 100);
+  };
+
+  // Submission handler
+  const handleSubmitFormData = async () => {
+    formData.handleSubmit();
+    const formDataErrors = await formData.validateForm();
+    if (Object.keys(formDataErrors).length > 0) {
+      formData.setTouched(
+        setNestedObjectValues(formDataErrors, true)
+      );
+      return;
+    }
+
+    const reqBody = { ...formData.values };
+    customJsonInclude(reqBody);
+    const response = await dispatch(addUniversityAPI(reqBody));
+
+    if (response && response.payload) {
+      formData.resetForm();
+      handleGetUniversityData();
+      signUpFormData?.setFieldValue("university_name", formData?.values?.institution_name)
+      // Handle successful response
+    }
+  };
+
+
+  /** -----------------------get university drop down end---------------------*/
+
   return (
     <>
       {
@@ -349,7 +440,7 @@ const Registeration = (props) => {
                         </Form.Group>
 
                         <Form.Group className="form-group required">
-                          <Form.Label>University Name</Form.Label>
+                          {/* <Form.Label>University Name</Form.Label>
                           <div className="form-group-icon-start">
                             <i className="material-symbols-outlined">home_work</i>
                             <Form.Control
@@ -362,11 +453,85 @@ const Registeration = (props) => {
                                 handleBlurValueUpdate("university_name");
                               }}
                             />
-                          </div>
+                          </div> */}
+
+                          <Form.Label>Select University Name</Form.Label>
+                          <Select
+                            options={univercityData}
+                            placeholder={<div>Select </div>}
+                            onChange={(selectedOption) => {
+                              signUpFormData.setFieldValue("university_name", selectedOption?.label ? selectedOption?.label : null);
+
+
+                            }}
+                            value={univercityData?.filter(({ label }) => {
+
+                              return (
+                                label ===
+                                signUpFormData.values.university_name
+                              );
+                            })}
+                            isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse) ? true : false}
+                            // onBlur={() => {
+                            //     // objectiveDetailsFormData.setFieldTouched("theme_id", true)
+                            //     handleUpdateDetails()
+                            // }}
+                            isClearable
+                            menuPosition="fixed"
+                            className="react-select-container"
+                          />
                           {signUpFormData.touched.university_name &&
                             signUpFormData.errors.university_name
                             ? renderError(signUpFormData.errors.university_name)
                             : null}
+                          {
+                            signUpFormData.values.university_name === "Other" &&
+                            (
+                              <>
+                                {/* <Form.Label>University Id</Form.Label>
+                                <div className="form-group-icon-start">
+                                  <i className="material-symbols-outlined">home_work</i>
+                                  <Form.Control
+                                    type="text"
+                                    placeholder="Enter University Id"
+                                    {...formData.getFieldProps("unitid")}
+                                    maxLength={MAX_50}
+                                    minLength={MAX_5}
+                                    onBlur={() => {
+                                      handleAddUniBlurValueUpdate("unitid");
+                                    }}
+                                  />
+                                </div>
+                                {formData.touched.unitid &&
+                                  formData.errors.unitid
+                                  ? renderError(formData.errors.unitid)
+                                  : null} */}
+                                <Form.Label>University Name</Form.Label>
+                                <div className="form-group-icon-start">
+                                  <i className="material-symbols-outlined">home_work</i>
+                                  <Form.Control
+                                    type="text"
+                                    placeholder="Enter University Name"
+                                    {...formData.getFieldProps("institution_name")}
+                                    maxLength={MAX_50}
+                                    minLength={MAX_5}
+                                    onBlur={() => {
+                                      handleAddUniBlurValueUpdate("institution_name");
+                                    }}
+                                  />
+                                </div>
+                                {formData.touched.institution_name &&
+                                  formData.errors.institution_name
+                                  ? renderError(formData.errors.institution_name)
+                                  : null}
+
+                                <button onClick={() => { handleSubmitFormData() }}>Add</button>
+                              </>
+                            )
+                          }
+
+
+
                         </Form.Group>
 
                         <Form.Group className="form-group required">
@@ -374,7 +539,7 @@ const Registeration = (props) => {
                           <div className="form-group-icon-start form-group-password">
                             <i className="material-symbols-outlined">lock</i>
                             <Form.Control
-
+                              autoComplete="new-password"
                               type={eyeToggle ? "text" : "password"}
                               placeholder="Enter Password"
                               {...signUpFormData.getFieldProps("password")}

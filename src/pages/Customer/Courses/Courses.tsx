@@ -291,7 +291,7 @@ const Courses = (props) => {
                           !isEmptyObjectOrNullUndefiend(syllabusList) ?
                             syllabusList?.map((item, index) => {
                               return (
-                                <tr key={index}>
+                                <tr key={index} onDoubleClick={() => { handleUpdateCourse(item) }}>
                                   {/* <td className="tbl-user">
                                 <div className="tbl-user-checkbox-srno">
                                   <div className="checkbox checkbox-primary checkbox-small">
@@ -330,7 +330,7 @@ const Courses = (props) => {
                                       >
                                         <i className="material-symbols-outlined">check_circle</i>
                                       </button> */}
-                                      {
+                                      {/* {
                                         item?.status === "Completed" ?
                                           <button
                                             className="btn btn-xs btn-icon btn-transparent check-icon text-success "
@@ -344,13 +344,13 @@ const Courses = (props) => {
                                           >
                                             <i className="material-symbols-outlined">check_circle</i>
                                           </button>
-                                      }
-                                      <button
+                                      } */}
+                                      {/* <button
                                         className="btn btn-xs btn-icon btn-transparent"
                                         onClick={() => { handleUpdateCourse(item) }}
                                       >
                                         <i className="material-symbols-outlined">edit</i>
-                                      </button>
+                                      </button> */}
                                       <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow(item) }}>
                                         <i className="material-symbols-outlined">delete</i>
                                       </button>
@@ -390,7 +390,7 @@ const Courses = (props) => {
                     {
                       !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {
                         return (
-                          <Col md={"4"} key={index}>
+                          <Col md={"4"} key={index} onDoubleClick={() => { handleUpdateCourse(item) }}>
                             <Card className="card-style-1">
                               <Card.Body>
                                 <div className="corse-card">
@@ -423,7 +423,7 @@ const Courses = (props) => {
                                           </p>
                                         </div>
                                         <div className="action-button">
-                                          {
+                                          {/* {
                                             item?.status === "Completed" ?
                                               <button
                                                 className="btn btn-xs btn-icon btn-transparent check-icon text-success"
@@ -437,13 +437,13 @@ const Courses = (props) => {
                                               >
                                                 <i className="material-symbols-outlined">check_circle</i>
                                               </button>
-                                          }
-                                          <button
+                                          } */}
+                                          {/* <button
                                             className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm"
                                             onClick={() => { handleUpdateCourse(item) }}
                                           >
                                             <i className="material-symbols-outlined">edit</i>
-                                          </button>
+                                          </button> */}
                                           <button className="btn-icon btn-light-danger btn-icon-text btn btn-danger btn-sm"
                                             onClick={() => { handleDeleteShow(item) }}
                                           >

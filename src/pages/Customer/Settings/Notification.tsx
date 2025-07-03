@@ -124,7 +124,7 @@ const Notification = (props) => {
               <div className="notifiction-box">
                 <div className="title-text">
                   <h2>Email Notification</h2>
-                  <p>Send email on task/Event coaptation</p>
+                  <p>Send email on Task/Event creation.</p>
                 </div>
                 <div className="notify-switch">
                   <div className="switch-box ">

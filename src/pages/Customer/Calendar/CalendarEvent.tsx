@@ -25,7 +25,8 @@ import { Calendar } from 'react-big-calendar';
 import DnDCalendar from 'react-big-calendar/lib/addons/dragAndDrop';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { addEditEventDataAPI, deleteEventDataAPI } from "../../../redux/Service/User/Courses/courses";
+import { addEditEventDataAPI, deleteEventDataAPI, updateEventStatusDataAPI } from "../../../redux/Service/User/Courses/courses";
+import { ENUMFORSTATUS } from "../../../interfaces/enum";
 
 
 const DragAndDropCalendar = DnDCalendar(Calendar);
@@ -144,6 +145,7 @@ const CalenderEvent = () => {
   /** --------------------Edit event End------------------------*/
   function customEventView({ event }) {
     const isCompleted = event?.event_data?.status === "Completed" ? true : false
+    const isHigh = event?.event_data?.priority === "High" ? true : false
     // console.log(isCompleted, "isCompleted", event?.event_data)
 
     return (
@@ -163,6 +165,9 @@ const CalenderEvent = () => {
           }}
         >
           <p>
+            {isHigh &&
+            <b>High</b>
+            }
             <b className={isCompleted ? '' : "text-black"} style={{ textDecoration: isCompleted ? 'line-through' : "none" }}>{event.title} </b>
           </p>
         </div>
@@ -190,7 +195,6 @@ const CalenderEvent = () => {
 
     return new Date(dateStrVal);
   }
-
   const handleGetCalenderData = async () => {
     let reqBody: any = {
       syllabus_id: syllabusId,
@@ -302,84 +306,88 @@ const CalenderEvent = () => {
     setCurrentView('day'); // Change to Day view
     setCurrentDate(date); // Set the clicked date
   };
-  const CustomDateHeader = ({ date }) => {
+  
+  const CustomDateHeader = ({ date, events = [], onSeeMoreClick }) => {
     const [isHovered, setIsHovered] = useState(false);
-
+  
     const handleMouseEnter = () => setIsHovered(true);
     const handleMouseLeave = () => setIsHovered(false);
-
+  
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0 0px",
-          height: "100%", // Ensure it stretches the full cell height
-        }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        {/* Date on the left */}
-        <span onClick={() => { handleDateClick(date) }} style={{ cursor: "pointer" }}><b>{date.getDate()}</b> </span>
-
-        {/* Button on the right */}
-        <button
+      <>
+        <div
           style={{
             display: "flex",
-            justifyContent: "center",
+            justifyContent: "space-between",
             alignItems: "center",
-            width: "22px",
-            height: "22px",
-            fontSize: "16px",
-            backgroundColor: "#374151",
-            color: "white",
-            border: "none",
-            borderRadius: "50%",
-            cursor: "pointer",
-            visibility: isHovered ? "visible" : "hidden", // Reserve space
-            opacity: isHovered ? 1 : 0, // Smooth transition
-            transition: "0.2s all",
-
+            padding: "0 0px",
+            height: "100%",
           }}
-
-          onClick={(e) => {
-            e.stopPropagation();
-            const startDate = new Date(date); // Start date at 12:00 AM
-            const endDate = new Date(date); // Clone the date for end time
-            endDate.setHours(23, 59, 59, 999); // Set end time to 11:59:59 PM
-
-            setEditEventFormData({
-              ...editEventFormData,
-              start_date: startDate,
-              end_date: endDate,
-              is_reminder: false,
-              reminder: [],
-            });
-            handleShow();
-          }}
-
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
-          +
-        </button>
-      </div>
+          {/* Date on the left */}
+          <span onClick={() => { handleDateClick(date) }} style={{ cursor: "pointer" }}>
+            <b>{date.getDate()}</b>
+          </span>
+  
+          {/* Button on the right */}
+          {
+          events?.length > 2 && 
+
+              <span style={{ cursor: "pointer" }} onClick={(e) => {
+              e.stopPropagation();
+              if (onSeeMoreClick) onSeeMoreClick(date, events);
+            }}>
+            Show All
+        </span>
+             
+        
+          
+    
+        }
+          <button
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "22px",
+              height: "22px",
+              fontSize: "16px",
+              backgroundColor: "#374151",
+              color: "white",
+              border: "none",
+              borderRadius: "50%",
+              cursor: "pointer",
+              visibility: isHovered ? "visible" : "hidden",
+              opacity: isHovered ? 1 : 0,
+              transition: "0.2s all",
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              const startDate = new Date(date);
+              const endDate = new Date(date);
+              endDate.setHours(23, 59, 59, 999);
+  
+              setEditEventFormData({
+                ...editEventFormData,
+                start_date: startDate,
+                end_date: endDate,
+                is_reminder: false,
+                reminder: [],
+              });
+              handleShow();
+            }}
+          >
+            +
+          </button>
+        </div>
+        {/* See More button */}
+       
+      </>
     );
   };
 
-  const CustomShowMore = ({ events, date, onClose }) => {
-
-    return (
-      <div>
-        <h4>Events on {date.toLocaleDateString()}</h4>
-        <ul>
-          {events.map((event, index) => (
-            <li key={index}>{event.title}</li>
-          ))}
-        </ul>
-        <button onClick={onClose}>Close</button>
-      </div>
-    );
-  };
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -456,22 +464,24 @@ const CalenderEvent = () => {
 
   /** --------------------add event start------------------------*/
   const handleSelectSlot = ({ start, end }) => {
-    console.log(formatedDate(start, "DD/MM/YYYY [at] hh:mm A"), "start", formatedDate(end, "DD/MM/YYYY [at] hh:mm A"), "end")
+    // console.log(formatedDate(start, "DD/MM/YYYY [at] hh:mm A"), "start", formatedDate(end, "DD/MM/YYYY [at] hh:mm A"), "end")
     const startDate = new Date(start); // Start date at 12:00 AM
     let endDate = new Date(end); // Clone the date for end time
     if (currentView == "month") {
       endDate = new Date(start);
       endDate.setMinutes(30, 0); // Set end time to 11:59:59 PM
     }
-
-    setEditEventFormData({
-      ...editEventFormData,
-      start_date: startDate,
-      end_date: endDate,
-      is_reminder: false,
-      reminder: [],
-    });
-    handleShow();
+    if (currentView !== "month") {
+    
+      setEditEventFormData({
+        ...editEventFormData,
+        start_date: startDate,
+        end_date: endDate,
+        is_reminder: false,
+        reminder: [],
+      });
+      handleShow();
+  }
   };
 
   /** --------------------add event end------------------------*/
@@ -550,7 +560,62 @@ const CalenderEvent = () => {
   /** -------------------Delete Event end-------------------------*/
 
 
+  /** --------------------Event Complete Start------------------------*/
+  const handleEventCompleted = async (id, status) => {
+    // console.log("handleEventCompleted", id, status)
+    console.log(selectedEvent)
+    if (!id) {
+      return;
+    }
+    let event_id: any = [];
+    if (id instanceof Array) {
+      event_id = id;
+    }
+    else {
+      event_id = [id];
+    }
+    const reqBody = {
+      event_id: event_id,
+      status: status === ENUMFORSTATUS.COMPLETED ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED,
+    }
+    let response = await dispatch(updateEventStatusDataAPI(reqBody));
+    if (!isNullUndefinedOrBlank(response?.payload)) {
+      handleGetCalenderData();
+      await dispatch(isUpdatedEvent(true));
+      handleCloseModal();
+      // setEventStatus(status);
+      // handleSuccessShow();
+    }
+  }
 
+  /** ---------------------Event Complete Start-----------------------*/
+  
+
+  /** -----------------------show more start---------------------*/
+  const [showSeeMore, setShowSeeMore] = useState(false);
+const [seeMoreEvents, setSeeMoreEvents] = useState<any>([]);
+  const [seeMoreDate, setSeeMoreDate] = useState(null);
+  
+  const CustomShowMore = ({ events, date, onClose }) => (
+    <Modal show={true} onHide={onClose} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Events on {date && date.toLocaleDateString()}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <ul>
+          {events.map((event, idx) => (
+            <li key={idx}>{event.title}</li>
+          ))}
+        </ul>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+  /** ------------------------show more end--------------------*/
 
   return (
     <>
@@ -607,18 +672,17 @@ const CalenderEvent = () => {
 
                         <DatePicker
                           toggleCalendarOnIconClick
-                          selectsRange={true}
-                          onChange={(dates) => {
-                            const [start, end] = dates;
-                            setSearchByStartDate(start ? start : null);
-                            setCurrentDate(start ? start : currentDate);
-                            setSearchByEndDate(end ? end : null);
+                          selected={searchByStartDate}
+                          onChange={(date) => {
+                            setSearchByStartDate(date);
+                            setCurrentDate(date || currentDate);
+                            setSearchByEndDate(date); // Clear end date if you use it elsewhere
                           }}
-
+c
                           open={true}
-                          startDate={searchByStartDate}
-                          endDate={searchByEndDate}
-                          isClearable={false}
+                          // startDate={searchByStartDate}
+                          // endDate={searchByEndDate}
+                          isClearable={true}
                           dateFormat="MM/dd/yyyy"
                           className="form-control"
                           placeholderText="Select a Date"
@@ -791,18 +855,43 @@ const CalenderEvent = () => {
                     onEventDrop={handleEventDrop} // Handle drag-and-drop events
                     // onSelectEvent={(event) => handleSelectEvent(event)}
                     onSelectEvent={handleSelectEvent}
-                    showAllEvents={true}
                     date={currentDate}
                     onView={(view) => setCurrentView(view)} // Sync view change
                     onNavigate={(date) => setCurrentDate(date)} // Sync date change
                     selectable={true}
+                    // onShowMore={() => { console.log("first") }}
+                    // showAllEvents={true}
                     components={{
 
                       month: {
-                        dateHeader: CustomDateHeader,
+                        dateHeader: (props) => {
+                          // Find events for this date
+                          const eventsForDate = calenderData.filter(ev =>
+                            new Date(ev.start).toDateString() === props.date.toDateString()
+                          );
+                          return (
+                            <CustomDateHeader
+                              {...props}
+                              events={eventsForDate}
+                              onSeeMoreClick={(date, events) => {
+                                setSeeMoreDate(date);
+                                setSeeMoreEvents(events);
+                                setShowSeeMore(true);
+                              }}
+                            />
+                          );
+                        },
                       },
                       event: customEventView,
                       toolbar: customToolbar,
+                      // showMore: (props) => {
+                      //   // @ts-ignore
+                      //   const { date, events } = props;
+                      //   setSeeMoreDate(date);
+                      //   setSeeMoreEvents(events);
+                      //   setShowSeeMore(true);
+                      //   return null; // Don't render anything in the calendar cell
+                      // }
                     }}
 
                     style={{ height: "100vh", width: "100%" }}
@@ -863,6 +952,9 @@ const CalenderEvent = () => {
           <div className="modal-button-group modal-full-width-btn modal-footer-button">
             <Button variant="light-white" onClick={() => { handleEditEvent(selectedEvent) }}>
               Edit Event
+            </Button>
+            <Button variant="primary" disabled={ selectedEvent?.eventData?.status === ENUMFORSTATUS.COMPLETED} onClick={() => {handleEventCompleted(selectedEvent?.event_data?.id,selectedEvent?.eventData?.status) }}>
+              Complete
             </Button>
             <Button variant="danger" onClick={() => { handleDeleteShow(selectedEvent) }}>
               Delete
@@ -927,6 +1019,14 @@ const CalenderEvent = () => {
           </div>
         </Modal.Body>
       </Modal>
+
+      {showSeeMore && (
+  <CustomShowMore
+    events={seeMoreEvents}
+    date={seeMoreDate}
+    onClose={() => setShowSeeMore(false)}
+  />
+)}
     </>
   );
 };

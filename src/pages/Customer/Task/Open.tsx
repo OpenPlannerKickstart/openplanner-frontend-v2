@@ -123,7 +123,7 @@ const Open = (props) => {
                         {
                             !isEmptyObjectOrNullUndefiend(taskList) && taskList?.map((taskItem, taskIndex) => {
                                 return (
-                                    <tr key={taskIndex}>
+                                    <tr key={taskIndex}  onDoubleClick={() => { handleUpdateTask(taskItem) }}>
                                         <td className="tbl-user tbl-srno">
                                             <div className="tbl-user-checkbox-srno">
                                                 {/* <div className="checkbox checkbox-primary checkbox-small">
@@ -154,9 +154,9 @@ const Open = (props) => {
                                                 >
                                                     <i className="material-symbols-outlined">check_circle</i>
                                                 </button>
-                                                <button className="btn btn-xs btn-icon btn-transparent" onClick={() => { handleUpdateTask(taskItem) }}>
+                                                {/* <button className="btn btn-xs btn-icon btn-transparent" onClick={() => { handleUpdateTask(taskItem) }}>
                                                     <i className="material-symbols-outlined">Edit</i>
-                                                </button>
+                                                </button> */}
                                                 <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow([...deleteTaskData, taskItem]) }}>
                                                     <i className="material-symbols-outlined">delete</i>
                                                 </button>

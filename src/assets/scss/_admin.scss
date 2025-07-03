@@ -4850,8 +4850,13 @@ $sm_sidebar_home_link_width: 170px;
             border-bottom-right-radius: 4px;
 
             p {
-                text-wrap: auto !important;
-                word-wrap: break-word;
+                
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 1;
+                width: 100px;
+
 
                 &:nth-child(2) {
                     font-size: 14px;
@@ -4936,6 +4941,9 @@ $sm_sidebar_home_link_width: 170px;
         margin-bottom: 0px;
         display: flex;
         flex-direction: column;
+        text-wrap: normal;
+
+        overflow: hidden;
     }
 
     &.rbc-event-warning {
@@ -5134,6 +5142,6 @@ $sm_sidebar_home_link_width: 170px;
 }
 
 .rbc-time-view,
-.rbc-month-row{
+.rbc-month-row {
     cursor: pointer !important;
 }

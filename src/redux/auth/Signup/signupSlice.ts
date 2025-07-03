@@ -4,6 +4,8 @@ interface signupInitializeState {
     signupData: any;
     sendSignupEmailOtp: any;
     verifySignupEmailOtp: any;
+    getUniversityList: any;
+    addUniversity: any;
     loading: boolean;
 }
 
@@ -11,6 +13,8 @@ const initialState: signupInitializeState = {
     signupData: null,
     sendSignupEmailOtp: null,
     verifySignupEmailOtp: null,
+    getUniversityList: null,
+    addUniversity: null,
     loading: false,
 };
 
@@ -54,6 +58,29 @@ const signupSlice: any = createSlice({
             state.loading = false;
         },
 
+        getUniversityListSuccess: (
+            state: signupInitializeState = initialState,
+            action: PayloadAction<any>
+        ) => {
+            state.getUniversityList = action.payload;
+            state.loading = false;
+        },
+        getUniversityListFailure: (state) => {
+            state.getUniversityList = null;
+            state.loading = false;
+        },
+        addUniversitySuccess: (
+            state: signupInitializeState = initialState,
+            action: PayloadAction<any>
+        ) => {
+            state.addUniversity = action.payload;
+            state.loading = false;
+        },
+        addUniversityFailure: (state) => {
+            state.addUniversity = null;
+            state.loading = false;
+        },
+
     },
 });
 
@@ -62,7 +89,11 @@ export const { getSignupFailure,
     verfiySignUpEmailOtpFailure,
     verfiySignUpEmailOtpSuccess,
     sendSignUpEmailOtpFailure,
-    sendSignUpEmailOtpSuccess
+    sendSignUpEmailOtpSuccess,
+    getUniversityListSuccess,
+    getUniversityListFailure,
+    addUniversitySuccess,
+    addUniversityFailure
 
 
 } = signupSlice.actions;

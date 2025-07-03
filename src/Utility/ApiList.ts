@@ -5,6 +5,10 @@
 
 /**API endpoint for registering new user  */
 export const GET_REGISTER_DATA_API = "registerUser";
+export const GET_UNIVERSITY_LIST_API = "getUniversityList";
+export const ADD_OTHER_UNIVERSITY_NAME_API = "addOtherUniversityName";
+
+
 /** API endpoint for user login */
 export const GET_LOGIN_DATA_API = "loginUser";
 /** API endpoint for Verify User Otp */
@@ -35,7 +39,7 @@ export const GET_STATE_DATA_API = "state";
 export const GET_COUNTRY_DATA_API = "country";
 
 /**API endpoint for fetching calender data */
-export const GET_CALENDER_DATA = "getCalenderDataWeb";
+export const GET_CALENDER_DATA = "getCalenderData";
 /**API endpoint for fetching calender data */
 export const GET_SYLLABUS_DROPDOWN_DATA_API = "getSyllabusDropDown";
 

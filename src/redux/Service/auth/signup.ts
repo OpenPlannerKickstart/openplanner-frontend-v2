@@ -1,7 +1,7 @@
-import { GET_REGISTER_DATA_API, GET_RESEND_USER_OTP_DATA_API, GET_VERIFY_USER_OTP_DATA_API } from "../../../Utility/ApiList";
-import { post } from "../../../Utility/httpInterceptor";
+import { ADD_OTHER_UNIVERSITY_NAME_API, GET_REGISTER_DATA_API, GET_RESEND_USER_OTP_DATA_API, GET_UNIVERSITY_LIST_API, GET_VERIFY_USER_OTP_DATA_API } from "../../../Utility/ApiList";
+import { get, post } from "../../../Utility/httpInterceptor";
 import { ts } from "../../../Utility/Toaster";
-import { getSignupFailure, getSignupSuccess, sendSignUpEmailOtpFailure, sendSignUpEmailOtpSuccess, verfiySignUpEmailOtpFailure, verfiySignUpEmailOtpSuccess } from "../../auth/Signup/signupSlice";
+import { addUniversityFailure, addUniversitySuccess, getSignupFailure, getSignupSuccess, getUniversityListFailure, getUniversityListSuccess, sendSignUpEmailOtpFailure, sendSignUpEmailOtpSuccess, verfiySignUpEmailOtpFailure, verfiySignUpEmailOtpSuccess } from "../../auth/Signup/signupSlice";
 import { setLoading } from "../../Loader/LoaderSlice";
 import { AppDispatch } from "../../store";
 
@@ -86,3 +86,45 @@ export const verifySignupEmailOtp =
         dispatch(setLoading(false));
       }
     };
+
+
+    export const getUniversityListAPI =
+    (objBody: any = undefined) =>
+      async (dispatch: AppDispatch) => {
+        dispatch(setLoading(true));
+  
+        try {
+          const response: any = await get(GET_UNIVERSITY_LIST_API);
+          if (!response.data.error) {
+            // ts(response.data.message)
+            return dispatch(getUniversityListSuccess(response.data.data));
+          } else {
+            dispatch(getUniversityListFailure());
+          }
+        } catch (err) {
+          dispatch(getUniversityListFailure());
+        } finally {
+          dispatch(setLoading(false));
+        }
+    };
+      
+
+    export const addUniversityAPI =
+    (objBody: any = undefined) =>
+      async (dispatch: AppDispatch) => {
+        dispatch(setLoading(true));
+  
+        try {
+          const response: any = await post(ADD_OTHER_UNIVERSITY_NAME_API, objBody);
+          if (!response.data.error) {
+            ts(response.data.message)
+            return dispatch(addUniversitySuccess(response.data.data));
+          } else {
+            dispatch(addUniversityFailure());
+          }
+        } catch (err) {
+          dispatch(addUniversityFailure());
+        } finally {
+          dispatch(setLoading(false));
+        }
+      };
