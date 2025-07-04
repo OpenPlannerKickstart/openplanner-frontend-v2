@@ -558,3 +558,68 @@
        display: block;
     }
 }
+
+.priority-icon{
+    display: flex;
+    align-items: center;
+    gap: 5px 0;
+    font-size: 14px;
+
+    i {
+        color: #F04438;
+        font-size: 16px;
+        width: 14px;
+    }
+    .text-red {
+        color: #F04438;
+        margin-right: 5px;
+    }
+    p{
+        font-size: 13px !important; 
+    }
+}
+
+.event-list{
+    list-style: none;
+    padding: 0;
+    li{
+        font-size: 13px;
+        line-height: normal;
+        color: #344054;
+        span{
+            width: 8px;
+            height: 8px;
+            display: inline-block;
+            border-radius: 50%;
+            margin-right: 11px;
+        }
+    }
+}
+
+.rbc-time-view{
+    .rbc-event-label{
+        font-size: 0;
+    }
+    .rbc-event{
+        justify-content: center;
+    }
+    .rbc-event-primary{
+        margin-top: 0px;
+        padding-top: 0px;
+        padding-bottom: 0px;
+        margin-bottom: 0px;
+        padding-left: 5px;
+        max-width: 300px;
+        min-width: 300px;
+        .priority-icon p {
+            font-size: 11px !important;
+            text-wrap-mode: nowrap;
+            overflow: hidden;
+            display: -webkit-box !important;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 1;
+            width: max-content;
+            word-wrap: break-word;
+        }
+    }
+}

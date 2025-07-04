@@ -2495,36 +2495,22 @@ $sm_sidebar_home_link_width: 170px;
 
         .sider-bar {
             position: fixed;
-
             left: 175px;
-
             top: 10;
-
             height: 100vh;
-
             min-width: 331px;
-
             max-width: 331px;
-
             z-index: 10;
-
             overflow-y: auto;
-
             width: 100%;
-
             min-width: 331px;
-
             max-width: 331px;
-
             background: $bg_grey;
-
             border-right: 1px solid $stock_light;
-
             @media (max-width:1366px) {
                 min-width: 280px;
                 max-width: 280px;
             }
-
             .cal-side-title {
                 display: flex;
                 align-items: center;
@@ -3242,6 +3228,15 @@ $sm_sidebar_home_link_width: 170px;
                 /* Red color for identification */
                 height: 3px;
                 /* Increase the thickness */
+            }
+        }
+    }
+}
+[data-sidebar-size=sm]{
+    .calender-content-area {
+        .sidebar-with-calendar {
+            .sider-bar{
+                left:70px;
             }
         }
     }
@@ -4852,10 +4847,12 @@ $sm_sidebar_home_link_width: 170px;
             p {
                 
                 overflow: hidden;
-                display: -webkit-box;
+                display: -webkit-box !important;
                 -webkit-box-orient: vertical;
                 -webkit-line-clamp: 1;
-                width: 100px;
+                width: max-content;
+                text-wrap-mode: wrap;
+                word-wrap: break-word;
 
 
                 &:nth-child(2) {

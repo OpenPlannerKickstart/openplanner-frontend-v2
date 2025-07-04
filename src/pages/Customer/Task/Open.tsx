@@ -123,7 +123,7 @@ const Open = (props) => {
                         {
                             !isEmptyObjectOrNullUndefiend(taskList) && taskList?.map((taskItem, taskIndex) => {
                                 return (
-                                    <tr key={taskIndex}  onDoubleClick={() => { handleUpdateTask(taskItem) }}>
+                                    <tr className='cursor-pointer' key={taskIndex}  onDoubleClick={() => { handleUpdateTask(taskItem) }}>
                                         <td className="tbl-user tbl-srno">
                                             <div className="tbl-user-checkbox-srno">
                                                 {/* <div className="checkbox checkbox-primary checkbox-small">

@@ -164,12 +164,12 @@ const CalenderEvent = () => {
             borderColor: event?.event_data?.course_color,
           }}
         >
-          <p>
-            {isHigh &&
-            <b>High</b>
-            }
-            <b className={isCompleted ? '' : "text-black"} style={{ textDecoration: isCompleted ? 'line-through' : "none" }}>{event.title} </b>
-          </p>
+          <div className="priority-icon">
+            {isHigh && <i className="material-symbols-outlined">priority_high</i>}
+            <p>             
+              <b className={isCompleted ? '' : "text-black"} style={{ textDecoration: isCompleted ? 'line-through' : "none" }}>{event.title} </b>
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -201,12 +201,12 @@ const CalenderEvent = () => {
     };
 
     customJsonInclude(reqBody);
-    if (!isNullUndefinedOrBlank(searchByStartDate)) {
-      reqBody.start_date = getDate(searchByStartDate, "yyyy-MM-DD");
-    }
-    if (!isNullUndefinedOrBlank(searchByStartDate)) {
-      reqBody.end_date = getDate(searchByEndDate, "yyyy-MM-DD");
-    }
+    // if (!isNullUndefinedOrBlank(searchByStartDate)) {
+    //   reqBody.start_date = getDate(searchByStartDate, "yyyy-MM-DD");
+    // }
+    // if (!isNullUndefinedOrBlank(searchByStartDate)) {
+    //   reqBody.end_date = getDate(searchByEndDate, "yyyy-MM-DD");
+    // }
     const response = await dispatch(getCalenderDataAPI(reqBody));
     if (!isNullUndefinedOrBlank(response?.payload)) {
       const eventData = response?.payload?.map((item) => {
@@ -333,9 +333,9 @@ const CalenderEvent = () => {
   
           {/* Button on the right */}
           {
-          events?.length > 2 && 
+          events?.length > 3 && 
 
-              <span style={{ cursor: "pointer" }} onClick={(e) => {
+              <span  style={{ cursor: "pointer", marginRight: "6px", marginLeft: "auto", fontSize: "12px" }} onClick={(e) => {
               e.stopPropagation();
               if (onSeeMoreClick) onSeeMoreClick(date, events);
             }}>
@@ -596,25 +596,33 @@ const CalenderEvent = () => {
 const [seeMoreEvents, setSeeMoreEvents] = useState<any>([]);
   const [seeMoreDate, setSeeMoreDate] = useState(null);
   
-  const CustomShowMore = ({ events, date, onClose }) => (
-    <Modal show={true} onHide={onClose} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>Events on {date && date.toLocaleDateString()}</Modal.Title>
+  const CustomShowMore = ({ events, date, onClose }) =>{
+  // console.log(events, "events", date, "date")
+    return(
+    <Modal className='modal-theme modal-confirmation modal-approve' show={true} onHide={onClose} centered>
+      <Modal.Header className="border-bottom">
+         <h4 className="modal-title">Events on {formatedDate(date,"MM/DD/yyyy")}</h4>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={onClose}
+          >
+            <i className="material-symbols-outlined">close</i>
+          </button>
       </Modal.Header>
       <Modal.Body>
-        <ul>
+        <ul className="event-list">
           {events.map((event, idx) => (
-            <li key={idx}>{event.title}</li>
+            <>
+            {/* <a href="">{event?.event_data?.course_color}</a> */}
+            <li key={idx}><span className="event-color" style={{ backgroundColor:event?.event_data?.course_color }}></span>{event.title}</li>
+            </>
           ))}
         </ul>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
-          Close
-        </Button>
-      </Modal.Footer>
     </Modal>
   );
+  } 
   /** ------------------------show more end--------------------*/
 
   return (
@@ -861,6 +869,23 @@ c
                     selectable={true}
                     // onShowMore={() => { console.log("first") }}
                     // showAllEvents={true}
+                     dayPropGetter={(date) => {
+                      const isSelected =
+                        searchByStartDate && currentView === 'month' &&
+                        new Date(searchByStartDate).toDateString() === date.toDateString();
+ 
+                      return {
+                        style: {
+                          backgroundColor: isSelected
+                            ? '#eaf6ff' // Highlight color for selected date
+                            : undefined,
+                          border: isSelected
+                            ? '2px solid rgb(79, 160, 226)' // Border for selected date
+                            : undefined,
+                        },
+                      };
+                    }}
+ 
                     components={{
 
                       month: {
@@ -953,12 +978,13 @@ c
             <Button variant="light-white" onClick={() => { handleEditEvent(selectedEvent) }}>
               Edit Event
             </Button>
-            <Button variant="primary" disabled={ selectedEvent?.eventData?.status === ENUMFORSTATUS.COMPLETED} onClick={() => {handleEventCompleted(selectedEvent?.event_data?.id,selectedEvent?.eventData?.status) }}>
-              Complete
-            </Button>
             <Button variant="danger" onClick={() => { handleDeleteShow(selectedEvent) }}>
               Delete
             </Button>
+            <Button variant="primary" disabled={ selectedEvent?.eventData?.status === ENUMFORSTATUS.COMPLETED} onClick={() => {handleEventCompleted(selectedEvent?.event_data?.id,selectedEvent?.eventData?.status) }}>
+              Complete
+            </Button>
+            
           </div>
         </Modal.Body>
       </Modal>
