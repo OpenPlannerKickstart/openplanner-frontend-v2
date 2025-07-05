@@ -391,7 +391,7 @@ const Courses = (props) => {
                       !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {
                         return (
                           <Col md={"4"} key={index} onDoubleClick={() => { handleUpdateCourse(item) }}>
-                            <Card className="card-style-1">
+                            <Card className="card-style-1 cursor-pointer">
                               <Card.Body>
                                 <div className="corse-card">
                                   <div className="card-main-img" style={{ backgroundColor: `${item?.course_color || "#239bc266"}`, opacity: 0.4 }}>

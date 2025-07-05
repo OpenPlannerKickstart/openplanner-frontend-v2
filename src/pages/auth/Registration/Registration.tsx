@@ -204,7 +204,7 @@ const Registeration = (props) => {
     unitid: yup.string().nullable(),
     institution_name: yup.string()
       .trim()
-      .required('Institution name is required.'),
+      .required('Institution name is required.').matches(ONLY_ALPHABETS_AND_DOT, "Provide Valid University Name!").min(5, "Minimum 5 letters Required."),
     // Add validation rules for other fields
   });
 
@@ -506,26 +506,33 @@ const Registeration = (props) => {
                                   formData.errors.unitid
                                   ? renderError(formData.errors.unitid)
                                   : null} */}
-                                <Form.Label>University Name</Form.Label>
-                                <div className="form-group-icon-start">
-                                  <i className="material-symbols-outlined">home_work</i>
-                                  <Form.Control
-                                    type="text"
-                                    placeholder="Enter University Name"
-                                    {...formData.getFieldProps("institution_name")}
-                                    maxLength={MAX_50}
-                                    minLength={MAX_5}
-                                    onBlur={() => {
-                                      handleAddUniBlurValueUpdate("institution_name");
-                                    }}
-                                  />
-                                </div>
-                                {formData.touched.institution_name &&
-                                  formData.errors.institution_name
-                                  ? renderError(formData.errors.institution_name)
-                                  : null}
+                                <Row className="mt-3">
+                                  <Col xs={10}>
+                                    <Form.Label>University Name</Form.Label>
+                                    <div className="form-group-icon-start">
+                                      <i className="material-symbols-outlined">home_work</i>
+                                      <Form.Control
+                                        type="text"
+                                        placeholder="Enter University Name"
+                                        {...formData.getFieldProps("institution_name")}
+                                        maxLength={MAX_50}
+                                        minLength={MAX_5}
+                                        onBlur={() => {
+                                          handleAddUniBlurValueUpdate("institution_name");
+                                        }}
+                                      />
+                                    </div>
+                                    {formData.touched.institution_name &&
+                                      formData.errors.institution_name
+                                      ? renderError(formData.errors.institution_name)
+                                      : null}
+                                  </Col>
+                                  <Col xs={2}>
 
-                                <button onClick={() => { handleSubmitFormData() }}>Add</button>
+                                    <Button variant="primary" className="w-100 mt-4" onClick={() => { handleSubmitFormData() }}>Add</Button>
+                                  </Col>
+
+                                </Row>
                               </>
                             )
                           }
