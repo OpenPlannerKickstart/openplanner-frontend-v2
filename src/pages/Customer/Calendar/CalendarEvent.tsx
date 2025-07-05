@@ -166,7 +166,7 @@ const CalenderEvent = () => {
         >
           <div className="priority-icon">
             {isHigh && <i className="material-symbols-outlined">priority_high</i>}
-            <p>             
+            <p>
               <b className={isCompleted ? '' : "text-black"} style={{ textDecoration: isCompleted ? 'line-through' : "none" }}>{event.title} </b>
             </p>
           </div>
@@ -306,13 +306,13 @@ const CalenderEvent = () => {
     setCurrentView('day'); // Change to Day view
     setCurrentDate(date); // Set the clicked date
   };
-  
+
   const CustomDateHeader = ({ date, events = [], onSeeMoreClick }) => {
     const [isHovered, setIsHovered] = useState(false);
-  
+
     const handleMouseEnter = () => setIsHovered(true);
     const handleMouseLeave = () => setIsHovered(false);
-  
+
     return (
       <>
         <div
@@ -330,22 +330,22 @@ const CalenderEvent = () => {
           <span onClick={() => { handleDateClick(date) }} style={{ cursor: "pointer" }}>
             <b>{date.getDate()}</b>
           </span>
-  
+
           {/* Button on the right */}
           {
-          events?.length > 3 && 
+            events?.length > 3 &&
 
-              <span  style={{ cursor: "pointer", marginRight: "6px", marginLeft: "auto", fontSize: "12px" }} onClick={(e) => {
+            <span style={{ cursor: "pointer", marginRight: "6px", marginLeft: "auto", fontSize: "12px" }} onClick={(e) => {
               e.stopPropagation();
               if (onSeeMoreClick) onSeeMoreClick(date, events);
             }}>
-            Show All
-        </span>
-             
-        
-          
-    
-        }
+              Show All
+            </span>
+
+
+
+
+          }
           <button
             style={{
               display: "flex",
@@ -368,7 +368,7 @@ const CalenderEvent = () => {
               const startDate = new Date(date);
               const endDate = new Date(date);
               endDate.setHours(23, 59, 59, 999);
-  
+
               setEditEventFormData({
                 ...editEventFormData,
                 start_date: startDate,
@@ -383,7 +383,7 @@ const CalenderEvent = () => {
           </button>
         </div>
         {/* See More button */}
-       
+
       </>
     );
   };
@@ -472,7 +472,7 @@ const CalenderEvent = () => {
       endDate.setMinutes(30, 0); // Set end time to 11:59:59 PM
     }
     if (currentView !== "month") {
-    
+
       setEditEventFormData({
         ...editEventFormData,
         start_date: startDate,
@@ -481,7 +481,7 @@ const CalenderEvent = () => {
         reminder: [],
       });
       handleShow();
-  }
+    }
   };
 
   /** --------------------add event end------------------------*/
@@ -589,19 +589,19 @@ const CalenderEvent = () => {
   }
 
   /** ---------------------Event Complete Start-----------------------*/
-  
+
 
   /** -----------------------show more start---------------------*/
   const [showSeeMore, setShowSeeMore] = useState(false);
-const [seeMoreEvents, setSeeMoreEvents] = useState<any>([]);
+  const [seeMoreEvents, setSeeMoreEvents] = useState<any>([]);
   const [seeMoreDate, setSeeMoreDate] = useState(null);
-  
-  const CustomShowMore = ({ events, date, onClose }) =>{
-  // console.log(events, "events", date, "date")
-    return(
-    <Modal className='modal-theme modal-confirmation modal-approve' show={true} onHide={onClose} centered>
-      <Modal.Header className="border-bottom">
-         <h4 className="modal-title">Events on {formatedDate(date,"MM/DD/yyyy")}</h4>
+
+  const CustomShowMore = ({ events, date, onClose }) => {
+    // console.log(events, "events", date, "date")
+    return (
+      <Modal className='modal-theme modal-confirmation modal-approve' show={true} onHide={onClose} centered>
+        <Modal.Header className="border-bottom">
+          <h4 className="modal-title">Events on {formatedDate(date, "MM/DD/yyyy")}</h4>
           <button
             type="button"
             className="btn-close"
@@ -609,20 +609,20 @@ const [seeMoreEvents, setSeeMoreEvents] = useState<any>([]);
           >
             <i className="material-symbols-outlined">close</i>
           </button>
-      </Modal.Header>
-      <Modal.Body>
-        <ul className="event-list">
-          {events.map((event, idx) => (
-            <>
-            {/* <a href="">{event?.event_data?.course_color}</a> */}
-            <li key={idx}><span className="event-color" style={{ backgroundColor:event?.event_data?.course_color }}></span>{event.title}</li>
-            </>
-          ))}
-        </ul>
-      </Modal.Body>
-    </Modal>
-  );
-  } 
+        </Modal.Header>
+        <Modal.Body>
+          <ul className="event-list">
+            {events.map((event, idx) => (
+              <>
+                {/* <a href="">{event?.event_data?.course_color}</a> */}
+                <li key={idx}><span className="event-color" style={{ backgroundColor: event?.event_data?.course_color }}></span>{event.title}</li>
+              </>
+            ))}
+          </ul>
+        </Modal.Body>
+      </Modal>
+    );
+  }
   /** ------------------------show more end--------------------*/
 
   return (
@@ -686,7 +686,7 @@ const [seeMoreEvents, setSeeMoreEvents] = useState<any>([]);
                             setCurrentDate(date || currentDate);
                             setSearchByEndDate(date); // Clear end date if you use it elsewhere
                           }}
-c
+                          c
                           open={true}
                           // startDate={searchByStartDate}
                           // endDate={searchByEndDate}
@@ -868,12 +868,12 @@ c
                     onNavigate={(date) => setCurrentDate(date)} // Sync date change
                     selectable={true}
                     // onShowMore={() => { console.log("first") }}
-                    // showAllEvents={true}
-                     dayPropGetter={(date) => {
+                    showAllEvents={true}
+                    dayPropGetter={(date) => {
                       const isSelected =
                         searchByStartDate && currentView === 'month' &&
                         new Date(searchByStartDate).toDateString() === date.toDateString();
- 
+
                       return {
                         style: {
                           backgroundColor: isSelected
@@ -885,7 +885,7 @@ c
                         },
                       };
                     }}
- 
+
                     components={{
 
                       month: {
@@ -981,10 +981,10 @@ c
             <Button variant="danger" onClick={() => { handleDeleteShow(selectedEvent) }}>
               Delete
             </Button>
-            <Button variant="primary" disabled={ selectedEvent?.eventData?.status === ENUMFORSTATUS.COMPLETED} onClick={() => {handleEventCompleted(selectedEvent?.event_data?.id,selectedEvent?.eventData?.status) }}>
+            <Button variant="primary" disabled={selectedEvent?.eventData?.status === ENUMFORSTATUS.COMPLETED} onClick={() => { handleEventCompleted(selectedEvent?.event_data?.id, selectedEvent?.eventData?.status) }}>
               Complete
             </Button>
-            
+
           </div>
         </Modal.Body>
       </Modal>
@@ -1047,12 +1047,12 @@ c
       </Modal>
 
       {showSeeMore && (
-  <CustomShowMore
-    events={seeMoreEvents}
-    date={seeMoreDate}
-    onClose={() => setShowSeeMore(false)}
-  />
-)}
+        <CustomShowMore
+          events={seeMoreEvents}
+          date={seeMoreDate}
+          onClose={() => setShowSeeMore(false)}
+        />
+      )}
     </>
   );
 };
