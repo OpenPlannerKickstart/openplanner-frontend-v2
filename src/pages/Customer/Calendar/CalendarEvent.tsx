@@ -209,25 +209,28 @@ const CalenderEvent = () => {
     // }
     const response = await dispatch(getCalenderDataAPI(reqBody));
     if (!isNullUndefinedOrBlank(response?.payload)) {
-      const eventData = response?.payload?.map((item) => {
+      const eventData = response?.payload?.map((item: any) => {
         return {
           ...item,
           start: formatDate(item.start),
           end: formatDate(item.end),
         };
       });
-      setCalenderData(eventData);
+      setCalenderData(eventData || []);
+    } else {
+      setCalenderData([]);
     }
   };
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
+    // const delayDebounceFn = setTimeout(() => {
 
-      handleGetCalenderData();
-    }, 300);
-    return () => {
-      clearTimeout(delayDebounceFn);
-    }
+    //   handleGetCalenderData();
+    // }, 200);
+    // return () => {
+    //   clearTimeout(delayDebounceFn);
+    // }
+    handleGetCalenderData();
   }, [searchByStartDate, searchByEndDate, syllabusId]);
 
   /** ----------------------get CalenderData End----------------------*/

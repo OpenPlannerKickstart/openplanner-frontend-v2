@@ -432,7 +432,7 @@ const Task = (props) => {
                         <div className="form-control-wrapper">
                           <div className="form-group-icon-start">
                             <i className="material-symbols-outlined">search</i>
-                            <Form.Control type="text" placeholder="Search by Task name" onChange={(e) => { setSearch(e.target.value) }} />
+                            <Form.Control type="text" placeholder="Search by Task Name" onChange={(e) => { setSearch(e.target.value) }} />
                           </div>
                         </div>
                       </Form.Group>

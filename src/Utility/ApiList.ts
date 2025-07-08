@@ -39,7 +39,7 @@ export const GET_STATE_DATA_API = "state";
 export const GET_COUNTRY_DATA_API = "country";
 
 /**API endpoint for fetching calender data */
-export const GET_CALENDER_DATA = "getCalenderData";
+export const GET_CALENDER_DATA = "getCalenderDataWeb";
 /**API endpoint for fetching calender data */
 export const GET_SYLLABUS_DROPDOWN_DATA_API = "getSyllabusDropDown";
 
