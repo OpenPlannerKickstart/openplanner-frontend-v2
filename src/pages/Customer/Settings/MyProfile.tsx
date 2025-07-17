@@ -79,6 +79,7 @@ const MyProfile = (props) => {
     // Utility function to handle blur updates
     const handleBlurValueUpdate = (key) => {
         formData.setFieldValue(key, formData.values[key].trim());
+        handleSubmitFormData();
         setTimeout(() => {
             formData.setFieldTouched(key, true);
         }, 100);
@@ -141,6 +142,8 @@ const MyProfile = (props) => {
             if (isNullUndefinedOrBlank(formData.errors.file) && !isNullUndefinedOrBlank(formData?.values?.file)) {
                 const url = URL.createObjectURL(formData.values.file as File);
                 await formData.setFieldValue("profile_image", url);
+
+                handleSubmitFormData();
             }
             else {
                 if (!isNullUndefinedOrBlank(formData.values?.profile_image) && !isNullUndefinedOrBlank(formData.errors.file)) {
@@ -323,9 +326,9 @@ const MyProfile = (props) => {
                             </Form.Group>
                         </div>
                         <div className="button-group">
-                            <Button variant="primary" className="btn-icon-text" onClick={() => { handleSubmitFormData() }}>
+                            {/* <Button variant="primary" className="btn-icon-text" onClick={() => { handleSubmitFormData() }}>
                                 <i className="material-symbols-outlined">person</i> Update Profile
-                            </Button>
+                            </Button> */}
                             {/* <Button variant="outline-white" onClick={() => {
                                 handleCancel()
                             }}>
