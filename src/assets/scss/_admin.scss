@@ -2470,6 +2470,15 @@ $sm_sidebar_home_link_width: 170px;
     }
 }
 
+.weekly-page-content-calendar{
+    .clnd-today-btn{
+        &:focus {
+            background-color: $primary_hover_color;
+            color: $white_color;
+        }
+    }
+}
+
 .priority-low {
     color: $success_color !important;
 }

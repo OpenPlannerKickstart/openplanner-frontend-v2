@@ -243,7 +243,7 @@ const Dashboard = () => {
                     <div className="weekly-page-content-header-group">
                       <h4 className='d-inline-block mb-0'>My Week</h4>
                       <div className='weekly-page-content-calendar'>
-                        <button type="button" className="btn btn-outline-primary" onClick={() => { handleDateChange("today") }}>
+                        <button type="button" className="btn btn-outline-primary clnd-today-btn" onClick={() => { handleDateChange("today") }}>
                           Today
                         </button>
                         <div className="weekly-shuffle-date-action">

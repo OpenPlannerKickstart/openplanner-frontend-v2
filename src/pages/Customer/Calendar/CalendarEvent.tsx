@@ -165,7 +165,7 @@ const CalenderEvent = () => {
           }}
         >
           <div className="priority-icon">
-            {isHigh && <i className="material-symbols-outlined">priority_high</i>}
+            {isHigh && <span className="priority-ribbon"></span>}
             <p>
               <b className={isCompleted ? '' : "text-black"} style={{ textDecoration: isCompleted ? 'line-through' : "none" }}>{event.title} </b>
             </p>
@@ -943,7 +943,7 @@ const CalenderEvent = () => {
 
 
       {/* Modal for Event Details */}
-      <Modal className='modal-theme modal-confirmation modal-approve'
+      <Modal className='modal-theme '
         show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header className="border-bottom">
           <h4 className="modal-title">Event Details</h4>
@@ -977,7 +977,7 @@ const CalenderEvent = () => {
           ) : (
             <p>No event selected.</p>
           )}
-          <div className="modal-button-group modal-full-width-btn modal-footer-button">
+          <div className="justify-content-end modal-button-group modal-footer-button">
             <Button variant="light-white" onClick={() => { handleEditEvent(selectedEvent) }}>
               Edit Event
             </Button>
