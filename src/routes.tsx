@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Route, HashRouter as Router, Routes, useLocation } from 'react-router-dom';
+import { Route, HashRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { getToken, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from './Utility/Helper';
 import Login from './pages/auth/Login/Login';
 
@@ -26,6 +26,10 @@ import VerifySignupOtp from './pages/auth/Registration/VerifySignupOtp';
 import Calendar from './pages/Customer/Calendar/CalendarEvent';
 import Settings from './pages/Customer/Settings/Settings';
 import EditCourse from './pages/Customer/Courses/EditCourse';
+import { hasUnsavedChanges } from './redux/User/Settings/settingsSlice';
+import { RootState } from './redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import NavigationConfirm from './NavigationConfirm';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -65,7 +69,7 @@ const privateRoutes: RouterProps[] = [
     caseSensitive: true,
     url: ENUMFORROUTES.SETTINGS,
   },
-{
+  {
     path: ENUMFORROUTES.EDIT_COURSE,
     component: <EditCourse />,
     caseSensitive: true,
@@ -289,6 +293,10 @@ const AppRouter = (props): JSX.Element => {
   //   </div>
   // )
   // role sight end
+
+
+
+
   return (
 
     <div className={isAuthenticated ? 'layout-wrapper' : ''} id={isAuthenticated ? "layout-wrapper" : ''}>
@@ -338,7 +346,9 @@ const AppRouter = (props): JSX.Element => {
 
             </Routes>
           </React.Suspense>
+          <NavigationConfirm />
         </div>
+
       </Router>
     </div>
     // <div>routes</div>

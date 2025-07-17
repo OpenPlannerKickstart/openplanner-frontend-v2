@@ -8,6 +8,7 @@ interface SettingsInitializeState {
     changePasswordResponse: any;
     getSettingsData: any;
     updateSettingsData: any
+    hasUnsavedChanges?: boolean;
     loading: boolean;
 }
 
@@ -18,6 +19,7 @@ const initialState: SettingsInitializeState = {
     changePasswordResponse: null,
     getSettingsData: null,
     updateSettingsData: null,
+    hasUnsavedChanges: false,
     loading: false,
 };
 
@@ -85,6 +87,12 @@ const settingsSlice = createSlice({
             state.updateSettingsData = null;
             state.loading = false;
         },
+
+        hasUnsavedChanges: (state: SettingsInitializeState = initialState, action: PayloadAction<any>) => {
+            state.hasUnsavedChanges = action.payload;
+            state.loading = false;
+        },
+     
     },
 });
 
@@ -100,7 +108,8 @@ export const {
     getSettingsDataFailure,
     getSettingsDataSuccess,
     updateSettingsFailure,
-    updateSettingsSuccess
+    updateSettingsSuccess,
+    hasUnsavedChanges
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

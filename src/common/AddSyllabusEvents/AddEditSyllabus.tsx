@@ -63,7 +63,8 @@ export const AddEditSyllabus = (props) => {
     const validationSchemaForSyllabus = yup.object({
         title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
         class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
-        professor_name: yup.string().required(PROFESSOR_NAME_IS_REQUIRED).matches(ONLY_ALPHABETS_AND_DOT, PLEASE_ADD_VALID_PROFESSOR_NAME),
+        professor_name: yup.string().matches(ONLY_ALPHABETS_AND_DOT, PLEASE_ADD_VALID_PROFESSOR_NAME).notRequired().notRequired(),
+
         course_color: yup.string().required(SYLLABUS_COLOR_IS_REQUIRED),
         syllabus_doc: yup.mixed()
             .when(([syllabus_doc]) => {
@@ -356,7 +357,7 @@ export const AddEditSyllabus = (props) => {
                                                     </Col>
                                                     <Col md={6}>
                                                         <Form.Group
-                                                            className="form-group required"
+                                                            className="form-group"
                                                             controlId="exampleForm.ControlInput1"
                                                         >
                                                             <Form.Label>Professor Name</Form.Label>

@@ -565,8 +565,7 @@ const CalenderEvent = () => {
 
   /** --------------------Event Complete Start------------------------*/
   const handleEventCompleted = async (id, status) => {
-    // console.log("handleEventCompleted", id, status)
-    console.log(selectedEvent)
+
     if (!id) {
       return;
     }
@@ -581,6 +580,7 @@ const CalenderEvent = () => {
       event_id: event_id,
       status: status === ENUMFORSTATUS.COMPLETED ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED,
     }
+
     let response = await dispatch(updateEventStatusDataAPI(reqBody));
     if (!isNullUndefinedOrBlank(response?.payload)) {
       handleGetCalenderData();
@@ -984,8 +984,8 @@ const CalenderEvent = () => {
             <Button variant="danger" onClick={() => { handleDeleteShow(selectedEvent) }}>
               Delete
             </Button>
-            <Button variant="primary" disabled={selectedEvent?.eventData?.status === ENUMFORSTATUS.COMPLETED} onClick={() => { handleEventCompleted(selectedEvent?.event_data?.id, selectedEvent?.eventData?.status) }}>
-              Complete
+            <Button variant="primary" onClick={() => { handleEventCompleted(selectedEvent?.event_data?.id, selectedEvent?.event_data?.status) }}>
+              {selectedEvent?.event_data?.status === ENUMFORSTATUS.PENDING ? "Mark as Completed" : "Mark as not Completed"}
             </Button>
 
           </div>

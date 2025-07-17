@@ -51,13 +51,9 @@ const Dashboard = () => {
   };
 
   const handleEventListing = async () => {
-    const start_date = todayDate
-      ? getDate(todayDate, "yyyy-MM-DD")
-      : getDate(startDate, "yyyy-MM-DD");
+    const start_date = getDate(startDate, "yyyy-MM-DD");
 
-    const end_date = todayDate
-      ? getDate(todayDate, "yyyy-MM-DD")
-      : getDate(endDate, "yyyy-MM-DD");
+    const end_date = getDate(endDate, "yyyy-MM-DD");
 
     const reqBody = { start_date, end_date };
 
@@ -315,7 +311,7 @@ const Dashboard = () => {
                             <th>Actions</th>
                             <th>Time</th>
                             <th>Priority</th>
-                            <th>Syllabus Name</th>
+                            <th>Course Name</th>
                             <th>Event Name</th>
                             <th>Actions</th>
                           </tr>
@@ -335,7 +331,7 @@ const Dashboard = () => {
                                     item?.eventData?.map((eventData, eventIndex) => {
                                       return (
 
-                                        <tr className={`table-row-bordered ${eventData?.status == ENUMFORSTATUS.COMPLETED ? 'selected' : ''} `} onDoubleClick={() => { handleSelectEvent(eventData) }}>
+                                        <tr className={`table-row-bordered  cursor-pointer ${eventData?.status == ENUMFORSTATUS.COMPLETED ? 'selected' : ''} `} onDoubleClick={() => { handleSelectEvent(eventData) }}>
                                           <td className="text-center">
                                             <div className="checkbox checkbox-primary checkbox-small">
                                               <button className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleEventCompleted([eventData?.id], eventData?.status) }}>

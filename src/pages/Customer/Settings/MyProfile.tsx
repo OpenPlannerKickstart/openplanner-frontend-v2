@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { Button, Card, Col, Form, Row } from 'react-bootstrap'
+import { Button, Card, Col, Form, Modal, Row } from 'react-bootstrap'
 import UserProfile from "/assets/images/setting-profile.svg";
 import { customJsonInclude, FILE_SIZE, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_FORMATS } from '../../../Utility/Helper';
 import { setNestedObjectValues } from 'formik';
@@ -12,6 +12,7 @@ import { connect, useDispatch } from 'react-redux';
 import { MAX_50, ONLY_ALPHABETS_AND_DOT } from '../../../Utility/Validation_Helper';
 import { EMAIL_REQUIRED, ENTER_VALID_FIRSTNAME, ENTER_VALID_LASTNAME, ENTER_VALID_UNIVERSITY, FIRST_NAME_REQUIRED, LAST_NAME_REQUIRED, UNIVERSITY_NAME_REQUIRED } from '../../../Utility/Validation_Message';
 import defaultAvatar from "/assets/images/avatar-default.svg";
+import { hasUnsavedChanges } from '../../../redux/User/Settings/settingsSlice';
 const MyProfile = (props) => {
     const dispatch: AppDispatch = useDispatch();
 
@@ -172,6 +173,29 @@ const MyProfile = (props) => {
 
     /** ----------------------on cancel End----------------------*/
     // console.log(formData?.values?.profile_image, "abc")
+
+    /** ------------------------Add a confirmation pop to save the changes, if users tries to navaigates towards other pages without 'updating profile'--------------------*/
+
+    // Track if form has unsaved changes
+    useEffect(() => {
+
+        if (!isNullUndefinedOrBlank(props.userData) && !isNullUndefinedOrBlank(formData.values)) {
+            const hasChanges = JSON.stringify(props.userData) !== JSON.stringify(formData.values);
+            props?.setHasUnsavedChanges(hasChanges);
+            dispatch(hasUnsavedChanges(hasChanges))
+        }
+    }, [formData.values, props.userData]);
+
+
+
+    useEffect(() => {
+
+        formData.resetForm();
+    }, [props?.selectedTab]);
+
+
+
+    /** -------------------------Add a confirmation pop to save the changes, if users tries to navaigates towards other pages without 'updating profile' end-------------------*/
     return (
         <>
             <div className="profile-main-wrapper">
