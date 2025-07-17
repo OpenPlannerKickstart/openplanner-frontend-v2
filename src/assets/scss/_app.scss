@@ -564,7 +564,7 @@
     align-items: center;
     gap: 5px 0;
     font-size: 14px;
-
+    position: relative;   
     i {
         color: #F04438;
         font-size: 16px;
@@ -578,6 +578,32 @@
         font-size: 13px !important; 
     }
 }
+    .rbc-event-primary{
+        position: relative;
+        overflow: hidden;
+        .priority-icon{
+            .priority-ribbon {
+                position: absolute;
+                right: -12px;
+                top: -9px;
+                background-color: transparent;
+                width: 20px;
+                height: 20px;
+                border-radius: 0 0 0 100%;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 0;
+                    height: 0;
+                    border-top: 15px solid #F04438; 
+                    border-left: 15px solid transparent;
+                }
+            }
+        }
+    }
 
 .event-list{
     list-style: none;
