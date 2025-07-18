@@ -150,14 +150,14 @@ const Open = (props) => {
                                             <div className="tbl-action-group">
                                                 <button
                                                     className="btn btn-xs btn-icon btn-transparent check-icon"
-                                                    onClick={() => { handleTaskCompleted([taskItem?.id]) }}
+                                                    onClick={(e) => { e.stopPropagation(); handleTaskCompleted([taskItem?.id]) }}
                                                 >
                                                     <i className="material-symbols-outlined">check_circle</i>
                                                 </button>
                                                 {/* <button className="btn btn-xs btn-icon btn-transparent" onClick={() => { handleUpdateTask(taskItem) }}>
                                                     <i className="material-symbols-outlined">Edit</i>
                                                 </button> */}
-                                                <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow([...deleteTaskData, taskItem]) }}>
+                                                <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={(e) => { e.stopPropagation(); handleDeleteShow([...deleteTaskData, taskItem]) }}>
                                                     <i className="material-symbols-outlined">delete</i>
                                                 </button>
                                             </div>

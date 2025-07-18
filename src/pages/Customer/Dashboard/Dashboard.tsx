@@ -352,7 +352,7 @@ const Dashboard = () => {
                                           <td >{eventData?.syllabus?.title}</td>
                                           <td style={{ textDecoration: eventData?.status == ENUMFORSTATUS.COMPLETED ? 'line-through' : "none" }}>{eventData?.title}</td>
                                           <td>
-                                            <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow([...deleteEventData, eventData]) }}>
+                                            <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={(e) => { e.stopPropagation(); handleDeleteShow([...deleteEventData, eventData]) }}>
                                               <i className="material-symbols-outlined">delete</i>
                                             </button>
                                           </td>

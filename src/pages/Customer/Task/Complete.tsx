@@ -86,8 +86,8 @@ const Complete = (props) => {
             {
               !isEmptyObjectOrNullUndefiend(taskList) && taskList?.map((taskItem, taskIndex) => {
                 return (
-                  <tr key={taskIndex}>
-                    <td className="tbl-user tbl-srno">
+                  <tr key={taskIndex} >
+                    <td className="tbl-user tbl-srno" >
                       <div className="tbl-user-checkbox-srno">
                         {/* <div className="checkbox checkbox-primary checkbox-small">
                           <input
@@ -117,7 +117,7 @@ const Complete = (props) => {
                         >
                           <i className="material-symbols-outlined">check_circle</i>
                         </button> */}
-                        <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow([...deleteTaskData, taskItem]) }}>
+                        <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={(e) => { e.stopPropagation(); handleDeleteShow([...deleteTaskData, taskItem]) }}>
                           <i className="material-symbols-outlined">delete</i>
                         </button>
                       </div>
@@ -131,7 +131,7 @@ const Complete = (props) => {
 
 
           </tbody>
-        </Table>
+        </Table >
         {isEmptyObjectOrNullUndefiend(taskList)
           &&
 
@@ -147,10 +147,10 @@ const Complete = (props) => {
 
           </>
         }
-      </div>
+      </div >
 
       {/* Delete Modal */}
-      <Modal
+      <Modal Modal
         className="modal-theme modal-confirmation modal-reject"
         show={deleteShow}
         onHide={handleDeleteClose}

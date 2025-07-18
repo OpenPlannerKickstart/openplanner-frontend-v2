@@ -291,7 +291,7 @@ const Courses = (props) => {
                           !isEmptyObjectOrNullUndefiend(syllabusList) ?
                             syllabusList?.map((item, index) => {
                               return (
-                                <tr key={index} onClick={() => { handleUpdateCourse(item) }}>
+                                <tr key={index} onClick={() => { handleUpdateCourse(item) }} className="cursor-pointer">
                                   {/* <td className="tbl-user">
                                 <div className="tbl-user-checkbox-srno">
                                   <div className="checkbox checkbox-primary checkbox-small">
@@ -305,6 +305,7 @@ const Courses = (props) => {
                                   <span>01.</span>
                                 </div>
                               </td> */}
+
                                   <td>
                                     {item?.title || "-"}
                                   </td>
@@ -351,7 +352,7 @@ const Courses = (props) => {
                                       >
                                         <i className="material-symbols-outlined">edit</i>
                                       </button> */}
-                                      <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => { handleDeleteShow(item) }}>
+                                      <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={(e) => { e.stopPropagation(); handleDeleteShow(item) }}>
                                         <i className="material-symbols-outlined">delete</i>
                                       </button>
                                     </div>
@@ -390,14 +391,14 @@ const Courses = (props) => {
                     {
                       !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {
                         return (
-                          <Col md={"4"} key={index} onClick={() => { handleUpdateCourse(item) }}>
+                          <Col md={"4"} key={index} >
                             <Card className="card-style-1 cursor-pointer">
                               <Card.Body>
                                 <div className="corse-card">
-                                  <div className="card-main-img" style={{ backgroundColor: `${item?.course_color || "#239bc266"}`, opacity: 0.4 }}>
+                                  <div className="card-main-img" style={{ backgroundColor: `${item?.course_color || "#239bc266"}`, opacity: 0.4 }} onClick={() => { handleUpdateCourse(item) }}>
                                     <img src={gridCardImg} alt="Open Planer" />
                                   </div>
-                                  <div className="card-details-wrapper">
+                                  <div className="card-details-wrapper" >
                                     <div className="card-title">
                                       <h3>{item?.title || ""}</h3>
                                     </div>
@@ -445,7 +446,7 @@ const Courses = (props) => {
                                             <i className="material-symbols-outlined">edit</i>
                                           </button> */}
                                           <button className="btn-icon btn-light-danger btn-icon-text btn btn-danger btn-sm"
-                                            onClick={() => { handleDeleteShow(item) }}
+                                            onClick={(e) => { e.preventDefault(); handleDeleteShow(item) }}
                                           >
                                             <i className="material-symbols-outlined">delete</i>
                                           </button>

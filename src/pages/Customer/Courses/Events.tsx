@@ -322,8 +322,8 @@ const Events = (props) => {
                                                   >
                                                     <button
                                                       className="btn btn-xs btn-icon btn-transparent check-icon"
-                                                      onClick={() => {
-                                                        console.log("childItem?.status", parentItem?.status)
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
                                                         handleEventCompleted(parentItem?.id, parentItem?.status)
                                                       }}
                                                     >
@@ -336,8 +336,8 @@ const Events = (props) => {
                                                     placement="bottom"
                                                     overlay={<Tooltip>Complete</Tooltip>}
                                                   >
-                                                    <button className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => {
-
+                                                    <button className="btn btn-xs btn-icon btn-transparent check-icon" onClick={(e) => {
+                                                      e.stopPropagation();
                                                       handleEventCompleted(parentItem?.id, parentItem?.status)
                                                     }}
                                                     >
@@ -351,7 +351,7 @@ const Events = (props) => {
                                                 placement="bottom"
                                                 overlay={<Tooltip>Delete</Tooltip>}
                                               >
-                                                <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={() => handleDeleteShow(parentItem)}>
+                                                <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={(e) => { e.stopPropagation(); handleDeleteShow(parentItem) }}>
                                                   {" "}
                                                   <i className="material-symbols-outlined">delete</i>
                                                 </button>
