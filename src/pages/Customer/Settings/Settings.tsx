@@ -53,15 +53,15 @@ const Settings = () => {
 
     const path = window.location.href;
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        if (hasUnsavedChanges && selectedTab !== ENUMFORACCOUNTTAB.PERSONAL_DETAILS) {
-            setShowConfirmModal(true);
-        }
-        return () => {
+    //     if (hasUnsavedChanges && selectedTab !== ENUMFORACCOUNTTAB.PERSONAL_DETAILS) {
+    //         setShowConfirmModal(true);
+    //     }
+    //     return () => {
 
-        }
-    }, [path, selectedTab])
+    //     }
+    // }, [path, selectedTab])
 
 
 
@@ -196,7 +196,7 @@ const Settings = () => {
                     </div>
                 </div>
             </div>
-            <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
+            {/* <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Unsaved Changes</Modal.Title>
                 </Modal.Header>
@@ -218,7 +218,7 @@ const Settings = () => {
                         Leave Page
                     </Button>
                 </Modal.Footer>
-            </Modal>
+            </Modal> */}
         </>
     )
 }

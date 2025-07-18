@@ -291,7 +291,7 @@ const Courses = (props) => {
                           !isEmptyObjectOrNullUndefiend(syllabusList) ?
                             syllabusList?.map((item, index) => {
                               return (
-                                <tr key={index} onDoubleClick={() => { handleUpdateCourse(item) }}>
+                                <tr key={index} onClick={() => { handleUpdateCourse(item) }}>
                                   {/* <td className="tbl-user">
                                 <div className="tbl-user-checkbox-srno">
                                   <div className="checkbox checkbox-primary checkbox-small">
@@ -390,7 +390,7 @@ const Courses = (props) => {
                     {
                       !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {
                         return (
-                          <Col md={"4"} key={index} onDoubleClick={() => { handleUpdateCourse(item) }}>
+                          <Col md={"4"} key={index} onClick={() => { handleUpdateCourse(item) }}>
                             <Card className="card-style-1 cursor-pointer">
                               <Card.Body>
                                 <div className="corse-card">

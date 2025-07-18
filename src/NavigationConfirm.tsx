@@ -17,13 +17,13 @@ const NavigationConfirm = () => {
     const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
 
     // Handle route changes
-    useEffect(() => {
-        if (hasUnsavedChangesRedux && location.pathname !== "/settings") {
-            setShowNavigationConfirm(true);
-            navigate("/settings")
-            setPendingNavigation(location.pathname);
-        }
-    }, [location.pathname, hasUnsavedChangesRedux]);
+    // useEffect(() => {
+    //     if (hasUnsavedChangesRedux && location.pathname !== "/settings") {
+    //         setShowNavigationConfirm(true);
+    //         navigate("/settings")
+    //         setPendingNavigation(location.pathname);
+    //     }
+    // }, [location.pathname, hasUnsavedChangesRedux]);
 
 
     return (

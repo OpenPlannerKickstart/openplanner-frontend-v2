@@ -331,7 +331,7 @@ const Dashboard = () => {
                                     item?.eventData?.map((eventData, eventIndex) => {
                                       return (
 
-                                        <tr className={`table-row-bordered  cursor-pointer ${eventData?.status == ENUMFORSTATUS.COMPLETED ? 'selected' : ''} `} onDoubleClick={() => { handleSelectEvent(eventData) }}>
+                                        <tr className={`table-row-bordered  cursor-pointer ${eventData?.status == ENUMFORSTATUS.COMPLETED ? 'selected' : ''} `} onClick={() => { handleSelectEvent(eventData) }}>
                                           <td className="text-center">
                                             <div className="checkbox checkbox-primary checkbox-small">
                                               <button className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleEventCompleted([eventData?.id], eventData?.status) }}>

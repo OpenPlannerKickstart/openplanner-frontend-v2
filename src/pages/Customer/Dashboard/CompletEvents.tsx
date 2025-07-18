@@ -40,7 +40,7 @@ const CompletEvents = (props) => {
         setdeleteEventData(data)
         setDeleteShow(true)
     }
-    const [deleteEventData, setdeleteEventData] = useState<Array<any>>([]);  
+    const [deleteEventData, setdeleteEventData] = useState<Array<any>>([]);
 
     const handleDeleteData = async () => {
         let param = deleteEventData?.map((data) => data.id)
@@ -129,7 +129,7 @@ const CompletEvents = (props) => {
                                                 </div>
                                             </td>
                                             <td className='tbl-title cursor-pointer'
-                                                onDoubleClick={() => {
+                                                onClick={() => {
                                                     props.handleSelectEvent(item)
                                                 }}>
                                                 {!isNullUndefinedOrBlank(item.title) ? item.title : ""}

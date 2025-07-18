@@ -32,7 +32,7 @@ const PendingEvents = (props) => {
         setDeleteShow(false);
         setTimeout(() => {
             setdeleteEventData([]);
-         
+
         }, 300);
     }
     const handleDeleteShow = (data) => {
@@ -46,7 +46,7 @@ const PendingEvents = (props) => {
         let param = deleteEventData?.map((data) => data.id)
         const response = await dispatch(deleteEventAPI({ event_id: param }));
         if (!isNullUndefinedOrBlank(response?.payload)) {
-     
+
             props?.handleEventListing();
             handleDeleteClose();
 
@@ -165,8 +165,8 @@ const PendingEvents = (props) => {
                                                 </div>
                                             </td>
                                             <td className='tbl-title cursor-pointer'
-                                                onDoubleClick={() => {
-                                                props.handleSelectEvent(item)
+                                                onClick={() => {
+                                                    props.handleSelectEvent(item)
                                                 }}
                                             >
                                                 {!isNullUndefinedOrBlank(item.title) ? item.title : ""}
@@ -176,7 +176,7 @@ const PendingEvents = (props) => {
                                                     <span>{!isNullUndefinedOrBlank(item.course_name) ? item.course_name : "-"}</span></Badge>
                                             </td>
                                             <td>
-                                                {!isNullUndefinedOrBlank(item?.priority)?item?.priority:""}
+                                                {!isNullUndefinedOrBlank(item?.priority) ? item?.priority : ""}
                                             </td>
                                             <td onClick={() => { props.handleShowShowNote(item.note) }}>
                                                 <a >View Notes</a>
@@ -354,15 +354,15 @@ const PendingEvents = (props) => {
                         <div className="modal-confirmation-content">
                             <h5> Are You Sure?</h5>
                             <p>
-                                
-                                    You want to delete this event ?
+
+                                You want to delete this event ?
 
                             </p>
                         </div>
                     </div>
                     <div className="modal-button-group modal-full-width-btn modal-footer-button">
                         {
-                           
+
                             <Button
                                 variant="light-white"
                                 className="btn-md"
@@ -372,13 +372,13 @@ const PendingEvents = (props) => {
                             </Button>
                         }
                         <Button
-                            variant= "danger"
+                            variant="danger"
                             className="btn-icon-text btn-md"
                             onClick={() => {
-                                 handleDeleteData()
+                                handleDeleteData()
                             }}
                         >
-                           Delete
+                            Delete
                         </Button>
                     </div>
                 </Modal.Body>
@@ -412,7 +412,7 @@ const PendingEvents = (props) => {
                 </Modal.Body>
             </Modal>
             {/* Success Modal */}
-      
+
         </>
     )
 }

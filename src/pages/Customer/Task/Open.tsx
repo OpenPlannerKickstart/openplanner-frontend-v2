@@ -33,7 +33,7 @@ const Open = (props) => {
     const handleDeleteClose = () => {
         setDeleteShow(false)
         setDeleteTaskData([]);
-        
+
     }
     const handleDeleteShow = (data) => {
         setDeleteTaskData(data)
@@ -46,7 +46,7 @@ const Open = (props) => {
         let param = deleteTaskData?.map((data) => data.id)
         const response = await dispatch(deleteTaskAPI({ task_id: param }));
         if (!isNullUndefinedOrBlank(response?.payload)) {
-           handleDeleteClose();
+            handleDeleteClose();
             props?.getTaskListing();
         }
     }
@@ -123,7 +123,7 @@ const Open = (props) => {
                         {
                             !isEmptyObjectOrNullUndefiend(taskList) && taskList?.map((taskItem, taskIndex) => {
                                 return (
-                                    <tr className='cursor-pointer' key={taskIndex}  onDoubleClick={() => { handleUpdateTask(taskItem) }}>
+                                    <tr className='cursor-pointer' key={taskIndex} onClick={() => { handleUpdateTask(taskItem) }}>
                                         <td className="tbl-user tbl-srno">
                                             <div className="tbl-user-checkbox-srno">
                                                 {/* <div className="checkbox checkbox-primary checkbox-small">
@@ -196,7 +196,7 @@ const Open = (props) => {
                 centered
             >
                 <Modal.Header>
-                    <h4 className="modal-title">{ "Delete Task"}</h4>
+                    <h4 className="modal-title">{"Delete Task"}</h4>
                     <button
                         type="button"
                         className="btn-close"
@@ -211,7 +211,7 @@ const Open = (props) => {
                             <i className="material-symbols-outlined">delete</i>
                         </div>
                         <div className="modal-confirmation-content">
-                            <h5> { "Are You Sure?"}</h5>
+                            <h5> {"Are You Sure?"}</h5>
                             <p>
                                 {
                                     "You want to delete this task ?"
@@ -222,7 +222,7 @@ const Open = (props) => {
                     </div>
                     <div className="modal-button-group modal-full-width-btn modal-footer-button">
                         {
-                            
+
                             <Button
                                 variant="light-white"
                                 className="btn-md"
@@ -232,13 +232,13 @@ const Open = (props) => {
                             </Button>
                         }
                         <Button
-                            variant={ "danger" }
+                            variant={"danger"}
                             className="btn-icon-text btn-md"
                             onClick={() => {
-                               handleDeleteData() 
+                                handleDeleteData()
                             }}
                         >
-                            {  "Delete"}
+                            {"Delete"}
                         </Button>
                     </div>
                 </Modal.Body>
