@@ -22,12 +22,13 @@ const Settings = () => {
     const [pendingTabChange, setPendingTabChange] = useState<string | null>(null); // Add this
     const onChangeTab = (val) => {
         if (val !== selectedTab) {
-            if (hasUnsavedChanges) {
-                setShowConfirmModal(true);
-                setPendingTabChange(val); // Store the pending tab change
-            } else {
-                setSelectedTab(val)
-            }
+            setSelectedTab(val)
+            // if (hasUnsavedChanges) {
+            //     setShowConfirmModal(true);
+            //     setPendingTabChange(val); // Store the pending tab change
+            // } else {
+            //     setSelectedTab(val)
+            // }
         }
     }
     /** ------------------Change tab End--------------------------*/
