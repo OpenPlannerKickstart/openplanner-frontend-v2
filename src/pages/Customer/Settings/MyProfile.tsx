@@ -133,6 +133,7 @@ const MyProfile = (props) => {
     const handleFileDelete = async () => {
         await formData.setFieldValue("file", null);
         await formData.setFieldValue("profile_image", null);
+        handleSubmitFormData();
         imageRef.current.value = null;
 
     };
