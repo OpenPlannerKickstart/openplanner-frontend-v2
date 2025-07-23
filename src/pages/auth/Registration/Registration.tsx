@@ -75,7 +75,7 @@ const Registeration = (props) => {
       .required(EMAIL_REQUIRED),
     first_name: yup.string().required(FIRST_NAME_REQUIRED),
     last_name: yup.string().required(LAST_NAME_REQUIRED),
-    university_name: yup.string().required(UNIVERSITY_NAME_REQUIRED).matches(ONLY_ALPHABETS_AND_DOT, "Provide Valid University Name!").min(5, "Minimum 5 letters Required."),
+    university_name: yup.string().required(UNIVERSITY_NAME_REQUIRED).min(5, "Minimum 5 letters Required."),
     mobile: yup.string().required(MOBILE_NO_IS_REQUIRED).matches(PATTERN_FOR_MOBILE_NO, MOBILE_NO_VALIDATION_MESSAGE),
     username: yup.string().required(USERNAME_IS_REQUIRED).matches(PATTERN_FOR_EMAIL_OR_USERNAME, USERNAME_SPACE_VALIDATION),
 
@@ -204,7 +204,7 @@ const Registeration = (props) => {
     unitid: yup.string().nullable(),
     institution_name: yup.string()
       .trim()
-      .required('Institution name is required.').matches(ONLY_ALPHABETS_AND_DOT, "Provide Valid University Name!").min(5, "Minimum 5 letters Required."),
+      .required('Institution name is required.').min(5, "Minimum 5 letters Required."),
     // Add validation rules for other fields
   });
 
