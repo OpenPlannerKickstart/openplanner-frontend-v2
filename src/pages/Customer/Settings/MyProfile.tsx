@@ -48,8 +48,8 @@ const MyProfile = (props) => {
             .required(LAST_NAME_REQUIRED)
             .matches(ONLY_ALPHABETS_AND_DOT, ENTER_VALID_LASTNAME),
         university_name: yup.string().trim().min(5, "Minimum 5 letters Required.").
-            required(UNIVERSITY_NAME_REQUIRED)
-            .matches(ONLY_ALPHABETS_AND_DOT, ENTER_VALID_UNIVERSITY),
+            required(UNIVERSITY_NAME_REQUIRED),
+
         file: yup.mixed()
             .nullable()
             .notRequired()
