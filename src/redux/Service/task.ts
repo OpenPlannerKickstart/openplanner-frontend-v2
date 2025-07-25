@@ -54,6 +54,7 @@ export const deleteTaskAPI =
             try {
                 const response: any = await post(DELETE_TASK_DATA_API, objBody);
                 if (!response.data.error) {
+                    ts(response.data.message)
                     return dispatch(deleteTaskSuccess(response.data.data));
                 } else {
                     dispatch(deleteTaskFailure());
