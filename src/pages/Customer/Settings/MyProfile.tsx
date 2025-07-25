@@ -89,7 +89,7 @@ const MyProfile = (props) => {
     const handleSubmitFormData = async () => {
         formData.handleSubmit();
         const formDataErrors = await formData.validateForm();
-        console.log(formDataErrors)
+        // console.log(formDataErrors)
         if (Object.keys(formDataErrors).length > 0) {
             formData.setTouched(
                 setNestedObjectValues(formDataErrors, true)
@@ -130,14 +130,29 @@ const MyProfile = (props) => {
         }
     };
 
-    const handleFileDelete = async () => {
-        await formData.setFieldValue("file", null);
-        await formData.setFieldValue("profile_image", null);
-        handleSubmitFormData();
-        imageRef.current.value = null;
+    const [shouldSubmitAfterDelete, setShouldSubmitAfterDelete] = useState(false);
 
+    const handleFileDelete = () => {
+        // Clear file-related fields
+        formData.setFieldValue("file", null);
+        formData.setFieldValue("profile_image", null);
+
+        // Clear the file input
+        if (imageRef.current) {
+            imageRef.current.value = "";
+        }
+
+        // Trigger submission flag
+        setShouldSubmitAfterDelete(true);
     };
 
+    // Handle submission after delete
+    useEffect(() => {
+        if (shouldSubmitAfterDelete && formData.values.file === null) {
+            handleSubmitFormData();
+            setShouldSubmitAfterDelete(false);
+        }
+    }, [formData.values.file, shouldSubmitAfterDelete]);
     useEffect(() => {
         const handleFileChange = async () => {
             if (isNullUndefinedOrBlank(formData.errors.file) && !isNullUndefinedOrBlank(formData?.values?.file)) {

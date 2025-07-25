@@ -334,7 +334,7 @@ const Dashboard = () => {
                                         <tr className={`table-row-bordered  cursor-pointer ${eventData?.status == ENUMFORSTATUS.COMPLETED ? 'selected' : ''} `} onClick={() => { handleSelectEvent(eventData) }}>
                                           <td className="text-center">
                                             <div className="checkbox checkbox-primary checkbox-small">
-                                              <button className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleEventCompleted([eventData?.id], eventData?.status) }}>
+                                              <button className="btn btn-xs btn-icon btn-transparent check-icon" onClick={(e) => { e.stopPropagation(); handleEventCompleted([eventData?.id], eventData?.status) }}>
                                                 {
                                                   eventData?.status === ENUMFORSTATUS.COMPLETED ? <i className="material-symbols-outlined">unpublished</i> :
                                                     <i className="material-symbols-outlined">check_circle</i>
