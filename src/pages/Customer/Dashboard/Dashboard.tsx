@@ -51,9 +51,9 @@ const Dashboard = () => {
   };
 
   const handleEventListing = async () => {
-    const start_date = getDate(startDate, "yyyy-MM-DD");
+    const start_date = getDate(startDate);
 
-    const end_date = getDate(endDate, "yyyy-MM-DD");
+    const end_date = getDate(endDate);
 
     const reqBody = { start_date, end_date };
 
