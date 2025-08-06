@@ -248,15 +248,15 @@ const Dashboard = () => {
                         </button>
                         <div className="weekly-shuffle-date-action">
                           <button type="button" className="btn btn-outline-white" onClick={() => { handleDateChange("prevWeek") }}>
-                            <span className="material-symbols-outlined" >
-                              arrow_back_ios
+                            <span className="material-symbols-outlined fs-4" >
+                              keyboard_arrow_left
                             </span>
 
                           </button>
                           {formatedDate(startDate, "MMM DD")} - {formatedDate(endDate, "MMM DD")}
                           <button type="button" className="btn btn-outline-white" onClick={() => handleDateChange("nextWeek")}>
-                            <span className="material-symbols-outlined">
-                              arrow_forward_ios
+                            <span className="material-symbols-outlined fs-4">
+                              keyboard_arrow_right
                             </span>
                           </button>
                         </div>

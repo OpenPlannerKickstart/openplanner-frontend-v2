@@ -57,8 +57,8 @@ export const ENUMFORACCOUNTTAB = {
   PERSONAL_DETAILS: "Personal Details",
   NOTIFICATION: "Notification",
   CHANGE_PASSWORD: "Change Password",
-  DELETE_ACCOUNT: "Delete Account"
-
+  DELETE_ACCOUNT: "Delete Account",
+  SUBSCRIPTION: "Subscription"
 } as const;
 
 export const ENUM_FOR_DISPLAY_VIEW = {
