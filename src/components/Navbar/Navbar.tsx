@@ -43,6 +43,7 @@ const Navbar = (props) => {
   const [userData, setUserData] = useState<any>(null)
   const getUserData = async () => {
     const response = await dispatch(getUserAPI());
+    // console.log(response, "res")
     if (response) {
 
     }
@@ -339,7 +340,7 @@ const Navbar = (props) => {
                     <img className="rounded-circle header-profile-user"
                       src={!isNullUndefinedOrBlank(userData?.profile_image) ? userData?.profile_image : defaultAvatar} alt="Header Avatar" />
                     <span className="text-start">
-                      <span className="d-none d-xl-inline-block  user-name-text">{(!isNullUndefinedOrBlank(userData?.firstname) && !isNullUndefinedOrBlank(userData?.lastname)) ? `${userData?.firstname} ${userData?.lastname}` : "User"}</span>
+                      <span className="d-none d-xl-inline-block  user-name-text">{(!isNullUndefinedOrBlank(userData?.username)) ? `${userData?.username}` : "User"}</span>
                       {/* <span className="d-none d-xl-block  user-name-sub-text">Student</span> */}
                     </span>
                   </span>

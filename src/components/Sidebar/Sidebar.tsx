@@ -31,7 +31,9 @@ export const Sidebar = () => {
       <div className="app-menu navbar-menu" >
         {/* <!-- LOGO --> */}
         < div className="navbar-brand-box" >
-          <a href="index.html" className="logo logo-dark">
+          <a href="https://open-planner.com/" target='_blank
+          
+          ' className="logo logo-dark">
 
             <span className="logo-lg">
               <img src={sidebarLogoLg} alt="sidebarLogoLg" height="48" />

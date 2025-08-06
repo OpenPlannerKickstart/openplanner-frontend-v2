@@ -9,10 +9,13 @@ import * as yup from 'yup';
 import { useState } from 'react';
 import { AppDispatch } from '../../../redux/store';
 import { connect, useDispatch } from 'react-redux';
-import { MAX_50, ONLY_ALPHABETS_AND_DOT } from '../../../Utility/Validation_Helper';
+import { MAX_5, MAX_50, ONLY_ALPHABETS_AND_DOT } from '../../../Utility/Validation_Helper';
 import { EMAIL_REQUIRED, ENTER_VALID_FIRSTNAME, ENTER_VALID_LASTNAME, ENTER_VALID_UNIVERSITY, FIRST_NAME_REQUIRED, LAST_NAME_REQUIRED, UNIVERSITY_NAME_REQUIRED } from '../../../Utility/Validation_Message';
 import defaultAvatar from "/assets/images/avatar-default.svg";
 import { hasUnsavedChanges } from '../../../redux/User/Settings/settingsSlice';
+import { addUniversityAPI, getUniversityListAPI } from '../../../redux/Service/auth/signup';
+import Select, { components, ControlProps } from "react-select";
+
 const MyProfile = (props) => {
     const dispatch: AppDispatch = useDispatch();
 
@@ -78,7 +81,7 @@ const MyProfile = (props) => {
 
     // Utility function to handle blur updates
     const handleBlurValueUpdate = (key) => {
-        formData.setFieldValue(key, formData.values[key].trim());
+        formData.setFieldValue(key, formData.values[key]?.trim());
         handleSubmitFormData();
         setTimeout(() => {
             formData.setFieldTouched(key, true);
@@ -215,6 +218,106 @@ const MyProfile = (props) => {
 
 
     /** -------------------------Add a confirmation pop to save the changes, if users tries to navaigates towards other pages without 'updating profile' end-------------------*/
+
+
+
+    /** -----------------------get university drop down start---------------------*/
+    const [univercityData, setUnivercityData] = useState<any>([])
+    const handleGetUniversityData = async () => {
+        const data = await dispatch(getUniversityListAPI());
+        if (data || data?.payload) {
+            let other = [{
+                value: "Other",
+                label: "Other"
+            }]
+
+            setUnivercityData([...other, ...data?.payload])
+        }
+    }
+
+    useEffect(() => {
+        handleGetUniversityData();
+        return () => {
+            setUnivercityData([]);
+        }
+    }, [])
+
+
+
+
+    // Define initial values
+    const initFormValuesForUni: any = {
+        unitid: null,
+        institution_name: "",
+        // Add other fields here
+    };
+
+    // useState for saved form data
+    const [savedFormDataForUni, setSavedFormDataForUni] = useState(initFormValuesForUni);
+
+    // Define validation schema
+    const validationSchemaForUni = yup.object({
+        unitid: yup.string().nullable(),
+        institution_name: yup.string()
+            .trim()
+            .required('Institution name is required.').min(5, "Minimum 5 letters Required."),
+        // Add validation rules for other fields
+    });
+
+    // onSubmit function
+    const onSubmitForUni = async (values, onSubmitProps) => {
+        // Handle form submission logic
+    };
+
+    // useFormik instance
+    const formDataForUni: any = useFormik({
+        initialValues: savedFormDataForUni || initFormValuesForUni,
+        validationSchema: validationSchemaForUni,
+        onSubmit: onSubmitForUni,
+        enableReinitialize: true,
+    });
+
+    // Utility function to handle blur updates
+    const handleAddUniBlurValueUpdate = (key) => {
+        formData.setFieldValue(key, formData.values[key]?.trim());
+        setTimeout(() => {
+            formData.setFieldTouched(key, true);
+        }, 100);
+    };
+
+    // Submission handler
+    const handleSubmitFormDataForUni = async () => {
+        formDataForUni.handleSubmit();
+        const formDataErrors = await formData.validateForm();
+        if (Object.keys(formDataErrors).length > 0) {
+            formData.setTouched(
+                setNestedObjectValues(formDataErrors, true)
+            );
+            return;
+        }
+
+        const reqBody = { ...formDataForUni.values };
+        customJsonInclude(reqBody);
+        const response = await dispatch(addUniversityAPI(reqBody));
+
+        if (response && response.payload) {
+            formData.resetForm();
+            handleGetUniversityData();
+            formData?.setFieldValue("university_name", formDataForUni?.values?.institution_name)
+            // Handle successful response
+        }
+    };
+
+
+    const [isEdit, setisEdit] = useState(false)
+    useEffect(() => {
+        if (!isNullUndefinedOrBlank(formData.values.university_name) && isEdit && formData?.values?.university_name !== "Other") {
+            handleBlurValueUpdate("university_name");
+            setisEdit(false)
+        }
+    }, [formData.values.university_name])
+
+    /** -----------------------get university drop down end---------------------*/
     return (
         <>
             <div className="profile-main-wrapper">
@@ -321,7 +424,7 @@ const MyProfile = (props) => {
                                         : null
                                 }
                             </Form.Group>
-                            <Form.Group className="form-group required">
+                            {/* <Form.Group className="form-group required">
                                 <Form.Label>University Name</Form.Label>
                                 <div className="form-group">
                                     <Form.Control
@@ -339,6 +442,110 @@ const MyProfile = (props) => {
                                         ? renderError(formData.errors.university_name)
                                         : null
                                 }
+                            </Form.Group> */}
+                            <Form.Group className="form-group required">
+                                {/* <Form.Label>University Name</Form.Label>
+                                                      <div className="form-group-icon-start">
+                                                        <i className="material-symbols-outlined">home_work</i>
+                                                        <Form.Control
+                                                          type="text"
+                                                          placeholder="Enter University Name"
+                                                          {...signUpFormData.getFieldProps("university_name")}
+                                                          maxLength={MAX_50}
+                                                          minLength={MAX_5}
+                                                          onBlur={() => {
+                                                            handleBlurValueUpdate("university_name");
+                                                          }}
+                                                        />
+                                                      </div> */}
+
+                                <Form.Label>Select University Name</Form.Label>
+                                <Select
+                                    options={univercityData}
+                                    placeholder={<div>Select </div>}
+                                    onChange={(selectedOption) => {
+                                        formData.setFieldValue("university_name", selectedOption?.label ? selectedOption?.label : null);
+                                        setisEdit(true)
+                                        // setTimeout(() => {
+
+                                        // }, 200);
+
+                                    }}
+                                    value={univercityData?.filter(({ label }) => {
+
+                                        return (
+                                            label ===
+                                            formData.values.university_name
+                                        );
+                                    })}
+                                    isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse) ? true : false}
+                                    // onBlur={() => {
+                                    //     // objectiveDetailsFormData.setFieldTouched("theme_id", true)
+                                    //     handleUpdateDetails()
+                                    // }}
+                                    // isClearable
+                                    menuPosition="fixed"
+                                    className="react-select-container"
+                                />
+                                {formData.touched.university_name &&
+                                    formData.errors.university_name
+                                    ? renderError(formData.errors.university_name)
+                                    : null}
+                                {
+                                    formData.values.university_name === "Other" &&
+                                    (
+                                        <>
+                                            {/* <Form.Label>University Id</Form.Label>
+                                                            <div className="form-group-icon-start">
+                                                              <i className="material-symbols-outlined">home_work</i>
+                                                              <Form.Control
+                                                                type="text"
+                                                                placeholder="Enter University Id"
+                                                                {...formData.getFieldProps("unitid")}
+                                                                maxLength={MAX_50}
+                                                                minLength={MAX_5}
+                                                                onBlur={() => {
+                                                                  handleAddUniBlurValueUpdate("unitid");
+                                                                }}
+                                                              />
+                                                            </div>
+                                                            {formData.touched.unitid &&
+                                                              formData.errors.unitid
+                                                              ? renderError(formData.errors.unitid)
+                                                              : null} */}
+                                            <Row className="mt-3">
+                                                <Col xs={10}>
+                                                    <Form.Label>University Name</Form.Label>
+                                                    <div className="form-group-icon-start">
+                                                        <i className="material-symbols-outlined">home_work</i>
+                                                        <Form.Control
+                                                            type="text"
+                                                            placeholder="Enter University Name"
+                                                            {...formDataForUni.getFieldProps("institution_name")}
+                                                            maxLength={MAX_50}
+                                                            minLength={MAX_5}
+                                                            onBlur={() => {
+                                                                handleAddUniBlurValueUpdate("institution_name");
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    {formDataForUni.touched.institution_name &&
+                                                        formDataForUni.errors.institution_name
+                                                        ? renderError(formDataForUni.errors.institution_name)
+                                                        : null}
+                                                </Col>
+                                                <Col xs={2}>
+
+                                                    <Button variant="primary" className="w-100 mt-4" onClick={() => { handleSubmitFormDataForUni() }}>Add</Button>
+                                                </Col>
+
+                                            </Row>
+                                        </>
+                                    )
+                                }
+
+
+
                             </Form.Group>
                         </div>
                         <div className="button-group">
