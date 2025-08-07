@@ -44,7 +44,10 @@ export const ENUMFORROUTES = {
   CALENDAR: "/calendar",
   SETTINGS: "/settings",
   VERIFY_SIGNUP_OTP: "/verify-user-otp",
-  EDIT_COURSE:"/edit-course"
+  EDIT_COURSE:"/edit-course",
+  PLAN_DETAILS:"/plan-details",
+  SUCCESS:"/success",
+  FAILURE:"/failure"
 
 }
 

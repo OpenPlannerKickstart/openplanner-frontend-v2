@@ -30,6 +30,9 @@ import { hasUnsavedChanges } from './redux/User/Settings/settingsSlice';
 import { RootState } from './redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import NavigationConfirm from './NavigationConfirm';
+import { PaymentSuccessfull } from './pages/auth/Registration/PaymentSuccessfull';
+import { PaymentFailed } from './pages/auth/Registration/PaymentFailed';
+import { PaymentPlans } from './pages/auth/Registration/PaymentPlans';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -75,6 +78,7 @@ const privateRoutes: RouterProps[] = [
     caseSensitive: true,
     url: ENUMFORROUTES.EDIT_COURSE,
   },
+   
 
 
 
@@ -118,7 +122,24 @@ const publicRoutes: RouterProps[] = [
   //     component: <AccessDenied />,
   //     caseSensitive: true,
   // },
-
+ {
+    path: ENUMFORROUTES.PLAN_DETAILS,
+    component: <PaymentPlans />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.PLAN_DETAILS,
+  },
+    {
+    path: ENUMFORROUTES.SUCCESS,
+    component: <PaymentSuccessfull />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.SUCCESS,
+  },
+    {
+    path: ENUMFORROUTES.FAILURE,
+    component: <PaymentFailed />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.FAILURE,
+  },
 ];
 
 /**
