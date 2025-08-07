@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, Col, Row } from 'react-bootstrap';
+import { Button, Card, Col, Row } from 'react-bootstrap';
 
 
 const plans = [
@@ -56,14 +56,15 @@ export const PricePlans = () => {
                         <span className="price">{plan.price}</span>
                         <span className="duration">{plan.duration}</span>
                         </div>
-                        <button className="btn-started">Get started</button>
+                        <Button variant="primary" className="btn-text w-100 mb-4" > Get started
+                        </Button>
                         <div className="divider"></div>
                         <div className="features-section">
                         <h4>FEATURES</h4>
                         <ul>
                             {plan.features.map((feature, i) => (
                             <li key={i}>
-                                <span className="check-icon">✔</span> {feature}
+                               <i className="material-symbols-outlined check-icon">check_circle</i> {feature}
                             </li>
                             ))}
                         </ul>

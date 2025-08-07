@@ -6,7 +6,7 @@ export const Subscription = () => {
   return (
     // subscription main dashboard
     <div className='subscription-main-container'>
-        <div className='subscription-box subscription-dash'>
+        <div className='subscription-box subscription-dash '>
             <Card>
                 <Card.Body>
                     <div className="setting-main-title">
@@ -43,7 +43,7 @@ export const Subscription = () => {
                 </Card.Body>
             </Card>
         </div>    
-        <div className='subscription-box subscription-billing'>
+        <div className='subscription-box subscription-billing '>
             <Card>
                 <Card.Body>
                     <div className="setting-main-title">
@@ -118,12 +118,37 @@ export const Subscription = () => {
             <Card>
                 <Card.Body>
                     <div className="setting-main-title align-items-center d-flex gap-3 setting-main-title">
-                         <Button variant='white' size='lg' className='btn-icon btn-light-white btn-icon-text'><i className="material-symbols-outlined">add_circle</i></Button>
+                         <Button variant='white' className='btn-icon btn-light-white btn-icon-text btn-md'><i className="material-symbols-outlined fs-4">arrow_left_alt</i></Button>
                          <h2 className="mb-0">Choose Your Plan</h2>
                     </div>
                     <PricePlans />
                 </Card.Body>
             </Card>
+        </div>
+        <div className="subscription-payment-box d-none">
+            <div className="payment-wrapper-container">
+                <div className="payment-message-box succesfull-payment">
+                    <div className="payment-icon">
+                           <Button variant='primary' className='btn-icon btn-light-primary btn-icon-text btn-lg' style={{ pointerEvents: 'none' }}> <i className='material-symbols-outlined fs-4'>check_circle</i></Button>
+                    </div>
+                    <div className="payment-title">
+                        <h2>Payment Successful! 🎉</h2>
+                        <p>Your subscription is now active. Thank you for joining Open Planner!</p>
+                    </div>
+                </div>
+                <div className="payment-message-box failed-payment d-none">
+                    <div className="payment-icon">
+                           <Button variant='danger' className='btn-icon btn-light-danger btn-icon-text btn-lg' style={{ pointerEvents: 'none' }}> <i className='material-symbols-outlined fs-4'>cancel</i></Button>
+                    </div>
+                    <div className="payment-title">
+                        <h2>Payment Failed 😕</h2>
+                        <p>Something went wrong while processing your payment. Please try again.</p>
+                    </div>
+                    <div className="retry-btn">
+                        <Button variant="primary" className="btn-text">Retry Payment</Button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
   )
