@@ -117,8 +117,8 @@ export const PricePlans = (props) => {
       setTimeout(() => {
         props?.getTransactionList();
         handleConfirmationClose();
-        props?.setShowPlans();
-      }, 200);
+        props?.setShowPlans(false);
+      }, 300);
       setPlan(null)
     }
     setloading(false)
@@ -147,7 +147,7 @@ export const PricePlans = (props) => {
               </Card.Header>
               <Card.Body>
                 <div className="price-section">
-                  <span className="price">{plan.price}</span>
+                  <span className="price">${plan.price}</span>
                   <span className="duration">{plan.duration}</span>
                 </div>
 

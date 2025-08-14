@@ -45,9 +45,9 @@ export const Subscription = (props) => {
 
     useEffect(() => {
         if (showPlans === false) {
-            setTimeout(() => {
-                getTransactionList();
-            }, 200);
+
+            getTransactionList();
+
         }
         // eslint-disable-next-line
     }, [showPlans]);
