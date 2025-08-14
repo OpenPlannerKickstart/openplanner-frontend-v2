@@ -303,6 +303,7 @@ const Registeration = (props) => {
                     src={authTextBG}
                     className="signup_bg-img"
                     alt="OpenPlanner"
+                    onClick={() => { window.open("https://open-planner.com/", "_blank") }}
                   />
                   <div className="terms-condition-wrapper">
                     <p>
@@ -316,7 +317,7 @@ const Registeration = (props) => {
                       and
                       <NavLink
                         className="text-link text-primary justify-content-center fw-600"
-                        to={""}
+                        to={"https://open-planner.com/privacy-policy/"}
                       >
                         Services Agreement.
                       </NavLink>
