@@ -17,3 +17,11 @@ export const WEB_SOCKET_CONNECTION_URL =`${process.env.SOCKET_URL}`;
 export const FrontendURL = `${window.location.protocol}//${window.location.hostname}:8000`;
 /** File URL based on the current protocol and hostname. */
 export const FileUrl = `${window.location.protocol}//${window.location.hostname}/`;
+
+export const TWO_YEAR = process.env.TWO_YEAR;
+export const ONE_YEAR = process.env.ONE_YEAR;
+export const SIX_MONTH = process.env.SIX_MONTH;
+
+
+
+

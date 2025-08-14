@@ -42,7 +42,7 @@ export const SUPPORTED_SYLLABUS_UPLOAD_FORMATS = [
 ]
 
 /** key Genrated Base64   */
-const key = "c2tpbGxhYm91dHNwZWxsYg==";
+const key = "ODcmS3EzZnI/QXhybUFjeUpQREo2cHB6";
 const parseKey = CryptoJS.enc.Base64.parse(key);
 
 /**
@@ -85,6 +85,7 @@ export const decrypted = (obj) => {
     return;
   }
   // return originalText;
+  console.log(typeof originalText, "type", originalText)
   return typeof originalText === "string"
     ? originalText
     : JSON?.parse(originalText);

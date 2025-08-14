@@ -7,6 +7,8 @@ interface signupInitializeState {
     getUniversityList: any;
     addUniversity: any;
     loading: boolean;
+    subScriptionData: any;
+    savedLoginData:any
 }
 
 const initialState: signupInitializeState = {
@@ -15,6 +17,8 @@ const initialState: signupInitializeState = {
     verifySignupEmailOtp: null,
     getUniversityList: null,
     addUniversity: null,
+    subScriptionData: null,
+    savedLoginData:null,
     loading: false,
 };
 
@@ -81,6 +85,32 @@ const signupSlice: any = createSlice({
             state.loading = false;
         },
 
+        createCheckOutSessionSuccess: (
+            state: signupInitializeState = initialState,
+            action: PayloadAction<any>
+        ) => {
+            state.subScriptionData = action.payload;
+            state.loading = false;
+        },
+        createCheckOutSessionFailure: (state) => {
+            state.subScriptionData = null;
+            state.loading = false;
+        },
+
+
+        savedLoginDataSuccess: (
+            state: signupInitializeState = initialState,
+            action: PayloadAction<any>
+        ) => {
+            console.log("action",action.payload)
+            state.savedLoginData = action.payload;
+            state.loading = false;
+        },
+        savedLoginDataFailure: (state) => {
+            state.savedLoginData = null;
+            state.loading = false;
+        },
+
     },
 });
 
@@ -93,7 +123,11 @@ export const { getSignupFailure,
     getUniversityListSuccess,
     getUniversityListFailure,
     addUniversitySuccess,
-    addUniversityFailure
+    addUniversityFailure,
+    createCheckOutSessionFailure,
+    createCheckOutSessionSuccess,
+    savedLoginDataSuccess,
+savedLoginDataFailure
 
 
 } = signupSlice.actions;

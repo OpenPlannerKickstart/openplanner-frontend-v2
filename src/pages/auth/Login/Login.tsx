@@ -11,7 +11,7 @@ import { loginToSystem } from "../../../redux/Service/auth/login";
 import { customJsonInclude, isEmptyObjectOrNullUndefiend, renderError, setCookieByName } from "../../../Utility/Helper";
 
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { LoginData } from "../../../interfaces";
 import { MAX_15, MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_EMAIL_OR_USERNAME, PATTERN_FOR_PASSWORD_NEW } from "../../../Utility/Validation_Helper";
@@ -20,6 +20,7 @@ import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from "f
 import { sendSignupEmailOtp } from "../../../redux/Service/auth/signup";
 import * as yup from "yup";
 import VerifySignupOtp from "../Registration/VerifySignupOtp";
+import { savedLoginDataSuccess } from "../../../redux/auth/Signup/signupSlice";
 /**
  * Login Component
  * @param {object} props - Props passed to the component
@@ -27,7 +28,7 @@ import VerifySignupOtp from "../Registration/VerifySignupOtp";
  */
 
 const Login = (props) => {
-
+    const navigate = useNavigate();
     const [eyeToggle, setEyeToggle] = useState<boolean>(false);
     const dispatch: AppDispatch = useDispatch();
     const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
@@ -97,7 +98,7 @@ const Login = (props) => {
         const response = await dispatch(loginToSystem(reqBody));
 
         if (response) {
-
+            // console.log(response)
             if (!response?.payload?.isVerify) {
                 const sendEmailOtpReqBody = {
                     username: `${response?.payload?.username}`
@@ -117,7 +118,18 @@ const Login = (props) => {
                     )
 
                 }
+                return;
             }
+
+            if (!response?.payload?.isSubscription) {
+                // console.log(reqBody)
+                dispatch(savedLoginDataSuccess(reqBody))
+                navigate(ENUMFORROUTES.PLAN_DETAILS, { state: response?.payload })
+                return;
+            }
+
+
+
 
         }
     }
@@ -227,7 +239,7 @@ const Login = (props) => {
                                                 </div>
 
                                                 <div className="auth-bottom-text-link">
-                                                    <p>Don’t have an account? <NavLink to={ENUMFORROUTES.REGISTRATION}>Registration</NavLink></p>
+                                                    <p>Don’t have an account? <NavLink to={ENUMFORROUTES.REGISTRATION}>Register Here</NavLink></p>
                                                 </div>
 
                                             </Card.Body>

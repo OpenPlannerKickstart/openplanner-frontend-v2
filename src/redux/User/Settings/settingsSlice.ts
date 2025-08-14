@@ -9,6 +9,9 @@ interface SettingsInitializeState {
     getSettingsData: any;
     updateSettingsData: any
     hasUnsavedChanges?: boolean;
+    billingData?: any;
+    updatePlan?: any;
+    cancelSubscription?: any;
     loading: boolean;
 }
 
@@ -19,7 +22,10 @@ const initialState: SettingsInitializeState = {
     changePasswordResponse: null,
     getSettingsData: null,
     updateSettingsData: null,
+    billingData: null,
+    cancelSubscription:null,
     hasUnsavedChanges: false,
+    updatePlan:null,
     loading: false,
 };
 
@@ -92,6 +98,34 @@ const settingsSlice = createSlice({
             state.hasUnsavedChanges = action.payload;
             state.loading = false;
         },
+
+        cancelSubscriptionSuccess: (state: SettingsInitializeState = initialState, action: PayloadAction<any>) => {
+            state.cancelSubscription = action.payload;
+            state.loading = false;
+        },
+        cancelSubscriptionFailure: (state) => {
+            state.cancelSubscription = null;
+            state.loading = false;
+        },
+
+
+        getTransactionSuccess: (state: SettingsInitializeState = initialState, action: PayloadAction<any>) => {
+            state.billingData = action.payload;
+            state.loading = false;
+        },
+        getTransactionFailure: (state) => {
+            state.billingData = null;
+            state.loading = false;
+        },
+
+        updatePlanSuccess: (state: SettingsInitializeState = initialState, action: PayloadAction<any>) => {
+            state.updatePlan = action.payload;
+            state.loading = false;
+        },
+        updatePlanFailure: (state) => {
+            state.updatePlan = null;
+            state.loading = false;
+        },
      
     },
 });
@@ -109,7 +143,13 @@ export const {
     getSettingsDataSuccess,
     updateSettingsFailure,
     updateSettingsSuccess,
-    hasUnsavedChanges
+    hasUnsavedChanges,
+    getTransactionFailure,
+    getTransactionSuccess,
+    cancelSubscriptionFailure,
+    cancelSubscriptionSuccess,
+    updatePlanSuccess,
+    updatePlanFailure
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

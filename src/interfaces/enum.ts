@@ -1,3 +1,5 @@
+import { ONE_YEAR, SIX_MONTH, TWO_YEAR } from "../Utility/Config";
+
 /**
  * Enum for status values.
  */
@@ -44,7 +46,10 @@ export const ENUMFORROUTES = {
   CALENDAR: "/calendar",
   SETTINGS: "/settings",
   VERIFY_SIGNUP_OTP: "/verify-user-otp",
-  EDIT_COURSE:"/edit-course"
+  EDIT_COURSE:"/edit-course",
+  PLAN_DETAILS:"/plan-details",
+  SUCCESS:"/success",
+  FAILURE:"/failure"
 
 }
 
@@ -57,8 +62,8 @@ export const ENUMFORACCOUNTTAB = {
   PERSONAL_DETAILS: "Personal Details",
   NOTIFICATION: "Notification",
   CHANGE_PASSWORD: "Change Password",
-  DELETE_ACCOUNT: "Delete Account"
-
+  DELETE_ACCOUNT: "Delete Account",
+  SUBSCRIPTION: "Subscription"
 } as const;
 
 export const ENUM_FOR_DISPLAY_VIEW = {
@@ -94,4 +99,17 @@ export const ENUMFORDASHBORD = {
 export const DELETE_DOCUMENT_TYPE = {
   REMOVE: "Remove",
   UPLOAD: "Upload",
+}
+
+
+export const ENUM_FOR_PLAN_ID = {
+  TWO_YEAR: TWO_YEAR,
+  ONE_YEAR: ONE_YEAR,
+  SIX_MONTH: SIX_MONTH,
+}
+
+export const ENUM_FOR_PLAN_AMOUNT = {
+  TWO_YEAR: "35.99",
+  ONE_YEAR: "23.99",
+  SIX_MONTH: "14.99",
 }

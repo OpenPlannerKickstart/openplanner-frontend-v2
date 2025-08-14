@@ -1,7 +1,7 @@
-import { ADD_OTHER_UNIVERSITY_NAME_API, GET_REGISTER_DATA_API, GET_RESEND_USER_OTP_DATA_API, GET_UNIVERSITY_LIST_API, GET_VERIFY_USER_OTP_DATA_API } from "../../../Utility/ApiList";
+import { ADD_OTHER_UNIVERSITY_NAME_API, CREATE_CHECKOUT_API, GET_REGISTER_DATA_API, GET_RESEND_USER_OTP_DATA_API, GET_UNIVERSITY_LIST_API, GET_VERIFY_USER_OTP_DATA_API } from "../../../Utility/ApiList";
 import { get, post } from "../../../Utility/httpInterceptor";
 import { ts } from "../../../Utility/Toaster";
-import { addUniversityFailure, addUniversitySuccess, getSignupFailure, getSignupSuccess, getUniversityListFailure, getUniversityListSuccess, sendSignUpEmailOtpFailure, sendSignUpEmailOtpSuccess, verfiySignUpEmailOtpFailure, verfiySignUpEmailOtpSuccess } from "../../auth/Signup/signupSlice";
+import { addUniversityFailure, addUniversitySuccess, createCheckOutSessionFailure, createCheckOutSessionSuccess, getSignupFailure, getSignupSuccess, getUniversityListFailure, getUniversityListSuccess, sendSignUpEmailOtpFailure, sendSignUpEmailOtpSuccess, verfiySignUpEmailOtpFailure, verfiySignUpEmailOtpSuccess } from "../../auth/Signup/signupSlice";
 import { setLoading } from "../../Loader/LoaderSlice";
 import { AppDispatch } from "../../store";
 
@@ -124,6 +124,27 @@ export const verifySignupEmailOtp =
           }
         } catch (err) {
           dispatch(addUniversityFailure());
+        } finally {
+          dispatch(setLoading(false));
+        }
+      };
+
+
+    export const createCheckOutAPI =
+    (objBody: any = undefined) =>
+      async (dispatch: AppDispatch) => {
+        dispatch(setLoading(true));
+  
+        try {
+          const response: any = await post(CREATE_CHECKOUT_API, objBody);
+          if (!response.data.error) {
+            ts(response.data.message)
+            return dispatch(createCheckOutSessionSuccess(response.data.data));
+          } else {
+            dispatch(createCheckOutSessionFailure());
+          }
+        } catch (err) {
+          dispatch(createCheckOutSessionFailure());
         } finally {
           dispatch(setLoading(false));
         }

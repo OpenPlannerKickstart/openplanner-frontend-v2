@@ -10,6 +10,7 @@ import { AppDispatch, RootState } from '../../../redux/store'
 import { isNullUndefinedOrBlank } from '../../../Utility/Helper'
 import { Button, Modal } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
+import { Subscription } from './Subscription'
 
 const Settings = () => {
     const dispatch: AppDispatch = useDispatch()
@@ -101,6 +102,12 @@ const Settings = () => {
                                         My Profile
                                     </button>
                                     <button
+                                        className={`nav-link ${ENUMFORACCOUNTTAB.SUBSCRIPTION === selectedTab ? "active" : ""}`}
+                                        onClick={() => { onChangeTab(ENUMFORACCOUNTTAB.SUBSCRIPTION) }}
+                                    >
+                                        Subscription
+                                    </button>
+                                    <button
                                         className={`nav-link ${selectedTab == ENUMFORACCOUNTTAB.CHANGE_PASSWORD ? "active" : ""}`}
                                         // id="nav-changepassword-tab"
                                         // data-bs-toggle="tab"
@@ -159,6 +166,16 @@ const Settings = () => {
                                     >
                                         <div className="tab-content-container">
                                             <MyProfile userData={userData} getUserData={getUserData} selectedTab={selectedTab} setSelectedTab={setSelectedTab} setHasUnsavedChanges={setHasUnsavedChanges} />
+                                        </div>
+                                    </div>
+                                    <div
+                                        className={`tab-pane fade ${ENUMFORACCOUNTTAB.SUBSCRIPTION === selectedTab ? "show active" : ""}`}
+                                        id="nav-changepassword"
+                                        role="tabpanel"
+                                        aria-labelledby="nav-changepassword-tab"
+                                    >
+                                        <div className="tab-content-container">
+                                            <Subscription selectedTab={selectedTab} />
                                         </div>
                                     </div>
                                     <div
