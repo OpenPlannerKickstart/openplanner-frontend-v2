@@ -264,10 +264,11 @@ const Registeration = (props) => {
             <div className="admin-auth-inner-wrapper">
               <div className="admin-auth-row">
                 <div className="admin-auth-col admin-auth-left">
-                  <div className="admin-auth-logo">
-                    <img src={authLogo} alt="OpenPlanner" />
-                  </div>
-
+                  <a href="https://open-planner.com/" target='_blank' >
+                    <div className="admin-auth-logo cursor">
+                      <img src={authLogo} alt="OpenPlanner" />
+                    </div>
+                  </a>
                   <div className="auth-text">
                     <div className="side-main-title">
                       <h2>Get Started With Us</h2>

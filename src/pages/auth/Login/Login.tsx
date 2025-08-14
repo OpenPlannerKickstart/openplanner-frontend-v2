@@ -164,13 +164,16 @@ const Login = (props) => {
                         <div className="admin-auth-inner-wrapper">
                             <div className="admin-auth-row">
                                 <div className="admin-auth-col admin-auth-left">
-                                    <div className="admin-auth-logo">
-                                        <img src={authLogo} alt="OpenPlanner" />
-                                    </div>
-
-                                    <div className="auth-image">
-                                        <img src={authBGLogo} alt="OpenPlanner" />
-                                    </div>
+                                    <a href="https://open-planner.com/" target='_blank' >
+                                        <div className="admin-auth-logo cursor">
+                                            <img src={authLogo} alt="OpenPlanner" />
+                                        </div>
+                                    </a>
+                                    <a href="https://open-planner.com/" target='_blank' >
+                                        <div className="auth-image cursor">
+                                            <img src={authBGLogo} alt="OpenPlanner" />
+                                        </div>
+                                    </a>
                                 </div>
                                 <div className="admin-auth-col admin-auth-right">
 

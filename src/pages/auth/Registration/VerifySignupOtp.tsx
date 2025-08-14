@@ -132,12 +132,12 @@ const VerifySignupOtp = (props) => {
                                         Terms and Conditions
                                     </NavLink>
                                     and
-                                    <span
-                                        className="text-link text-primary fw-600"
-
+                                    <NavLink
+                                        className="text-link text-primary justify-content-center fw-600" target="_blank"
+                                        to={"https://open-planner.com/privacy-policy/"}
                                     >
                                         Services Agreement.
-                                    </span>
+                                    </NavLink>
                                 </p>
                             </div>
                         </div>

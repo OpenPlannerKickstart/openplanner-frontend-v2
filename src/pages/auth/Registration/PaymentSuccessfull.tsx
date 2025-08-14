@@ -50,7 +50,7 @@ export const PaymentSuccessfull = () => {
                                     and
                                     <NavLink
                                         className="text-link text-primary justify-content-center fw-600"
-                                        to={""}
+                                        to={"https://open-planner.com/privacy-policy/"}
                                     >
                                         Services Agreement.
                                     </NavLink>
