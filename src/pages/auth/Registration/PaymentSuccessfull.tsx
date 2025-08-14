@@ -64,7 +64,7 @@ export const PaymentSuccessfull = () => {
                                         <Button variant='primary' className='btn-icon btn-light-primary btn-icon-text btn-lg' style={{ pointerEvents: 'none' }}> <i className='material-symbols-outlined fs-4'>check_circle</i></Button>
                                     </div>
                                     <div className="payment-title">
-                                        <h2>Payment Successful! 🎉</h2>
+                                        <h2>Registration Successful! 🎉</h2>
                                         <p>Your subscription is now active. Thank you for joining Open Planner!</p>
                                     </div>
                                     <div className="retry-btn w-100">

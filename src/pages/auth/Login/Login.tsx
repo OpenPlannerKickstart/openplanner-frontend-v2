@@ -239,7 +239,7 @@ const Login = (props) => {
                                                 </div>
 
                                                 <div className="auth-bottom-text-link">
-                                                    <p>Don’t have an account? <NavLink to={ENUMFORROUTES.REGISTRATION}>Registration</NavLink></p>
+                                                    <p>Don’t have an account? <NavLink to={ENUMFORROUTES.REGISTRATION}>Register Here</NavLink></p>
                                                 </div>
 
                                             </Card.Body>
