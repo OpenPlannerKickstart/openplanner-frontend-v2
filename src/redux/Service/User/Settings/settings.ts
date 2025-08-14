@@ -5,6 +5,9 @@ import {
     CHANGE_PASSWORD_API,
     NOTIFICATION_SETTING,
     GET_NOTIFICATION_SETTINGS_API,
+    TRANSACTION_LISTING,
+    CANCEL_TRANSACTION,
+    UPDATE_PLAN,
 } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
 import {
@@ -20,6 +23,12 @@ import {
     updateSettingsFailure,
     getSettingsDataSuccess,
     getSettingsDataFailure,
+    getTransactionSuccess,
+    getTransactionFailure,
+    cancelSubscriptionSuccess,
+    cancelSubscriptionFailure,
+    updatePlanSuccess,
+    updatePlanFailure,
 } from "../../../User/Settings/settingsSlice"; // Adjust path based on your folder structure
 import { setLoading } from "../../../Loader/LoaderSlice";
 import { AppDispatch } from "../../../store";
@@ -176,6 +185,63 @@ export const getNotificationSettingAPI =
                 }
             } catch (err) {
                 dispatch(getSettingsDataFailure());
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+export const getTransactionAPI =
+    (objBody: any = undefined) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const response: any = await get(TRANSACTION_LISTING);
+                if (!response.data.error) {
+                    return dispatch(getTransactionSuccess(response.data.data));
+                } else {
+                    dispatch(getTransactionFailure());
+                }
+            } catch (err) {
+                dispatch(getUserFailure());
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+export const cancelSubscriptionAPI =
+    (objBody: any = undefined) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const response: any = await get(CANCEL_TRANSACTION);
+                if (!response.data.error) {
+                    ts(response?.data?.message)
+                    return dispatch(cancelSubscriptionSuccess(response.data.data));
+                } else {
+                    dispatch(cancelSubscriptionFailure());
+                }
+            } catch (err) {
+                dispatch(cancelSubscriptionFailure());
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+
+export const updatePlanAPI =
+    (objBody: any = undefined) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const response: any = await post(UPDATE_PLAN,objBody);
+                if (!response.data.error) {
+                    ts(response?.data?.message)
+                    return dispatch(updatePlanSuccess(response.data.data));
+                } else {
+                    dispatch(updatePlanFailure());
+                }
+            } catch (err) {
+                dispatch(updatePlanFailure());
             } finally {
                 dispatch(setLoading(false));
             }

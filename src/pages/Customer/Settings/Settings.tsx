@@ -168,14 +168,14 @@ const Settings = () => {
                                             <MyProfile userData={userData} getUserData={getUserData} selectedTab={selectedTab} setSelectedTab={setSelectedTab} setHasUnsavedChanges={setHasUnsavedChanges} />
                                         </div>
                                     </div>
-                                     <div
+                                    <div
                                         className={`tab-pane fade ${ENUMFORACCOUNTTAB.SUBSCRIPTION === selectedTab ? "show active" : ""}`}
                                         id="nav-changepassword"
                                         role="tabpanel"
                                         aria-labelledby="nav-changepassword-tab"
                                     >
                                         <div className="tab-content-container">
-                                            <Subscription />
+                                            <Subscription selectedTab={selectedTab} />
                                         </div>
                                     </div>
                                     <div

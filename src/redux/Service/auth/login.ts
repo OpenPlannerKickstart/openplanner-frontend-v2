@@ -22,7 +22,8 @@ export const loginToSystem =
       try {
         const response: any = await post(GET_LOGIN_DATA_API, objBody);
         if (!response.data.error) {
-          if (response.data.data.isVerify) {
+          if (response.data.data.isVerify && response.data.data?.AccessToken && response.data.data?.IdToken && response.data.data?.RefreshToken) {
+            
      
             setPlannerToken(response.data.data?.AccessToken);
             setPlannerIDToken(response.data.data?.IdToken);

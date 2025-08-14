@@ -308,7 +308,7 @@ const Registeration = (props) => {
                     <p>
                       By creating an account, you agree to our{" "}
                       <NavLink
-                        className="text-link text-primary justify-content-center fw-600"
+                        className="text-link text-primary justify-content-center fw-600" target="_blank"
                         to={"https://open-planner.com/terms-and-conditions/"}
                       >
                         Terms and Conditions

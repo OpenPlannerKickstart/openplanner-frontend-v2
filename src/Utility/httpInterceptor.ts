@@ -285,9 +285,9 @@ const handleResponse = (response: any): AxiosResponse<ResponseWrapperDTO> => {
  * Logout from the system by clearing local storage and displaying an unauthorized message.
  * @param objBody - An optional parameter, perhaps for additional logout-related data.
  */
-const logoutFromSystem = (objBody = {}) => {
+export const logoutFromSystem = (objBody = {},msg = "Unauthorized user") => {
   // Display an unauthorized message
-  te("Unauthorized user");
+  te(msg);
   /**Clear token-related data from local storage  */
   deleteAllCookies();
   // removeCookieByName("token");
@@ -358,7 +358,8 @@ const handleError = (error: any): any => {
   else if (response && response !== undefined && response.status === 400) {
     te(response.data.message);
   } else if (response && response !== undefined && response.status === 403) {
-    te(response.data.message);
+    logoutFromSystem("Access Denied Because Subscription Not Found");
+    return;
   } else if (response && response !== undefined && response.status === 405) {
     // console.log(response.data.Message)
     te(response.data.message);

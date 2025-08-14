@@ -54,16 +54,20 @@ const VerifySignupOtp = (props) => {
         const verifyResponse = await dispatch(verifySignupEmailOtp(reqBody));
         if (verifyResponse) {
             setErrorMessage("")
-            if (otpDetailsObj?.isFromLogin) {
+            console.log(verifyResponse, "otp")
+            // if (otpDetailsObj?.isFromLogin) {
 
-                dispatch(setLoading(true));
-                setTimeout(() => {
-                    props?.handleLoginData();
-                    dispatch(setLoading(false));
-                }, 2000);
-            } else {
-                navigate(ENUMFORROUTES.LOGIN)
-            }
+            dispatch(setLoading(true));
+            // setTimeout(() => {
+            //     props?.handleLoginData();
+            //     dispatch(setLoading(false));
+            // }, 2000);
+            navigate(ENUMFORROUTES.PLAN_DETAILS, { state: verifyResponse?.payload })
+            return;
+            // }
+            // } else {
+            //     navigate(ENUMFORROUTES.LOGIN)
+            // }
 
         }
     }
@@ -115,12 +119,18 @@ const VerifySignupOtp = (props) => {
                             <div className="terms-condition-wrapper">
                                 <p >
                                     By creating an account, you agree to our{" "}
-                                    <span
+                                    {/* <span
                                         className="text-link text-primary fw-600"
 
                                     >
                                         Terms and Conditions
-                                    </span>
+                                    </span> */}
+                                    <NavLink
+                                        className="text-link text-primary justify-content-center fw-600" target="_blank"
+                                        to={"https://open-planner.com/terms-and-conditions/"}
+                                    >
+                                        Terms and Conditions
+                                    </NavLink>
                                     and
                                     <span
                                         className="text-link text-primary fw-600"

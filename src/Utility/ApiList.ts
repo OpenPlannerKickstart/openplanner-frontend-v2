@@ -76,4 +76,9 @@ export const NOTIFICATION_SETTING = "addEditNotificationSetting"
 export const GET_NOTIFICATION_SETTINGS_API = "getNotificationSettingData"
 // socket api 
 export const NOTIFICATION_ALERT = `/topic/notification/`;
+export const CREATE_CHECKOUT_API = `createCheckoutSession`;
+export const TRANSACTION_LISTING = `transactionListing`;
+export const CANCEL_TRANSACTION = 'subscriptionCancel'
+export const UPDATE_PLAN = 'updatePlan'
+
 

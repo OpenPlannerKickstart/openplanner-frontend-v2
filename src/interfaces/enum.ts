@@ -1,3 +1,5 @@
+import { ONE_YEAR, SIX_MONTH, TWO_YEAR } from "../Utility/Config";
+
 /**
  * Enum for status values.
  */
@@ -97,4 +99,17 @@ export const ENUMFORDASHBORD = {
 export const DELETE_DOCUMENT_TYPE = {
   REMOVE: "Remove",
   UPLOAD: "Upload",
+}
+
+
+export const ENUM_FOR_PLAN_ID = {
+  TWO_YEAR: TWO_YEAR,
+  ONE_YEAR: ONE_YEAR,
+  SIX_MONTH: SIX_MONTH,
+}
+
+export const ENUM_FOR_PLAN_AMOUNT = {
+  TWO_YEAR: "35.99",
+  ONE_YEAR: "23.99",
+  SIX_MONTH: "14.99",
 }
