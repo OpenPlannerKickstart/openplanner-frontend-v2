@@ -5,7 +5,7 @@ import { getSyllabusDropDownDataAPI } from '../../redux/Service/User/Calender/ca
 import { addEvenData } from '../../interfaces/interface';
 import { END_DATE_IS_REQUIRED, SELECTION_IS_REQUIRED, START_DATE_IS_REQUIRED, TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
 import * as yup from 'yup';
-import { MAX_3, MAX_300, MAX_50, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
+import { MAX_1000, MAX_3, MAX_300, MAX_50, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError } from '../../Utility/Helper';
 import { addEditEventDataAPI, deleteEventDataAPI } from '../../redux/Service/User/Courses/courses';
@@ -469,7 +469,7 @@ export const AddEditEvent = (props) => {
                                                     <div className="form-group">
                                                         <Form.Control type="text" placeholder="Enter Title"
                                                             {...eventFormData.getFieldProps("title")}
-                                                            maxLength={MAX_50}
+                                                            maxLength={MAX_1000}
                                                         />
                                                         {eventFormData.touched.title &&
                                                             eventFormData.errors.title

@@ -14,7 +14,7 @@ import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend,
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
 import { addEditEventDataAPI, addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
-import { MAX_3, MAX_300, MAX_50, ONLY_ALPHABETS_AND_DOT, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
+import { MAX_1000, MAX_3, MAX_300, MAX_50, ONLY_ALPHABETS_AND_DOT, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import InputColor from 'react-input-color';
 import { ENUM_FOR_EVENT_PRIORITY, ENUM_FOR_SYLLABUS_TAB } from '../../interfaces/enum';
 import GetImageIcon from '../GetImageIcon';
@@ -912,7 +912,7 @@ const AddSyllabusEvents = (props) => {
                             <div className="form-group">
                               <Form.Control type="text" placeholder="Enter Title"
                                 {...eventFormData.getFieldProps("title")}
-                                maxLength={MAX_50}
+                                maxLength={MAX_1000}
                               />
                               {eventFormData.touched.title &&
                                 eventFormData.errors.title
