@@ -10,7 +10,9 @@
             display: flex;
             align-items: stretch;
             height: 100%;
-
+            @media screen and (max-width:1024px) {
+                flex-wrap: wrap;                
+            }
             .admin-auth-col {
                 height: 100%;
             }
@@ -25,7 +27,9 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-
+                 @media screen and (max-width:1024px) {
+                    display: none;
+                }
                 .admin-auth-logo {
                     height: 80px;
                     width: auto;
@@ -119,7 +123,9 @@
                 @media (max-width:1366px) {
                     width: calc(100% - 170px);
                 }
-
+                 @media screen and (max-width:1024px) {
+                    width: 100%;
+                }
                 .golf-men {
                     position: absolute;
                     right: 36px;
@@ -156,7 +162,7 @@
 
 .admin-registration-wrapper {
     .admin-auth-inner-wrapper {
-        .admin-auth-row {
+        .admin-auth-row {            
             .admin-auth-left {
                 align-items: start;
                 justify-content: start;
