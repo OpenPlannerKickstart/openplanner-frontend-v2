@@ -102,14 +102,14 @@ const ChangePassword = () => {
                                 <Form.Label>Current Password</Form.Label>
                                 <div className="form-group-icon-start form-group-password">
                                     <i className="material-symbols-outlined">lock</i>
-                                    <Form.Control type={eyeToggle ? "text" : "password"} placeholder='Enter current password'
+                                    <Form.Control type={eyeToggle ? "text" : "password"} autoComplete='new password' placeholder='Enter current password'
+
                                         {...formData.getFieldProps("oldPassword")}
                                         maxLength={MAX_15}
 
                                         onBlur={() => {
                                             handleBlurValueUpdate("oldPassword");
                                         }}
-                                        autoComplete='new password'
                                     />
                                     <button
                                         onClick={() => setEyeToggle(!eyeToggle)}
@@ -131,7 +131,7 @@ const ChangePassword = () => {
                                     <Form.Control type={eyeToggleTwo ? "text" : "password"} placeholder='Enter new password'
                                         {...formData.getFieldProps("newPassword")}
                                         maxLength={MAX_50}
-                                        autoComplete='off'
+                                        autoComplete='new-password'
                                         onBlur={() => {
                                             handleBlurValueUpdate("newPassword");
                                         }}
@@ -156,7 +156,7 @@ const ChangePassword = () => {
                                     <Form.Control type={eyeToggleThree ? "text" : "password"} placeholder='Re-enter new password'
                                         {...formData.getFieldProps("confirm")}
                                         maxLength={MAX_50}
-                                        autoComplete='off'
+                                        autoComplete='new-password'
                                         onBlur={() => {
                                             handleBlurValueUpdate("confirm");
                                         }}

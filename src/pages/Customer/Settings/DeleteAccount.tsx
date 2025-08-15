@@ -116,7 +116,7 @@ const DeleteAccount = () => {
                                     <Form.Control type={!eyeToggle ? "password" : "text"} placeholder='Enter password'
                                         {...formData.getFieldProps("password")}
                                         maxLength={MAX_200}
-
+                                        autoComplete='new-password'
                                         onBlur={() => {
                                             handleBlurValueUpdate("password");
                                         }}

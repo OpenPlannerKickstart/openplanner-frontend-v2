@@ -331,7 +331,7 @@ const Registeration = (props) => {
                       <div className="box-icon box-light-primary wh-70px">
                         <i className="th th-outline-user"></i>
                       </div>
-                      <h2 className="mb-0">Create your free account</h2>
+                      <h2 className="mb-0">Create your account</h2>
                     </div>
                     <Card className="admin-auth-card">
                       <Card.Body>

@@ -103,7 +103,7 @@ const Notification = (props) => {
               <div className="notifiction-box">
                 <div className="title-text">
                   <h2>Weekly Notifications</h2>
-                  <p>Weekly notify events, syllabus and tasks</p>
+                  <p>Receive a weekly update every Sunday at 5pm on your upcoming tasks</p>
                 </div>
                 <div className="notify-switch">
                   <div className="switch-box ">
@@ -124,7 +124,7 @@ const Notification = (props) => {
               <div className="notifiction-box">
                 <div className="title-text">
                   <h2>Email Notification</h2>
-                  <p>Send email on Task/Event creation.</p>
+                  <p>Receive emails for task and event notifications.</p>
                 </div>
                 <div className="notify-switch">
                   <div className="switch-box ">
