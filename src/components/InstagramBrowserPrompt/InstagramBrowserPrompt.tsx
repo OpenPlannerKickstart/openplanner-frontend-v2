@@ -45,24 +45,9 @@ const InstagramBrowserPrompt: React.FC<InstagramBrowserPromptProps> = ({
     checkInstagramBrowser();
   }, []);
 
-  const handleOpenInBrowser = () => {
+  const handleCopyToClipboard = () => {
     const currentUrl = window.location.href;
-
-    // Try to open in default browser
-    if (navigator.share) {
-      navigator
-        .share({
-          title: "Open in Browser",
-          url: currentUrl,
-        })
-        .catch(() => {
-          // Fallback: copy URL to clipboard
-          copyToClipboard(currentUrl);
-        });
-    } else {
-      // Fallback: copy URL to clipboard
-      copyToClipboard(currentUrl);
-    }
+    copyToClipboard(currentUrl);
   };
 
   const copyToClipboard = (text: string) => {
@@ -113,15 +98,15 @@ const InstagramBrowserPrompt: React.FC<InstagramBrowserPromptProps> = ({
           </div>
           <p>
             {customMessage ||
-              "For the best experience, open this app in your browser. Tap ⋯ (top right) → 'Open in Browser', or use the button below."}
+              "For the best experience, open this app in your browser. Tap ⋯ (top right) → 'Open in Browser', or copy the URL below and paste it in your browser."}
           </p>
 
           <div className="instagram-prompt-buttons">
             <button
-              onClick={handleOpenInBrowser}
+              onClick={handleCopyToClipboard}
               className="instagram-prompt-primary"
             >
-              Open in Browser
+              Copy to Clipboard
             </button>
             <button
               onClick={handleClose}
