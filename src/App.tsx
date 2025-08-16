@@ -11,6 +11,7 @@ import { RootState } from './redux/store';
 import { connect, useDispatch } from 'react-redux';
 import AppRouter from './routes';
 import { useSelector } from "react-redux";
+import InstagramBrowserPrompt from './components/InstagramBrowserPrompt/InstagramBrowserPrompt';
 
 /**
  * App Component
@@ -27,6 +28,8 @@ function App(props) {
 
   return (
     <div>
+      {/* Instagram browser prompt */}
+      <InstagramBrowserPrompt />
       {/* Toaster component for displaying notifications */}
       <Toaster position="top-right" reverseOrder={flg} />
       {/* Loader component to show loading indicator */}
