@@ -66,14 +66,17 @@ export const AddEditEvent = (props) => {
 
     /* -------------------------- Add Event Data Start -------------------------- */
     const [syllabusDropDownData, setSyllabusDropDownData] = useState<any>([]);
-    const handleGetSyllabusDropDownData = async () => {
-
-        const response = await dispatch(getSyllabusDropDownDataAPI({}));
-        if (response) {
-            setSyllabusDropDownData(response?.payload || []);
-
+    const handleGetSyllabusDropDownData = async (retries = 6) => {
+        for (let i = 0; i < retries; i++) {
+            const response = await dispatch(getSyllabusDropDownDataAPI({}));
+            if (response?.payload?.length) {
+            setSyllabusDropDownData(response.payload);
+            return;
+            }
+            if (i < retries - 1) await new Promise(r => setTimeout(r, 10000));
         }
-    }
+        setSyllabusDropDownData([]);
+    };
 
     const initEventData: addEvenData = {
         start_date: null,
