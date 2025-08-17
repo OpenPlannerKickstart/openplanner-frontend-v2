@@ -172,6 +172,7 @@ const AddSyllabusEvents = (props) => {
   const handleGetSyllabusDropDownData = async (retries = 6) => {
     for (let i = 0; i < retries; i++) {
       const response = await dispatch(getSyllabusDropDownDataAPI({}));
+      console.log(response?.payload)
       if (response?.payload?.length) {
         setSyllabusDropDownData(response.payload);
         return;
