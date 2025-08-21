@@ -138,7 +138,7 @@ export const verifySignupEmailOtp =
         try {
           const response: any = await post(CREATE_CHECKOUT_API, objBody);
           if (!response.data.error) {
-            ts(response.data.message)
+            // ts(response.data.message)
             return dispatch(createCheckOutSessionSuccess(response.data.data));
           } else {
             dispatch(createCheckOutSessionFailure());

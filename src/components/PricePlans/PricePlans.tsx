@@ -89,6 +89,16 @@ export const PricePlans = (props) => {
 
   }, [props?.updatePlan])
   // console.log("userData", userData)
+
+  const openInNewTab = (url) => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
   const handleGetStarted = async (plan) => {
     if (!userData) {
       return;
@@ -103,7 +113,8 @@ export const PricePlans = (props) => {
     // console.log(reqBody, "reqBody", decrypted(userData?.customer_id))
     const response = await dispatch(createCheckOutAPI(reqBody));
     if (response) {
-      window.open(response.payload.url, "_blank");
+      // window.open(response.payload.url, "_blank");
+      openInNewTab(response?.payload?.url)
       // navigate(response?.payload?.url)
     }
 
