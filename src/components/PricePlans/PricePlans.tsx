@@ -113,8 +113,16 @@ export const PricePlans = (props) => {
     // console.log(reqBody, "reqBody", decrypted(userData?.customer_id))
     const response = await dispatch(createCheckOutAPI(reqBody));
     if (response) {
-      // window.open(response.payload.url, "_blank");
-      openInNewTab(response?.payload?.url)
+      // if (response.payload.url) {
+      //   window.open(response.payload.url, "_blank");
+      // }
+      setTimeout(() => {
+        if (response?.payload?.url) {
+          window.open(response.payload.url, "_blank");
+        }
+      }, 100);
+      // window.location.href = response.payload.url
+      // window.open(response.payload.url, '_blank', 'noopener,noreferrer');
       // navigate(response?.payload?.url)
     }
 
