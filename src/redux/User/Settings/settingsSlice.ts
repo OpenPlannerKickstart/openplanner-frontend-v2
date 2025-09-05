@@ -12,6 +12,7 @@ interface SettingsInitializeState {
     billingData?: any;
     updatePlan?: any;
     cancelSubscription?: any;
+    getAllPlans?: any;
     loading: boolean;
 }
 
@@ -23,9 +24,10 @@ const initialState: SettingsInitializeState = {
     getSettingsData: null,
     updateSettingsData: null,
     billingData: null,
-    cancelSubscription:null,
+    cancelSubscription: null,
     hasUnsavedChanges: false,
-    updatePlan:null,
+    updatePlan: null,
+    getAllPlans: null,
     loading: false,
 };
 
@@ -126,7 +128,16 @@ const settingsSlice = createSlice({
             state.updatePlan = null;
             state.loading = false;
         },
-     
+
+        getAllPlanSuccess: (state: SettingsInitializeState = initialState, action: PayloadAction<any>) => {
+            state.getAllPlans = action.payload;
+            state.loading = false;
+        },
+        getAllPlanFailure: (state) => {
+            state.getAllPlans = null;
+            state.loading = false;
+        },
+
     },
 });
 
@@ -149,7 +160,9 @@ export const {
     cancelSubscriptionFailure,
     cancelSubscriptionSuccess,
     updatePlanSuccess,
-    updatePlanFailure
+    updatePlanFailure,
+    getAllPlanSuccess,
+    getAllPlanFailure
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

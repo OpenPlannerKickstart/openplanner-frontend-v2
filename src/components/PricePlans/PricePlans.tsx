@@ -6,48 +6,48 @@ import { AppDispatch } from '../../redux/store';
 import { useDispatch } from 'react-redux';
 import { createCheckOutAPI } from '../../redux/Service/auth/signup';
 import { decrypted, isNullUndefinedOrBlank } from '../../Utility/Helper';
-import { updatePlanAPI } from '../../redux/Service/User/Settings/settings';
+import { getAllPlanAPI, updatePlanAPI } from '../../redux/Service/User/Settings/settings';
 import { te } from '../../Utility/Toaster';
 
 
-const plans = [
-  {
-    title: "7 Day Free Trial",
-    price: ENUM_FOR_PLAN_AMOUNT.SIX_MONTH,
-    product_id: ENUM_FOR_PLAN_ID.SIX_MONTH,
-    duration: "for 6 months",
-    features: [
-      "Unlimited syllabus uploads",
-      "Full website access",
-      "Full mobile application access",
-      "Notifications",
-    ],
-  },
-  {
-    title: "7 Day Free Trial",
-    price: ENUM_FOR_PLAN_AMOUNT.ONE_YEAR,
-    product_id: ENUM_FOR_PLAN_ID.ONE_YEAR,
-    duration: "for 1 year",
-    features: [
-      "Unlimited syllabus uploads",
-      "Full website access",
-      "Full mobile application access",
-      "Notifications",
-    ],
-  },
-  {
-    title: "7 Day Free Trial",
-    price: ENUM_FOR_PLAN_AMOUNT.TWO_YEAR,
-    product_id: ENUM_FOR_PLAN_ID.TWO_YEAR,
-    duration: "for 2 years",
-    features: [
-      "Unlimited syllabus uploads",
-      "Full website access",
-      "Full mobile application access",
-      "Notifications",
-    ],
-  },
-];
+// const plans = [
+//   {
+//     title: "7 Day Free Trial",
+//     price: ENUM_FOR_PLAN_AMOUNT.SIX_MONTH,
+//     product_id: ENUM_FOR_PLAN_ID.SIX_MONTH,
+//     duration: "for 6 months",
+//     features: [
+//       "Unlimited syllabus uploads",
+//       "Full website access",
+//       "Full mobile application access",
+//       "Notifications",
+//     ],
+//   },
+//   {
+//     title: "7 Day Free Trial",
+//     price: ENUM_FOR_PLAN_AMOUNT.ONE_YEAR,
+//     product_id: ENUM_FOR_PLAN_ID.ONE_YEAR,
+//     duration: "for 1 year",
+//     features: [
+//       "Unlimited syllabus uploads",
+//       "Full website access",
+//       "Full mobile application access",
+//       "Notifications",
+//     ],
+//   },
+//   {
+//     title: "7 Day Free Trial",
+//     price: ENUM_FOR_PLAN_AMOUNT.TWO_YEAR,
+//     product_id: ENUM_FOR_PLAN_ID.TWO_YEAR,
+//     duration: "for 2 years",
+//     features: [
+//       "Unlimited syllabus uploads",
+//       "Full website access",
+//       "Full mobile application access",
+//       "Notifications",
+//     ],
+//   },
+// ];
 
 // console.log(plans)
 
@@ -111,7 +111,7 @@ export const PricePlans = (props) => {
       user_id: userData?.user_id,
       customer_id: userData?.customer_id,
       product_id: plan.product_id,
-      price: plan.price
+      price: plan.price.toString()
     }
     // console.log(reqBody, "reqBody", decrypted(userData?.customer_id))
     const response = await dispatch(createCheckOutAPI(reqBody));
@@ -147,6 +147,8 @@ export const PricePlans = (props) => {
   }
 
 
+
+
   const [completeConfirmationShow, setCompleteConfirmationShow] = useState(false);
   const [plan, setPlan] = useState<any>(null)
   const handleConfirmationClose = () => {
@@ -157,11 +159,34 @@ export const PricePlans = (props) => {
   const [loading, setloading] = useState(false)
 
 
+
+  /** --------------get plans start------------------------------*/
+  const [plans, setPlans] = useState<any>([]);
+
+  const getPlansAPI = async () => {
+    /** --------------get plans start------------------------------*/
+    let reqBody = {
+      payment_method: "Stripe"
+    }
+    const response = await dispatch(getAllPlanAPI(reqBody));
+    if (response?.payload) {
+      setPlans(response?.payload)
+    }
+  }
+
+  useEffect(() => {
+    getPlansAPI();
+  }, [])
+
+
+  /** --------------get plans end------------------------------*/
+
+
   return (
     <div className="pricing-wrapper">
       <Row>
         {plans.map((plan, index) => (
-          <Col xs={12} md={4} key={index}>
+          <Col xs={12} md={plans?.length == 4 ? 3 : 4} key={index}>
             <Card className={`pricing-card ${selectedPlan === plan?.product_id ? 'active' : ''}`}>
               <Card.Header>
                 <span className="trial-label">{plan.title}</span>

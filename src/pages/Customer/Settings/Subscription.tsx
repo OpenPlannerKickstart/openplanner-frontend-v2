@@ -4,11 +4,11 @@ import { PricePlans } from '../../../components/PricePlans/PricePlans'
 import { cancelSubscriptionAPI, getTransactionAPI } from '../../../redux/Service/User/Settings/settings';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
+import { convertUTCToLocal, formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 
 import { useNavigate } from 'react-router-dom';
-import { ENUMFORACCOUNTTAB, ENUMFORROUTES } from '../../../interfaces/enum';
-import { logoutFromSystem } from '../../../redux/Service/auth/login';
+import { ENUMFORACCOUNTTAB, } from '../../../interfaces/enum';
+
 
 export const Subscription = (props) => {
     const dispatch: AppDispatch = useDispatch();
@@ -56,7 +56,7 @@ export const Subscription = (props) => {
         const response = await dispatch(cancelSubscriptionAPI());
         if (!isNullUndefinedOrBlank(response?.payload)) {
             handleDeleteClose();
-            await dispatch(logoutFromSystem());
+            // await dispatch(logoutFromSystem());
             // logoutFromSystem("Plan Cancelled successfully!!");
             // navigate(ENUMFORROUTES.LOGIN)
         }
@@ -93,6 +93,21 @@ export const Subscription = (props) => {
                                                 <p className="plan-label">Payment Amount</p>
                                                 <p className="plan-value bold">${!isNullUndefinedOrBlank(transactionData?.currentPlan?.amount) ? transactionData?.currentPlan?.amount : "-"}</p>
                                             </div>
+
+                                            {/* {
+                                                (transactionData?.currentPlan?.payment_method === "IAP") ?
+
+                                                    <div className="plan-item">
+                                                        <p className="plan-label">Next invoice issue date</p>
+                                                        <p className="plan-value bold">{!isNullUndefinedOrBlank(transactionData?.currentPlan?.next_billing_date) ? convertUTCToLocal(transactionData?.currentPlan?.next_billing_date) : '-'}</p>
+                                                    </div>
+                                                    :
+                                                    <div className="plan-item">
+                                                        <p className="plan-label">Next invoice issue date</p>
+                                                        <p className="plan-value bold">{!isNullUndefinedOrBlank(transactionData?.currentPlan?.next_billing_date) ? formatedDate(transactionData?.currentPlan?.next_billing_date, 'DD MMM, YYYY') : '-'}</p>
+                                                    </div>
+                                            } */}
+
                                             <div className="plan-item">
                                                 <p className="plan-label">Next invoice issue date</p>
                                                 <p className="plan-value bold">{!isNullUndefinedOrBlank(transactionData?.currentPlan?.next_billing_date) ? formatedDate(transactionData?.currentPlan?.next_billing_date, 'DD MMM, YYYY') : '-'}</p>
@@ -105,15 +120,40 @@ export const Subscription = (props) => {
                                                 <p className="plan-label">Subscription Status</p>
                                                 <p className="plan-value bold">{!isNullUndefinedOrBlank(transactionData?.currentPlan?.subscription_status) ? transactionData?.currentPlan?.subscription_status : '-'}</p>
                                             </div>
+
+                                            {
+                                                !isNullUndefinedOrBlank(transactionData?.currentPlan?.pending_plan_type) &&
+                                                <div className="plan-item">
+                                                    <p className="plan-label">Upcoming Plan</p>
+                                                    <p className="plan-value bold">{!isNullUndefinedOrBlank(transactionData?.currentPlan?.pending_plan_type) ? transactionData?.currentPlan?.pending_plan_type : '-'}</p>
+                                                </div>
+                                            }
+
+                                            {
+                                                !isNullUndefinedOrBlank(transactionData?.currentPlan?.pending_plan_price) && (transactionData?.currentPlan?.pending_plan_price > 0) &&
+                                                <div className="plan-item">
+                                                    <p className="plan-label">Upcoming Plan Price</p>
+                                                    <p className="plan-value bold">{!isNullUndefinedOrBlank(transactionData?.currentPlan?.pending_plan_price) ? transactionData?.currentPlan?.pending_plan_price : '-'}</p>
+                                                </div>
+                                            }
                                         </div>
                                     </div>
                                     <div className="button-group">
-                                        <Button variant="primary" className="btn-icon-text" onClick={() => { setShowPlans(true) }}>
-                                            <i className="material-symbols-outlined">refresh</i> Change Plan
-                                        </Button>
-                                        <Button variant="danger" className="btn-icon-text" onClick={() => { handleDeleteShow() }}>
-                                            <i className="material-symbols-outlined">close</i> Cancel Subscription
-                                        </Button>
+
+                                        {
+                                            ((transactionData?.currentPlan?.payment_method === "Stripe") && (transactionData?.currentPlan?.is_canceled == false)) ?
+                                                <>
+
+                                                    <Button variant="primary" className="btn-icon-text" onClick={() => { setShowPlans(true) }}>
+                                                        <i className="material-symbols-outlined">refresh</i> Change Plan
+                                                    </Button>
+                                                    <Button variant="danger" className="btn-icon-text" onClick={() => { handleDeleteShow() }}>
+                                                        <i className="material-symbols-outlined">close</i> Cancel Subscription
+                                                    </Button>
+                                                </> :
+                                                <></>
+                                        }
+
                                     </div>
                                 </Card.Body>
                             </Card>
@@ -134,7 +174,10 @@ export const Subscription = (props) => {
                                                     {/* <th>Payment Method</th> */}
                                                     <th>Status</th>
                                                     <th className='text-center'>Plan Price</th>
-                                                    <th className="text-center">Action</th>
+                                                    {
+                                                        (transactionData?.currentPlan?.payment_method === "Stripe") &&
+                                                        <th className="text-center">Action</th>
+                                                    }
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -147,22 +190,32 @@ export const Subscription = (props) => {
                                                                         {(!isNullUndefinedOrBlank(key.plan_type) ? key.plan_type : "")}
                                                                     </td>
                                                                     {/* <td>Jun 2024</td> */}
-                                                                    <td>{!isNullUndefinedOrBlank(key?.processed_at) ? formatedDate(key?.processed_at, 'MM/DD/YYYY') : "-"}</td>
+                                                                    {
+                                                                        (transactionData?.currentPlan?.payment_method === "Stripe") ?
+                                                                            <td>{!isNullUndefinedOrBlank(key?.processed_at) ? formatedDate(key?.processed_at, 'MM/DD/YYYY [At] hh:mm') : "-"}</td>
+                                                                            :
+                                                                            <td>{!isNullUndefinedOrBlank(key?.iap_processed_at) ? formatedDate(key?.iap_processed_at, 'MM/DD/YYYY [At] hh:mm') : "-"}</td>
+
+                                                                    }
                                                                     {/* <td>{!isNullUndefinedOrBlank(key?.payment_method) ? key?.payment_method : ""}</td> */}
                                                                     <td>
 
-                                                                        <div className="badge badge-success">
+                                                                        <div className={key?.transaction_status == 'paid' || key?.transaction_status == 'completed' ? "badge badge-success" : "badge badge-danger"}>
                                                                             {!isNullUndefinedOrBlank(key?.transaction_status) ? key?.transaction_status : ""}
                                                                         </div>
                                                                     </td>
                                                                     <td className='text-center'>
                                                                         <span className="link-info tbl-price text-decoration-underline text-link cursor-pointer">${!isNullUndefinedOrBlank(key?.amount_paid) ? key?.amount_paid : 0}</span>
                                                                     </td>
-                                                                    <td className="tbl-action">
-                                                                        <button className="btn btn-xs btn-icon-text btn-transparent text-danger" onClick={() => { window.open(key?.invoice_pdf, "_blank") }}>
-                                                                            <i className="material-symbols-outlined">visibility</i>
-                                                                        </button>
-                                                                    </td>
+                                                                    {
+                                                                        (key?.invoice_pdf) &&
+
+                                                                        <td className="tbl-action">
+                                                                            <button className="btn btn-xs btn-icon-text btn-transparent text-danger" onClick={() => { window.open(key?.invoice_pdf, "_blank") }}>
+                                                                                <i className="material-symbols-outlined">visibility</i>
+                                                                            </button>
+                                                                        </td>
+                                                                    }
                                                                 </tr>
                                                             )
                                                         })
@@ -308,6 +361,6 @@ export const Subscription = (props) => {
                     </div>
                 </Modal.Body>
             </Modal>
-        </div>
+        </div >
     )
 }
