@@ -74,15 +74,13 @@ export const decrypted = (obj) => {
     padding: CryptoJS.pad.Pkcs7,
   });
   var originalText = bytes.toString(CryptoJS.enc.Utf8);
-const sanitize = (s: string) => typeof s === "string" ? s.replace(/[\r\n\u2028\u2029]+/g, " ") : s;
-
-console.log(
-  obj,
-  "in Function",
-  sanitize(originalText),
-  "text",
-  sanitize(bytes.toString(CryptoJS.enc.Utf8))
-);
+  console.log(
+    obj,
+    "in Function",
+    originalText,
+    "text",
+    bytes.toString(CryptoJS.enc.Utf8)
+  );
   if (isNullUndefinedOrBlank(originalText)) {
     return;
   }

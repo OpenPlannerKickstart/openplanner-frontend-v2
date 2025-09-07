@@ -336,11 +336,7 @@ export const AddEditSyllabus = (props) => {
                                                                 <DatePicker
                                                                     placeholderText="Select Class Time"
                                                                     selected={syllabusFormData.values.class_time}
-                                                                    onChange={(date) => {
-                                                                        const sanitize = (s: string) => typeof s === "string" ? s.replace(/[\r\n\u2028\u2029]+/g, " ") : s;
-                                                                        console.log("first", sanitize(String(date)));
-                                                                        syllabusFormData.setFieldValue("class_time", date);
-                                                                    }}
+                                                                    onChange={(date) => { console.log("first", date); syllabusFormData.setFieldValue("class_time", date) }}
                                                                     showTimeSelect
                                                                     showTimeSelectOnly
                                                                     timeIntervals={15}
@@ -348,7 +344,7 @@ export const AddEditSyllabus = (props) => {
                                                                     dateFormat="hh:mm aa"
                                                                     className="form-control"
                                                                     onBlur={() => {
-                                                                        syllabusFormData.setFieldTouched("class_time", true);
+                                                                        syllabusFormData.setFieldTouched("class_time", true)
                                                                     }}
                                                                 // showIcon
                                                                 />
