@@ -8,13 +8,13 @@
 
         th,
         td {
-            padding: 5px;
-            font-size: 12px;
+            padding: 10px;
+            font-size: 14px;
             white-space: nowrap;
-            color: $text_color;
-
-
-
+            font-weight: 400;
+            color: #1F2937;
+            border: 0;
+            border-bottom: 1px solid $stock_light;
         }
 
         tr {
@@ -33,6 +33,24 @@
             }
         }
 
+        tr {
+            &:last-child {
+                td {
+                    border-bottom: none;
+                }
+            }
+
+            th {
+                &:first-child {
+                    border-top-left-radius: 6px;
+                }
+
+                &:last-child {
+                    border-top-right-radius: 6px;
+                }
+            }
+        }
+
     }
 
     thead,
@@ -42,11 +60,12 @@
 
 
         th {
-            background-color: $primary_light_color;
-            color: $text_color;
+            background-color: #F9FAFB;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 400;
             text-transform: capitalize;
+            padding: 7px 10px;
+            color: $text_black_color;
 
             i {
                 vertical-align: middle;
@@ -274,7 +293,20 @@
         }
     }
 
+    .tbl-srno {
+        width: 70px;
+        max-width: 70px;
+    }
 
+    .tbl-title {
+        width: 420px;
+        max-width: 420px;
+        text-wrap-mode: wrap;
+
+        &.cursor-pointer {
+            cursor: pointer;
+        }
+    }
 
 
     .tbl-user {
@@ -425,6 +457,9 @@
             }
 
             td {
+                text-wrap-mode: wrap;
+                word-break: break-word;
+
                 &.tbl-bg-primary {
                     background-color: $primary_light_color;
                 }
@@ -601,7 +636,8 @@
 }
 
 .table-responsive {
-    border-radius: 0px;
+    border-radius: 6px;
+    border: 1px solid $stock_light;
 }
 
 /* -------------------------------------------------------------------------- */

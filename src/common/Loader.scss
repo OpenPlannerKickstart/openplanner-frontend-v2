@@ -9,53 +9,41 @@
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 9999;
-
-  .loader {
-    width: 48px;
-    height: 48px;
-    border: 3px solid;
-    border-color: #FFF #FFF transparent;
-    border-radius: 50%;
-    display: inline-block;
-    position: relative;
-    animation: rotation 1s linear infinite;
-
-    &:after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      margin: auto;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 3px solid;
-      border-color: transparent #3B0D58 #3B0D58;
-      animation: rotationBack 0.5s linear infinite;
-      transform-origin: center center;
+  .inner-container{
+    --uib-size: 45px;
+    --uib-color: #239BC2;
+    --uib-speed: 1.2s;
+    --uib-bg-opacity: 1;
+    height: var(--uib-size);
+    width: var(--uib-size);
+    transform-origin: center;
+    will-change: transform;
+    overflow: visible;
+    .car {
+      fill: none;
+      stroke: var(--uib-color);
+      stroke-dasharray: 25, 75;
+      stroke-dashoffset: 0;
+      animation: travel var(--uib-speed) linear infinite;
+      will-change: stroke-dasharray, stroke-dashoffset;
+      transition: stroke 0.5s ease;
+    }
+  
+    .track {
+      fill: none;
+      stroke: #fff;
+      opacity: var(--uib-bg-opacity);
+      transition: stroke 0.5s ease;
     }
   }
 
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg)
-  }
-
-  100% {
-    transform: rotate(360deg)
-  }
-}
-
-@keyframes rotationBack {
-  0% {
-    transform: rotate(0deg)
-  }
-
-  100% {
-    transform: rotate(-360deg)
+  @keyframes travel {
+    0% {
+      stroke-dashoffset: 0;
+    }
+  
+    100% {
+      stroke-dashoffset: -100;
+    }
   }
 }

@@ -36,9 +36,13 @@ export const SUPPORTED_FORMATS = [
   "image/gif",
   "image/png",
 ];
+export const SUPPORTED_SYLLABUS_UPLOAD_FORMATS = [
+  "application/pdf",
+
+]
 
 /** key Genrated Base64   */
-const key = "c2tpbGxhYm91dHNwZWxsYg==";
+const key = "ODcmS3EzZnI/QXhybUFjeUpQREo2cHB6";
 const parseKey = CryptoJS.enc.Base64.parse(key);
 
 /**
@@ -70,17 +74,20 @@ export const decrypted = (obj) => {
     padding: CryptoJS.pad.Pkcs7,
   });
   var originalText = bytes.toString(CryptoJS.enc.Utf8);
-  console.log(
-    obj,
-    "in Function",
-    originalText,
-    "text",
-    bytes.toString(CryptoJS.enc.Utf8)
-  );
+const sanitize = (s: string) => typeof s === "string" ? s.replace(/[\r\n\u2028\u2029]+/g, " ") : s;
+
+console.log(
+  obj,
+  "in Function",
+  sanitize(originalText),
+  "text",
+  sanitize(bytes.toString(CryptoJS.enc.Utf8))
+);
   if (isNullUndefinedOrBlank(originalText)) {
     return;
   }
   // return originalText;
+  console.log(typeof originalText, "type", originalText)
   return typeof originalText === "string"
     ? originalText
     : JSON?.parse(originalText);
@@ -89,11 +96,38 @@ export const decrypted = (obj) => {
 // get token of loggedIn user
 /** Function to get the token of the logged-in user from local storage. */
 export const getToken = (): returnTypeForString => {
-  return getCookieByName("token");
+  return getCookieByName("planner_token");
 };
+//decode Token
+export const getDecodeToken = (): any => {
+  const token: any = getToken();
+  if (token) {
+    const decodeToken: any = jwtDecode(token);
+    console.log(decodeToken, "decodes");
+    return decodeToken;
+  }
+};
+export const getDecodeIDToken = (): any => {
+  const token: any = getIDToken();
+  if (token) {
+    const decodeIDToken: any = jwtDecode(token);
+    return decodeIDToken;
+  }
+};
+
+export const getUserSubId = (): any => {
+  const decodeIDToken: any = getDecodeIDToken();
+  if (decodeIDToken) {
+    return decodeIDToken.sub;
+  }
+  return null;
+}
 /** Function to get the refresh token of the logged-in user from local storage. */
 export const getRefreshToken = (): returnTypeForString => {
-  return getCookieByName("refreshToken");
+  return getCookieByName("planner_refreshToken");
+};
+export const getIDToken = (): returnTypeForString => {
+  return getCookieByName("planner_ID_Token");
 };
 // get clientId of loggedIn user
 /** Function to get the clientId of the logged-in user from local storage. */
@@ -102,9 +136,10 @@ export const getClientId = (): returnTypeForString => {
 };
 // get token of loggedIn user
 /** Function to get the name of the logged-in user from local storage. */
-export const getName = (): returnTypeForString => {
+export const getUserName = (): returnTypeForString => {
   return getCookieByName("userName");
 };
+
 // get token of loggedIn user
 /** Function to get the role name of the logged-in user from local storage. */
 export const getRoleName = (): returnTypeForString => {
@@ -137,6 +172,14 @@ export const getIP = (): returnTypeForString => {
 export const getUniqueNumber = (): returnTypeForString => {
   return getCookieByName("unique_number");
 };
+
+
+export const getUserFirstLastName = () => {
+  const decodeToken = getDecodeIDToken();
+  return `${decodeToken?.family_name || ""} ${decodeToken?.given_name || ""}`
+
+
+}
 /**
  * Function to set a unique number in local storage based on the current timestamp.
  */
@@ -145,6 +188,25 @@ export const setUniqueNumber = (): void => {
   return setCookieByName("unique_number", uniqueNumber.toString());
 };
 
+/**
+ * Function to set a Token.
+ */
+export const setPlannerToken = (val): void => {
+
+  return setCookieByName("planner_token", val);
+};
+/**
+ * Function to set a Token.
+ */
+export const setPlannerRefreshToken = (val): void => {
+
+  return setCookieByName("planner_refreshToken", val);
+};
+
+export const setPlannerIDToken = (val): void => {
+
+  return setCookieByName("planner_ID_Token", val);
+};
 // get role of loggedIn user
 /**
  * Function to get the role of the logged-in user from local storage.
@@ -502,7 +564,7 @@ export const isEmpty = (value: string | null) => {
  */
 export const getDate = (
   date: moment.MomentInput,
-  format = "yyyy-MM-DDTHH:mm:ss"
+  format = "yyyy-MM-DDTHH:mm:ssZ"
 ) => {
   /**If the input date is not provided, use the current date and time.  */
   return !date ? moment().format(format) : moment(date).format(format);
@@ -514,14 +576,14 @@ export const getDate = (
  * @param {string} format - The format in which the date string should be returned.
  * @returns {string} - The formatted date string or "Invalid Date" if the input date is not valid.
  */
-export const formatedDate = (date, format = " DD-MM-yyyy ") => {
-  /** Check if the input date is valid using moment.js.
-If valid, format the date according to the specified format.
-If not valid, return "Invalid Date".
- */
-  // console.log(moment(date).isValid()?"hello":"no hello");
+export const formatedDate = (date, format = "DD-MM-yyyy") => {
+  /** 
+   * Check if the input date is valid using moment.js.
+   * If valid, format the date according to the specified format.
+   * If not valid, return "Invalid Date".
+   */
   return moment(date).isValid()
-    ? moment(new Date(date)).format(format)
+    ? moment(date).format(format) // Formats date in the user's local timezone
     : "Invalid Date";
 };
 
@@ -541,6 +603,16 @@ If not valid, return "Invalid Date".
   // console.log(moment(date).isValid()?"hello":"no hello");
   return moment(date).isValid() ? moment(date).format(format) : "Invalid Date";
 };
+
+export const formatTime = (time, formatString = 'HH:mm:ss') => {
+  // Handle time-only strings
+  if (typeof time === 'string' && time.match(/^\d{2}:\d{2}:\d{2}$/)) {
+    return moment(time, 'HH:mm:ss').format(formatString);
+  }
+  // Handle general cases
+  return moment(time).format(formatString);
+}
+
 /**
  * Function to check if a given date is before the current date.
  * @param {string} date - The input date string.
@@ -830,9 +902,9 @@ export const customStylesForDefaultLable = {
     position: "absolute",
     top:
       state.hasValue ||
-      state.isFocused ||
-      state.isDisabled ||
-      state.selectProps.inputValue
+        state.isFocused ||
+        state.isDisabled ||
+        state.selectProps.inputValue
         ? -13
         : "",
     whiteSpace: "nowrap",
@@ -1265,10 +1337,12 @@ export const deleteAllCookies = () => {
 };
 
 //decode Token
-export const getDecodeToken = (): any => {
-  const token: any = getToken();
-  if (token) {
-    const decodeToken: any = jwtDecode(token);
-    return decodeToken;
-  }
-};
+
+export const hexToRgb = (hex) => {
+  hex = hex.replace('#', '');
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `${r}, ${g}, ${b}`;
+}

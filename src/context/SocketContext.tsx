@@ -1,159 +1,57 @@
+import React, { useEffect, createContext, useContext, useRef } from 'react';
+import { io, Socket } from 'socket.io-client';
+import { API_URL } from '../Utility/Config';
 
-// import React, { useEffect, useState, createContext, ReactChild } from "react";
-// import { useSelector, useDispatch, connect } from "react-redux";
-// import SockJS from "sockjs-client";
-// import { over } from "stompjs";
-// import {
-//   getWebSocketFailure,
-//   getWebSocketSuccess,
-// } from "../redux/generic/generic.action";
-// import { WEB_SOCKET_CONNECTION_URL } from "../Utility/Config";
-// import { RootState } from "../redux/store";
-// import { getToken, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../Utility/Helper';
+const socket: Socket = io(API_URL);
 
-// // const webSocket = new WebSocket("ws://api.shkdiamond.com:8081/auctionwebsocket");
-// const socket = new SockJS(WEB_SOCKET_CONNECTION_URL);
-// const stompClient = over(socket);
-// // const onConnect = () => {
-// //   const socket = new SockJS(WEB_SOCKET_CONNECTION_URL);
-// //    stompClient = over(socket);
-// // }
+const NotificationContext = createContext({
+    subscribeToPath: (path: string, callback: (data: any) => void) => { },
+    unsubscribeFromPath: (path: string, callback: (data: any) => void) => { },
+    sendNotification: (path: string, data: any) => { },
+});
 
-// export const SocketContext = createContext(stompClient);
+export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const ensureConnected = () => {
+        return new Promise<void>((resolve) => {
+            if (socket.connected) {
+                resolve();
+            } else {
+                socket.once('connect', () => {
+                    resolve();
+                });
+            }
+        });
+    };
 
-// interface ISocketProvider {
-//   children: React.ReactChild;
-// }
-// const SocketProvider = (props) => {
-//   const SOCKET_RECONNECTION_TIMEOUT = 10;
-//   const [ws, setWs] = useState<any>(stompClient);
-//   const isAuthenticated = getToken() !== null ? true : false;
-//   // const products = useSelector((state) => state);
-//   // const dispatch = useDispatch();
-//   console.log(stompClient, "socket");
-//   // console.log("connected in ")
-//   // console.log("connected in: ",  !isNullUndefinedOrBlank(getToken()));
+    // Now unsubscribeFromPath requires the callback reference
+    const subscribeToPath = (path: string, callback: (data: any) => void) => {
+        socket.on(path, callback);
+    };
+    const unsubscribeFromPath = (path: string, callback: (data: any) => void) => {
+        socket.off(path, callback);
+    };
 
-//   useEffect(() => {
-//     // const onClose = () => {
-//     //   setTimeout(() => {
-//     //     setWs(over(socket));
-//     //     // console.log(over(socket), "socket onClose");
-//     //   }, SOCKET_RECONNECTION_TIMEOUT);
-//     // };
+    const sendNotification = async (path: string, data: any) => {
+        await ensureConnected();
+        socket.emit(path, data);
+    };
 
-//     // socket.onopen = function () {
-//     //   console.log("open");
-//     // };
-//     console.log(isAuthenticated, "ws Connected")
-//     if (isAuthenticated) {
-//       // console.log(over(socket), "ws Connected");
-//       // ws.connect(
-//       //   {});
-//       // onConnect();
-//       // if (!ws) {
-//       // setWs(over(socket));
-//       // stompClient.connect({})
-//       // }
-//     }
-//     else {
-//       if (!ws) {
-//         // onDeactivate();
-//       }
-//     }
+    useEffect(() => {
+        socket.on('connect', () => {
+            // console.log(`✅ WebSocket connected with ID: ${socket.id}`);
+        });
+        return () => {
+            socket.removeAllListeners();
+        };
+    }, []);
 
+    return (
+        <NotificationContext.Provider value={{ subscribeToPath, unsubscribeFromPath, sendNotification }}>
+            {children}
+        </NotificationContext.Provider>
+    );
+};
 
-//     // console.log("connected in ")
-//     // if (isAuthenticated) {
-//     //   // ws.connect({});
-//     //   ws.connect(
-//     //     {},
-
-//     //     (frame) => {
-
-//     //       props.getWebSocketSuccess(true);
-//     //       console.log("Connection Opend");
-
-//     //       console.log(frame, "ws Connected");
-//     //       console.log(over(socket), "ws Connected");
-//     //       // setWs(over(socket));
-
-//     //       //  else {
-//     //       //   props.getWebSocketFailure(false);
-
-//     //       // }
-
-//     //       // ws.send("/notification/socketTest");
-//     //       // ws.subscribe('/topic/socketTestRes', (msg) => {
-//     //       //   console.log("SUBSCRIBED SUCCESSFULLY", msg.body);
-//     //       //   //you can execute any function here
-//     //       // });
-//     //     },
-//     //     // () => {
-//     //     //   onClose();
-//     //     // }
-//     //   );
-//     // }
-//     // else {
-//     //   // console.log("Connected: ", !isNullUndefinedOrBlank(getToken()));
-//     //   console.log("connected in ",ws);
-//     //   // ws.
-//     //   // if(isEmptyObjectOrNullUndefiend(ws)){
-
-//     //     onDeactivate();
-//     //   // }
-//     //   // socket.onclose = () => {
-//     //   //   console.log("Connection Closed");
-//     //   //   console.log(ws, "socket");
-//     //   //   ws.disconnect(() => {
-
-//     //   //     props.getWebSocketFailure(false);
-//     //   //   });
-
-//     //   //   // ws.deactivate();
-//     //   //   onClose();
-//     //   // };
-//     // }
-
-
-//   }, [ws, isAuthenticated]);
-
-//   const onDeactivate = () => {
-//     console.log("deactivate", ws);
-//     // if (!isAuthenticated) {
-//     // ws.deactivate();
-//     // stompClient.disconnect((frame) => {
-//     //   console.log(frame);
-//     //   setWs(null);
-//     //   // props.getWebSocketFailure(false);
-//     // });
-//     // socket.onclose = () => {
-//     //   console.log("Connection Closed");
-//     //   console.log(ws, "socket");
-
-
-//     //   // ws.deactivate();
-//     //   // onClose();
-//     //   console.log("deactivate");
-//     // };
-//   }
-
-//   // }
-//   return (
-//     <SocketContext.Provider value={ws}>
-//       {props.children}
-//     </SocketContext.Provider>
-//   );
-// };
-
-
-// const mapStateToProps = (state: RootState) => {
-//   return { appReducer: state.appReducer };
-// };
-
-// const mapDispatchToProps = {
-//   getWebSocketSuccess,
-//   getWebSocketFailure
-
-// };
-// export default connect(mapStateToProps, mapDispatchToProps)(SocketProvider);
+export const useNotifications = () => {
+    return useContext(NotificationContext);
+};

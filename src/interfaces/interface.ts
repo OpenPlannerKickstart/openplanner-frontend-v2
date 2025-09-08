@@ -121,7 +121,109 @@ export interface Notification {
  * Login data interface.
  */
 export interface LoginData {
-  userEmail: string;
+  identifier: string;
   password: string;
 
+}
+/**
+ * SignUp data interface.
+ */
+export interface SignUpData {
+  first_name: string;
+  last_name: string;
+  university_name: string;
+  email: string;
+  password: string;
+  mobile: string;
+  username: string;
+
+}
+
+
+export interface SyllabusResponseType {
+  id: number;
+  user_id: string;
+  title: string;
+  doc_id: number;
+  start_date: string;
+  end_date: string;
+  class_time: string;
+  professor_name: string;
+  course_color: string;
+  is_reminder: boolean;
+  status: any;
+  updated_at: string;
+  no_of_events: string;
+  syllabus_doc: any;
+
+}
+export interface addSyllabusData {
+  id?: number;
+  title: string;
+  class_time: string;
+  professor_name: string;
+  course_color: string;
+  syllabus_doc?: any;
+  syllabus_doc_name?: any;
+
+}
+
+export interface addEvenData {
+  event_id?: number;
+  title: string;
+  start_date: any;
+  end_date: any;
+  note?: string;
+  is_all_day_event?: boolean;
+  is_reminder?: boolean;
+  reminder?: any;
+  syllabus_id?: any;
+  syllabus?: SyllabusResponseType;
+  id?: any;
+  status?: any;
+  priority?:any;
+}
+
+export interface dueEventData {
+  eventData?: Array<addEvenData>;
+  due_date?: string;
+}
+export interface EventResponseType {
+  pastEventData?: Array<addEvenData>;
+  dueEventData?: Array<dueEventData>;
+}
+
+export interface Task {
+  id: number;
+  user_id: string;
+  task_name: string;
+  due_date: string;
+  note: string;
+  is_reminder?: boolean;
+  status?: string;
+  isactive?: boolean;
+  isdeleted?: boolean;
+  created_at?: string;
+  created_by?: string;
+  updated_at?: string;
+  updated_by?: string;
+  reminder?: Reminder[];
+  task_id?: any;
+}
+
+export interface Reminder {
+  unit: string
+  value: string;
+}
+
+export interface NotificationData {
+
+  id: any;
+  user_id: any;
+  message: any;
+  userType: any;
+  is_read: any;
+  created_at: any;
+  duration: any;
+  isNew?: boolean;
 }

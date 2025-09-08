@@ -1,0 +1,293 @@
+.box-icon{
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid;
+
+    i{
+        font-size: 16px;
+        line-height: 16px;
+    }
+
+    img{
+        width: auto;
+        height: auto;
+        object-fit: contain;
+    }
+
+    &.wh-70px{
+        width: 70px;
+        height: 70px;
+
+        i{
+            line-height: 36px;
+            font-size: 36px;
+        }
+        img{
+            max-width: 36px;
+            max-height: 36px;
+        }
+    }
+    &.wh-60px{
+        width: 60px;
+        height: 60px;
+
+        i{
+            line-height: 26px;
+            font-size: 26px;
+        }
+        img{
+            max-width: 26px;
+            max-height: 26px;
+        }
+    }
+    &.wh-50px{
+        width: 50px;
+        height: 50px;
+
+        i{
+            line-height: 22px;
+            font-size: 22px;
+        }
+        img{
+            max-width: 22px;
+            max-height: 22px;
+        }
+    }
+    &.wh-37px{
+        width: 37px;
+        height: 37px;
+
+        i{
+            line-height: 17px;
+            font-size: 17px;
+        }
+        img{
+            max-width: 17px;
+            max-height: 17px;
+        }
+    }
+    &.wh-40px{
+        width: 40px;
+        height: 40px;
+
+        i{
+            line-height: 20px;
+            font-size: 20px;
+        }
+        img{
+            max-width: 20px;
+            max-height: 20px;
+        }
+    }
+    &.wh-30px{
+        width: 30px;
+        height: 30px;
+
+        i{
+            line-height: 16px;
+            font-size: 16px;
+        }
+
+        img{
+            max-width: 16px;
+            max-height: 16px;
+        }
+    }
+
+}
+
+
+
+
+
+/* --------------------------------- Primary -------------------------------- */
+.box-primary {
+    background-color: $primary_color;
+    color: $white_color;
+    border-color: $primary_color;
+}
+
+.box-light-primary {
+    background-color: $primary_bg_color;
+    color: $primary_color;
+    border-color: $primary_bg_color;
+
+}
+
+.box-outline-primary {
+    background-color: $white_color;
+    color: $primary_color;
+    border-color: $primary_color;
+}
+
+/* --------------------------------- Primary -------------------------------- */
+
+/* --------------------------------- Secondary -------------------------------- */
+.box-secondary {
+    background-color: $secondary_color;
+    color: $white_color;
+    border-color: $secondary_color;
+}
+
+.box-light-secondary {
+    background-color: $secondary_light_color;
+    color: $secondary_color;
+    border-color: $secondary_light_color;
+}
+
+.box-outline-secondary {
+    background-color: $white_color;
+    color: $secondary_color;
+    border-color: $secondary_color;
+
+}
+
+/* --------------------------------- Secondary -------------------------------- */
+
+
+
+
+
+/* --------------------------------- Secondary Two -------------------------------- */
+.box-secondary-two {
+    background-color: $secondary_two_color;
+    color: $white_color;
+    border-color: $secondary_two_color;
+}
+
+.box-light-secondary-two {
+    background-color: $secondary_light_two_color;
+    color: $secondary_two_color;
+    border-color: $secondary_light_two_color;
+
+}
+
+.box-outline-secondary-two {
+    background-color: $white_color;
+    color: $secondary_two_color;
+    border-color: $secondary_two_color;
+}
+
+/* --------------------------------- Secondary Two -------------------------------- */
+
+
+/* --------------------------------- success -------------------------------- */
+.box-success {
+    background-color: $success_color;
+    color: $white_color;
+    border-color: $success_color;
+}
+
+.box-light-success {
+    background-color: $success_light_color;
+    color: $success_color;
+    border-color: $success_light_color;
+}
+
+.box-outline-success {
+    background-color: $white_color;
+    color: $success_color;
+    border-color: $success_color;
+}
+
+/* --------------------------------- success -------------------------------- */
+
+
+
+
+/* --------------------------------- danger -------------------------------- */
+.box-danger {
+    background-color: $danger_color;
+    color: $white_color;
+    border-color: $danger_color;
+}
+
+.box-light-danger {
+    background-color: $danger_light_color;
+    color: $danger_color;
+    border-color: $danger_light_color;
+}
+
+.box-outline-danger {
+    background-color: $white_color;
+    color: $danger_color;
+    border-color: $danger_color;
+}
+
+/* --------------------------------- danger -------------------------------- */
+
+
+
+/* --------------------------------- warning -------------------------------- */
+.box-warning {
+    background-color: $warning_color;
+    color: $white_color;
+    border-color: $warning_color;
+}
+
+.box-light-warning {
+    background-color: $warning_light_color;
+    color: $warning_color;
+    border-color: $warning_light_color;
+
+}
+
+.box-outline-warning {
+    background-color: $white_color;
+    color: $warning_color;
+    border-color: $warning_color;
+}
+
+/* --------------------------------- warning -------------------------------- */
+
+
+
+/* --------------------------------- info -------------------------------- */
+.box-info {
+    background-color: $info_color;
+    color: $white_color;
+    border-color: $info_color;
+}
+
+.box-light-info {
+    background-color: $info_light_color;
+    color: $info_color;
+    border-color: $info_light_color;
+}
+
+.box-outline-info {
+    background-color: $white_color;
+    color: $info_color;
+    border-color: $info_color;
+}
+
+/* --------------------------------- info -------------------------------- */
+
+
+
+
+
+/* --------------------------------- White -------------------------------- */
+.box-white {
+    background-color: $gray_color;
+    color: $white_color;
+    border-color: $gray_color;
+}
+
+.box-light-white {
+    background-color: $bg_grey;
+    color: $text_color;
+    border-color: $bg_grey;
+}
+
+.box-outline-white {
+    background-color: $white_color;
+    color: $text_color;
+    border-color: $stock_light;
+}
+
+/* --------------------------------- White -------------------------------- */

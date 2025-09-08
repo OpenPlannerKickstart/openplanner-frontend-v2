@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import './assets/css/bootstrap-icons.css';
+import './assets/css/material-icon.css';
 import "./assets/css/icon.css";
 import "./assets/css/fonts.css";
 import { Toaster } from 'react-hot-toast';
 import Loader from './common/Loader';
 import { RootState } from './redux/store';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import AppRouter from './routes';
 import { useSelector } from "react-redux";
+import InstagramBrowserPrompt from './components/InstagramBrowserPrompt/InstagramBrowserPrompt';
 
 /**
  * App Component
@@ -22,8 +24,12 @@ function App(props) {
   const loading = useSelector(
     (state: RootState) => state.LoaderReducer.loading
   );
+
+
   return (
     <div>
+      {/* Instagram browser prompt */}
+      <InstagramBrowserPrompt />
       {/* Toaster component for displaying notifications */}
       <Toaster position="top-right" reverseOrder={flg} />
       {/* Loader component to show loading indicator */}

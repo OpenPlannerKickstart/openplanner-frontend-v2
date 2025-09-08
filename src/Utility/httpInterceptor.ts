@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { jwtDecode } from "jwt-decode";
 /**Importing API and base URLs from a configuration file  */
 import { API_URL, BASE_URL } from "./Config";
 import {
@@ -8,6 +9,10 @@ import {
   getRefreshToken,
   setCookieByName,
   removeCookieByName,
+  deleteAllCookies,
+  setPlannerToken,
+  getIDToken,
+  getDecodeIDToken,
   // getClientId,
 } from "./Helper"; // Importing utility functions related to server validation, token retrieval, exclusion list, and refresh tokens
 import { te, ts } from "./Toaster"; // Importing functions related to displaying toasts or messages
@@ -44,16 +49,24 @@ axiosInstance.interceptors.response.use(
         try {
           /**   Refresh the access token using the refresh token */
 
+          const decoded: any = getDecodeIDToken();
+          // console.log(decoded['cognito:username'], "!decoded?.username")
+          if (!decoded['cognito:username']) {
+            return logoutFromSystem();
+          }
           const refreshToken = getRefreshToken(); // Retrieve the refresh token from wherever it is stored
-          const response = await axiosInstance.post(`${API_URL}refreshToken`, {
-            refreshToken,
+          const response = await axiosInstance.post(`${API_URL}refreshToken`, null, {
+            headers: {
+              refreshToken: `${refreshToken}`,
+              username: decoded['cognito:username']
+            },
           });
 
-          const newAccessToken = response.data.data.token;
+          const newAccessToken = response.data.data.AccessToken;
           /**  Update the access token in local storage or wherever it is stored */
 
-          setCookieByName("token", response.data.data.token);
-          setCookieByName("refreshToken", response.data.data.refreshToken);
+          setPlannerToken(response.data.data?.AccessToken);
+
           /** Update the token in your application's state or wherever it is stored  */
           /**Update the access token in your storage  */
 
@@ -272,13 +285,13 @@ const handleResponse = (response: any): AxiosResponse<ResponseWrapperDTO> => {
  * Logout from the system by clearing local storage and displaying an unauthorized message.
  * @param objBody - An optional parameter, perhaps for additional logout-related data.
  */
-const logoutFromSystem = (objBody = {}) => {
+export const logoutFromSystem = (objBody = {},msg = "Unauthorized user") => {
   // Display an unauthorized message
-  te("Unauthorized user");
+  te(msg);
   /**Clear token-related data from local storage  */
-
-  removeCookieByName("token");
-  removeCookieByName("accessToken");
+  deleteAllCookies();
+  // removeCookieByName("token");
+  // removeCookieByName("accessToken");
 };
 
 /**
@@ -345,7 +358,8 @@ const handleError = (error: any): any => {
   else if (response && response !== undefined && response.status === 400) {
     te(response.data.message);
   } else if (response && response !== undefined && response.status === 403) {
-    te(response.data.message);
+    logoutFromSystem("Access Denied Because Subscription Not Found");
+    return;
   } else if (response && response !== undefined && response.status === 405) {
     // console.log(response.data.Message)
     te(response.data.message);

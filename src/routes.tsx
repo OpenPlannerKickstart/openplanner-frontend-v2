@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Route, HashRouter as Router, Routes, useLocation } from 'react-router-dom';
+import { Route, HashRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { getToken, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from './Utility/Helper';
 import Login from './pages/auth/Login/Login';
 
@@ -16,6 +16,23 @@ import Navbar from './components/Navbar/Navbar';
 
 import { ENUMFORROUTES } from './interfaces/enum';
 import Dashboard from './pages/Customer/Dashboard/Dashboard';
+import PageComponent from './pages/Customer/PageComponent/PageComponent';
+import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
+import NewPassword from './pages/auth/NewPassword/NewPassword';
+import Registration from './pages/auth/Registration/Registration';
+import Courses from './pages/Customer/Courses/Courses';
+import Task from './pages/Customer/Task/Task';
+import VerifySignupOtp from './pages/auth/Registration/VerifySignupOtp';
+import Calendar from './pages/Customer/Calendar/CalendarEvent';
+import Settings from './pages/Customer/Settings/Settings';
+import EditCourse from './pages/Customer/Courses/EditCourse';
+import { hasUnsavedChanges } from './redux/User/Settings/settingsSlice';
+import { RootState } from './redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import NavigationConfirm from './NavigationConfirm';
+import { PaymentSuccessfull } from './pages/auth/Registration/PaymentSuccessfull';
+import { PaymentFailed } from './pages/auth/Registration/PaymentFailed';
+import { PaymentPlans } from './pages/auth/Registration/PaymentPlans';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -25,7 +42,44 @@ const privateRoutes: RouterProps[] = [
     caseSensitive: true,
     url: ENUMFORROUTES.DASHBOARD,
   },
-  
+  {
+    path: ENUMFORROUTES.PAGE_COMPONENT,
+    component: <PageComponent />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.PAGE_COMPONENT,
+  },
+  {
+    path: ENUMFORROUTES.COURSES,
+    component: <Courses />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.COURSES,
+  },
+  {
+    path: ENUMFORROUTES.TASK,
+    component: <Task />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.TASK,
+  },
+  {
+    path: ENUMFORROUTES.CALENDAR,
+    component: <Calendar />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.CALENDAR,
+  },
+  {
+    path: ENUMFORROUTES.SETTINGS,
+    component: <Settings />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.SETTINGS,
+  },
+  {
+    path: ENUMFORROUTES.EDIT_COURSE,
+    component: <EditCourse />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.EDIT_COURSE,
+  },
+   
+
 
 
 ];
@@ -42,12 +96,50 @@ const publicRoutes: RouterProps[] = [
     caseSensitive: true,
   },
 
+  {
+    path: ENUMFORROUTES.FORGOTPASSWORD,
+    component: <ForgotPassword />,
+    caseSensitive: true,
+  },
+  // {
+  //   path: ENUMFORROUTES.NEWPASSWORD,
+  //   component: <NewPassword />,
+  //   caseSensitive: true,
+  // },
+  {
+    path: ENUMFORROUTES.REGISTRATION,
+    component: <Registration />,
+    caseSensitive: true,
+  },
+  // {
+  //   path: ENUMFORROUTES.VERIFY_SIGNUP_OTP,
+  //   component: <VerifySignupOtp />,
+  //   caseSensitive: true,
+  // },
+
   // {
   //     path: "/access-denied",
   //     component: <AccessDenied />,
   //     caseSensitive: true,
   // },
-
+ {
+    path: ENUMFORROUTES.PLAN_DETAILS,
+    component: <PaymentPlans />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.PLAN_DETAILS,
+  },
+    {
+    path: ENUMFORROUTES.SUCCESS,
+    component: <PaymentSuccessfull />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.SUCCESS,
+  },
+    {
+    path: ENUMFORROUTES.FAILURE,
+    component: <PaymentFailed />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.FAILURE,
+  },
 ];
 
 /**
@@ -222,6 +314,10 @@ const AppRouter = (props): JSX.Element => {
   //   </div>
   // )
   // role sight end
+
+
+
+
   return (
 
     <div className={isAuthenticated ? 'layout-wrapper' : ''} id={isAuthenticated ? "layout-wrapper" : ''}>
@@ -271,7 +367,9 @@ const AppRouter = (props): JSX.Element => {
 
             </Routes>
           </React.Suspense>
+          <NavigationConfirm />
         </div>
+
       </Router>
     </div>
     // <div>routes</div>

@@ -1,0 +1,262 @@
+.page-filters {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    border-bottom: 1px solid $stock_light;
+
+    .page-filters-left {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+
+        h4 {
+            color: #292D32;
+            margin-bottom: 0px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+            min-width: 130px;
+        }
+
+        .filter-search {
+            width: 300px;
+        }
+
+        .filter-search2 {
+            width: 100%;
+            min-width: 180px;
+        }
+
+        .filter-category {
+            width: 100%;
+            max-width: 170px;
+        }
+    }
+
+    .page-filters-right {
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 8px;
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+
+        .record-status {
+            ul {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                margin: 0;
+
+                li {
+                    font-size: 12px;
+                    font-weight: 400;
+                    line-height: 20.4px;
+                    color: $text_color;
+                    white-space: nowrap;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    flex-wrap: nowrap;
+                    gap: 4px;
+                    margin: 0;
+
+                    span {
+                        display: inline-block;
+                        width: 14px;
+                        height: 14px;
+                        background-color: $bg_grey;
+                    }
+
+                    &.rs-urgent-inquiry {
+                        span {
+                            background-color: $primary_bg_color;
+                        }
+                    }
+
+                    &.rs-nit {
+                        span {
+                            background-color: $secondary_bg_color;
+                        }
+                    }
+
+                }
+            }
+        }
+
+    }
+
+    .form-group {
+        .form-label {
+            color: #667085;
+        }
+
+        &.form-group-inline {
+
+            display: flex;
+            flex-direction: row;
+            min-width: auto;
+            width: auto;
+
+            .form-label {
+                margin-bottom: 0;
+                margin-right: 6px;
+            }
+
+
+            .form-control,
+            ng-select {
+                min-width: 150px;
+            }
+        }
+
+        .form-group-icon-start,
+        .form-group-icon-end {
+            .control-icon {
+                z-index: 1;
+            }
+        }
+
+        .form-group-icon-start {
+            .react-select-container {
+
+                .css-13cymwt-control,
+                .css-t3ipsp-control {
+                    padding-left: 22px;
+                }
+
+
+            }
+        }
+
+        .react-select-container {
+            font-size: 0.875rem;
+            ;
+
+            .css-13cymwt-control,
+            .css-t3ipsp-control {
+                min-height: 31px;
+            }
+
+            .css-1xc3v61-indicatorContainer,
+            .css-15lsz6c-indicatorContainer {
+                padding: 0px 8px;
+            }
+
+            .css-1nmdiq5-menu{
+                width: auto;
+                &>div{
+                    &>div{
+                        white-space: nowrap; 
+                    }
+                }
+            }
+        }
+
+        &.form-group-select {
+            min-width: 200px;
+        }
+
+        &.form-group-range-datepicker {
+            min-width: 260px;
+        }
+
+        .react-datepicker-container {
+            .react-datepicker-wrapper {
+                width: 100%;
+            }
+        }
+
+
+        &.theme-ngselect {
+            .ng-select-container {
+                height: 31px;
+                min-height: 31px;
+                background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23636D83' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+
+
+                .ng-value-container {
+                    font-size: 14px;
+                }
+
+
+
+            }
+
+            .form-group-icon-start {
+                .ng-input {
+                    padding-left: 32px !important;
+
+                }
+
+                .ng-value {
+                    padding-left: 22px !important;
+                }
+            }
+
+
+        }
+    }
+
+    .filter-tab {
+        ul {
+            display: flex;
+            flex-wrap: nowrap;
+            flex-direction: row;
+            border-radius: 6px;
+            padding: 6px;
+            border: 1px solid $stock_light;
+            margin: 0;
+            min-height: 31px;
+
+            li {
+                position: relative;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 15px;
+                background-color: transparent;
+                color: $text_color;
+                display: flex;
+                align-items: center;
+                gap: 0 5px;
+                padding: 0 6px;
+                cursor: pointer;
+
+                &:last-child {
+                    &::after {
+                        content: none;
+                    }
+                }
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    right: 0;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 1px;
+                    height: 16px;
+                    background-color: $stock_light;
+                }
+
+                i {
+                    font-size: 14px;
+                }
+
+                &.active,
+                &:hover {
+                    color: $primary_color;
+                }
+            }
+        }
+    }
+}

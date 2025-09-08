@@ -1,0 +1,180 @@
+.instagram-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.instagram-prompt-modal {
+  background-color: white;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+.instagram-prompt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 0 20px;
+}
+
+.instagram-prompt-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.instagram-prompt-header button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.instagram-prompt-header button:hover {
+  background-color: #f5f5f5;
+}
+
+.instagram-prompt-content {
+  padding: 20px;
+  text-align: center;
+}
+
+.instagram-prompt-content .icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.strip img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.strip img:hover {
+  transform: scale(1.1);
+}
+
+.instagram-prompt-content p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #555;
+  margin-bottom: 24px;
+}
+
+.instagram-prompt-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.instagram-prompt-primary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.instagram-prompt-primary:hover {
+  background-color: #0056b3;
+}
+
+.instagram-prompt-secondary {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.instagram-prompt-secondary:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .instagram-prompt-overlay {
+    padding: 16px;
+  }
+
+  .instagram-prompt-modal {
+    max-width: 100%;
+  }
+
+  .instagram-prompt-header {
+    padding: 16px 16px 0 16px;
+  }
+
+  .instagram-prompt-content {
+    padding: 16px;
+  }
+
+  .instagram-prompt-content .icon {
+    font-size: 40px;
+  }
+
+  .instagram-prompt-content p {
+    font-size: 14px;
+  }
+}

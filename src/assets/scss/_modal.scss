@@ -3,18 +3,29 @@
         border: 0;
         border-radius: 15px;
 
-        .modal-header,
-        .modal-body,
-        .modal-footer {
-            padding: 30px;
-        }
-
         .modal-header {
-            padding-bottom: 0;
+            padding: 18px 19px;
         }
 
         .modal-body {
-            padding-bottom: 20px;
+            padding: 14px 18px;
+            color: #2D3C5C;
+
+            .modal-footer-button {
+                border-top: 1px solid $stock_light;
+                padding-top: 22px;
+            }
+
+
+            p {
+                white-space: pre-wrap;
+
+
+            }
+
+            .notes {
+                word-break: break-all;
+            }
         }
 
         .modal-footer {
@@ -130,10 +141,6 @@
             }
         }
 
-        .modal-body {
-            padding: 0 25px 25px;
-        }
-
         .modal-confirmation-container {
             text-align: center;
         }
@@ -147,8 +154,8 @@
         }
 
         .modal-confirmation-icon {
-            width: 70px;
-            height: 70px;
+            width: 54px;
+            height: 54px;
             border-radius: 35px;
             display: flex;
             align-items: center;
@@ -157,10 +164,11 @@
             line-height: 25px;
             position: relative;
             margin: 0 auto;
-            color: $white_color;
+            color: $success_color;
 
             i {
                 z-index: 22;
+                font-size: 26px;
             }
 
             &::before {
@@ -172,36 +180,25 @@
                 width: 50px;
                 height: 50px;
                 border-radius: 50px;
-                background-color: $primary_color;
-            }
-
-            &::after {
-                content: "";
-                position: absolute;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                width: 70px;
-                height: 70px;
-                border-radius: 50px;
-                background-color: $primary_color;
-                opacity: 0.3;
+                background-color: $primary_bg_color;
             }
 
 
         }
 
         .modal-confirmation-content {
-            margin-top: 30px;
+            margin-top: 20px;
             color: #2D3C5C;
 
             h5 {
                 font-size: 20px;
                 margin-bottom: 10px;
+                color: #2D3C5C;
             }
 
             p {
                 margin-bottom: 0;
+                color: #2D3C5C;
             }
         }
 
@@ -223,7 +220,7 @@
 
             &::before,
             &::after {
-                background-color: $success_color;
+                background-color: $success_bg_color;
             }
         }
     }
@@ -233,7 +230,7 @@
 
             &::before,
             &::after {
-                background-color: $danger_color;
+                background-color: $danger_bg_color;
             }
         }
     }
@@ -243,7 +240,7 @@
 
             &::before,
             &::after {
-                background-color: $warning_color;
+                background-color: $warning_bg_color;
             }
         }
     }
@@ -265,16 +262,6 @@
 }
 
 .modal-delete {
-
-    .modal-content .modal-header,
-    .modal-content .modal-body,
-    .modal-content .modal-footer {
-        padding: 34px;
-    }
-
-    .modal-content .modal-footer {
-        padding-top: 0;
-    }
 
     .delete-modal {
         display: flex;

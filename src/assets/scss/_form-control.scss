@@ -33,6 +33,10 @@
                 border-color: $bg_grey !important
             }
         }
+
+        &::placeholder {
+            color: #777F90;
+        }
     }
 
     .otp-group {
@@ -42,11 +46,44 @@
         align-items: center;
         justify-content: center;
 
+
+        &>div {
+            gap: 0 10px;
+        }
+
         input {
-            width: 38px;
             border: 1px solid $stock_light;
             color: $text_black_color;
             text-align: center;
+            border-radius: 5px;
+            background-color: transparent;
+            width: 46px !important;
+            min-height: 51px;
+            font-size: 21px;
+            font-weight: 600;
+            line-height: 27.3px;
+            text-align: center;
+
+
+
+            &:focus,
+            &:hover {
+                background-color: transparent;
+                border: 1px solid $primary_color;
+                color: $primary_color;
+            }
+
+            &:focus-visible {
+                outline: 0;
+            }
+
+            &[type=number]::-webkit-inner-spin-button,
+            &[type=number]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                margin: 0;
+            }
         }
 
     }
@@ -131,11 +168,12 @@
 
         i {
             position: absolute;
-            top: 0px;
+            top: 0;
             bottom: 0;
             display: flex;
             align-items: center;
-            font-size: 16px;
+            font-size: 18px;
+            color: #4B5563;
         }
     }
 
@@ -178,6 +216,7 @@
             right: 20px;
             top: 0;
             bottom: 0;
+            display: flex;
 
             i {
                 left: unset;
@@ -375,6 +414,10 @@
             font-size: 14px;
         }
 
+        .form-select {
+            padding-right: 25px
+        }
+
         .form-group-icon-start,
         .form-group-icon-end {
             i {
@@ -419,12 +462,56 @@
     }
 }
 
+.form-group {
+    .react-tel-input {
+        .form-control {
+            width: 100%;
+            box-shadow: none !important;
+            outline: 0 !important;
+            background-color: $white_color;
+            border-color: $stock_light;
+            border-radius: 6px;
+            color: $text_black_color;
+            padding-left: 45px;
+            min-height: 38px;
 
+            &:hover,
+            &:focus {
+                border-color: $primary_color !important;
+            }
+        }
+
+        .flag-dropdown {
+            border: none;
+            background-color: transparent;
+            border-radius: 6px 0 0 6px;
+            border-right: 1px solid $stock_light;
+
+            .selected-flag {
+
+                &:hover,
+                &:focus {
+                    background-color: transparent !important;
+                }
+            }
+
+            &.open {
+                .selected-flag {
+                    background-color: transparent !important;
+                    border-radius: 6px 0 0 0;
+                    border: 1px solid $primary_color;
+                    border-right: none;
+                }
+            }
+        }
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /*                       Attachments - File Upload Start                      */
 /* -------------------------------------------------------------------------- */
 .attachments-container {
+    margin-bottom: 10px;
     position: relative;
     border: 2px dashed $stock_dark;
     padding: 15px 25px;
@@ -483,7 +570,7 @@
 }
 
 .attachments-upload-grid-container {
-    margin-top: 15px;
+    margin-top: 0px;
 
     .attachments-upload-row {
         display: flex;
@@ -492,12 +579,12 @@
         gap: 14px;
 
         .attachments-upload-col {
-            max-width: 100px;
+            max-width: 200px;
             padding: 0 0px;
         }
 
         .card-attachments-upload {
-            border: 1px solid $stock_light;
+            border: none;
             border-radius: 7px;
             overflow: hidden;
             position: relative;
@@ -557,7 +644,7 @@
                 width: 16px;
                 position: absolute;
                 top: 10px;
-                right: 10px;
+                right: 5px;
 
                 i {
                     transition: 0.70s;
@@ -574,6 +661,39 @@
                 }
             }
         }
+    }
+}
+
+.attachments-text {
+    background-color: lightgray;
+    border-radius: 5px;
+    margin-top: 5px;
+
+    p {
+        font-size: 12px;
+        color: $text_black_color;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 6px;
+        padding-right: 20px;
+    }
+}
+
+
+.file-notification {
+    margin-top: 15px;
+    padding: 8px 12px;
+    background-color: #FFFBE5;
+    border: 1px solid #FFF2B3;
+    border-radius: 10px;
+
+    p {
+        font-weight: 500;
+        font-size: 12px;
+        line-height: normal;
+        letter-spacing: 0.2px;
+        margin-bottom: 0;
     }
 }
 
@@ -1163,4 +1283,446 @@
 
 /* -------------------------------------------------------------------------- */
 /*                                 Switch End                                 */
+/* -------------------------------------------------------------------------- */
+
+
+/* -------------------------------------------------------------------------- */
+/*                             React Select Start                             */
+/* -------------------------------------------------------------------------- */
+.react-select-container {
+
+    .css-13cymwt-control,
+    .css-t3ipsp-control,
+    div[class*="-control"] {
+        border-color: $stock_light;
+        border-radius: 6px;
+
+        &:hover {
+            border-color: $primary_color;
+        }
+
+
+        .css-15lsz6c-indicatorContainer,
+        .css-1xc3v61-indicatorContainer {
+
+            width: 20px;
+            height: 20px;
+            background-size: 20px 11px;
+            background-repeat: no-repeat;
+            background-position: center center;
+            padding: 0 !important;
+            cursor: pointer;
+
+            .css-tj5bde-Svg {
+                /*fill: $primary_color;*/
+                fill: #636D83;
+                width: 15px;
+            }
+        }
+
+
+
+
+    }
+
+    .react-select__control {
+        -webkit-box-align: center;
+        align-items: center;
+        cursor: default;
+        display: flex;
+        flex-wrap: wrap;
+        -webkit-box-pack: justify;
+        justify-content: space-between;
+        position: relative;
+        transition: 100ms;
+        background-color: rgb(255, 255, 255);
+        border-radius: 6px;
+        box-sizing: border-box;
+        outline: 0px !important;
+    }
+
+    .css-1ydredp {
+        z-index: 999;
+    }
+
+    .css-t3ipsp-control,
+    div[class*="-control"] {
+        box-shadow: none;
+    }
+
+    .css-1u9des2-indicatorSeparator {
+        display: none;
+
+
+    }
+
+    .css-3w2yfm-ValueContainer {
+        .css-1p3m7a8-multiValue {
+            background-color: #E9F1FE;
+
+            .css-wsp0cs-MultiValueGeneric {
+                color: $primary_color;
+            }
+
+            .css-12a83d4-MultiValueRemove {
+                svg {
+                    path {
+                        color: $primary_color;
+                    }
+                }
+
+                &:hover {
+                    background-color: transparent;
+                    color: $danger_color;
+
+                    svg {
+                        path {
+                            color: $danger_color;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .react-select__menu-portal,
+    div[class*="-MenuPortal"] {
+        z-index: 9999 !important;
+
+        .css-tr4s17-option {
+            background-color: $primary_color;
+        }
+
+        .css-d7l1ni-option,
+        .css-10wo9uf-option:active,
+        .css-d7l1ni-option:active {
+            background-color: #E9F1FE;
+            color: $primary_color;
+        }
+    }
+
+    &.react-select--is-disabled {
+
+        .css-olqui2-singleValue {
+            color: #cfcfcf !important;
+        }
+
+        .react-select__indicator-separator {
+            background-color: transparent;
+        }
+    }
+
+
+}
+
+body {
+    div[class*="-MenuPortal"] {
+        z-index: 9999;
+    }
+}
+
+
+.react-select-container>div:nth-child(4) {
+    z-index: 100;
+}
+
+
+.form-group {
+    .react-select-container {
+
+        .css-13cymwt-control,
+        .css-t3ipsp-control,
+        div[class*="-control"] {
+            min-height: 38px;
+        }
+    }
+}
+
+.form-group {
+
+    .form-group-icon-start,
+    .form-group-icon-end {
+        .control-icon {
+            z-index: 1;
+        }
+    }
+}
+
+.form-group {
+    &.form-group-sm {
+
+        .form-group-icon-start,
+        .form-group-icon-end {
+            .control-icon {
+                z-index: 1;
+            }
+        }
+
+        .form-group-icon-start {
+            .react-select-container {
+
+                .css-13cymwt-control,
+                .css-t3ipsp-control {
+                    padding-left: 22px;
+
+
+                }
+            }
+        }
+
+        .react-select-container {
+            font-size: 0.875rem;
+            ;
+
+            .css-13cymwt-control,
+            .css-t3ipsp-control {
+                min-height: 31px;
+                font-size: 14px;
+
+                &>div {
+                    padding-top: 0px;
+                    padding-bottom: 0px;
+                }
+            }
+
+            .css-1xc3v61-indicatorContainer,
+            .css-15lsz6c-indicatorContainer {
+                padding: 0px 8px;
+            }
+        }
+    }
+
+    .color-picker-with-box {
+        position: relative;
+
+        .color-picker-code {
+            position: absolute;
+            left: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-bottom: 0px;
+        }
+    }
+
+    .form-color-picker {
+        width: 100%;
+        display: flex;
+
+        .css-1yn2e29-InputColor {
+            background-color: $white_color;
+            border: 1px solid $gray_color;
+            border-radius: 5px;
+            padding: 12px 15px;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            color: #777F90;
+            min-height: 50px;
+            width: 100%;
+
+
+            &:focus {
+                box-shadow: unset;
+                border-color: $primary_color ;
+            }
+
+            .css-1vpurlb-InputColor {
+                display: none;
+            }
+        }
+
+        &.color-picker-with-box {
+            display: flex;
+            align-items: center;
+            background-color: $white_color;
+            border: 1px solid $stock_light;
+            border-radius: 5px;
+            padding: 0px 15px;
+
+            i {
+                font-size: 22px;
+            }
+
+            .css-cnfek5-Popover {
+                background-color: $white_color;
+                border: 1px solid $stock_light;
+                border-radius: 5px;
+
+                .css-6fii2q-Arrow {
+                    display: none;
+                }
+            }
+
+            .css-1yn2e29-InputColor {
+                border: none;
+                padding: 0;
+                border-radius: 0;
+                min-height: 38px;
+            }
+        }
+    }
+
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              React Select End                              */
+/* -------------------------------------------------------------------------- */
+
+
+/* -------------------------------------------------------------------------- */
+/*                              Datepicker Start                              */
+/* -------------------------------------------------------------------------- */
+.react-datepicker-group {
+    display: flex;
+    flex-direction: row;
+    margin: 0 -8px;
+
+    .react-datepicker-col {
+        flex: 0 0 50%;
+        max-width: 50%;
+        padding: 0 8px;
+        position: relative;
+    }
+}
+
+.react-datepicker-container {
+    .react-datepicker-wrapper {
+        width: 100%;
+
+        .react-datepicker__close-icon {
+            padding: 0 10px 0 0;
+            right: 30px;
+
+            &::after {
+                background-color: $primary_color;
+            }
+        }
+    }
+
+    .react-datepicker {
+        border: 1px solid #DFE5EF;
+        box-shadow: 0px 10px 20px 0px #00000008;
+        font-family: inherit;
+
+    }
+
+    .react-datepicker-popper {
+        z-index: 99;
+    }
+
+    .react-datepicker-popper[data-placement^=top] {
+        .react-datepicker__triangle {
+            &::before {
+                border-top-color: #DFE5EF;
+            }
+        }
+    }
+
+    .react-datepicker-popper[data-placement^=bottom] {
+        .react-datepicker__triangle {
+            display: none;
+
+            &::before {
+                border-bottom-color: #DFE5EF;
+            }
+        }
+    }
+
+    .react-datepicker__header {
+        background-color: #E9F1FE;
+        border-bottom: 1px solid #DFE5EF;
+    }
+
+    .react-datepicker__navigation-icon {
+        top: 5px;
+    }
+
+    .react-datepicker__year-read-view--down-arrow,
+    .react-datepicker__month-read-view--down-arrow,
+    .react-datepicker__month-year-read-view--down-arrow {
+        border-color: $primary_color;
+    }
+
+    .react-datepicker__navigation-icon {
+        &::before {
+            border-color: $primary_color;
+        }
+    }
+
+    .react-datepicker__current-month,
+    .react-datepicker-time__header,
+    .react-datepicker-year-header {
+        color: $primary_color;
+    }
+
+    .react-datepicker__day,
+    .react-datepicker__month-text,
+    .react-datepicker__quarter-text,
+    .react-datepicker__year-text {
+        &:hover {
+            background-color: #E9F1FE;
+        }
+    }
+
+    .react-datepicker__day--keyboard-selected,
+    .react-datepicker__month-text--keyboard-selected,
+    .react-datepicker__quarter-text--keyboard-selected,
+    .react-datepicker__year-text--keyboard-selected {
+        background-color: $primary_color;
+        color: $white_color;
+
+        &:hover {
+            background-color: $primary_color;
+        }
+    }
+
+    .react-datepicker__day--in-range {
+        background-color: $primary_color;
+        color: $white_color;
+
+        &:hover {
+            background-color: #E9F1FE;
+            color: $black_color;
+        }
+    }
+
+    .react-datepicker__day--selected,
+    .react-datepicker__day--in-selecting-range,
+    .react-datepicker__day--in-range,
+    .react-datepicker__month-text--selected,
+    .react-datepicker__month-text--in-selecting-range,
+    .react-datepicker__month-text--in-range,
+    .react-datepicker__quarter-text--selected,
+    .react-datepicker__quarter-text--in-selecting-range,
+    .react-datepicker__quarter-text--in-range,
+    .react-datepicker__year-text--selected,
+    .react-datepicker__year-text--in-selecting-range,
+    .react-datepicker__year-text--in-range {
+        background-color: $primary_color;
+        color: $white_color;
+
+        &:hover {
+            background-color: $primary_color;
+            color: $white_color;
+        }
+    }
+
+    .react-datepicker__day--today {
+        background-color: $primary_hover_color;
+        color: $white_color;
+        border-radius: 0.3rem;
+    }
+
+    .react-datepicker__day--disabled,
+    .react-datepicker__month-text--disabled,
+    .react-datepicker__quarter-text--disabled,
+    .react-datepicker__year-text--disabled {
+        &:hover {
+            background-color: transparent;
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               Datepicker End                               */
 /* -------------------------------------------------------------------------- */

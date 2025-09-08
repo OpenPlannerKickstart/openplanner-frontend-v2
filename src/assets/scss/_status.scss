@@ -6,11 +6,12 @@
     block-size: fit-content;
     background-color: #EAECEF;
     color: $primary_color;
-    border-radius: 3px;
+    border-radius: 4px;
     text-transform: capitalize;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap:0 5px;
 
     &.rounded-pill {
         border-radius: 40px;
@@ -107,6 +108,58 @@
     &.bg-danger-light,
     &.badge-danger-light {
         background-color: $danger_light_color !important;
+        color: $danger_color;
+    }
+    &.bg-light-grey,
+    &.badge-light-grey {
+        background-color: $bg_grey !important;
+        color: $text_color;
+    }
+
+
+
+
+
+
+    &.bg-primary-bg,
+    &.badge-primary-bg {
+        background-color: $primary_bg_color !important;
+        color: $primary_color;
+    }
+
+    &.bg-secondary-bg,
+    &.badge-secondary-bg {
+        background-color: $secondary_bg_color !important;
+        color: $secondary_color;
+    }
+
+    &.bg-secondary-two-bg,
+    &.badge-secondary-two-bg {
+        background-color: $secondary_bg_two_color !important;
+        color: $secondary_two_color;
+    }
+
+    &.bg-info-bg,
+    &.badge-info-bg {
+        background-color: $info_bg_color !important;
+        color: $info_color;
+    }
+
+    &.bg-success-bg,
+    &.badge-success-bg {
+        background-color: $success_bg_color !important;
+        color: $success_color;
+    }
+
+    &.bg-warning-bg,
+    &.badge-warning-bg {
+        background-color: $warning_bg_color !important;
+        color: $warning_color;
+    }
+
+    &.bg-danger-bg,
+    &.badge-danger-bg {
+        background-color: $danger_bg_color !important;
         color: $danger_color;
     }
 
