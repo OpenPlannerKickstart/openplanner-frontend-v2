@@ -8,6 +8,7 @@ import {
     TRANSACTION_LISTING,
     CANCEL_TRANSACTION,
     UPDATE_PLAN,
+    PLAN_MASTER,
 } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
 import {
@@ -233,9 +234,28 @@ export const updatePlanAPI =
         async (dispatch: AppDispatch) => {
             dispatch(setLoading(true));
             try {
-                const response: any = await post(UPDATE_PLAN,objBody);
+                const response: any = await post(UPDATE_PLAN, objBody);
                 if (!response.data.error) {
                     ts(response?.data?.message)
+                    return dispatch(updatePlanSuccess(response.data.data));
+                } else {
+                    dispatch(updatePlanFailure());
+                }
+            } catch (err) {
+                dispatch(updatePlanFailure());
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+export const getAllPlanAPI =
+    (objBody: any = undefined) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const response: any = await post(PLAN_MASTER, objBody);
+                if (!response.data.error) {
+                    // ts(response?.data?.message)
                     return dispatch(updatePlanSuccess(response.data.data));
                 } else {
                     dispatch(updatePlanFailure());

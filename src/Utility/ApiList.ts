@@ -80,5 +80,7 @@ export const CREATE_CHECKOUT_API = `createCheckoutSession`;
 export const TRANSACTION_LISTING = `transactionListing`;
 export const CANCEL_TRANSACTION = 'subscriptionCancel'
 export const UPDATE_PLAN = 'updatePlan'
+export const PLAN_MASTER = 'getMstProdPlan'
+
 
 
