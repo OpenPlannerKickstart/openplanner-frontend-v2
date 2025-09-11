@@ -1346,3 +1346,25 @@ export const hexToRgb = (hex) => {
   const b = bigint & 255;
   return `${r}, ${g}, ${b}`;
 }
+
+
+
+// Alternative version with more control over formatting:
+export function convertUTCToLocal(utcDateString) {
+  try {
+    // Apple receipt date format: "2025-09-01 06:34:38 Etc/GMT"
+    // Remove the " Etc/GMT" part if present
+    const cleanDate = utcDateString.replace(" Etc/GMT", "");
+
+    // Parse the UTC date string (treat as UTC)
+    const utcDateTime = new Date(cleanDate + "Z"); // Adding 'Z' indicates UTC
+
+    // Convert to local time (JavaScript Date objects are inherently local)
+    // Format output (change format as needed)
+    const formatted = utcDateTime.toISOString().replace('T', ' ').substring(0, 19);
+
+    return formatted;
+  } catch (e: any) {
+    return `Invalid date: ${e.message}`;
+  }
+}

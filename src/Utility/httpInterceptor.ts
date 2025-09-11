@@ -133,7 +133,9 @@ export const get = (
     axiosObj.headers = {
       Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
       // "Access-Control-Allow-Origin": "*",
+
     };
+    axiosObj.headers.platform = 'w'
   }
   /** Add responseType to the request if needed (commented out in your code) */
 
@@ -197,6 +199,7 @@ export const post = (
   //     };
   // }
   /** Perform the POST request using axiosInstance */
+  header.platform = 'w'
 
   return axiosInstance
     .post(apiUrl, bodyObj, {
@@ -251,10 +254,11 @@ export const put = (
     header = {
       Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
       "Access-Control-Allow-Origin": "*",
+
     };
   }
   /**  Perform the PUT request using axiosInstance  */
-
+  header.platform = 'w'
   return (
     axiosInstance
       .put(apiUrl, bodyObj, {
@@ -285,7 +289,7 @@ const handleResponse = (response: any): AxiosResponse<ResponseWrapperDTO> => {
  * Logout from the system by clearing local storage and displaying an unauthorized message.
  * @param objBody - An optional parameter, perhaps for additional logout-related data.
  */
-export const logoutFromSystem = (objBody = {},msg = "Unauthorized user") => {
+export const logoutFromSystem = (objBody = {}, msg = "Unauthorized user") => {
   // Display an unauthorized message
   te(msg);
   /**Clear token-related data from local storage  */
