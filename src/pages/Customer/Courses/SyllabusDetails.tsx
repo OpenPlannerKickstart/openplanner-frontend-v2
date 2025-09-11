@@ -267,7 +267,7 @@ const SyllabusDetails = (props) => {
                 <input
                   className=" "
                   type="file"
-                  accept="application/pdf"
+                  accept=".pdf,.doc,.docx"
                   onChange={(e: any) => {
                     if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
                       syllabusFormData.setFieldValue(
