@@ -67,6 +67,15 @@ import { Worker } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
 import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import { NotificationProvider } from './context/SocketContext';
+// MSW worker (dev only)
+async function startMocksIfNeeded() {
+  const featureGroups = (window as any).FEATURE_GROUPS ?? (process.env.FEATURE_GROUPS === 'true');
+  if (process.env.NODE_ENV === 'development' && featureGroups) {
+    const { worker } = await import('./mocks/browser');
+    await worker.start({ onUnhandledRequest: 'bypass' });
+  }
+}
+startMocksIfNeeded();
 
 const SOCKET_SERVER_URL = 'http://localhost:3000'; // Update with your server URL
 
