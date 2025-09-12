@@ -130,7 +130,7 @@ const Registeration = (props) => {
       university_name: signUpFormData.values.university_name,
       email: signUpFormData.values.email,
       password: signUpFormData.values.password,
-      mobile: signUpFormData.values.mobile,
+      mobile: (signUpFormData.values.mobile == "+1") ? undefined : `${signUpFormData.values.mobile}`,
       username: signUpFormData.values.username,
     }
     customJsonInclude(reqBody);
