@@ -33,6 +33,7 @@ import NavigationConfirm from './NavigationConfirm';
 import { PaymentSuccessfull } from './pages/auth/Registration/PaymentSuccessfull';
 import { PaymentFailed } from './pages/auth/Registration/PaymentFailed';
 import { PaymentPlans } from './pages/auth/Registration/PaymentPlans';
+import Groups from './pages/Customer/Groups/Groups';
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -71,6 +72,13 @@ const privateRoutes: RouterProps[] = [
     component: <Settings />,
     caseSensitive: true,
     url: ENUMFORROUTES.SETTINGS,
+  },
+  // Conditionally include Groups route via feature flag later if needed in rendering
+  {
+    path: ENUMFORROUTES.GROUPS,
+    component: <Groups />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.GROUPS,
   },
   {
     path: ENUMFORROUTES.EDIT_COURSE,
