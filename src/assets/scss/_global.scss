@@ -1,9 +1,3 @@
-body {
-    font-family: "Poppins", serif;
-    font-size: 14px;
-    color: $text_color;
-}
-
 // Common CSS
 .h1,
 .h2,
@@ -315,6 +309,54 @@ img {
     }
 }
 
+/* Groups page specific overrides */
+.groups-page {
+    .content-area {
+        padding: 0 0px 0 0 !important;
+        overflow: hidden !important;
+    }
+}
+
+.groups-page .content-area.content-area-title-filter {
+    min-height: calc(100vh - 80px) !important; 
+    max-height: none !important;             
+    overflow: hidden !important;             
+}
+
+/* ------------------------- groups page layout fixes ------------------------ */
+/* Ensure the Groups page uses a true flex layout so inner columns can stretch to the viewport
+   and scroll areas can grow/shrink correctly. The important part is `min-height: 0` on flex
+   children so overflow works as expected. */
+.groups-page .page-content-wrapper {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* make the row act as a flex container and allow it to grow */
+.groups-page .row.gx-0.gy-0 {
+  flex: 1 1 auto;
+  min-height: 0; /* allow children to shrink so overflow works */
+}
+
+/* ensure the left column's inner wrapper is a flex column filling available height */
+.groups-page .col-12 > .d-flex.flex-column.h-100 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; /* essential for overflow to behave */
+  overflow: auto; /* make the column the only scroll container */
+}
+
+/* make the scrollable list area flex and let overflow:auto operate properly */
+.groups-page .flex-grow-1.overflow-auto {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* end of inserted block */
+
 
 .inner-title {
     h3 {
@@ -374,4 +416,3 @@ img {
     }
 }
 
-/* ------------------------- no-records-found ------------------------ */
