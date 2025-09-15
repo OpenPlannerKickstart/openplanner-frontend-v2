@@ -156,9 +156,9 @@ const Groups: React.FC = () => {
                   </div>
                 </div>
                 {/* Composer */}
-                <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#fff', position: 'sticky', bottom: 0, zIndex: 1 }}>
+                <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', background: '#fff', position: 'sticky', bottom: 0, zIndex: 1 }}>
                   <div className="input-group">
-                    <input className="form-control" placeholder="Send a message" />
+                    <input className="form-control" placeholder="Send a message" style={{ outline: 'none', boxShadow: 'none' }} />
                     <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach">
                       <i className="material-symbols-outlined">attach_file</i>
                     </button>
