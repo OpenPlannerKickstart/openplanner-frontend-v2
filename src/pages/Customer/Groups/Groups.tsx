@@ -151,9 +151,15 @@ const Groups: React.FC = () => {
               {/* Chat timeline (independent scroll) */}
               <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
                 <div className="flex-grow-1" style={{ background: '#FAFAFA', padding: '16px 24px' }}>
-                  <div className="text-center text-muted" style={{ marginTop: 40 }}>
-                    No conversation selected
-                  </div>
+                  {[...Array(25)].map((_, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+                      <div style={{ width: 32, height: 32, background: '#E5E7EB', borderRadius: '50%' }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 3 === 0 ? '60%' : '40%' }} />
+                        <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 4 === 0 ? '30%' : '20%', marginTop: 6 }} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
                 {/* Composer */}
                 <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#fff', position: 'sticky', bottom: 0, zIndex: 1 }}> 
