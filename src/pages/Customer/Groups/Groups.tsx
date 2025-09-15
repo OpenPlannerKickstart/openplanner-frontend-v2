@@ -108,10 +108,9 @@ const Groups: React.FC = () => {
                   ) : (
                     <div>
                       <div className="px-3 pt-3">
-                        <h6 className="mb-2" style={{ color: '#6B7280', fontWeight: 600, letterSpacing: 0.2 }}>My Groups</h6>
+                        <h6 className="mb-2" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>My Groups</h6>
                       </div>
                       <div className="text-center p-4">
-                        <img src={'/assets/images/not-voucher-found.svg'} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
                         <h5 className="mt-3 mb-1">You’re not in any groups yet</h5>
                         <p className="text-muted mb-0" style={{ fontSize: 14 }}>
                           When you join or create a group, it will appear here.
@@ -119,10 +118,9 @@ const Groups: React.FC = () => {
                       </div>
                       <hr className="my-0" />
                       <div className="px-3 pt-3">
-                        <h6 className="mb-2" style={{ color: '#6B7280', fontWeight: 600, letterSpacing: 0.2 }}>Find groups to join</h6>
+                        <h6 className="mb-2" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>Find groups to join</h6>
                       </div>
                       <div className="text-center p-4">
-                        <img src={'/assets/images/not-voucher-found.svg'} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
                         <h5 className="mt-3 mb-1">No suggestions available</h5>
                         <p className="text-muted mb-0" style={{ fontSize: 14 }}>
                           Upload a syllabus to get tailored group suggestions.
@@ -134,11 +132,11 @@ const Groups: React.FC = () => {
               </div>
             </div>
             {/* Right column (chat area) */}
-            <div className="col-12 col-lg-8 d-flex flex-column" style={{ minHeight: 0 }}>
+            <div className="col-12 col-lg-8 d-flex flex-column" style={{ minHeight: 0, overflow: 'auto' }}>
               {/* Header */}
               <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '0 24px', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
-                  <div className="rounded-circle" style={{ width: 32, height: 32, background: '#E5E7EB' }} />
+                  <img src={'/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%' }} />
                   <h5 className="mb-0" style={{ color: '#6B7280' }}>{activeTab === 'groups' ? 'Select a group' : 'Select a conversation'}</h5>
                 </div>
                 {activeTab === 'groups' ? (
@@ -152,13 +150,13 @@ const Groups: React.FC = () => {
               </div>
               {/* Chat timeline (independent scroll) */}
               <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
-                <div className="flex-grow-1 overflow-auto" style={{ background: '#FAFAFA', padding: '16px 24px' }}>
+                <div className="flex-grow-1" style={{ background: '#FAFAFA', padding: '16px 24px' }}>
                   <div className="text-center text-muted" style={{ marginTop: 40 }}>
                     No conversation selected
                   </div>
                 </div>
                 {/* Composer */}
-                <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#fff' }}>
+                <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#fff', position: 'sticky', bottom: 0, zIndex: 1 }}>
                   <div className="input-group">
                     <input className="form-control" placeholder="Send a message" />
                     <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach">
