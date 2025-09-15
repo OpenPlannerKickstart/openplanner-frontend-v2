@@ -14,11 +14,11 @@ const Groups: React.FC = () => {
         </div>
         <div className="page-title-right"></div>
       </div>
-      <div className="content-area content-area-title-filter">
-        <div className="page-content-wrapper h-100">
-          <div className="row gx-0 gy-0">
+      <div className="content-area content-area-title-filter" style={{ overflow: 'hidden' }}>
+        <div className="page-content-wrapper h-100" style={{ overflow: 'hidden' }}>
+          <div className="row gx-0 gy-0" style={{ minHeight: 0 }}>
             <div className="col-12 col-lg-4 px-0" >
-              <div className="d-flex flex-column h-100 bg-white" style={{ overflow: 'auto' }}>
+              <div className="d-flex flex-column h-100 bg-white" style={{ overflow: 'hidden' }}>
                 {/* Search */}
                 <div className="d-flex align-items-center" style={{ height: 64, borderRight: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 2 }}>
                   <div className="px-2 w-100" style={{ position: 'relative' }}>
@@ -96,7 +96,7 @@ const Groups: React.FC = () => {
                 </div>
 
                 {/* List area (scrollable) */}
-                <div className="flex-grow-1" style={{ minHeight: 0 }}>
+                <div className="flex-grow-1 overflow-auto" style={{ minHeight: 0 }}>
                   {activeTab === 'chats' ? (
                     <div className="text-center p-4">
                       <img src={'/assets/images/not-voucher-found.svg'} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
@@ -130,6 +130,42 @@ const Groups: React.FC = () => {
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+            {/* Right column (chat area) */}
+            <div className="col-12 col-lg-8 d-flex flex-column" style={{ minHeight: 0 }}>
+              {/* Header */}
+              <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '0 24px', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
+                <div className="d-flex align-items-center gap-2">
+                  <div className="rounded-circle" style={{ width: 32, height: 32, background: '#E5E7EB' }} />
+                  <h5 className="mb-0" style={{ color: '#6B7280' }}>{activeTab === 'groups' ? 'Select a group' : 'Select a conversation'}</h5>
+                </div>
+                {activeTab === 'groups' ? (
+                  <div className="d-flex align-items-center gap-2" style={{ opacity: 0.6, pointerEvents: 'none' }}>
+                    <button className="btn btn-primary" style={{ height: 40, minWidth: 120, borderRadius: 12 }}>Group Info</button>
+                    <button className="btn btn-outline-white" style={{ height: 40, width: 56, borderRadius: 12 }}>
+                      <i className="material-symbols-outlined">search</i>
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+              {/* Chat timeline (independent scroll) */}
+              <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
+                <div className="flex-grow-1 overflow-auto" style={{ background: '#FAFAFA', padding: '16px 24px' }}>
+                  <div className="text-center text-muted" style={{ marginTop: 40 }}>
+                    No conversation selected
+                  </div>
+                </div>
+                {/* Composer */}
+                <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#fff' }}>
+                  <div className="input-group">
+                    <input className="form-control" placeholder="Send a message" />
+                    <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach">
+                      <i className="material-symbols-outlined">attach_file</i>
+                    </button>
+                    <button className="btn btn-primary" type="button">Send</button>
+                  </div>
                 </div>
               </div>
             </div>

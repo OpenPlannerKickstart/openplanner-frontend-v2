@@ -1,4 +1,11 @@
+/* Lock the app shell to the viewport when Groups page is active */
+/* Ensure the app shell can scroll normally */
+.main-content:has(.page-content.groups-page) {
+  height: auto;
+  overflow: auto;
+}
 // Common CSS
+/* DEBUG styles removed */
 .h1,
 .h2,
 .h3,
@@ -312,15 +319,23 @@ img {
 /* Groups page specific overrides */
 .groups-page {
     .content-area {
-        padding: 0 0px 0 0 !important;
-        overflow: hidden !important;
+        padding: 0 !important;
+        overflow: auto !important; /* allow page to scroll again */
+        border-radius: 0 !important; /* keep flat edge */
     }
 }
 
+/* Lock the Groups page frame to the viewport (below topbar) */
+.page-content.groups-page {
+  display: block;
+  height: auto;
+  overflow: visible;
+}
+
 .groups-page .content-area.content-area-title-filter {
-    min-height: calc(100vh - 80px) !important; 
-    max-height: none !important;             
-    overflow: hidden !important;             
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
 }
 
 /* ------------------------- groups page layout fixes ------------------------ */
@@ -328,7 +343,7 @@ img {
    and scroll areas can grow/shrink correctly. The important part is `min-height: 0` on flex
    children so overflow works as expected. */
 .groups-page .page-content-wrapper {
-  min-height: calc(100vh - 120px);
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -345,7 +360,35 @@ img {
   flex-direction: column;
   height: 100%;
   min-height: 0; /* essential for overflow to behave */
-  overflow: auto; /* make the column the only scroll container */
+  overflow: hidden; /* prevent column from scrolling; inner boxes will scroll */
+}
+
+/* Left column: list area is the only scroller */
+.groups-page .col-12.col-lg-4 .flex-grow-1 {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Right column: stack header (fixed), timeline (scroll), composer (fixed) */
+.groups-page .col-12.col-lg-8 {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.groups-page .col-12.col-lg-8 > .d-flex.flex-column {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.groups-page .col-12.col-lg-8 .flex-grow-1.d-flex.flex-column {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.groups-page .col-12.col-lg-8 .flex-grow-1.d-flex.flex-column > .flex-grow-1 {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto; /* timeline scrolls */
 }
 
 /* make the scrollable list area flex and let overflow:auto operate properly */
@@ -416,3 +459,77 @@ img {
     }
 }
 
+
+
+/* ================= Desktop-only frame lock for Groups ================= */
+@media (min-width: 992px) {
+  /* Lock the Groups frame below the top app bar; stop outer page from scrolling */
+  .page-content.groups-page {
+    height: calc(100vh - 60px); /* 60px = existing top offset */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* key: prevent browser page scroll */
+  }
+
+  /* Title stays sized by content; content-area occupies the rest */
+  .groups-page .page-title-wrapper {
+    flex: 0 0 auto;
+  }
+  .groups-page .content-area {
+    flex: 1 1 auto;
+    min-height: 0;           /* allow inner children to become scrollers */
+    overflow: hidden;        /* the columns control scrolling */
+    border-radius: 0 !important; /* edge-to-edge look */
+    padding: 0 !important;
+  }
+
+  /* Close the height chain so inner panes can own scroll */
+  .groups-page .content-area.content-area-title-filter {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+  }
+  .groups-page .page-content-wrapper {
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .groups-page .row.gx-0.gy-0 {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+  }
+
+  /* ---------------- Left column: only the list scrolls ---------------- */
+  .groups-page .col-lg-4 > .d-flex.flex-column.h-100 {
+    min-height: 0;
+    overflow: hidden; /* search + tabs can be sticky; list below scrolls */
+  }
+  .groups-page .col-lg-4 .flex-grow-1 {
+    min-height: 0;
+    overflow: auto;        /* this is the only scroller on the left */
+    scrollbar-width: none; /* hide scrollbar (Firefox) */
+  }
+  .groups-page .col-lg-4 .flex-grow-1::-webkit-scrollbar { display: none; } /* hide scrollbar (WebKit) */
+
+  /* ---------------- Right column: header top, composer bottom --------- */
+  .groups-page .col-lg-8 {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .groups-page .col-lg-8 > .d-flex.flex-column {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  /* The timeline (middle) is the only scroller on the right */
+  .groups-page .col-lg-8 .flex-grow-1.d-flex.flex-column { min-height: 0; }
+  .groups-page .col-lg-8 .flex-grow-1.d-flex.flex-column > .flex-grow-1 {
+    min-height: 0;
+    overflow: auto;
+    scrollbar-width: none;
+  }
+  .groups-page .col-lg-8 .flex-grow-1.d-flex.flex-column > .flex-grow-1::-webkit-scrollbar { display: none; }
+}
