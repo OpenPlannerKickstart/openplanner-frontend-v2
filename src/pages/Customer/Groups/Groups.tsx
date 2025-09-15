@@ -134,9 +134,9 @@ const Groups: React.FC = () => {
             {/* Right column (chat area) */}
             <div className="col-12 col-lg-8 d-flex flex-column" style={{ minHeight: 0, overflow: 'auto' }}>
               {/* Header */}
-              <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '0 24px', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}> {/*borderLeft: '1px solid #E5E7EB', */}
+              <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}> {/*borderLeft: '1px solid #E5E7EB', */}
                 <div className="d-flex align-items-center gap-2">
-                  <img src={'/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                  <img src={'/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%' }} />
                   <h5 className="mb-0" style={{ color: '#6B7280' }}>{activeTab === 'groups' ? 'Select a group' : 'Select a conversation'}</h5>
                 </div>
                 {activeTab === 'groups' ? (
