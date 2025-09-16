@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
+import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
+import AddEditGroup from '../../../common/Groups/AddEditGroup';
 
 const Groups: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'chats' | 'groups'>('chats');
   const [searchFocused, setSearchFocused] = useState(false);
+  
+  // Add/Edit Syllabus state
+  const [showSyllabus, setShowSyllabus] = useState(false);
+  const handleSyllabusShow = () => setShowSyllabus(true);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
 
   return (
     <div className="page-content groups-page">
@@ -12,7 +19,14 @@ const Groups: React.FC = () => {
             <h4>Groups</h4>
           </div>
         </div>
-        <div className="page-title-right"></div>
+        <div className="page-title-right">
+          <button type="button" className="btn btn-primary" onClick={() => setShowCreateGroup(true)}>
+            Create Group
+          </button>
+          <button type="button" className="btn btn-warning" onClick={handleSyllabusShow}>
+            Add Syllabus
+          </button>
+        </div>
       </div>
       <div className="content-area content-area-title-filter" style={{ overflow: 'hidden' }}>
         <div className="page-content-wrapper h-100" style={{ overflow: 'hidden' }}>
@@ -204,6 +218,19 @@ const Groups: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Add/Edit Syllabus Modal */}
+      <AddEditSyllabus 
+        showSyllabus={showSyllabus} 
+        setShowSyllabus={setShowSyllabus} 
+        handleGetData={() => {}} // TODO: Add syllabus data refresh if needed
+      />
+      {/* Create Group Modal */}
+      <AddEditGroup 
+        showGroup={showCreateGroup}
+        setShowGroup={setShowCreateGroup}
+        handleGetData={() => {}}
+      />
     </div>
   );
 };
