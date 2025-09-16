@@ -20,7 +20,7 @@ const Groups: React.FC = () => {
             <div className="col-12 col-lg-4 px-0" >
               <div className="d-flex flex-column h-100 bg-white" style={{ overflow: 'hidden' }}>
                 {/* Search */}
-                <div className="d-flex align-items-center" style={{ height: 64, borderRight: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 2 }}>
+                <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderRight: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', background: '#fff' }}>
                   <div className="px-2 w-100" style={{ position: 'relative' }}>
                     <i
                       className="material-symbols-outlined"
@@ -47,12 +47,12 @@ const Groups: React.FC = () => {
                 </div>
 
                 {/* Tabs - site styling with single baseline and aligned indicator */}
-                <div className="nav-tabs-outer nav-tabs-style2 px-0" style={{ position: 'sticky', top: 64, background: '#fff', zIndex: 1 }}>
+                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', paddingBottom: 0 }}>
                   <nav>
                     <div
                       className="nav nav-tabs page-filters"
                       role="tablist"
-                      style={{ position: 'relative', marginLeft: 0, marginRight: 0, paddingLeft: 0, paddingRight: 0 }}
+                      style={{ position: 'relative', marginLeft: 0, marginRight: 0, paddingLeft: 0, paddingRight: 0, marginBottom: 0 }}
                     >
                       <div className="page-filters-left w-100 d-flex justify-content-around">
                         <button
@@ -78,12 +78,12 @@ const Groups: React.FC = () => {
                           </div>
                         </button>
                       </div>
-                      {/* Active underline indicator aligned to baseline and spanning half width */}
+                      {/* Active underline indicator aligned to divider (overlaps by 1px) */}
                       <div
                         style={{
                           position: 'absolute',
                           left: activeTab === 'chats' ? 0 : '50%',
-                          bottom: 0,
+                          bottom: -1,
                           width: '50%',
                           height: 3,
                           background: '#0EA5E9',
@@ -95,8 +95,9 @@ const Groups: React.FC = () => {
                   </nav>
                 </div>
 
-                {/* List area (scrollable) */}
-                <div className="flex-grow-1 overflow-auto" style={{ minHeight: 0 }}>
+                {/* List area wrapper (mirror right column pattern) */}
+                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0 }}>
+                  <div className="flex-grow-1 overflow-auto left-list-scroll" style={{ minHeight: 0 }}>
                   {activeTab === 'chats' ? (
                     <div className="text-center p-4">
                       <img src={'/assets/images/not-voucher-found.svg'} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
@@ -104,6 +105,20 @@ const Groups: React.FC = () => {
                       <p className="text-muted mb-0" style={{ fontSize: 14 }}>
                         Start a conversation from a group or create a private study group.
                       </p>
+                    </div>
+                  ) : null}
+                  {/* Temporary placeholder rows to verify left list scrolling */}
+                  {activeTab === 'chats' ? (
+                    <div className="px-3" aria-hidden="true">
+                      {[...Array(40)].map((_, i) => (
+                        <div key={`chatrow-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
+                          <div style={{ width: 36, height: 36, background: '#E5E7EB', borderRadius: '50%' }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 3 === 0 ? '60%' : '40%' }} />
+                            <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 4 === 0 ? '30%' : '20%', marginTop: 6 }} />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div>
@@ -126,8 +141,21 @@ const Groups: React.FC = () => {
                           Upload a syllabus to get tailored group suggestions.
                         </p>
                       </div>
+                      {/* Temporary placeholder rows for Groups tab as well */}
+                      <div className="px-3" aria-hidden="true">
+                        {[...Array(40)].map((_, i) => (
+                          <div key={`grouprow-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
+                            <div style={{ width: 36, height: 36, background: '#E5E7EB', borderRadius: '50%' }} />
+                            <div style={{ flex: 1 }}>
+                              <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 3 === 0 ? '55%' : '45%' }} />
+                              <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 4 === 0 ? '35%' : '25%', marginTop: 6 }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
+                  </div>
                 </div>
               </div>
             </div>

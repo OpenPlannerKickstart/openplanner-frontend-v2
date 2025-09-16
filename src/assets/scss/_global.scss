@@ -508,13 +508,44 @@ img {
   .groups-page .col-lg-4 > .d-flex.flex-column.h-100 {
     min-height: 0;
     overflow: hidden; /* search + tabs can be sticky; list below scrolls */
+    display: grid;                 /* enforce 3-row structure */
+    grid-template-rows: 64px 64px 1fr; /* search, tabs, scrollable list */
   }
+  .groups-page .col-lg-4 { height: 100%; min-height: 0; }
+  .groups-page .col-lg-4 .search-row { grid-row: 1; }
+  .groups-page .col-lg-4 .tabs-row { grid-row: 2; }
+  .groups-page .col-lg-4 .left-scroll-inner { grid-row: 3; }
+  /* Remove any stray gap under tabs so content meets divider */
+  .groups-page .tabs-row .page-filters { margin-bottom: 0 !important; }
+  .groups-page .tabs-row { padding-bottom: 0 !important; border-bottom: 1px solid #E5E7EB; }
   .groups-page .col-lg-4 .flex-grow-1 {
     min-height: 0;
     overflow: auto;        /* this is the only scroller on the left */
     scrollbar-width: none; /* hide scrollbar (Firefox) */
   }
   .groups-page .col-lg-4 .flex-grow-1::-webkit-scrollbar { display: none; } /* hide scrollbar (WebKit) */
+
+  /* Named scroll wrapper for clarity */
+  .groups-page .left-list-scroll {
+    flex: 1 1 auto;
+    min-height: 0;         /* allow it to become the scroller */
+    height: 100%;          /* ensure it fills the 1fr track */
+    overflow-y: auto !important; /* own vertical overflow explicitly */
+    display: block;
+    position: relative;
+    pointer-events: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Mirror right column pattern: inner wrapper controls flow */
+  .groups-page .left-scroll-inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 0 !important;
+    height: 100%;
+    overflow: hidden; /* inner scroller owns the overflow */
+  }
+  .groups-page .left-list-scroll { padding-top: 0 !important; margin-top: 0 !important; }
 
   /* ---------------- Right column: header top, composer bottom --------- */
   .groups-page .col-lg-8 {
