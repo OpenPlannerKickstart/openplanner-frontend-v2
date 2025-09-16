@@ -20,7 +20,7 @@ const Groups: React.FC = () => {
             <div className="col-12 col-lg-4 px-0" >
               <div className="d-flex flex-column h-100 bg-white" style={{ overflow: 'hidden' }}>
                 {/* Search */}
-                <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderRight: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', background: '#fff' }}>
+                <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff' }}>
                   <div className="px-2 w-100" style={{ position: 'relative' }}>
                     <i
                       className="material-symbols-outlined"
@@ -162,7 +162,7 @@ const Groups: React.FC = () => {
             {/* Right column (chat area) */}
             <div className="col-12 col-lg-8 d-flex flex-column" style={{ minHeight: 0, overflow: 'auto' }}>
               {/* Header */}
-              <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}> {/*borderLeft: '1px solid #E5E7EB', */}
+              <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
                   <img src={'/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%' }} />
                   <h5 className="mb-0" style={{ color: '#6B7280' }}>{activeTab === 'groups' ? 'Select a group' : 'Select a conversation'}</h5>
