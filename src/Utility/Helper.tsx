@@ -38,8 +38,9 @@ export const SUPPORTED_FORMATS = [
 ];
 export const SUPPORTED_SYLLABUS_UPLOAD_FORMATS = [
   "application/pdf",
-
-]
+  "application/msword", 
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
+];
 
 /** key Genrated Base64   */
 const key = "ODcmS3EzZnI/QXhybUFjeUpQREo2cHB6";
