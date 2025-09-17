@@ -49,7 +49,8 @@ export const ENUMFORROUTES = {
   EDIT_COURSE:"/edit-course",
   PLAN_DETAILS:"/plan-details",
   SUCCESS:"/success",
-  FAILURE:"/failure"
+  FAILURE:"/failure",
+  GROUPS: "/groups"
 
 }
 
