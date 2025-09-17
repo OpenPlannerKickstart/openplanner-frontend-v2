@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import AddEditGroup from '../../../common/Groups/AddEditGroup';
+import { get, post } from '../../../Utility/httpInterceptor';
+import { ts, te } from '../../../Utility/Toaster';
+import GroupListItem from '../../..//components/Groups/GroupListItem';
 
 const Groups: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'chats' | 'groups'>('chats');
@@ -10,6 +13,25 @@ const Groups: React.FC = () => {
   const [showSyllabus, setShowSyllabus] = useState(false);
   const handleSyllabusShow = () => setShowSyllabus(true);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [myGroups, setMyGroups] = useState<any[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
+
+  const fetchMyGroups = async () => {
+    try {
+      const res: any = await get('groups/mine');
+      if (res?.data) {
+        setMyGroups(res.data);
+      }
+    } catch (err: any) {
+      te('Failed to load your groups');
+    }
+  };
+  React.useEffect(() => {
+    fetchMyGroups();
+  }, []);
+
+  const selectedGroup = selectedGroupId ? myGroups.find(g => g.id === selectedGroupId) : null;
 
   return (
     <div className="page-content groups-page">
@@ -139,11 +161,27 @@ const Groups: React.FC = () => {
                       <div className="px-3 pt-3">
                         <h6 className="mb-2" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>My Groups</h6>
                       </div>
-                      <div className="text-center p-4">
-                        <h5 className="mt-3 mb-1">You’re not in any groups yet</h5>
-                        <p className="text-muted mb-0" style={{ fontSize: 14 }}>
-                          When you join or create a group, it will appear here.
-                        </p>
+                      <div>
+                        {myGroups && myGroups.length > 0 ? (
+                          myGroups.map((g: any) => (
+                            <GroupListItem
+                              key={g.id}
+                              id={g.id}
+                              name={g.name}
+                              avatarColor={g.avatarColor}
+                              variant="mine"
+                              isSelected={selectedGroupId === g.id}
+                              onClick={() => setSelectedGroupId(g.id)}
+                            />
+                          ))
+                        ) : (
+                          <div className="text-center p-4">
+                            <h5 className="mt-3 mb-1">You’re not in any groups yet</h5>
+                            <p className="text-muted mb-0" style={{ fontSize: 14 }}>
+                              When you join or create a group, it will appear here.
+                            </p>
+                          </div>
+                        )}
                       </div>
                       <hr className="my-0" />
                       <div className="px-3 pt-3">
@@ -174,17 +212,37 @@ const Groups: React.FC = () => {
               </div>
             </div>
             {/* Right column (chat area) */}
-            <div className="col-12 col-lg-8 d-flex flex-column" style={{ minHeight: 0, overflow: 'auto' }}>
+            <div className="col-12 col-lg-8 d-flex flex-column" style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}>
               {/* Header */}
               <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
-                  <img src={'/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%' }} />
-                  <h5 className="mb-0" style={{ color: '#6B7280' }}>{activeTab === 'groups' ? 'Select a group' : 'Select a conversation'}</h5>
+                  {selectedGroupId ? (
+                    <>
+                      <div className="d-flex align-items-center gap-2">
+                        <div style={{ width: 44, height: 44, borderRadius: 22, background: (myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 26, height: 'auto' }} />
+                        </div>
+                        <h5 className="mb-0" style={{ color: '#111827' }}>{myGroups.find(g => g.id === selectedGroupId)?.name}</h5>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <img src={'/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+                      <h5 className="mb-0" style={{ color: '#6B7280' }}>{activeTab === 'groups' ? 'Select a group' : 'Select a conversation'}</h5>
+                    </>
+                  )}
                 </div>
-                {activeTab === 'groups' ? (
-                  <div className="d-flex align-items-center gap-2" style={{ opacity: 0.6, pointerEvents: 'none' }}>
-                    <button className="btn btn-primary" style={{ height: 40, minWidth: 120, borderRadius: 12 }}>Group Info</button>
-                    <button className="btn btn-outline-white" style={{ height: 40, width: 56, borderRadius: 12 }}>
+                {(activeTab === 'groups' || !!selectedGroupId) ? (
+                  <div className="d-flex align-items-center gap-2">
+                    <button
+                      className="btn btn-primary"
+                      style={{ height: 40, minWidth: 120, borderRadius: 8, opacity: selectedGroupId ? 1 : 0.6 }}
+                      disabled={!selectedGroupId}
+                      onClick={() => setShowGroupInfo(true)}
+                    >
+                      Group Info
+                    </button>
+                    <button className="btn btn-outline-white" style={{ height: 40, width: 56, borderRadius: 8 }}>
                       <i className="material-symbols-outlined">search</i>
                     </button>
                   </div>
@@ -214,6 +272,88 @@ const Groups: React.FC = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Nested Group Info panel (animated slide) */}
+              {/* Backdrop limited to right column content area */}
+              <div
+                onClick={() => setShowGroupInfo(false)}
+                style={{
+                  position: 'absolute', left: 0, right: 0, top: 64, bottom: 0,
+                  background: 'rgba(0,0,0,0.06)', zIndex: 2,
+                  opacity: showGroupInfo ? 1 : 0,
+                  transition: 'opacity 220ms ease',
+                  pointerEvents: showGroupInfo ? 'auto' : 'none'
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute', top: 64, right: 0, bottom: 0, width: 380,
+                  background: '#fff', borderLeft: '1px solid #E5E7EB', boxShadow: '0 0 24px rgba(0,0,0,0.08)', zIndex: 3,
+                  display: 'flex', flexDirection: 'column',
+                  transform: showGroupInfo ? 'translateX(0)' : 'translateX(100%)',
+                  transition: 'transform 240ms ease',
+                  pointerEvents: showGroupInfo ? 'auto' : 'none'
+                }}
+              >
+                {/* Banner header: fills with avatar color, icon left, close on right */}
+                <div
+                  style={{
+                    background: (selectedGroup?.avatarColor) || '#E5F3FF',
+                    height: 96,
+                    padding: '12px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <img src={'/assets/images/book.svg'} alt="group" style={{ width: 32, height: 'auto' }} />
+                  <button className="btn btn-outline-white" onClick={() => setShowGroupInfo(false)}>
+                    <i className="material-symbols-outlined">close</i>
+                  </button>
+                </div>
+                {/* Name under banner */}
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
+                  <h5 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h5>
+                  <div className="text-muted" style={{ fontSize: 14 }}>
+                    {(() => {
+                      const typeLabel = selectedGroup?.type === 'canonical' ? 'Class' : 'Group';
+                      const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
+                      const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
+                      return `${typeLabel} - ${countLabel}`;
+                    })()}
+                  </div>
+                </div>
+                {/* Description card with 10% avatar tint */}
+                <div style={{ padding: '16px' }}>
+                  {(() => {
+                    const hex = selectedGroup?.avatarColor || '#E5F3FF';
+                    const toRGBA = (h: string, alpha: number) => {
+                      const m = h.replace('#','');
+                      const r = parseInt(m.substring(0,2), 16);
+                      const g = parseInt(m.substring(2,4), 16);
+                      const b = parseInt(m.substring(4,6), 16);
+                      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                    };
+                    const bg = toRGBA(hex, 0.10);
+                    const border = toRGBA(hex, 0.25);
+                    const description = selectedGroup?.description || 'No description provided.';
+                    const creatorName = (selectedGroup?.createdBy && (selectedGroup?.createdBy.displayName || selectedGroup?.createdBy.name))
+                      || (selectedGroup?.owner && (selectedGroup?.owner.displayName || selectedGroup?.owner.name))
+                      || selectedGroup?.creatorName
+                      || 'Unknown';
+                    const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
+                    const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
+                    return (
+                      <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                        <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                        <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                          Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -230,6 +370,17 @@ const Groups: React.FC = () => {
         showGroup={showCreateGroup}
         setShowGroup={setShowCreateGroup}
         handleGetData={() => {}}
+        onCreate={async (payload) => {
+          try {
+            const res: any = await post('groups/create', payload);
+            if (res?.data) {
+              ts('Group created');
+              await fetchMyGroups();
+            }
+          } catch (err: any) {
+            te('Failed to create group');
+          }
+        }}
       />
     </div>
   );

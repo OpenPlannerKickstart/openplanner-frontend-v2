@@ -10,6 +10,7 @@ type AddEditGroupProps = {
   showGroup: boolean,
   setShowGroup: (v: boolean) => void,
   handleGetData?: () => void,
+  onCreate?: (payload: { type: 'subgroup'; name: string; description: string | null; privacy: 'public' | 'invite_only'; avatarColor: string | null; }) => Promise<void> | void,
 }
 
 const AddEditGroup: React.FC<AddEditGroupProps> = (props) => {
@@ -51,7 +52,16 @@ const AddEditGroup: React.FC<AddEditGroupProps> = (props) => {
     if (!isEmptyObjectOrNullUndefiend(errors)) {
       return
     }
-    // No API wiring yet; close and optionally notify parent for refresh
+    const payload = {
+      type: 'subgroup' as const,
+      name: formik.values.name.trim(),
+      description: formik.values.description ? formik.values.description : null,
+      privacy: (formik.values.isPublic ? 'public' : 'invite_only') as 'public' | 'invite_only',
+      avatarColor: formik.values.color || null,
+    }
+    if (props.onCreate) {
+      await props.onCreate(payload)
+    }
     handleClose()
     props.handleGetData && props.handleGetData()
   }
