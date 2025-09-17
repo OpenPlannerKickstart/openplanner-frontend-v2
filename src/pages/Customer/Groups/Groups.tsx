@@ -8,6 +8,7 @@ import GroupListItem from '../../..//components/Groups/GroupListItem';
 const Groups: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'chats' | 'groups'>('chats');
   const [searchFocused, setSearchFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Add/Edit Syllabus state
   const [showSyllabus, setShowSyllabus] = useState(false);
@@ -94,6 +95,8 @@ const Groups: React.FC = () => {
                       className="form-control w-100"
                       placeholder="Search"
                       aria-label="Search"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setSearchFocused(true)}
                       onBlur={() => setSearchFocused(false)}
                       style={{
@@ -189,7 +192,9 @@ const Groups: React.FC = () => {
                       </div>
                       <div>
                         {myGroups && myGroups.length > 0 ? (
-                          myGroups.map((g: any) => (
+                          myGroups
+                            .filter((g: any) => g?.name?.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+                            .map((g: any) => (
                             <GroupListItem
                               key={g.id}
                               id={g.id}
@@ -199,7 +204,7 @@ const Groups: React.FC = () => {
                               isSelected={selectedGroupId === g.id}
                               onClick={() => setSelectedGroupId(g.id)}
                             />
-                          ))
+                            ))
                         ) : (
                           <div className="text-center p-4">
                             <h5 className="mt-3 mb-1">You’re not in any groups yet</h5>
@@ -208,6 +213,10 @@ const Groups: React.FC = () => {
                             </p>
                           </div>
                         )}
+                        {myGroups && myGroups.length > 0 && searchQuery.trim() &&
+                          myGroups.filter((g: any) => g?.name?.toLowerCase().includes(searchQuery.trim().toLowerCase())).length === 0 && (
+                            <div className="text-center p-3 text-muted" style={{ fontSize: 14 }}>No groups match “{searchQuery.trim()}”.</div>
+                          )}
                       </div>
                       <hr className="my-0" />
                       <div className="px-3 pt-3">
@@ -288,7 +297,7 @@ const Groups: React.FC = () => {
                   ))}
                 </div>
                 {/* Composer */}
-                <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#fff', position: 'sticky', bottom: 0, zIndex: 1 }}> 
+                <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}> 
                   <div className="input-group">
                     <input className="form-control" placeholder="Send a message" style={{ outline: 'none', boxShadow: 'none' }} />
                     <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach">
