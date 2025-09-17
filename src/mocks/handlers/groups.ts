@@ -1,4 +1,4 @@
-import { http, HttpResponse, delay } from 'msw';
+import { http, HttpResponse, delay, passthrough } from 'msw';
 import seed from '../groups/seed.json';
 import type {
   MessagesResponse,
@@ -93,40 +93,24 @@ export const groupsHandlers = [
     return HttpResponse.json({ ok: true });
   }),
 
-  // POST /groups/leave
-  http.post(`${API_BASE}/groups/leave`, async ({ request }) => {
-    await delay(50);
-    return HttpResponse.json({ ok: true });
+  // POST /groups/leave → passthrough to real backend
+  http.post(`${API_BASE}/groups/leave`, () => {
+    return passthrough();
   }),
 
-  // POST /groups/create (subgroup)
-  http.post(`${API_BASE}/groups/create`, async ({ request }) => {
-    const body = (await request.json()) as Record<string, any>;
-    const id = crypto.randomUUID();
-    const now = new Date().toISOString();
-    const group: GroupDetail = {
-      id,
-      type: 'subgroup',
-      name: String((body as any)?.name || 'New Subgroup'),
-      privacy: (body as any)?.privacy || 'invite_only',
-      memberCount: 1,
-      memberAvatars: [],
-      lastActivityAt: now,
-      archived: false,
-      course: null,
-      description: (body as any)?.description ?? null,
-      maxMembers: (body as any)?.maxMembers ?? null,
-      parentGroupId: (body as any)?.parentGroupId ?? null,
-    };
-    await delay(80);
-    return HttpResponse.json(group);
+  // POST /groups/:id/delete → let it hit the real backend (passthrough)
+  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/delete`), () => {
+    return passthrough();
   }),
 
-  // GET /groups/mine
-  http.get(`${API_BASE}/groups/mine`, async () => {
-    const groups = (seed as any).groups as GroupSummary[];
-    await delay(50);
-    return HttpResponse.json(groups);
+  // POST /groups/create (subgroup) → passthrough to real backend
+  http.post(`${API_BASE}/groups/create`, () => {
+    return passthrough();
+  }),
+
+  // GET /groups/mine → passthrough to real backend
+  http.get(`${API_BASE}/groups/mine`, () => {
+    return passthrough();
   }),
 
   // GET /groups/:id

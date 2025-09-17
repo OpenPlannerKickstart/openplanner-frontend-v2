@@ -33,6 +33,32 @@ const Groups: React.FC = () => {
 
   const selectedGroup = selectedGroupId ? myGroups.find(g => g.id === selectedGroupId) : null;
 
+  const handleLeaveGroup = async () => {
+    if (!selectedGroupId) return;
+    try {
+      await post('groups/leave', { groupId: selectedGroupId });
+      ts('Left group');
+      setShowGroupInfo(false);
+      setSelectedGroupId(null);
+      await fetchMyGroups();
+    } catch (err) {
+      te('Failed to leave group');
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    if (!selectedGroupId) return;
+    try {
+      await post(`groups/${selectedGroupId}/delete`, {});
+      ts('Group deleted');
+      setShowGroupInfo(false);
+      setSelectedGroupId(null);
+      await fetchMyGroups();
+    } catch (err) {
+      te('Failed to delete group');
+    }
+  };
+
   return (
     <div className="page-content groups-page">
       <div className="page-title-wrapper" style={{ borderBottom: '1px solid #E5E7EB' }}>
@@ -353,6 +379,54 @@ const Groups: React.FC = () => {
                     );
                   })()}
                 </div>
+
+                {/* Actions: Only show when this is one of myGroups (i.e., joined) */}
+                {selectedGroup ? (
+                  <>
+                    <div style={{ borderTop: '1px solid #E5E7EB' }} />
+                    <div style={{ padding: '16px' }}>
+                      <div className="d-flex flex-column gap-3">
+                      <button
+                        type="button"
+                        className="btn btn-outline-white text-start"
+                        onClick={handleLeaveGroup}
+                        style={{
+                          border: '1px solid #E5E7EB',
+                          borderRadius: 12,
+                          padding: '14px 16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 12,
+                          width: '100%'
+                        }}
+                      >
+                        <i className="material-symbols-outlined">logout</i>
+                        <span>Exit Group</span>
+                      </button>
+
+                      {selectedGroup?.type !== 'canonical' ? (
+                        <button
+                          type="button"
+                          className="btn btn-outline-white text-start"
+                          onClick={handleDeleteGroup}
+                          style={{
+                            border: '1px solid #E5E7EB',
+                            borderRadius: 12,
+                            padding: '14px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12,
+                            width: '100%'
+                          }}
+                        >
+                          <i className="material-symbols-outlined">delete</i>
+                          <span>Delete Group</span>
+                        </button>
+                      ) : null}
+                      </div>
+                    </div>
+                  </>
+                ) : null}
               </div>
             </div>
           </div>
