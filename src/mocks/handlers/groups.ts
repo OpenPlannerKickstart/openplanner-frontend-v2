@@ -11,6 +11,17 @@ import type {
 
 const API_BASE = '';
 
+// Basic HTML-escape utility for mock data to reduce the risk of XSS in development
+const escapeHtml = (value: unknown): string => {
+  if (typeof value !== 'string') return value as any;
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
 const suggestionsPath = `${API_BASE}/groups/suggestions`;
 const messagesPath = (id: string) => `${API_BASE}/groups/${id}/messages`;
 
@@ -18,6 +29,14 @@ export const groupsHandlers = [
   // POST /groups/suggestions
   http.post(suggestionsPath, async ({ request }) => {
     try {
+      // Minimal CSRF check for development mocks. The real backend should enforce CSRF.
+      const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
+      if (!csrf) {
+        return HttpResponse.json(
+          { code: 'FORBIDDEN', message: 'Missing CSRF token' },
+          { status: 403 }
+        );
+      }
       const body = (await request.json()) as Record<string, any>;
       const includeArchived = Boolean((body as any)?.includeArchived);
       const limit = Math.min(Number((body as any)?.limit) || 10, 20);
@@ -29,8 +48,8 @@ export const groupsHandlers = [
         .map(g => ({
           id: g.id,
           type: g.type,
-          name: g.name,
-          course: g.course ?? null,
+          name: escapeHtml(g.name),
+          course: g.course ? { ...g.course, title: escapeHtml((g.course as any).title) } : null,
           privacy: g.privacy,
           memberCount: g.memberCount,
           memberAvatars: g.memberAvatars?.slice(0, 4) ?? [],
@@ -52,7 +71,14 @@ export const groupsHandlers = [
     const url = new URL(request.url);
     const limit = Math.min(Number(url.searchParams.get('limit') || '50'), 100);
 
-    const messages = ((seed as any).messages as Message[]).filter(m => m.groupId === id).slice(0, limit);
+    const messages = ((seed as any).messages as Message[])
+      .filter(m => m.groupId === id)
+      .slice(0, limit)
+      .map((m) => ({
+        ...m,
+        content: escapeHtml(m.content),
+        sender: m.sender ? { ...m.sender, name: escapeHtml((m.sender as any).name) } : m.sender,
+      }));
     const res: MessagesResponse = { messages, nextCursor: null };
     await delay(120);
     return HttpResponse.json(res);
@@ -62,6 +88,14 @@ export const groupsHandlers = [
   http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/messages`), async ({ params, request }) => {
     const id = (params as any)[0];
     const body = (await request.json()) as Record<string, any>;
+    // Minimal CSRF check for development mocks. Backend must enforce proper protection.
+    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
+    if (!csrf) {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
+        { status: 403 }
+      );
+    }
     const content = String((body as any)?.content || '');
     if (content.length > 4000) {
       return HttpResponse.json({ code: 'RATE_LIMITED', message: 'Content too long' }, {
@@ -79,7 +113,7 @@ export const groupsHandlers = [
       id: crypto.randomUUID(),
       groupId: id as string,
       sender: { id: 'me', name: 'You' },
-      content,
+      content: escapeHtml(content),
       createdAt: new Date().toISOString(),
       clientId: (body as any)?.clientId ?? undefined,
     };
@@ -87,8 +121,15 @@ export const groupsHandlers = [
     return HttpResponse.json(msg);
   }),
 
-  // POST /groups/join
+  // POST /groups/join (with simple CSRF header validation in mocks)
   http.post(`${API_BASE}/groups/join`, async ({ request }) => {
+    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
+    if (!csrf) {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
+        { status: 403 }
+      );
+    }
     await delay(50);
     return HttpResponse.json({ ok: true });
   }),
@@ -116,19 +157,32 @@ export const groupsHandlers = [
   // GET /groups/:id
   http.get(new RegExp(`/groups/([0-9a-fA-F-]+)$`), async ({ params }) => {
     const id = (params as any)[0];
-    const group = ((seed as any).groups as GroupDetail[]).find(g => g.id === id);
-    if (!group) return HttpResponse.json({ code: 'FORBIDDEN', message: 'Not found' }, { status: 404 });
+    const groupRaw = ((seed as any).groups as GroupDetail[]).find(g => g.id === id);
+    if (!groupRaw) return HttpResponse.json({ code: 'FORBIDDEN', message: 'Not found' }, { status: 404 });
+    // Sanitize string fields to minimize XSS risk in dev
+    const group: GroupDetail = {
+      ...groupRaw,
+      name: escapeHtml((groupRaw as any).name),
+      description: escapeHtml((groupRaw as any).description),
+    } as any;
     await delay(50);
     return HttpResponse.json(group);
   }),
 
   // POST /groups/:id/invites
-  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/invites`), async ({ params }) => {
+  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/invites`), async ({ params, request }) => {
+    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
+    if (!csrf) {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
+        { status: 403 }
+      );
+    }
     const id = (params as any)[0];
     const token = crypto.randomUUID();
     const invite: Invite = {
-      url: `${location.origin}/invite/${token}`,
-      token,
+      url: escapeHtml(`${location.origin}/invite/${token}`),
+      token: escapeHtml(token),
       expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
       singleUse: true,
     };
@@ -136,10 +190,20 @@ export const groupsHandlers = [
     return HttpResponse.json(invite);
   }),
 
-  // POST /invites/accept
+  // POST /invites/accept (with simple CSRF header validation in mocks)
   http.post(`${API_BASE}/invites/accept`, async ({ request }) => {
+    // Minimal CSRF check for development mocks. The real backend should
+    // implement robust CSRF/session protection. Here we require a header key.
+    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
+    if (!csrf) {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
+        { status: 403 }
+      );
+    }
     await delay(50);
-    return HttpResponse.json({ ok: true, groupId: (seed as any).groups?.[0]?.id });
+    const gid = escapeHtml(String((seed as any).groups?.[0]?.id ?? ''));
+    return HttpResponse.json({ ok: true, groupId: gid });
   }),
 
   // POST /groups/:id/report
