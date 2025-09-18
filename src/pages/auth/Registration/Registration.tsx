@@ -76,7 +76,9 @@ const Registeration = (props) => {
     first_name: yup.string().required(FIRST_NAME_REQUIRED),
     last_name: yup.string().required(LAST_NAME_REQUIRED),
     university_name: yup.string().required(UNIVERSITY_NAME_REQUIRED).min(5, "Minimum 5 letters Required."),
-    mobile: yup.string().required(MOBILE_NO_IS_REQUIRED).matches(PATTERN_FOR_MOBILE_NO, MOBILE_NO_VALIDATION_MESSAGE),
+    mobile: yup.string().nullable(),
+
+    // mobile: yup.string().required(MOBILE_NO_IS_REQUIRED).matches(PATTERN_FOR_MOBILE_NO, MOBILE_NO_VALIDATION_MESSAGE),
     username: yup.string().required(USERNAME_IS_REQUIRED).matches(PATTERN_FOR_EMAIL_OR_USERNAME, USERNAME_SPACE_VALIDATION),
 
     password: yup
@@ -128,7 +130,7 @@ const Registeration = (props) => {
       university_name: signUpFormData.values.university_name,
       email: signUpFormData.values.email,
       password: signUpFormData.values.password,
-      mobile: signUpFormData.values.mobile,
+      mobile: (signUpFormData.values.mobile == "+1") ? undefined : `${signUpFormData.values.mobile}`,
       username: signUpFormData.values.username,
     }
     customJsonInclude(reqBody);
@@ -414,7 +416,7 @@ const Registeration = (props) => {
                             ? renderError(signUpFormData.errors.email)
                             : null}
                         </Form.Group>
-                        <Form.Group className="form-group required">
+                        <Form.Group className="form-group">
                           <Form.Label>Mobile No.</Form.Label>
                           <div className="form-group-icon-start">
                             <i className="th-outline-sms"></i>
