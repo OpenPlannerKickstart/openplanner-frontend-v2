@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Route, HashRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, HashRouter as Router, Routes } from 'react-router-dom';
 import { getToken, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from './Utility/Helper';
 import Login from './pages/auth/Login/Login';
 
@@ -34,6 +34,11 @@ import { PaymentSuccessfull } from './pages/auth/Registration/PaymentSuccessfull
 import { PaymentFailed } from './pages/auth/Registration/PaymentFailed';
 import { PaymentPlans } from './pages/auth/Registration/PaymentPlans';
 import Groups from './pages/Customer/Groups/Groups';
+const ParentsLanding = React.lazy(() => import('./pages/Parents/ParentsLanding'));
+// @ts-ignore - TS resolver can misreport on lazy dynamic imports in some configs
+const ParentsSuccess = React.lazy(() => import('./pages/Parents/ParentsSuccess'));
+// @ts-ignore - TS resolver can misreport on lazy dynamic imports in some configs
+const ParentsCancel = React.lazy(() => import('./pages/Parents/ParentsCancel'));
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -326,24 +331,42 @@ const AppRouter = (props): JSX.Element => {
 
 
 
+  const isParentsRoute = typeof window !== 'undefined' && window.location.hash.startsWith('#' + ENUMFORROUTES.PARENTS);
+
   return (
 
-    <div className={isAuthenticated ? 'layout-wrapper' : ''} id={isAuthenticated ? "layout-wrapper" : ''}>
+   <div className={isAuthenticated && !isParentsRoute ? 'layout-wrapper' : ''} id={isAuthenticated && !isParentsRoute ? "layout-wrapper" : ''}>
       <Router>
-        {isAuthenticated && (
+        {isAuthenticated && !isParentsRoute && (
 
           <Navbar />
         )}
 
-        {isAuthenticated && (
+        {isAuthenticated && !isParentsRoute && (
 
           <Sidebar />
         )}
-        <div className={isAuthenticated ? 'main-content' : ''}>
+        <div className={isAuthenticated && !isParentsRoute ? 'main-content' : ''}>
           <React.Suspense
             fallback={<div className="lazy-loading">Loading...</div>}
           >
             <Routes>
+              {/* Parents flow (standalone, accessible regardless of auth) */}
+              <Route
+                caseSensitive
+                path={ENUMFORROUTES.PARENTS}
+                element={<ParentsLanding />}
+              />
+              <Route
+                caseSensitive
+                path={ENUMFORROUTES.PARENTS_SUCCESS}
+                element={<ParentsSuccess />}
+              />
+              <Route
+                caseSensitive
+                path={ENUMFORROUTES.PARENTS_CANCEL}
+                element={<ParentsCancel />}
+              />
               {publicRoutes.map((route, i) => (
                 // <GuestRoute key={i} {...route} />
                 <Route
@@ -375,7 +398,7 @@ const AppRouter = (props): JSX.Element => {
 
             </Routes>
           </React.Suspense>
-          <NavigationConfirm />
+          {!isParentsRoute && <NavigationConfirm />}
         </div>
 
       </Router>
