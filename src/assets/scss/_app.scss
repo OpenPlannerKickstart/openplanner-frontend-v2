@@ -660,7 +660,8 @@
 
 .payment-plans-container{
     .auth-plans{
-        max-width: 1280px;
+        width: 100%;
+        max-width: 1320px;
         margin: 0 auto;
         .plans-header{
             text-align: center;
@@ -679,13 +680,13 @@
         }
     }
     &.parents-plans{
-        .admin-auth-inner-wrapper{ height: auto; }
-        .admin-auth-row{ height: auto; }
-        .admin-auth-col{ height: auto; }
+        .admin-auth-inner-wrapper{ height: 100%; }
+        .admin-auth-row{ height: 100%; }
+        .admin-auth-col{ height: 100%; }
         .admin-auth-left{ 
             align-items: center; 
             justify-content: flex-start; 
-            padding: 72px 20px 32px; /* tighter vertical spacing to avoid scroll */
+            padding: 64px 20px 24px; /* compact to avoid scroll */
         }
         .subscription-box{ margin-bottom: 0; }
     }

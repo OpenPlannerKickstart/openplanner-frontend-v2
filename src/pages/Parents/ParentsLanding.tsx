@@ -143,9 +143,9 @@ const ParentsLanding = () => {
                 </Row>
 
                 {/* Summary section below cards (not in a Card) */}
-                <div className="mt-4">
-                  <p className="text-muted mb-2">Select quantities above. Codes will be shown on the next screen and can be emailed to students.</p>
-                  <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-3">
+                <div className="mt-2">
+                  <p className="text-muted mb-1">Select quantities above. Codes will be shown on the next screen and can be emailed to students.</p>
+                  <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2">
                     <Form.Control style={{ maxWidth: 360 }} type="email" placeholder="Parent email (optional)" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} />
                     <div className="ms-md-auto d-flex align-items-center gap-2">
                       <strong>Total:</strong>
