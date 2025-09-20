@@ -131,10 +131,12 @@ const ParentsLanding = () => {
                                 })}
                               </ul>
                           </div>
-                          <div className="d-flex align-items-center gap-2 mt-3">
-                            <Button variant="light" className="btn-icon" onClick={() => decrement(plan.product_id)}>-</Button>
-                            <div>{cart[plan.product_id] || 0}</div>
-                            <Button variant="primary" className="btn-icon" onClick={() => increment(plan.product_id)}>+</Button>
+                          <div className="d-flex align-items-center justify-content-center gap-3 mt-3">
+                            <Button aria-label="Decrease" variant="outline-primary" className="btn-icon" onClick={() => decrement(plan.product_id)}>-</Button>
+                            <span className="btn btn-primary btn-text px-4" style={{ pointerEvents: 'none', cursor: 'default' }}>
+                              {(cart[plan.product_id] || 0)} {(cart[plan.product_id] || 0) === 1 ? 'student' : 'students'}
+                            </span>
+                            <Button aria-label="Increase" variant="outline-primary" className="btn-icon" onClick={() => increment(plan.product_id)}>+</Button>
                           </div>
                         </Card.Body>
                       </Card>
