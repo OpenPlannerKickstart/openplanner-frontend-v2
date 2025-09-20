@@ -1,7 +1,30 @@
-import React, { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Button, Card, Col, Form, Row } from 'react-bootstrap'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../../redux/store'
+import { getAllPlanAPI } from '../../redux/Service/User/Settings/settings'
+
+type Plan = {
+  product_id: string
+  title: string
+  price: number
+  duration: string
+  features: string[]
+}
+
+const defaultPlans: Plan[] = [
+  { product_id: 'one_month', title: '1 Month', price: 3.99, duration: 'for 1 month', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access'] },
+  { product_id: 'six_month', title: '6 Months', price: 14.99, duration: 'for 6 months', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access'] },
+  { product_id: 'one_year', title: '1 Year', price: 23.99, duration: 'for 1 year', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access'] },
+]
 
 const ParentsLanding = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const [plans, setPlans] = useState<Plan[]>([])
+  const [cart, setCart] = useState<Record<string, number>>({})
+  const [parentEmail, setParentEmail] = useState<string>('')
+  // Student emails are collected on success page only
+
   useEffect(() => {
     let meta: HTMLMetaElement | null = document.querySelector('meta[name="robots"]');
     const previous = meta?.getAttribute('content') || '';
@@ -19,16 +42,121 @@ const ParentsLanding = () => {
     }
   }, [])
 
-  return (
-    <div className="parents-wrapper">
-      <div className="parents-container">
-        <div className="parents-header">
-          <h1>OpenPlanner for Parents</h1>
-          <p>Buy subscriptions for your students without creating an account.</p>
-        </div>
+  useEffect(() => {
+    const fetchPlans = async () => {
+      const response: any = await dispatch(getAllPlanAPI({ payment_method: 'Stripe' }));
+      if (response?.payload) {
+        const list = (response.payload as Plan[]).slice().sort((a: any, b: any) => Number(a.price) - Number(b.price));
+        const limited = list.slice(0, 3);
+        if (limited.length === 3) setPlans(limited)
+        else {
+          // Fallback to defaults to ensure 3 cards in dev when API returns fewer
+          setPlans(defaultPlans)
+        }
+      }
+    }
+    fetchPlans()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-        <div className="parents-body">
-          <p>Plan selection UI will appear here.</p>
+  const totalItems = useMemo(() => Object.values(cart).reduce((s, q) => s + q, 0), [cart])
+  const totalAmount = useMemo(() => {
+    return Object.entries(cart).reduce((sum, [productId, qty]) => {
+      const plan = plans.find(p => p.product_id === productId)
+      return plan ? sum + plan.price * qty : sum
+    }, 0)
+  }, [cart, plans])
+
+  const increment = (productId: string) => {
+    setCart(prev => ({ ...prev, [productId]: (prev[productId] || 0) + 1 }))
+  }
+  const decrement = (productId: string) => {
+    setCart(prev => {
+      const next = { ...prev }
+      const current = next[productId] || 0
+      if (current <= 1) delete next[productId]
+      else next[productId] = current - 1
+      return next
+    })
+  }
+
+  // No student email collection here
+
+  const handleProceed = () => {
+    // Stub only: no API wiring here
+    const items = Object.entries(cart).map(([product_id, quantity]) => ({ product_id, quantity }))
+    // eslint-disable-next-line no-alert
+    alert(JSON.stringify({ items, parent_email: parentEmail || undefined }, null, 2))
+  }
+
+  return (
+    <div className='payment-plans-container parents-plans'>
+      <div className="admin-auth-wrapper admin-auth-side-image">
+        <div className="admin-auth-inner-wrapper">
+          <div className="admin-auth-row">
+            <div className="admin-auth-col admin-auth-left">
+              <div className="admin-auth-logo d-flex align-items-center justify-content-between">
+                <img src={'/assets/images/auth-logo.svg'} alt="OpenPlanner" />
+                <div></div>
+              </div>
+
+              <div className="subscription-box subscription-plans auth-plans" style={{ maxWidth: 1440, margin: '0 auto' }}>
+                <div className="plans-header">
+                  <h2>Choose Your Plan</h2>
+                  <p>Start with a 7-day free trial. Upgrade anytime for full access to all features.</p>
+                </div>
+
+                <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between">
+                  {plans.map((plan) => (
+                    <Col key={plan.product_id}>
+                      <Card className="pricing-card">
+                        <Card.Header>
+                          <span className="trial-label">{plan.title}</span>
+                          <span className="popular-tag">Popular</span>
+                        </Card.Header>
+                        <Card.Body>
+                          <div className="price-section d-flex align-items-baseline flex-wrap gap-2">
+                            <span className="price">${Number(plan.price).toFixed(2)}</span>
+                            <span className="duration d-block d-lg-inline-block mt-1 mt-lg-0 ms-0 ms-lg-1" style={{ lineHeight: 1.2 }}>{plan.duration}</span>
+                          </div>
+                          <div className="divider"></div>
+                          <div className="features-section">
+                            <h4>FEATURES</h4>
+                              <ul>
+                                {plan.features.map((f, i) => {
+                                  const normalized = (typeof f === 'string' && f.trim().toLowerCase() === 'full mobile application access') ? 'Full mobile application access' : f;
+                                  return (
+                                    <li key={i}><i className="material-symbols-outlined check-icon">check_circle</i> {normalized}</li>
+                                  );
+                                })}
+                              </ul>
+                          </div>
+                          <div className="d-flex align-items-center gap-2 mt-3">
+                            <Button variant="light" className="btn-icon" onClick={() => decrement(plan.product_id)}>-</Button>
+                            <div>{cart[plan.product_id] || 0}</div>
+                            <Button variant="primary" className="btn-icon" onClick={() => increment(plan.product_id)}>+</Button>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+
+                {/* Summary section below cards (not in a Card) */}
+                <div className="mt-4">
+                  <p className="text-muted mb-2">Select quantities above. Codes will be shown on the next screen and can be emailed to students.</p>
+                  <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-3">
+                    <Form.Control style={{ maxWidth: 360 }} type="email" placeholder="Parent email (optional)" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} />
+                    <div className="ms-md-auto d-flex align-items-center gap-2">
+                      <strong>Total:</strong>
+                      <span>${totalAmount.toFixed(2)}</span>
+                    </div>
+                    <Button variant="primary" disabled={totalItems === 0} onClick={handleProceed}>Proceed to checkout</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

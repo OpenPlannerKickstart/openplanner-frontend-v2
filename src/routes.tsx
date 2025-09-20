@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { Route, HashRouter as Router, Routes } from 'react-router-dom';
-import { getToken, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from './Utility/Helper';
+import React from 'react'
+import { Route, HashRouter as Router, Routes, useLocation } from 'react-router-dom';
+import { getToken } from './Utility/Helper';
 import Login from './pages/auth/Login/Login';
 
 import { RouterProps } from './interfaces';
@@ -11,24 +11,23 @@ import GuestRoute from './common/GuestRoute';
 import AuthRoute from './common/AuthRoute';
 import NotFound from './components/NotFound/NotFound';
 
-import { jwtDecode } from "jwt-decode";
 import Navbar from './components/Navbar/Navbar';
 
 import { ENUMFORROUTES } from './interfaces/enum';
 import Dashboard from './pages/Customer/Dashboard/Dashboard';
 import PageComponent from './pages/Customer/PageComponent/PageComponent';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword';
-import NewPassword from './pages/auth/NewPassword/NewPassword';
+// import NewPassword from './pages/auth/NewPassword/NewPassword';
 import Registration from './pages/auth/Registration/Registration';
 import Courses from './pages/Customer/Courses/Courses';
 import Task from './pages/Customer/Task/Task';
-import VerifySignupOtp from './pages/auth/Registration/VerifySignupOtp';
+// import VerifySignupOtp from './pages/auth/Registration/VerifySignupOtp';
 import Calendar from './pages/Customer/Calendar/CalendarEvent';
 import Settings from './pages/Customer/Settings/Settings';
 import EditCourse from './pages/Customer/Courses/EditCourse';
-import { hasUnsavedChanges } from './redux/User/Settings/settingsSlice';
-import { RootState } from './redux/store';
-import { useDispatch, useSelector } from 'react-redux';
+// import { hasUnsavedChanges } from './redux/User/Settings/settingsSlice';
+// import { RootState } from './redux/store';
+// import { useDispatch, useSelector } from 'react-redux';
 import NavigationConfirm from './NavigationConfirm';
 import { PaymentSuccessfull } from './pages/auth/Registration/PaymentSuccessfull';
 import { PaymentFailed } from './pages/auth/Registration/PaymentFailed';
@@ -155,16 +154,32 @@ const publicRoutes: RouterProps[] = [
   },
 ];
 
+const Layout = ({ isAuthenticated, children }: { isAuthenticated: boolean, children: React.ReactNode }) => {
+  const location = useLocation();
+  const isParentsRoute = location.pathname.startsWith(ENUMFORROUTES.PARENTS);
+
+  return (
+    <div className={isAuthenticated && !isParentsRoute ? 'layout-wrapper' : ''} id={isAuthenticated && !isParentsRoute ? "layout-wrapper" : ''}>
+      {isAuthenticated && !isParentsRoute && (
+        <Navbar />
+      )}
+      {isAuthenticated && !isParentsRoute && (
+        <Sidebar />
+      )}
+      <div className={isAuthenticated && !isParentsRoute ? 'main-content' : ''}>
+        {children}
+        {!isParentsRoute && <NavigationConfirm />}
+      </div>
+    </div>
+  )
+}
+
 /**
  * AppRouter Component
- * @param {object} props - Props passed to the component
- * @returns {JSX.Element} JSX element representing the AppRouter component
  */
-const AppRouter = (props): JSX.Element => {
+const AppRouter = (): JSX.Element => {
   /** Check if the user is authenticated  */
   const isAuthenticated = getToken() !== null ? true : false;
-  /** State to manage private route list */
-  const [privateRouteList, setPrivateRouteList] = useState<RouterProps[]>([]);
   //roles and Righs Start
   // useEffect(() => {
 
@@ -331,79 +346,39 @@ const AppRouter = (props): JSX.Element => {
 
 
 
-  const isParentsRoute = typeof window !== 'undefined' && window.location.hash.startsWith('#' + ENUMFORROUTES.PARENTS);
-
   return (
+    <Router>
+      <Layout isAuthenticated={isAuthenticated}>
+        <React.Suspense fallback={<div className="lazy-loading">Loading...</div>}>
+          <Routes>
+            {/* Parents flow (standalone, accessible regardless of auth) */}
+            <Route caseSensitive path={ENUMFORROUTES.PARENTS} element={<ParentsLanding />} />
+            <Route caseSensitive path={ENUMFORROUTES.PARENTS_SUCCESS} element={<ParentsSuccess />} />
+            <Route caseSensitive path={ENUMFORROUTES.PARENTS_CANCEL} element={<ParentsCancel />} />
 
-   <div className={isAuthenticated && !isParentsRoute ? 'layout-wrapper' : ''} id={isAuthenticated && !isParentsRoute ? "layout-wrapper" : ''}>
-      <Router>
-        {isAuthenticated && !isParentsRoute && (
-
-          <Navbar />
-        )}
-
-        {isAuthenticated && !isParentsRoute && (
-
-          <Sidebar />
-        )}
-        <div className={isAuthenticated && !isParentsRoute ? 'main-content' : ''}>
-          <React.Suspense
-            fallback={<div className="lazy-loading">Loading...</div>}
-          >
-            <Routes>
-              {/* Parents flow (standalone, accessible regardless of auth) */}
+            {publicRoutes.map((route, i) => (
               <Route
-                caseSensitive
-                path={ENUMFORROUTES.PARENTS}
-                element={<ParentsLanding />}
+                key={i}
+                caseSensitive={route.caseSensitive}
+                path={route.path}
+                element={<GuestRoute>{route.component}</GuestRoute>}
               />
+            ))}
+
+            {privateRoutes.map((route, i) => (
               <Route
-                caseSensitive
-                path={ENUMFORROUTES.PARENTS_SUCCESS}
-                element={<ParentsSuccess />}
+                key={i}
+                caseSensitive={route.caseSensitive}
+                path={route.path}
+                element={<AuthRoute>{route.component}</AuthRoute>}
               />
-              <Route
-                caseSensitive
-                path={ENUMFORROUTES.PARENTS_CANCEL}
-                element={<ParentsCancel />}
-              />
-              {publicRoutes.map((route, i) => (
-                // <GuestRoute key={i} {...route} />
-                <Route
-                  key={i}
-                  caseSensitive={route.caseSensitive}
-                  path={route.path}
-                  element={<GuestRoute>{route.component}</GuestRoute>}
-                />
-              ))}
+            ))}
 
-              {privateRoutes.map((route, i) => (
-                // <GuestRoute key={i} {...route} />
-
-                // route.isShow===true? 
-                <Route
-                  key={i}
-                  caseSensitive={route.caseSensitive}
-                  path={route.path}
-                  element={<AuthRoute>{route.component}</AuthRoute>}
-                />
-                // :
-                //  <Route path="*" element={<NotFound />} />
-
-
-              ))}
-
-              <Route path="*" element={<NotFound />} />
-
-
-            </Routes>
-          </React.Suspense>
-          {!isParentsRoute && <NavigationConfirm />}
-        </div>
-
-      </Router>
-    </div>
-    // <div>routes</div>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </React.Suspense>
+      </Layout>
+    </Router>
   )
 }
 
