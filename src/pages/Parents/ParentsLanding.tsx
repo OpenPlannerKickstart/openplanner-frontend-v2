@@ -13,9 +13,9 @@ type Plan = {
 }
 
 const defaultPlans: Plan[] = [
-  { product_id: 'one_month', title: '1 Month', price: 3.99, duration: 'for 1 month', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access'] },
-  { product_id: 'six_month', title: '6 Months', price: 14.99, duration: 'for 6 months', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access'] },
-  { product_id: 'one_year', title: '1 Year', price: 23.99, duration: 'for 1 year', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access'] },
+  { product_id: 'one_month', title: '1 Month', price: 3.99, duration: 'for 1 month', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
+  { product_id: 'six_month', title: '6 Months', price: 14.99, duration: 'for 6 months', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
+  { product_id: 'one_year', title: '1 Year', price: 23.99, duration: 'for 1 year', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
 ]
 
 const ParentsLanding = () => {

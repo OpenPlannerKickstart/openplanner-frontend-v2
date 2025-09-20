@@ -691,3 +691,16 @@
         .subscription-box{ margin-bottom: 0; }
     }
 }
+
+/* Parents page mobile fixes */
+@media (max-width: 576px) {
+  .payment-plans-container.parents-plans {
+    .admin-auth-inner-wrapper, .admin-auth-row, .admin-auth-col { height: auto; }
+    .admin-auth-left {
+      padding-top: 88px;    /* ensure first card is not clipped under header */
+      padding-bottom: 64px; /* add space after checkout button */
+      min-height: auto;     /* allow gradient to grow with content; no forced viewport height */
+    }
+    .subscription-box { margin-bottom: 16px; }
+  }
+}
