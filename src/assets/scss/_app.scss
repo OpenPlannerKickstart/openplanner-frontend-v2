@@ -692,8 +692,8 @@
     }
 }
 
-/* Parents page mobile fixes */
-@media (max-width: 576px) {
+/* Parents page mobile-ish fixes (treat widths <=1030px as mobile for layout) */
+@media (max-width: 1030px) {
   .payment-plans-container.parents-plans {
     .admin-auth-inner-wrapper, .admin-auth-row, .admin-auth-col { height: auto; }
     .admin-auth-left {
@@ -702,5 +702,11 @@
       min-height: auto;     /* allow gradient to grow with content; no forced viewport height */
     }
     .subscription-box { margin-bottom: 16px; }
+
+    /* Force single-column cards up to 1030px regardless of Bootstrap md breakpoint */
+    .row.row-cols-md-3 > * {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
   }
 }

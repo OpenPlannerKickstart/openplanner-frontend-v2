@@ -200,7 +200,7 @@ export const PricePlans = (props) => {
 
   return (
     <div className="pricing-wrapper">
-      <Row>
+      <Row className="gx-4 px-3 px-md-4">
         {plans.map((plan, index) => {
           const colMd = plans?.length === 4 ? 3 : plans?.length === 3 ? 4 : plans?.length === 2 ? 6 : 12;
           return (
