@@ -61,11 +61,33 @@ export const PaymentPlans = () => {
 
   const handleCopyParentsLink = async () => {
     const url = `${window.location.origin}/#/parents`;
+    const legacyCopy = () => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+      } catch {
+        return false;
+      }
+    };
     try {
-      await navigator.clipboard.writeText(url);
-      ts('Parents payment link copied');
-    } catch (e) {
-      te('Unable to copy link');
+      if (navigator?.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url);
+        ts('Parents payment link copied');
+      } else {
+        const ok = legacyCopy();
+        ok ? ts('Parents payment link copied') : te(`Unable to copy. Link: ${url}`);
+      }
+    } catch {
+      const ok = legacyCopy();
+      ok ? ts('Parents payment link copied') : te(`Unable to copy. Link: ${url}`);
     }
   };
   return (
