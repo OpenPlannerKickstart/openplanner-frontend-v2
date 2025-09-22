@@ -62,10 +62,34 @@ export const PaymentPlans = () => {
   const handleCopyParentsLink = async () => {
     const url = `${window.location.origin}/#/parents`;
     try {
-      await navigator.clipboard.writeText(url);
-      ts('Parents payment link copied');
+      // Modern API (requires HTTPS or localhost)
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        ts('Parents payment link copied');
+        return;
+      }
+      throw new Error('Clipboard API unavailable');
     } catch (e) {
-      te('Unable to copy link');
+      // Fallback for older browsers/HTTP contexts
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) {
+          ts('Parents payment link copied');
+          return;
+        }
+        throw new Error('execCommand copy failed');
+      } catch {
+        te('Unable to copy link');
+      }
     }
   };
   return (
