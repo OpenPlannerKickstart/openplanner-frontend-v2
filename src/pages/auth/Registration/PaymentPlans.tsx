@@ -58,6 +58,16 @@ export const PaymentPlans = () => {
       setRedeemLoading(false);
     }
   };
+
+  const handleCopyParentsLink = async () => {
+    const url = `${window.location.origin}/#/parents`;
+    try {
+      await navigator.clipboard.writeText(url);
+      ts('Parents payment link copied');
+    } catch (e) {
+      te('Unable to copy link');
+    }
+  };
   return (
 
     <>
@@ -75,10 +85,13 @@ export const PaymentPlans = () => {
                     <h2>Choose Your Plan</h2>
                     <p>Start with a 7-day free trial. Upgrade anytime for full access to all features.</p>
                   </div>
-                  <div className="d-flex justify-content-center mb-3">
+                  <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
                     <Button variant="link" className="p-0" onClick={() => setShowRedeem(true)}>Have a code? Redeem it</Button>
                   </div>
                   <PricePlans state={state} />
+                  <div className="d-flex justify-content-center align-items-center mt-3">
+                    <Button variant="link" className="p-0" onClick={handleCopyParentsLink}>Copy parents link</Button>
+                  </div>
                 </div>
               </div>
             </div>
