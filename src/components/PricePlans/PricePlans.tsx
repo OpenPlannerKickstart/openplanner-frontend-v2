@@ -191,7 +191,6 @@ export const PricePlans = (props) => {
     <div className="pricing-wrapper">
       <Row>
         {plans.map((plan, index) => (
-          console.log(plan),
           <Col xs={12} md={plans?.length == 4 ? 3 : 4} key={index}>
             <Card className={`pricing-card ${selectedPlan === plan?.product_id ? 'active' : ''}`}>
               <Card.Header>
