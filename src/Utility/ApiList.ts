@@ -82,5 +82,8 @@ export const CANCEL_TRANSACTION = 'subscriptionCancel'
 export const UPDATE_PLAN = 'updatePlan'
 export const PLAN_MASTER = 'getMstProdPlan'
 
+// Parents purchase flow
+export const PARENTS_CREATE_SESSION = 'api/parents/checkout/session'
+export const PARENTS_CODES_BY_SESSION = 'api/parents/code'
 
 

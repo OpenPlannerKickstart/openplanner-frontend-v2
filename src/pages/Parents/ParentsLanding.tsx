@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Button, Card, Col, Form, Row } from 'react-bootstrap'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
-import { getAllPlanAPI } from '../../redux/Service/User/Settings/settings'
+import { getAllPlanAPI, parentsCreateSessionAPI } from '../../redux/Service/User/Settings/settings'
+import { te } from '../../Utility/Toaster'
 
 type Plan = {
   product_id: string
@@ -12,17 +13,14 @@ type Plan = {
   features: string[]
 }
 
-const defaultPlans: Plan[] = [
-  { product_id: 'one_month', title: '1 Month', price: 3.99, duration: 'for 1 month', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
-  { product_id: 'six_month', title: '6 Months', price: 14.99, duration: 'for 6 months', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
-  { product_id: 'one_year', title: '1 Year', price: 23.99, duration: 'for 1 year', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
-]
+// no defaultPlans in testing; we rely on BE response exclusively
 
 const ParentsLanding = () => {
   const dispatch: AppDispatch = useDispatch();
   const [plans, setPlans] = useState<Plan[]>([])
   const [cart, setCart] = useState<Record<string, number>>({})
   const [parentEmail, setParentEmail] = useState<string>('')
+  const isValidEmail = (email: string) => /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email)
   // Student emails are collected on success page only
 
   useEffect(() => {
@@ -47,12 +45,8 @@ const ParentsLanding = () => {
       const response: any = await dispatch(getAllPlanAPI({ payment_method: 'Stripe' }));
       if (response?.payload) {
         const list = (response.payload as Plan[]).slice().sort((a: any, b: any) => Number(a.price) - Number(b.price));
-        const limited = list.slice(0, 3);
-        if (limited.length === 3) setPlans(limited)
-        else {
-          // Fallback to defaults to ensure 3 cards in dev when API returns fewer
-          setPlans(defaultPlans)
-        }
+        // Use ONLY backend plans to avoid sending unknown IDs to BE during testing
+        setPlans(list);
       }
     }
     fetchPlans()
@@ -83,10 +77,33 @@ const ParentsLanding = () => {
   // No student email collection here
 
   const handleProceed = () => {
-    // Stub only: no API wiring here
-    const items = Object.entries(cart).map(([product_id, quantity]) => ({ product_id, quantity }))
-    // eslint-disable-next-line no-alert
-    alert(JSON.stringify({ items, parent_email: parentEmail || undefined }, null, 2))
+    const items = Object.entries(cart)
+      .map(([key, quantity]) => {
+        const p: any = plans.find(pl => pl.product_id === key)
+        const product_id = p?.product_id || key
+        // Option (b): send only product_id; BE resolves price internally
+        return { product_id, quantity }
+      })
+      .filter((i) => i.quantity > 0)
+    if (items.length === 0) return
+    if (!isValidEmail(parentEmail)) {
+      te('Please enter a valid parent email')
+      return
+    }
+    const body: any = { items }
+    body.parent_email = parentEmail.trim()
+    dispatch(parentsCreateSessionAPI(body))
+      .then((data: any) => {
+        if (data?.url) {
+          window.location.href = data.url
+        } else {
+          te('Unable to start checkout. Please try again.')
+        }
+      })
+      .catch((err) => {
+        const msg = err?.response?.data?.message || 'Checkout session failed.'
+        te(msg)
+      })
   }
 
   return (
@@ -148,12 +165,12 @@ const ParentsLanding = () => {
                 <div className="mt-2">
                   <p className="text-muted mb-1">Select quantities above. Codes will be shown on the next screen and can be emailed to students.</p>
                   <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2">
-                    <Form.Control style={{ maxWidth: 360 }} type="email" placeholder="Parent email (optional)" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} />
+                    <Form.Control style={{ maxWidth: 360 }} type="email" placeholder="Parent email (required)" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} />
                     <div className="ms-md-auto d-flex align-items-center gap-2">
                       <strong>Total:</strong>
                       <span>${totalAmount.toFixed(2)}</span>
                     </div>
-                    <Button variant="primary" disabled={totalItems === 0} onClick={handleProceed}>Proceed to checkout</Button>
+                    <Button variant="primary" disabled={totalItems === 0 || !isValidEmail(parentEmail)} onClick={handleProceed}>Proceed to checkout</Button>
                   </div>
                 </div>
               </div>

@@ -9,6 +9,8 @@ import {
     CANCEL_TRANSACTION,
     UPDATE_PLAN,
     PLAN_MASTER,
+    PARENTS_CREATE_SESSION,
+    PARENTS_CODES_BY_SESSION,
 } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
 import {
@@ -138,6 +140,35 @@ export const changePasswordAPI =
             }
         };
 
+
+// Parents purchase flow services
+export const parentsCreateSessionAPI =
+    (objBody: any) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const response: any = await post(PARENTS_CREATE_SESSION, objBody);
+                if (!response.data.error) {
+                    return response.data.data; // { url, id }
+                }
+            } catch (err) {
+                // surface error upward
+                throw err;
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+export const parentsGetCodesBySessionAPI =
+    (sessionId: string) =>
+        async (dispatch: AppDispatch) => {
+            try {
+                const response: any = await get(`${PARENTS_CODES_BY_SESSION}/${sessionId}`);
+                return response.data.data; // { session_id, codes: [...] }
+            } catch (err) {
+                throw err;
+            }
+        };
 
 
 /**
