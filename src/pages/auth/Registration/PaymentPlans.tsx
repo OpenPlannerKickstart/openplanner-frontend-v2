@@ -22,7 +22,7 @@ export const PaymentPlans = () => {
                 <div className="subscription-box subscription-plans auth-plans">
                   <div className="plans-header">
                     <h2>Choose Your Plan</h2>
-                    <p>Start with a 7-day free trial. Upgrade anytime for full access to all features.</p>
+                    <p>Start with a 7-day free trial on our 6 month or 1 year plans. Upgrade anytime for full access to all features.</p>
                   </div>
                   <PricePlans state={state} />
                 </div>

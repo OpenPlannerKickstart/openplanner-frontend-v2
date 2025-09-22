@@ -2111,7 +2111,10 @@ $sm_sidebar_home_link_width: 170px;
         font-size: 42px;
         line-height: 72px;
     }
-
+    .original-price {
+    text-decoration: line-through;
+    color: #535862;
+  }
     .duration {
         font-size: 16px;
         color: #535862;
@@ -2166,6 +2169,11 @@ $sm_sidebar_home_link_width: 170px;
 
         .check-icon {
             color: $primary-color;
+            margin-right: 8px;
+            font-size: 20px;
+        }
+        .free-check-icon {
+            color: green;
             margin-right: 8px;
             font-size: 20px;
         }
