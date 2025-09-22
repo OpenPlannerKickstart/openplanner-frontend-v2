@@ -1,4 +1,4 @@
-import { ONE_YEAR, SIX_MONTH, TWO_YEAR } from "../Utility/Config";
+import { ONE_MONTH, SIX_MONTH, ONE_YEAR, TWO_YEAR } from "../Utility/Config";
 
 /**
  * Enum for status values.
@@ -110,10 +110,17 @@ export const ENUM_FOR_PLAN_ID = {
   TWO_YEAR: TWO_YEAR,
   ONE_YEAR: ONE_YEAR,
   SIX_MONTH: SIX_MONTH,
+  ONE_MONTH: ONE_MONTH,
 }
 
 export const ENUM_FOR_PLAN_AMOUNT = {
   TWO_YEAR: "35.99",
   ONE_YEAR: "23.99",
   SIX_MONTH: "14.99",
+  ONE_MONTH: "3.99",
+}
+export const ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT = {
+  ONE_YEAR: "29.99",
+  SIX_MONTH: "23.99",
+  ONE_MONTH: "3.99",
 }

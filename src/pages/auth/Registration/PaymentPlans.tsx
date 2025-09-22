@@ -83,7 +83,7 @@ export const PaymentPlans = () => {
                 <div className="subscription-box subscription-plans auth-plans">
                   <div className="plans-header">
                     <h2>Choose Your Plan</h2>
-                    <p>Start with a 7-day free trial. Upgrade anytime for full access to all features.</p>
+                    <p>Start with a 7-day free trial on our 6 month or 1 year plans. Upgrade anytime for full access to all features.</p>
                   </div>
                   <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
                     <Button variant="link" className="p-0" onClick={() => setShowRedeem(true)}>Have a code? Redeem it</Button>

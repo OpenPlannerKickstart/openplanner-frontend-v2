@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Col, Modal, Row } from 'react-bootstrap';
-import { ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES } from '../../interfaces/enum';
+import { ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES } from '../../interfaces/enum';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AppDispatch } from '../../redux/store';
 import { useDispatch } from 'react-redux';
@@ -51,6 +51,11 @@ import { te } from '../../Utility/Toaster';
 
 // console.log(plans)
 
+const undiscountedMap = {
+  "for 1 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_MONTH,
+  "for 6 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.SIX_MONTH,
+  "for 1 year": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_YEAR,
+};
 
 export const PricePlans = (props) => {
   const [userData, setuserData] = useState<any>(null)
@@ -215,6 +220,9 @@ export const PricePlans = (props) => {
               </Card.Header>
               <Card.Body>
                 <div className="price-section">
+                  <div >
+                    <span className="original-price">${undiscountedMap[plan.duration]}</span> for {plan.duration}
+                  </div>
                   <span className="price">${plan.price}</span>
                   <span className="duration">{plan.duration}</span>
                 </div>
@@ -250,7 +258,9 @@ export const PricePlans = (props) => {
                         </li>
                       );
                     })}
+
                   </ul>
+                    
                 </div>
               </Card.Body>
             </Card>
