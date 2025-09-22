@@ -200,11 +200,10 @@ export const PricePlans = (props) => {
 
   return (
     <div className="pricing-wrapper">
-      <Row className="gx-4 px-3 px-md-4">
+      <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between px-3 px-md-4">
         {plans.map((plan, index) => {
-          const colMd = plans?.length === 4 ? 3 : plans?.length === 3 ? 4 : plans?.length === 2 ? 6 : 12;
           return (
-          <Col xs={12} md={colMd} key={index}>
+          <Col key={index}>
             <Card className={`pricing-card ${selectedPlan === plan?.product_id ? 'active' : ''}`}>
               <Card.Header>
                 {plan?.title === '1 Month' && !isUpdatePlan ? (

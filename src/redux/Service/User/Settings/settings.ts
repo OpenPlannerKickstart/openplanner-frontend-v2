@@ -11,6 +11,7 @@ import {
     PLAN_MASTER,
     PARENTS_CREATE_SESSION,
     PARENTS_CODES_BY_SESSION,
+    REDEEM_CODE,
 } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
 import {
@@ -167,6 +168,22 @@ export const parentsGetCodesBySessionAPI =
                 return response.data.data; // { session_id, codes: [...] }
             } catch (err) {
                 throw err;
+            }
+        };
+
+// Student redeem code
+export const redeemCodeAPI =
+    (code: string) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const body = { code };
+                const response: any = await post(REDEEM_CODE, body);
+                return response.data.data; // expect { url }
+            } catch (err) {
+                throw err;
+            } finally {
+                dispatch(setLoading(false));
             }
         };
 

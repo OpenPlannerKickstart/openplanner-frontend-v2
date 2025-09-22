@@ -709,4 +709,22 @@
       max-width: 100%;
     }
   }
+
+  /* Student plans page: match parents mobile breakpoint behavior */
+  .payment-plans-container:not(.parents-plans) {
+    .admin-auth-inner-wrapper, .admin-auth-row, .admin-auth-col { height: auto; }
+    .admin-auth-left {
+      padding-top: 88px;
+      padding-bottom: 64px;
+      min-height: auto;
+    }
+    .subscription-box { margin-bottom: 16px; }
+    /* Force single column for pricing cards on narrow screens */
+    .pricing-wrapper {
+      .row > * {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+      }
+    }
+  }
 }

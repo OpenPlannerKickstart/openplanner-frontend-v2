@@ -127,10 +127,10 @@ const ParentsSuccess = () => {
 
                   {/* Codes area */}
                   {isLoading && (
-                    <p className="text-center text-muted mb-0">Preparing your codes…</p>
+                    <p className="text-center text-success mb-0">Preparing your codes…</p>
                   )}
                   {!isLoading && codes.length === 0 && (
-                    <p className="text-center text-muted mb-0">No codes found yet. Please check your email or try again later.</p>
+                    <p className="text-center text-danger mb-0">No codes found yet. Please check your email or try again later.</p>
                   )}
                   {!isLoading && codes.length > 0 && (
                     <div className="mt-3">
