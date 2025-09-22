@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../redux/store'
 import { getAllPlanAPI, parentsCreateSessionAPI } from '../../redux/Service/User/Settings/settings'
 import { te } from '../../Utility/Toaster'
+import authLogo from '/assets/images/auth-logo.svg'
 
 type Plan = {
   product_id: string
@@ -113,7 +114,7 @@ const ParentsLanding = () => {
           <div className="admin-auth-row">
             <div className="admin-auth-col admin-auth-left">
               <div className="admin-auth-logo d-flex align-items-center justify-content-between">
-                <img src={'/assets/images/auth-logo.svg'} alt="OpenPlanner" />
+                <img src={authLogo} alt="OpenPlanner" />
                 <div></div>
               </div>
 
