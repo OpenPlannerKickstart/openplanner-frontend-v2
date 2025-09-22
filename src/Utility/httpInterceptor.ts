@@ -6,6 +6,7 @@ import {
   getServerValidation,
   getToken,
   excludeTokenAPIList,
+  isExcludedUrl,
   getRefreshToken,
   setCookieByName,
   removeCookieByName,
@@ -129,7 +130,7 @@ export const get = (
   };
   /** Add headers to the request if needed  */
 
-  if (excludeTokenAPIList.indexOf(url) < 0) {
+  if (!isExcludedUrl(url)) {
     axiosObj.headers = {
       Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
       // "Access-Control-Allow-Origin": "*",
@@ -187,7 +188,7 @@ export const post = (
   /**  Define the headers for the request, including the Authorization token if required */
 
   let header: any = { "Content-Type": "application/json" };
-  if (excludeTokenAPIList.indexOf(url) < 0) {
+  if (!isExcludedUrl(url)) {
     header = {
       Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
       "Access-Control-Allow-Origin": "*",
@@ -250,7 +251,7 @@ export const put = (
   }
   /**  Define the headers for the request, including the Authorization token if required */
   let header: any = {};
-  if (excludeTokenAPIList.indexOf(url) < 0) {
+  if (!isExcludedUrl(url)) {
     header = {
       Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
       "Access-Control-Allow-Origin": "*",

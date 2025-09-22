@@ -50,7 +50,10 @@ export const ENUMFORROUTES = {
   PLAN_DETAILS:"/plan-details",
   SUCCESS:"/success",
   FAILURE:"/failure",
-  GROUPS: "/groups"
+  GROUPS: "/groups",
+  PARENTS: "/parents",
+  PARENTS_SUCCESS: "/parents/success",
+  PARENTS_CANCEL: "/parents/cancel"
 
 }
 
