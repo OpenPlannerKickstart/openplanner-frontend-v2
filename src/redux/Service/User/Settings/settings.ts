@@ -37,6 +37,7 @@ import {
 import { setLoading } from "../../../Loader/LoaderSlice";
 import { AppDispatch } from "../../../store";
 import { ts } from "../../../../Utility/Toaster";
+import { getToken } from '../../../../Utility/Helper';
 
 /**
  * Fetch User Data
@@ -178,6 +179,11 @@ export const redeemCodeAPI =
             dispatch(setLoading(true));
             try {
                 const body = { code };
+                const header = {
+                    Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
+                    "Access-Control-Allow-Origin": "*",
+              
+                  };
                 const response: any = await post(REDEEM_CODE, body);
                 return response.data.data; // expect { url }
             } catch (err) {
