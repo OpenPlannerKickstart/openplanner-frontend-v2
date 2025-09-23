@@ -141,7 +141,15 @@ const ParentsLanding = () => {
                           <div className="features-section">
                             <h4>FEATURES</h4>
                               <ul>
-                                {plan.features.map((f, i) => {
+                                {(Array.isArray(plan.features) && plan.features.length > 0
+                                  ? plan.features
+                                  : [
+                                      'Unlimited syllabus uploads',
+                                      'Full website access',
+                                      'Full mobile application access',
+                                      'Notifications',
+                                    ]
+                                  ).map((f, i) => {
                                   const normalized = (typeof f === 'string' && f.trim().toLowerCase() === 'full mobile application access') ? 'Full mobile application access' : f;
                                   return (
                                     <li key={i}><i className="material-symbols-outlined check-icon">check_circle</i> {normalized}</li>
