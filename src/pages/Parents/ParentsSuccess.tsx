@@ -34,8 +34,8 @@ const ParentsSuccess = () => {
     if (!sessionId) return;
     let cancelled = false;
 
-    const fetchCodesWithBackoff = async () => {
-      const delays = [300, 600, 1200, 2400, 3600];
+            const fetchCodesWithBackoff = async () => {
+              const delays = [300, 600, 1200, 2400, 3600, 6000, 8000]; 
       try {
         for (let i = 0; i < delays.length + 1; i++) {
           // try
@@ -130,7 +130,7 @@ const ParentsSuccess = () => {
                     <p className="text-center text-success mb-0">Preparing your codes…</p>
                   )}
                   {!isLoading && codes.length === 0 && (
-                    <p className="text-center text-danger mb-0">No codes found yet. Please check your email or try again later.</p>
+                    <p className="text-center text-danger mb-0">No codes found yet. Please check your email or try again in a moment.</p>
                   )}
                   {!isLoading && codes.length > 0 && (
                     <div className="mt-3">

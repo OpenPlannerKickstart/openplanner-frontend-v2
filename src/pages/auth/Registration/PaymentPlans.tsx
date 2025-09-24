@@ -2,36 +2,40 @@ import React, { useState } from 'react'
 import authLogo from '/assets/images/auth-logo.svg'
 import { PricePlans } from '../../../components/PricePlans/PricePlans'
 import { Button, Form, Modal } from 'react-bootstrap'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
 import { redeemCodeAPI } from '../../../redux/Service/User/Settings/settings'
 import { te, ts } from '../../../Utility/Toaster'
+import { getToken } from '../../../Utility/Helper'
+import { ENUMFORROUTES } from '../../../interfaces/enum'
 
 export const PaymentPlans = () => {
   const dispatch: AppDispatch = useDispatch();
   const { state } = useLocation();
+  const navigate = useNavigate();
   const [showRedeem, setShowRedeem] = useState(false);
   const [redeemCode, setRedeemCode] = useState('');
   const [redeemLoading, setRedeemLoading] = useState(false);
 
   const normalizeCode = (code: string) => code.trim().replace(/[^A-Za-z0-9]/g, '').toUpperCase();
 
+  // Render exactly what the user types (alphanumeric + optional dashes), uppercased.
   const formatDisplayCode = (value: string) => {
-    const raw = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-    const part1 = raw.slice(0, 2);
-    const part2 = raw.slice(2, 6);
-    const part3 = raw.slice(6);
-    let out = part1;
-    if (raw.length > 2) out += `-${part2}`;
-    if (raw.length > 6 && part3) out += `-${part3}`;
-    return out;
+    return value.replace(/[^A-Za-z0-9-]/g, '').toUpperCase();
   };
 
   const handleRedeem = async () => {
     const normalized = normalizeCode(redeemCode);
     if (!normalized) {
       te('Please enter a code.');
+      return;
+    }
+    // Require student login for redeem
+    const accessToken = getToken();
+    if (!accessToken) {
+      te('Please log in to redeem a code.');
+      navigate(ENUMFORROUTES.LOGIN);
       return;
     }
     try {
@@ -132,10 +136,11 @@ export const PaymentPlans = () => {
             <Form.Label>Enter your redemption code</Form.Label>
             <Form.Control
               type="text"
-              placeholder="e.g. OP-XXXX-YYYY"
+              placeholder="e.g. C5AB2379D25C or OP-XXXX-YYYY"
               value={redeemCode}
               onChange={(e) => setRedeemCode(formatDisplayCode(e.target.value))}
             />
+            <div className="form-text">Codes can include letters and numbers, with or without dashes. We’ll handle formatting for you.</div>
           </Form.Group>
           <div className="d-flex justify-content-end gap-2 mt-3">
             <Button variant="light" onClick={() => setShowRedeem(false)} disabled={redeemLoading}>Cancel</Button>

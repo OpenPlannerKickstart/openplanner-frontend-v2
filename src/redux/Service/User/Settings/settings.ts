@@ -179,12 +179,8 @@ export const redeemCodeAPI =
             dispatch(setLoading(true));
             try {
                 const body = { code };
-                const header = {
-                    Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
-                    "Access-Control-Allow-Origin": "*",
-              
-                  };
-                const response: any = await post(REDEEM_CODE, body);
+                // Use the standard interceptor which attaches Authorization when not excluded
+                const response: any = await post(REDEEM_CODE, body, true);
                 return response.data.data; // expect { url }
             } catch (err) {
                 throw err;
