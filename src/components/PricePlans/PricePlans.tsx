@@ -211,12 +211,12 @@ export const PricePlans = (props) => {
           <Col key={index}>
             <Card className={`pricing-card ${selectedPlan === plan?.product_id ? 'active' : ''}`}>
               <Card.Header>
-                {plan?.title === '1 Month' && !isUpdatePlan ? (
+                {plan?.friendly_id === 'one_month' && !isUpdatePlan ? (
                   <span className="trial-label" style={{ visibility: 'hidden' }}></span>
                 ) : (
                   <span className="trial-label">{plan.title}</span>
                 )}
-                <span className="popular-tag">Popular</span>
+                {plan?.friendly_id == 'one_year' ? (<span className="popular-tag">Popular</span>):undefined}
               </Card.Header>
               <Card.Body>
                 <div className="price-section">

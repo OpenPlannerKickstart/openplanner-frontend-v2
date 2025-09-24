@@ -121,6 +121,6 @@ export const ENUM_FOR_PLAN_AMOUNT = {
 }
 export const ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT = {
   ONE_YEAR: "29.99",
-  SIX_MONTH: "23.99",
-  ONE_MONTH: "3.99",
+  SIX_MONTH: "18.99",
+  ONE_MONTH: "4.99",
 }
