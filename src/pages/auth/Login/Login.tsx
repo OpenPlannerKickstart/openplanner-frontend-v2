@@ -122,15 +122,15 @@ const Login = (props) => {
             }
 
             if (!response?.payload?.isSubscription) {
-                // console.log(reqBody)
-                dispatch(savedLoginDataSuccess(reqBody))
-                navigate(ENUMFORROUTES.PLAN_DETAILS, { state: response?.payload })
+                // Not subscribed → go to plan details (paywall)
+                dispatch(savedLoginDataSuccess(reqBody));
+                navigate(ENUMFORROUTES.PLAN_DETAILS, { state: response?.payload });
+                return;
+            } else {
+                // Subscribed → send to dashboard explicitly
+                navigate(ENUMFORROUTES.DASHBOARD);
                 return;
             }
-
-
-
-
         }
     }
     useEffect(() => {
