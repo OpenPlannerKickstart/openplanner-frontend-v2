@@ -15,8 +15,16 @@ const GuestRoute = ({ children }: { children: JSX.Element }) => {
   //   console.log(children);
   /** Check if the user is authenticated */
   const isAuthenticated = getToken() !== null ? true : false; // get Token or flag from Localstorage for dynamic
-
-  if (isAuthenticated) {
+  const hasSubscription = ((): boolean => {
+    try {
+      const val = localStorage.getItem('has_subscription');
+      return val === 'true';
+    } catch {
+      return false;
+    }
+  })();
+  if (isAuthenticated && hasSubscription) {
+    console.log("going to dashboard")
     return <Navigate to={ENUMFORROUTES.DASHBOARD} state={{ from: location }} />
   };
   return children;
