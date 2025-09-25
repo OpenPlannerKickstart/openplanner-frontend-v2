@@ -158,19 +158,18 @@ const publicRoutes: RouterProps[] = [
 const Layout = ({ isAuthenticated, children }: { isAuthenticated: boolean, children: React.ReactNode }) => {
   const location = useLocation();
   const isParentsRoute = location.pathname.startsWith(ENUMFORROUTES.PARENTS);
-  const isPaywallRoute = location.pathname === ENUMFORROUTES.PLAN_DETAILS;
 
   return (
-    <div className={isAuthenticated && !isParentsRoute && !isPaywallRoute ? 'layout-wrapper' : ''} id={isAuthenticated && !isParentsRoute && !isPaywallRoute ? "layout-wrapper" : ''}>
-      {isAuthenticated && !isParentsRoute && !isPaywallRoute && (
+    <div className={isAuthenticated && !isParentsRoute ? 'layout-wrapper' : ''} id={isAuthenticated && !isParentsRoute ? "layout-wrapper" : ''}>
+      {isAuthenticated && !isParentsRoute && (
         <Navbar />
       )}
-      {isAuthenticated && !isParentsRoute && !isPaywallRoute && (
+      {isAuthenticated && !isParentsRoute && (
         <Sidebar />
       )}
-      <div className={isAuthenticated && !isParentsRoute && !isPaywallRoute ? 'main-content' : ''}>
+      <div className={isAuthenticated && !isParentsRoute ? 'main-content' : ''}>
         {children}
-        {!isParentsRoute && !isPaywallRoute && <NavigationConfirm />}
+        {!isParentsRoute && <NavigationConfirm />}
       </div>
     </div>
   )
