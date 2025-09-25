@@ -115,9 +115,11 @@ export const PaymentPlans = () => {
                     <Button variant="link" className="p-0" onClick={() => setShowRedeem(true)}>Have a code? Redeem it</Button>
                   </div>
                   <PricePlans state={state} />
+                  {/* 
+                  Removed for now
                   <div className="d-flex justify-content-center align-items-center mt-3">
-                    <Button variant="link" className="p-0" onClick={handleCopyParentsLink}>Copy parents link</Button>
-                  </div>
+                    <Button variant="link" className="p-0" onClick={handleCopyParentsLink}>Copy payment link for parents</Button>
+                  </div> */}
                 </div>
               </div>
             </div>
