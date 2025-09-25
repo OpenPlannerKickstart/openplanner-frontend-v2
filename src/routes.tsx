@@ -159,16 +159,23 @@ const Layout = ({ isAuthenticated, children }: { isAuthenticated: boolean, child
   const location = useLocation();
   const isParentsRoute = location.pathname.startsWith(ENUMFORROUTES.PARENTS);
   const isPaywallRoute = location.pathname === ENUMFORROUTES.PLAN_DETAILS;
-
+  const hasSubscription = ((): boolean => {
+    try {
+      const val = localStorage.getItem('has_subscription');
+      return val === 'true';
+    } catch {
+      return false;
+    }
+  })();
   return (
     <div className={isAuthenticated && !isParentsRoute && !isPaywallRoute ? 'layout-wrapper' : ''} id={isAuthenticated && !isParentsRoute && !isPaywallRoute ? "layout-wrapper" : ''}>
-      {isAuthenticated && !isParentsRoute && !isPaywallRoute && (
+      {isAuthenticated && hasSubscription && !isParentsRoute && !isPaywallRoute && (
         <Navbar />
       )}
-      {isAuthenticated && !isParentsRoute && !isPaywallRoute && (
+      {isAuthenticated && hasSubscription && !isParentsRoute && !isPaywallRoute && (
         <Sidebar />
       )}
-      <div className={isAuthenticated && !isParentsRoute && !isPaywallRoute ? 'main-content' : ''}>
+      <div className={isAuthenticated && hasSubscription && !isParentsRoute && !isPaywallRoute ? 'main-content' : ''}>
         {children}
         {!isParentsRoute && !isPaywallRoute && <NavigationConfirm />}
       </div>
