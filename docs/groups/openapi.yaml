@@ -1,0 +1,405 @@
+openapi: 3.0.3
+info:
+  title: OpenPlanner Groups API
+  version: 0.1.0
+servers:
+  - url: https://api.example.com
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  headers:
+    Retry-After:
+      description: Seconds until the client should retry.
+      schema: { type: integer, minimum: 1 }
+    X-RateLimit-Limit:
+      description: Requests allowed in the current window.
+      schema: { type: integer }
+    X-RateLimit-Remaining:
+      description: Requests remaining in the current window.
+      schema: { type: integer }
+    X-RateLimit-Reset:
+      description: UNIX timestamp when the window resets.
+      schema: { type: integer }
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum: [NOT_MEMBER, FORBIDDEN, RATE_LIMITED, GROUP_ARCHIVED, INVITE_EXPIRED, ALREADY_MEMBER, MAX_SIZE_REACHED]
+        message: { type: string }
+        details: { type: object, additionalProperties: true }
+    CourseInfo:
+      type: object
+      required: [code, term, year, schoolId]
+      properties:
+        code: { type: string, example: "MATH 101" }
+        title: { type: string, nullable: true }
+        term: { type: string, enum: [Fall, Spring, Summer, Winter] }
+        year: { type: integer, example: 2025 }
+        schoolId: { type: string, format: uuid }
+    MemberPreview:
+      type: object
+      properties:
+        userId: { type: string }
+        displayName: { type: string }
+        avatarUrl: { type: string }
+    GroupSummary:
+      type: object
+      required: [id, type, privacy, memberCount, lastActivityAt, archived]
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, enum: [canonical, subgroup] }
+        name: { type: string, nullable: true, example: "Study Squad A" }
+        privacy: { type: string, enum: [public, invite_only, request_to_join] }
+        memberCount: { type: integer }
+        memberAvatars:
+          type: array
+          maxItems: 4
+          items: { type: string, example: "/u/a1.png" }
+        lastActivityAt: { type: string, format: date-time }
+        archived: { type: boolean }
+        course:
+          allOf:
+            - $ref: '#/components/schemas/CourseInfo'
+          nullable: true
+    GroupDetail:
+      allOf:
+        - $ref: '#/components/schemas/GroupSummary'
+      type: object
+      properties:
+        description: { type: string, nullable: true }
+        maxMembers: { type: integer, nullable: true }
+        parentGroupId: { type: string, format: uuid, nullable: true }
+    SuggestionCandidate:
+      type: object
+      required: [id, type, name, privacy, memberCount, lastActivityAt, archived, reasons]
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, enum: [canonical, subgroup] }
+        name: { type: string }
+        course:
+          allOf:
+            - $ref: '#/components/schemas/CourseInfo'
+          nullable: true
+        privacy: { type: string, enum: [public, invite_only, request_to_join] }
+        memberCount: { type: integer }
+        memberAvatars:
+          type: array
+          maxItems: 4
+          items: { type: string }
+        lastActivityAt: { type: string, format: date-time }
+        archived: { type: boolean }
+        reasons:
+          type: array
+          items: { type: string }
+    Message:
+      type: object
+      required: [id, groupId, sender, content, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        groupId: { type: string, format: uuid }
+        sender:
+          type: object
+          required: [id, name]
+          properties:
+            id: { type: string }
+            name: { type: string }
+            avatar: { type: string, nullable: true }
+        content:
+          type: string
+          maxLength: 4000
+        createdAt: { type: string, format: date-time }
+        clientId: { type: string, nullable: true, description: "Client-supplied id for dedupe" }
+        deletedAt: { type: string, format: date-time, nullable: true }
+        metadata: { type: object, nullable: true, description: "Reserved for attachments phase 2" }
+    Invite:
+      type: object
+      required: [url, token, expiresAt, singleUse]
+      properties:
+        url: { type: string }
+        token: { type: string }
+        expiresAt: { type: string, format: date-time }
+        singleUse: { type: boolean }
+    MessagesResponse:
+      type: object
+      required: [messages]
+      properties:
+        messages:
+          type: array
+          items: { $ref: '#/components/schemas/Message' }
+        nextCursor: { type: string, nullable: true, description: "Opaque base64(createdAt|id)" }
+
+paths:
+  /groups/suggestions:
+    post:
+      summary: Get ranked group candidates for a syllabus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                syllabusId: { type: string }
+                includeArchived: { type: boolean, default: false }
+                limit: { type: integer, default: 10, maximum: 20 }
+      responses:
+        '200':
+          description: Candidates returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  candidates:
+                    type: array
+                    items: { $ref: '#/components/schemas/SuggestionCandidate' }
+                  canonicalExists: { type: boolean }
+        '401': { description: Unauthorized }
+        '429':
+          description: Rate limited
+          headers:
+            Retry-After: { $ref: '#/components/headers/Retry-After' }
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/Error' } }
+
+  /groups/canonical:
+    post:
+      summary: Idempotently create-or-get canonical group from syllabus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [syllabusId]
+              properties:
+                syllabusId: { type: string }
+      responses:
+        '200':
+          description: Canonical group resolved or created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupDetail'
+        '409':
+          description: Conflict (archived)
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/Error' } }
+
+  /groups/join:
+    post:
+      summary: Join a group (idempotent)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string, format: uuid }
+      responses:
+        '200': { description: Joined, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean, example: true } } } } } }
+        '403': { description: Forbidden, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        '409': { description: Already member, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /groups/leave:
+    post:
+      summary: Leave a group (transfer ownership if owner)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [groupId]
+              properties:
+                groupId: { type: string, format: uuid }
+      responses:
+        '200': { description: Left, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean, example: true } } } } } }
+
+  /groups/create:
+    post:
+      summary: Create a subgroup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, name, privacy]
+              properties:
+                type: { type: string, enum: [subgroup] }
+                name: { type: string }
+                description: { type: string }
+                privacy: { type: string, enum: [public, invite_only, request_to_join] }
+                maxMembers: { type: integer, nullable: true }
+                parentGroupId: { type: string, format: uuid, nullable: true }
+      responses:
+        '200': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/GroupDetail' } } } }
+
+  /groups/mine:
+    get:
+      summary: List groups current user belongs to
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/GroupSummary' }
+
+  /groups/{id}:
+    get:
+      summary: Get group detail
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string, format: uuid }
+          required: true
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/GroupDetail' } } } }
+        '404': { description: Not found }
+
+  /groups/{id}/messages:
+    get:
+      summary: Get messages (cursor-before)
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string, format: uuid }
+          required: true
+        - in: query
+          name: cursor
+          schema: { type: string, nullable: true }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50, maximum: 100 }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/MessagesResponse' } } } }
+    post:
+      summary: Post a message
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string, format: uuid }
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string, maxLength: 4000 }
+                clientId: { type: string }
+      responses:
+        '200': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }
+        '401': { description: Unauthorized }
+        '403': { description: Forbidden, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+        '429':
+          description: Rate limited
+          headers:
+            Retry-After: { $ref: '#/components/headers/Retry-After' }
+            X-RateLimit-Limit: { $ref: '#/components/headers/X-RateLimit-Limit' }
+            X-RateLimit-Remaining: { $ref: '#/components/headers/X-RateLimit-Remaining' }
+            X-RateLimit-Reset: { $ref: '#/components/headers/X-RateLimit-Reset' }
+          content:
+            application/json: { schema: { $ref: '#/components/schemas/Error' } }
+
+  /groups/{id}/invites:
+    post:
+      summary: Create an invite token
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string, format: uuid }
+          required: true
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expiresIn: { type: integer, example: 86400 }
+                singleUse: { type: boolean, default: true }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Invite' } } } }
+
+  /invites/accept:
+    post:
+      summary: Accept an invite token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string }
+      responses:
+        '200': { description: Joined, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean }, groupId: { type: string, format: uuid } } } } } }
+        '410': { description: Invite expired, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /groups/{id}/report:
+    post:
+      summary: Report a group
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string, format: uuid }
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean } } } } } }
+
+  /messages/{id}/report:
+    post:
+      summary: Report a message
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string, format: uuid }
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean } } } } } }
+
+  /groups/{id}/request-archive:
+    post:
+      summary: Request to archive a canonical group
+      parameters:
+        - in: path
+          name: id
+          schema: { type: string, format: uuid }
+          required: true
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { ok: { type: boolean } } } } } }
+

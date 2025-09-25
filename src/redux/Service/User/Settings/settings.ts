@@ -9,6 +9,10 @@ import {
     CANCEL_TRANSACTION,
     UPDATE_PLAN,
     PLAN_MASTER,
+    PARENTS_CREATE_SESSION,
+    PARENTS_CODES_BY_SESSION,
+    REDEEM_CODE,
+    SUBSCRIPTION_STATUS,
 } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
 import {
@@ -34,6 +38,7 @@ import {
 import { setLoading } from "../../../Loader/LoaderSlice";
 import { AppDispatch } from "../../../store";
 import { ts } from "../../../../Utility/Toaster";
+import { getToken } from '../../../../Utility/Helper';
 
 /**
  * Fetch User Data
@@ -138,6 +143,62 @@ export const changePasswordAPI =
             }
         };
 
+
+// Parents purchase flow services
+export const parentsCreateSessionAPI =
+    (objBody: any) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const response: any = await post(PARENTS_CREATE_SESSION, objBody);
+                if (!response.data.error) {
+                    return response.data.data; // { url, id }
+                }
+            } catch (err) {
+                // surface error upward
+                throw err;
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+export const parentsGetCodesBySessionAPI =
+    (sessionId: string) =>
+        async (dispatch: AppDispatch) => {
+            try {
+                const response: any = await get(`${PARENTS_CODES_BY_SESSION}/${sessionId}`);
+                return response.data.data; // { session_id, codes: [...] }
+            } catch (err) {
+                throw err;
+            }
+        };
+
+// Student redeem code
+export const redeemCodeAPI =
+    (code: string) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const body = { code };
+                // Use the standard interceptor which attaches Authorization when not excluded
+                const response: any = await post(REDEEM_CODE, body, true);
+                return response.data.data; // expect { url }
+            } catch (err) {
+                throw err;
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+// Subscription status
+export const getSubscriptionStatusAPI = () => async (dispatch: AppDispatch) => {
+    try {
+        const response: any = await get(SUBSCRIPTION_STATUS);
+        return response.data.data; // { isSubscription: boolean, plan?: {...} }
+    } catch (err) {
+        throw err;
+    }
+};
 
 
 /**

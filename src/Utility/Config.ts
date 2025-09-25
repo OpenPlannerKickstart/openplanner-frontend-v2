@@ -21,6 +21,7 @@ export const FileUrl = `${window.location.protocol}//${window.location.hostname}
 export const TWO_YEAR = process.env.TWO_YEAR;
 export const ONE_YEAR = process.env.ONE_YEAR;
 export const SIX_MONTH = process.env.SIX_MONTH;
+export const ONE_MONTH = process.env.ONE_MONTH;
 
 
 

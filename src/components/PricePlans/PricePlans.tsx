@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Col, Modal, Row } from 'react-bootstrap';
-import { ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES } from '../../interfaces/enum';
+import { ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES } from '../../interfaces/enum';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AppDispatch } from '../../redux/store';
 import { useDispatch } from 'react-redux';
@@ -51,6 +51,11 @@ import { te } from '../../Utility/Toaster';
 
 // console.log(plans)
 
+const undiscountedMap = {
+  "for 1 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_MONTH,
+  "for 6 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.SIX_MONTH,
+  "for 1 year": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_YEAR,
+};
 
 export const PricePlans = (props) => {
   const [userData, setuserData] = useState<any>(null)
@@ -162,6 +167,11 @@ export const PricePlans = (props) => {
 
   /** --------------get plans start------------------------------*/
   const [plans, setPlans] = useState<any>([]);
+  const fallbackPlans: any[] = [
+    { product_id: 'one_month', title: '1 Month', price: 3.99, duration: 'for 1 month', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
+    { product_id: 'six_month', title: '6 Months', price: 14.99, duration: 'for 6 months', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
+    { product_id: 'one_year', title: '1 Year', price: 23.99, duration: 'for 1 year', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
+  ];
 
   const getPlansAPI = async () => {
     /** --------------get plans start------------------------------*/
@@ -170,7 +180,18 @@ export const PricePlans = (props) => {
     }
     const response = await dispatch(getAllPlanAPI(reqBody));
     if (response?.payload) {
-      setPlans(response?.payload)
+      let list = Array.isArray(response.payload) ? [...response.payload] : [];
+      // Ensure we always render three plans in UI
+      if (list.length < 3) {
+        const existing = new Set(list.map((p: any) => p.product_id));
+        for (const p of fallbackPlans) {
+          if (!existing.has(p.product_id)) list.push(p);
+          if (list.length === 3) break;
+        }
+      }
+      // sort by price ascending for consistent order
+      list.sort((a: any, b: any) => Number(a.price) - Number(b.price));
+      setPlans(list);
     }
   }
 
@@ -184,16 +205,24 @@ export const PricePlans = (props) => {
 
   return (
     <div className="pricing-wrapper">
-      <Row>
-        {plans.map((plan, index) => (
-          <Col xs={12} md={plans?.length == 4 ? 3 : 4} key={index}>
+      <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between px-3 px-md-4">
+        {plans.map((plan, index) => {
+          return (
+          <Col key={index}>
             <Card className={`pricing-card ${selectedPlan === plan?.product_id ? 'active' : ''}`}>
               <Card.Header>
-                <span className="trial-label">{plan.title}</span>
-                <span className="popular-tag">Popular</span>
+                {plan?.friendly_id === 'one_month' && !isUpdatePlan ? (
+                  <span className="trial-label" style={{ visibility: 'hidden' }}></span>
+                ) : (
+                  <span className="trial-label">{plan.title}</span>
+                )}
+                {plan?.friendly_id == 'one_year' ? (<span className="popular-tag">Popular</span>):undefined}
               </Card.Header>
               <Card.Body>
                 <div className="price-section">
+                  <div >
+                    <span className="original-price">${undiscountedMap[plan.duration]}</span> for {plan.duration}
+                  </div>
                   <span className="price">${plan.price}</span>
                   <span className="duration">{plan.duration}</span>
                 </div>
@@ -221,17 +250,22 @@ export const PricePlans = (props) => {
                 <div className="features-section">
                   <h4>FEATURES</h4>
                   <ul>
-                    {plan.features.map((feature, i) => (
-                      <li key={i}>
-                        <i className="material-symbols-outlined check-icon">check_circle</i> {feature}
-                      </li>
-                    ))}
+                    {plan.features.map((feature, i) => {
+                      const normalized = (typeof feature === 'string' && feature.trim().toLowerCase() === 'full mobile application access') ? 'Full mobile application access' : feature;
+                      return (
+                        <li key={i}>
+                          <i className="material-symbols-outlined check-icon">check_circle</i> {normalized}
+                        </li>
+                      );
+                    })}
+
                   </ul>
+                    
                 </div>
               </Card.Body>
             </Card>
           </Col>
-        ))}
+        )})}
       </Row>
 
       <Modal className='modal-theme modal-confirmation modal-approve' show={completeConfirmationShow} onHide={handleConfirmationClose} centered>

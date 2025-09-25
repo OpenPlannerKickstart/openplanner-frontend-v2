@@ -1,0 +1,28 @@
+{
+  "schools": [
+    { "id": "2f5b1f2a-7e2f-4c3a-9f1a-1b2c3d4e5f60", "name": "State University", "domains": ["stateu.edu"] }
+  ],
+  "groups": [
+    {
+      "id": "a1d1b0c2-1111-4444-8888-aaaaaaaaaaaa",
+      "type": "canonical",
+      "name": "MATH 101 — Fall 2025",
+      "privacy": "public",
+      "memberCount": 23,
+      "memberAvatars": ["/u/a1.png", "/u/a2.png", "/u/a3.png"],
+      "lastActivityAt": "2025-09-08T12:00:00Z",
+      "archived": false,
+      "course": { "code": "MATH 101", "title": "Calculus I", "term": "Fall", "year": 2025, "schoolId": "2f5b1f2a-7e2f-4c3a-9f1a-1b2c3d4e5f60" }
+    }
+  ],
+  "messages": [
+    {
+      "id": "bb3e0e3a-2222-5555-9999-bbbbbbbbbbbb",
+      "groupId": "a1d1b0c2-1111-4444-8888-aaaaaaaaaaaa",
+      "sender": { "id": "u_1", "name": "Alex", "avatar": "/u/a1.png" },
+      "content": "Welcome to MATH 101!",
+      "createdAt": "2025-09-10T15:00:00Z"
+    }
+  ]
+}
+

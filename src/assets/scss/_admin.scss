@@ -2111,7 +2111,10 @@ $sm_sidebar_home_link_width: 170px;
         font-size: 42px;
         line-height: 72px;
     }
-
+    .original-price {
+    text-decoration: line-through;
+    color: #535862;
+  }
     .duration {
         font-size: 16px;
         color: #535862;
@@ -2169,6 +2172,11 @@ $sm_sidebar_home_link_width: 170px;
             margin-right: 8px;
             font-size: 20px;
         }
+        .free-check-icon {
+            color: green;
+            margin-right: 8px;
+            font-size: 20px;
+        }
       }
     }
   }
@@ -2176,9 +2184,7 @@ $sm_sidebar_home_link_width: 170px;
 // Responsive
 @media (max-width: 768px) {
   .pricing-wrapper {
-    flex-direction: column;
-    align-items: center;
-    margin-top: 800px;
+    margin-top: 0; /* remove excessive offset that hid cards on small screens */
   }
 }
 

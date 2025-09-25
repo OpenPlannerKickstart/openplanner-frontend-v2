@@ -27,7 +27,10 @@ const devConfig: webpack.Configuration = merge(commonConfig, {
       ],  
       devServer: {
         historyApiFallback: true,
-        static: paths.src,
+        static: [
+          { directory: paths.src },
+          { directory: paths.public },
+        ],
         open: true,
         compress: true,
         port: 2100,

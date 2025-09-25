@@ -16,7 +16,13 @@ import { GET_LOGIN_DATA_API } from "./ApiList";
 export type returnTypeForString = string | null | undefined;
 export type returnTypeForRegex = RegExp | null | undefined;
 /** List of APIs that should exclude token authentication. */
-export const excludeTokenAPIList: Array<string> = [GET_LOGIN_DATA_API];
+export const excludeTokenAPIList: Array<string> = [
+  GET_LOGIN_DATA_API,
+  'api/parents/',            // exclude all public parents endpoints
+];
+export const isExcludedUrl = (url: string): boolean => {
+  return excludeTokenAPIList.some((prefix) => url.startsWith(prefix));
+};
 /** Message to display when no records are found. */
 export const NO_RECORD_FOUND_MSG = "No Records found.";
 /** Date format for storing dates in the application. */
@@ -38,8 +44,9 @@ export const SUPPORTED_FORMATS = [
 ];
 export const SUPPORTED_SYLLABUS_UPLOAD_FORMATS = [
   "application/pdf",
-
-]
+  "application/msword", 
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
+];
 
 /** key Genrated Base64   */
 const key = "ODcmS3EzZnI/QXhybUFjeUpQREo2cHB6";
