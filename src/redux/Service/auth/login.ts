@@ -37,6 +37,10 @@ export const loginToSystem =
             console.log('login tokens', accessToken.slice(0,10), idToken.slice(0,10));
           }
 
+          // cache subscription flag for route guards
+          try {
+            localStorage.setItem('has_subscription', String(!!payload.isSubscription));
+          } catch {}
           return dispatch(getLoginSuccess(payload));
         }
       }

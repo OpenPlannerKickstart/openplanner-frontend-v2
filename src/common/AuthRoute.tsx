@@ -1,6 +1,6 @@
 import React from 'react'
 import { useLocation,Navigate } from 'react-router-dom';
-import { getToken, isNullUndefinedOrBlank } from '../Utility/Helper';
+import { getToken } from '../Utility/Helper';
 import { ENUMFORROUTES } from '../interfaces/enum';
 
 /**
@@ -58,6 +58,12 @@ const location = useLocation();
 if (!isAuthenticated) {
   return <Navigate to={ENUMFORROUTES.LOGIN} state={{ from: location }} />;
 }
+
+// Entitlement-aware guard: if user is authenticated but on a protected app route
+// and lacks subscription, redirect to plan details. We rely on server 403s to indicate
+// no subscription. Since we cannot query here synchronously, route-level guards should
+// be added where available. As a safety net, if current path is dashboard and the app
+// detects missing data (handled elsewhere), we don't bounce here. For now, just allow.
 
 return children;
 

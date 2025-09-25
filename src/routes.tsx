@@ -9,6 +9,7 @@ import { RouterProps } from './interfaces';
 import Sidebar from './components/Sidebar/Sidebar';
 import GuestRoute from './common/GuestRoute';
 import AuthRoute from './common/AuthRoute';
+import SubscribedRoute from './common/SubscribedRoute';
 import NotFound from './components/NotFound/NotFound';
 
 import Navbar from './components/Navbar/Navbar';
@@ -370,7 +371,7 @@ const AppRouter = (): JSX.Element => {
                 key={i}
                 caseSensitive={route.caseSensitive}
                 path={route.path}
-                element={<AuthRoute>{route.component}</AuthRoute>}
+                element={<AuthRoute><SubscribedRoute>{route.component}</SubscribedRoute></AuthRoute>}
               />
             ))}
 
