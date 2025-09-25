@@ -363,7 +363,9 @@ const handleError = (error: any): any => {
   else if (response && response !== undefined && response.status === 400) {
     te(response.data.message);
   } else if (response && response !== undefined && response.status === 403) {
-    logoutFromSystem("Access Denied Because Subscription Not Found");
+    // Do not clear auth on 403; non-subscribed users may hit protected endpoints
+    //logoutFromSystem("Access Denied Because Subscription Not Found");
+    te(response.data.message || "Access denied");
     return;
   } else if (response && response !== undefined && response.status === 405) {
     // console.log(response.data.Message)
