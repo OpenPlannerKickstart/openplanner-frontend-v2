@@ -137,7 +137,7 @@ export const PaymentPlans = () => {
                     <p>Start with a 7-day FREE trial!</p>
                   </div>
                   <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
-                    <Button variant="link" className="p-0" onClick={() => setShowRedeem(true)}>Have a code? Redeem it</Button>
+                    <Button variant="link" className="p-0" onClick={() => setShowRedeem(true)}>Have a parent code? Redeem it</Button>
                   </div>
                   <PricePlans state={state} />
                   {/* 
