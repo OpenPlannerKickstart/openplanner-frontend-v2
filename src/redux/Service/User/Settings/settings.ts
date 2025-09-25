@@ -12,6 +12,7 @@ import {
     PARENTS_CREATE_SESSION,
     PARENTS_CODES_BY_SESSION,
     REDEEM_CODE,
+    SUBSCRIPTION_STATUS,
 } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
 import {
@@ -188,6 +189,16 @@ export const redeemCodeAPI =
                 dispatch(setLoading(false));
             }
         };
+
+// Subscription status
+export const getSubscriptionStatusAPI = () => async (dispatch: AppDispatch) => {
+    try {
+        const response: any = await get(SUBSCRIPTION_STATUS);
+        return response.data.data; // { isSubscription: boolean, plan?: {...} }
+    } catch (err) {
+        throw err;
+    }
+};
 
 
 /**

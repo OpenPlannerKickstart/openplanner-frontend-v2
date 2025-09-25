@@ -5,7 +5,7 @@ import { Button, Form, Modal } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
-import { redeemCodeAPI } from '../../../redux/Service/User/Settings/settings'
+import { redeemCodeAPI, getSubscriptionStatusAPI } from '../../../redux/Service/User/Settings/settings'
 import { te, ts } from '../../../Utility/Toaster'
 import { getToken } from '../../../Utility/Helper'
 import { ENUMFORROUTES } from '../../../interfaces/enum'
@@ -45,11 +45,34 @@ export const PaymentPlans = () => {
       if (url) {
         window.location.href = url;
       } else {
-        try { localStorage.setItem('has_subscription', 'true'); } catch {}
-        ts('Code accepted');
-        setShowRedeem(false);
-        setRedeemCode('');
-        navigate(ENUMFORROUTES.DASHBOARD);
+        ts('Code accepted. Activating your subscription...');
+        // Poll BE until subscription is active before entering the app
+        let attempts = 0;
+        const delays = [500, 500, 750, 1000, 1500, 2000, 2500, 3000];
+        const check = async (): Promise<void> => {
+          try {
+            const resp: any = await dispatch<any>(getSubscriptionStatusAPI());
+            const payload = resp?.payload || resp;
+            if (payload && payload.isSubscription === true) {
+              try { localStorage.setItem('has_subscription', 'true'); } catch {}
+              setShowRedeem(false);
+              setRedeemCode('');
+              navigate(ENUMFORROUTES.DASHBOARD);
+              return;
+            }
+          } catch {
+            // ignore and retry
+          }
+          if (attempts < delays.length) {
+            const d = delays[attempts++];
+            setTimeout(check, d);
+          } else {
+            // Fallback: keep user on plans, but mark as subscribed to avoid loop
+            try { localStorage.setItem('has_subscription', 'true'); } catch {}
+            navigate(ENUMFORROUTES.DASHBOARD);
+          }
+        };
+        check();
       }
     } catch (err: any) {
       const payload = err?.response?.data || {};
