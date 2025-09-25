@@ -57,6 +57,7 @@ export const loginToSystem =
  */
 export const logoutFromSystem = () => async (dispatch: AppDispatch) => {
   deleteAllCookies();
+  try { localStorage.removeItem('has_subscription'); } catch {}
   dispatch(setLoading(true));
   setTimeout(() => {
     dispatch(setLoading(false));
