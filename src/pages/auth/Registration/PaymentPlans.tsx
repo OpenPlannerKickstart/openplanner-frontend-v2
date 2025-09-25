@@ -45,9 +45,11 @@ export const PaymentPlans = () => {
       if (url) {
         window.location.href = url;
       } else {
+        try { localStorage.setItem('has_subscription', 'true'); } catch {}
         ts('Code accepted');
         setShowRedeem(false);
         setRedeemCode('');
+        navigate(ENUMFORROUTES.DASHBOARD);
       }
     } catch (err: any) {
       const payload = err?.response?.data || {};
