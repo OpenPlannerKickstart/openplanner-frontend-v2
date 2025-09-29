@@ -145,7 +145,7 @@ const ParentsSuccess = () => {
                                   <span className="text-muted small ms-2">Expires: {new Date(c.expires_at).toLocaleDateString()}</span>
                                 )}
                               </div>
-                              <div className="d-flex align-items-center justify-content-center gap-2">
+                              {/* <div className="d-flex align-items-center justify-content-center gap-2">
                                 <Button variant="outline-primary" size="sm" onClick={() => navigator.clipboard.writeText(c.code)}>Copy</Button>
                                 <Form.Control
                                   type="email"
@@ -157,7 +157,7 @@ const ParentsSuccess = () => {
                                   size="sm"
                                 />
                                 <Button variant="outline-primary" size="sm" onClick={() => handleSendToStudentFor(c.id)}>Send</Button>
-                              </div>
+                              </div> */}
                             </div>
                             {emailErrors[c.id] && <div className="invalid-feedback d-block">{emailErrors[c.id]}</div>}
                           </li>
