@@ -114,7 +114,9 @@ const ParentsLanding = () => {
           <div className="admin-auth-row">
             <div className="admin-auth-col admin-auth-left">
               <div className="admin-auth-logo d-flex align-items-center justify-content-between">
-                <img src={authLogo} alt="OpenPlanner" />
+                <a href="/">
+                  <img src={authLogo} alt="OpenPlanner" />
+                </a>
                 <div></div>
               </div>
 
