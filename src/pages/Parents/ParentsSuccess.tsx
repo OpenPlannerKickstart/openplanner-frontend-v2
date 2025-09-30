@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { parentsGetCodesBySessionAPI, parentsBillingPortalAPI } from '../../redux/Service/User/Settings/settings'
+import { parentsGetCodesBySessionAPI, parentsBillingPortalAPI, parentsSubscriptionFinalizeAPI, parentsCreateSessionAPI } from '../../redux/Service/User/Settings/settings'
 import { te } from '../../Utility/Toaster'
 import authLogo from '/assets/images/auth-logo.svg'
 import authBGLogo from '/assets/images/registerpayment-success.svg'
@@ -19,6 +19,7 @@ const ParentsSuccess = () => {
   // Removed per-code email send for now
   const [billingLoading, setBillingLoading] = useState<boolean>(false)
   const [subscriptionId, setSubscriptionId] = useState<string>('')
+  const [finalizing, setFinalizing] = useState<boolean>(false)
   const parentEmailFromStorage = useMemo(() => {
     try { return localStorage.getItem('parent_email') || '' } catch { return '' }
   }, [])
@@ -128,6 +129,63 @@ const ParentsSuccess = () => {
       setBillingLoading(false)
     }
   }
+
+  // Finalize current session and enqueue next group if any
+  useEffect(() => {
+    const runFinalizeAndMaybeNext = async () => {
+      if (!sessionId || finalizing) return
+      setFinalizing(true)
+      try {
+        // finalize with retries
+        const delays = [300, 600, 1200]
+        let finalizeResp: any | null = null
+        for (let i = 0; i < delays.length + 1; i++) {
+          try {
+            finalizeResp = await (dispatch as any)(parentsSubscriptionFinalizeAPI({ session_id: sessionId }))
+            break
+          } catch (e) {
+            if (i === delays.length) throw e
+            await new Promise((res) => setTimeout(res, delays[i]))
+          }
+        }
+
+        if (finalizeResp) {
+          if (finalizeResp.stripe_subscription_id && !subscriptionId) setSubscriptionId(finalizeResp.stripe_subscription_id)
+          if (Array.isArray(finalizeResp.codes) && finalizeResp.codes.length > 0) {
+            setCodes(finalizeResp.codes)
+            try {
+              // accumulate across groups
+              const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
+              const next = [...prev, ...finalizeResp.codes]
+              localStorage.setItem('parents_codes_accum', JSON.stringify(next))
+            } catch {}
+          }
+        }
+
+        // Kick off next queued checkout if any
+        let idx = 0
+        let queue: any[] = []
+        try {
+          idx = parseInt(localStorage.getItem('parents_checkout_idx') || '0', 10)
+          queue = JSON.parse(localStorage.getItem('parents_checkout_queue') || '[]')
+        } catch {}
+        const nextIdx = idx + 1
+        if (Array.isArray(queue) && nextIdx < queue.length) {
+          try { localStorage.setItem('parents_checkout_idx', String(nextIdx)) } catch {}
+          const payload = queue[nextIdx]
+          const start = await (dispatch as any)(parentsCreateSessionAPI(payload))
+          if (start?.url) window.location.href = start.url
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('finalize error', e)
+      } finally {
+        setFinalizing(false)
+      }
+    }
+    runFinalizeAndMaybeNext()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId])
 
   return (
     <>
