@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { parentsGetCodesBySessionAPI, parentsBillingPortalAPI } from '../../redux/Service/User/Settings/settings'
-import { te, ts } from '../../Utility/Toaster'
+import { te } from '../../Utility/Toaster'
 import authLogo from '/assets/images/auth-logo.svg'
 import authBGLogo from '/assets/images/registerpayment-success.svg'
-import { Button, Form } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 import { ENUMFORROUTES } from '../../interfaces/enum'
 
 const ParentsSuccess = () => {
@@ -18,6 +18,7 @@ const ParentsSuccess = () => {
   //const [emailErrors, setEmailErrors] = useState<Record<string, string>>({})
   // Removed per-code email send for now
   const [billingLoading, setBillingLoading] = useState<boolean>(false)
+  const [subscriptionId, setSubscriptionId] = useState<string>('')
   const parentEmailFromStorage = useMemo(() => {
     try { return localStorage.getItem('parent_email') || '' } catch { return '' }
   }, [])
@@ -46,6 +47,9 @@ const ParentsSuccess = () => {
           // try
           const data: any = await dispatch<any>(parentsGetCodesBySessionAPI(sessionId));
           if (cancelled) return;
+          if (data?.stripe_subscription_id && !subscriptionId) {
+            setSubscriptionId(data.stripe_subscription_id);
+          }
           if (Array.isArray(data?.codes) && data.codes.length > 0) {
             setCodes(data.codes);
             break;
@@ -65,7 +69,7 @@ const ParentsSuccess = () => {
 
     fetchCodesWithBackoff();
     return () => { cancelled = true }
-  }, [sessionId, dispatch, params])
+  }, [sessionId, dispatch, params, subscriptionId])
 
   useEffect(() => {
     let meta: HTMLMetaElement | null = document.querySelector('meta[name="robots"]');
@@ -105,7 +109,13 @@ const ParentsSuccess = () => {
     try {
       setBillingLoading(true)
       const payload: any = {}
-      if (parentEmailFromStorage) payload.parent_email = parentEmailFromStorage
+      if (subscriptionId) payload.stripe_subscription_id = subscriptionId
+      else if (parentEmailFromStorage) payload.parent_email = parentEmailFromStorage
+      else {
+        te("Couldn't open billing portal. Please try again.")
+        setBillingLoading(false)
+        return
+      }
       const data: any = await (dispatch as any)(parentsBillingPortalAPI(payload))
       const url = data?.url
       if (!url) throw new Error('missing portal url')
