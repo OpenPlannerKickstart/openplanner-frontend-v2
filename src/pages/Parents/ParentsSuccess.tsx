@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { parentsGetCodesBySessionAPI } from '../../redux/Service/User/Settings/settings'
+import { parentsGetCodesBySessionAPI, parentsBillingPortalAPI } from '../../redux/Service/User/Settings/settings'
 import { te, ts } from '../../Utility/Toaster'
 import authLogo from '/assets/images/auth-logo.svg'
 import authBGLogo from '/assets/images/registerpayment-success.svg'
@@ -14,8 +14,13 @@ const ParentsSuccess = () => {
   const dispatch = useDispatch();
   const [codes, setCodes] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [studentEmails, setStudentEmails] = useState<Record<string, string>>({})
-  const [emailErrors, setEmailErrors] = useState<Record<string, string>>({})
+  //const [studentEmails, setStudentEmails] = useState<Record<string, string>>({})
+  //const [emailErrors, setEmailErrors] = useState<Record<string, string>>({})
+  // Removed per-code email send for now
+  const [billingLoading, setBillingLoading] = useState<boolean>(false)
+  const parentEmailFromStorage = useMemo(() => {
+    try { return localStorage.getItem('parent_email') || '' } catch { return '' }
+  }, [])
 
   useEffect(() => {
     // Dev-only mock: preview UI with ?mock=1
@@ -60,7 +65,7 @@ const ParentsSuccess = () => {
 
     fetchCodesWithBackoff();
     return () => { cancelled = true }
-  }, [sessionId, dispatch])
+  }, [sessionId, dispatch, params])
 
   useEffect(() => {
     let meta: HTMLMetaElement | null = document.querySelector('meta[name="robots"]');
@@ -77,27 +82,42 @@ const ParentsSuccess = () => {
         else document.head.removeChild(meta);
       }
     }
-  }, [])
+  }, [params])
 
   const navigate = useNavigate();
 
   // Per-code copy handled inline; bulk copy intentionally removed
 
-  const validateEmail = (email: string) => {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-  };
+  
 
-  const handleSendToStudentFor = (id: string) => {
-    const email = studentEmails[id] || '';
-    if (!email || !validateEmail(email)) {
-      setEmailErrors((prev) => ({ ...prev, [id]: 'Please enter a valid email address.' }));
-      return;
+  // const handleSendToStudentFor = (id: string) => {
+  //   const email = studentEmails[id] || '';
+  //   if (!email || !validateEmail(email)) {
+  //     setEmailErrors((prev) => ({ ...prev, [id]: 'Please enter a valid email address.' }));
+  //     return;
+  //   }
+  //   setEmailErrors((prev) => ({ ...prev, [id]: '' }));
+  //   ts('Code sent to student email');
+  //   setStudentEmails((prev) => ({ ...prev, [id]: '' }));
+  // };
+
+  const handleManageBilling = async () => {
+    try {
+      setBillingLoading(true)
+      const payload: any = {}
+      if (parentEmailFromStorage) payload.parent_email = parentEmailFromStorage
+      const data: any = await (dispatch as any)(parentsBillingPortalAPI(payload))
+      const url = data?.url
+      if (!url) throw new Error('missing portal url')
+      window.location.assign(url)
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e)
+      te("Couldn't open billing portal. Please try again.")
+    } finally {
+      setBillingLoading(false)
     }
-    setEmailErrors((prev) => ({ ...prev, [id]: '' }));
-    ts('Code sent to student email');
-    setStudentEmails((prev) => ({ ...prev, [id]: '' }));
-  };
+  }
 
   return (
     <>
@@ -159,7 +179,7 @@ const ParentsSuccess = () => {
                                 <Button variant="outline-primary" size="sm" onClick={() => handleSendToStudentFor(c.id)}>Send</Button>
                               </div> */}
                             </div>
-                            {emailErrors[c.id] && <div className="invalid-feedback d-block">{emailErrors[c.id]}</div>}
+                            {/* validation message placeholder removed */}
                           </li>
                         ))}
                       </ul>
@@ -167,7 +187,12 @@ const ParentsSuccess = () => {
                   )}
 
                   <div className="retry-btn w-100 mt-3">
-                    <Button variant="primary" className="btn-text w-100 mx-auto" onClick={() => { navigate(ENUMFORROUTES.PARENTS) }}>Back to Parents</Button>
+                    <div className="d-grid gap-2">
+                      <Button variant="secondary" className="btn-text w-100 mx-auto" disabled={billingLoading} onClick={handleManageBilling}>
+                        {billingLoading ? 'Opening…' : 'Manage billing'}
+                      </Button>
+                      <Button variant="primary" className="btn-text w-100 mx-auto" onClick={() => { navigate(ENUMFORROUTES.PARENTS) }}>Back to Parents</Button>
+                    </div>
                   </div>
                 </div>
               </div>

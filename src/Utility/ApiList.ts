@@ -85,6 +85,7 @@ export const PLAN_MASTER = 'getMstProdPlan'
 // Parents purchase flow
 export const PARENTS_CREATE_SESSION = 'api/parents/checkout/session'
 export const PARENTS_CODES_BY_SESSION = 'api/parents/code'
+export const PARENTS_BILLING_PORTAL = 'api/parents/billing/portal'
 // Subscription status (student)
 export const SUBSCRIPTION_STATUS = 'api/subscription/status'
 // Student redeem flow

@@ -93,6 +93,7 @@ const ParentsLanding = () => {
     }
     const body: any = { items }
     body.parent_email = parentEmail.trim()
+    try { localStorage.setItem('parent_email', body.parent_email) } catch {}
     dispatch(parentsCreateSessionAPI(body))
       .then((data: any) => {
         if (data?.url) {
