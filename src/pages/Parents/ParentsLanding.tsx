@@ -82,7 +82,6 @@ const ParentsLanding = () => {
       .map(([key, quantity]) => {
         const p: any = plans.find(pl => pl.product_id === key)
         const product_id = p?.product_id || key
-        // Option (b): send only product_id; BE resolves price internally
         return { product_id, quantity }
       })
       .filter((i) => i.quantity > 0)
