@@ -221,7 +221,7 @@ export const PricePlans = (props) => {
               <Card.Body>
                 <div className="price-section">
                   <div >
-                    <span className="original-price">${undiscountedMap[plan.duration]}</span> for {plan.duration}
+                    <span className="original-price">${undiscountedMap[plan.duration]}</span>
                   </div>
                   <span className="price">${plan.price}</span>
                   <span className="duration">{plan.duration}</span>
