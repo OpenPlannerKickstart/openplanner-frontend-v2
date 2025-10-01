@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { parentsGetCodesBySessionAPI, parentsBillingPortalAPI, parentsSubscriptionFinalizeAPI, parentsCreateSessionAPI } from '../../redux/Service/User/Settings/settings'
+import { parentsGetCodesBySessionAPI, parentsBillingPortalAPI, parentsSubscriptionFinalizeAPI } from '../../redux/Service/User/Settings/settings'
 import { te } from '../../Utility/Toaster'
 import authLogo from '/assets/images/auth-logo.svg'
 import authBGLogo from '/assets/images/registerpayment-success.svg'
@@ -130,9 +130,9 @@ const ParentsSuccess = () => {
     }
   }
 
-  // Finalize current session and enqueue next group if any
+  // Finalize current (final) session and show codes (no auto-advance here)
   useEffect(() => {
-    const runFinalizeAndMaybeNext = async () => {
+    const runFinalize = async () => {
       if (!sessionId || finalizing) return
       setFinalizing(true)
       try {
@@ -161,21 +161,6 @@ const ParentsSuccess = () => {
             } catch {}
           }
         }
-
-        // Kick off next queued checkout if any
-        let idx = 0
-        let queue: any[] = []
-        try {
-          idx = parseInt(localStorage.getItem('parents_checkout_idx') || '0', 10)
-          queue = JSON.parse(localStorage.getItem('parents_checkout_queue') || '[]')
-        } catch {}
-        const nextIdx = idx + 1
-        if (Array.isArray(queue) && nextIdx < queue.length) {
-          try { localStorage.setItem('parents_checkout_idx', String(nextIdx)) } catch {}
-          const payload = queue[nextIdx]
-          const start = await (dispatch as any)(parentsCreateSessionAPI(payload))
-          if (start?.url) window.location.href = start.url
-        }
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('finalize error', e)
@@ -183,7 +168,7 @@ const ParentsSuccess = () => {
         setFinalizing(false)
       }
     }
-    runFinalizeAndMaybeNext()
+    runFinalize()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId])
 
