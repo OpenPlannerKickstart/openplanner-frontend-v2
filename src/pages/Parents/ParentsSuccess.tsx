@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { parentsGetCodesBySessionAPI, parentsBillingPortalAPI, parentsSubscriptionFinalizeAPI } from '../../redux/Service/User/Settings/settings'
+import { parentsGetCodesBySessionAPI, parentsSubscriptionFinalizeAPI } from '../../redux/Service/User/Settings/settings'
 import { te } from '../../Utility/Toaster'
 import authLogo from '/assets/images/auth-logo.svg'
 import authBGLogo from '/assets/images/registerpayment-success.svg'
@@ -17,12 +17,12 @@ const ParentsSuccess = () => {
   //const [studentEmails, setStudentEmails] = useState<Record<string, string>>({})
   //const [emailErrors, setEmailErrors] = useState<Record<string, string>>({})
   // Removed per-code email send for now
-  const [billingLoading, setBillingLoading] = useState<boolean>(false)
+  // const [billingLoading, setBillingLoading] = useState<boolean>(false)
   const [subscriptionId, setSubscriptionId] = useState<string>('')
   const [finalizing, setFinalizing] = useState<boolean>(false)
-  const parentEmailFromStorage = useMemo(() => {
-    try { return localStorage.getItem('parent_email') || '' } catch { return '' }
-  }, [])
+  // const parentEmailFromStorage = useMemo(() => {
+  //   try { return localStorage.getItem('parent_email') || '' } catch { return '' }
+  // }, [])
 
   useEffect(() => {
     // Dev-only mock: preview UI with ?mock=1
@@ -121,29 +121,29 @@ const ParentsSuccess = () => {
   //   setStudentEmails((prev) => ({ ...prev, [id]: '' }));
   // };
 
-  const handleManageBilling = async () => {
-    try {
-      setBillingLoading(true)
-      const payload: any = {}
-      if (subscriptionId) payload.stripe_subscription_id = subscriptionId
-      else if (parentEmailFromStorage) payload.parent_email = parentEmailFromStorage
-      else {
-        te("Couldn't open billing portal. Please try again.")
-        setBillingLoading(false)
-        return
-      }
-      const data: any = await (dispatch as any)(parentsBillingPortalAPI(payload))
-      const url = data?.url
-      if (!url) throw new Error('missing portal url')
-      window.location.assign(url)
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e)
-      te("Couldn't open billing portal. Please try again.")
-    } finally {
-      setBillingLoading(false)
-    }
-  }
+  // const handleManageBilling = async () => {
+  //   try {
+  //     setBillingLoading(true)
+  //     const payload: any = {}
+  //     if (subscriptionId) payload.stripe_subscription_id = subscriptionId
+  //     else if (parentEmailFromStorage) payload.parent_email = parentEmailFromStorage
+  //     else {
+  //       te("Couldn't open billing portal. Please try again.")
+  //       setBillingLoading(false)
+  //       return
+  //     }
+  //     const data: any = await (dispatch as any)(parentsBillingPortalAPI(payload))
+  //     const url = data?.url
+  //     if (!url) throw new Error('missing portal url')
+  //     window.location.assign(url)
+  //   } catch (e) {
+  //     // eslint-disable-next-line no-console
+  //     console.error(e)
+  //     te("Couldn't open billing portal. Please try again.")
+  //   } finally {
+  //     setBillingLoading(false)
+  //   }
+  // }
 
   // Finalize current (final) session and show codes (no auto-advance here)
   useEffect(() => {
@@ -263,9 +263,9 @@ const ParentsSuccess = () => {
 
                   <div className="retry-btn w-100 mt-3">
                     <div className="d-grid gap-2">
-                      <Button variant="secondary" className="btn-text w-100 mx-auto btn-manage-billing" disabled={billingLoading} onClick={handleManageBilling}>
+                      {/* <Button variant="secondary" className="btn-text w-100 mx-auto btn-manage-billing" disabled={billingLoading} onClick={handleManageBilling}>
                         {billingLoading ? 'Opening…' : 'Manage billing'}
-                      </Button>
+                      </Button> */}
                       <Button variant="primary" className="btn-text w-100 mx-auto" onClick={() => { navigate(ENUMFORROUTES.PARENTS) }}>Back to Parents</Button>
                     </div>
                   </div>
