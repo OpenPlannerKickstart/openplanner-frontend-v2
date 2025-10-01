@@ -52,7 +52,22 @@ const ParentsSuccess = () => {
             setSubscriptionId(data.stripe_subscription_id);
           }
           if (Array.isArray(data?.codes) && data.codes.length > 0) {
-            setCodes(data.codes);
+            try {
+              const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
+              const fresh = data.codes
+              // simple de-dup by code string if present
+              const seen: Record<string, boolean> = {}
+              const combined = [...prev, ...fresh].filter((c: any) => {
+                const key = typeof c?.code === 'string' ? c.code : JSON.stringify(c)
+                if (seen[key]) return false
+                seen[key] = true
+                return true
+              })
+              setCodes(combined)
+              localStorage.setItem('parents_codes_accum', JSON.stringify(combined))
+            } catch {
+              setCodes(data.codes)
+            }
             break;
           }
           if (i === delays.length) break; // stop
