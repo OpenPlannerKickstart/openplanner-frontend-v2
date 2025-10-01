@@ -210,7 +210,7 @@ const ParentsLanding = () => {
 
                 {/* Summary section below cards (not in a Card) */}
                 <div className="mt-2">
-                  <p className="text-muted mb-1">Select quantities above. Codes will be shown on the next screen and can be emailed to students.</p>
+                  <p className="text-muted mb-1">Select quantities above. You’ll complete checkout once per plan duration. After all checkouts finish, your codes will appear on the final screen and we’ll email them to you.</p>
                   <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2">
                     <Form.Control style={{ maxWidth: 360 }} type="email" placeholder="Parent email (required)" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} />
                     <div className="ms-md-auto d-flex align-items-center gap-2">
