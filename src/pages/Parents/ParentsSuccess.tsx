@@ -169,7 +169,13 @@ const ParentsSuccess = () => {
           // Merge with previously accumulated codes so we show all groups
           try {
             const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
-            const thisCodes = Array.isArray(finalizeResp.codes) ? finalizeResp.codes : []
+            // Prefer detailed codes (with plan_name/expires_at) from GET if available
+            let detailed = [] as any[]
+            try {
+              const getResp: any = await (dispatch as any)(parentsGetCodesBySessionAPI(sessionId))
+              if (Array.isArray(getResp?.codes)) detailed = getResp.codes
+            } catch {}
+            const thisCodes = detailed.length > 0 ? detailed : (Array.isArray(finalizeResp.codes) ? finalizeResp.codes : [])
             const next = [...prev, ...thisCodes]
             setCodes(next)
             localStorage.setItem('parents_codes_accum', JSON.stringify(next))

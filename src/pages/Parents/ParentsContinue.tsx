@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import { AppDispatch } from '../../redux/store'
-import { parentsCreateSessionAPI, parentsSubscriptionFinalizeAPI } from '../../redux/Service/User/Settings/settings'
+import { parentsCreateSessionAPI, parentsSubscriptionFinalizeAPI, parentsGetCodesBySessionAPI } from '../../redux/Service/User/Settings/settings'
 
 const ParentsContinue = () => {
   const [params] = useSearchParams();
@@ -16,12 +16,19 @@ const ParentsContinue = () => {
         if (sessionId) {
           try {
             const resp: any = await dispatch<any>(parentsSubscriptionFinalizeAPI({ session_id: sessionId }))
-            if (resp && Array.isArray(resp.codes)) {
-              try {
+            // After finalize, fetch detailed codes for this session to include names/expiry
+            try {
+              const codesResp: any = await dispatch<any>(parentsGetCodesBySessionAPI(sessionId))
+              const detailed = Array.isArray(codesResp?.codes) ? codesResp.codes : (Array.isArray(resp?.codes) ? resp.codes : [])
+              const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
+              const next = [...prev, ...detailed]
+              localStorage.setItem('parents_codes_accum', JSON.stringify(next))
+            } catch {
+              if (resp && Array.isArray(resp.codes)) {
                 const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
                 const next = [...prev, ...resp.codes]
                 localStorage.setItem('parents_codes_accum', JSON.stringify(next))
-              } catch {}
+              }
             }
           } catch {}
         }
