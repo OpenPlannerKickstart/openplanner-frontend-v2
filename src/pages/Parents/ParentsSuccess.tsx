@@ -151,14 +151,15 @@ const ParentsSuccess = () => {
 
         if (finalizeResp) {
           if (finalizeResp.stripe_subscription_id && !subscriptionId) setSubscriptionId(finalizeResp.stripe_subscription_id)
-          if (Array.isArray(finalizeResp.codes) && finalizeResp.codes.length > 0) {
-            setCodes(finalizeResp.codes)
-            try {
-              // accumulate across groups
-              const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
-              const next = [...prev, ...finalizeResp.codes]
-              localStorage.setItem('parents_codes_accum', JSON.stringify(next))
-            } catch {}
+          // Merge with previously accumulated codes so we show all groups
+          try {
+            const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
+            const thisCodes = Array.isArray(finalizeResp.codes) ? finalizeResp.codes : []
+            const next = [...prev, ...thisCodes]
+            setCodes(next)
+            localStorage.setItem('parents_codes_accum', JSON.stringify(next))
+          } catch {
+            if (Array.isArray(finalizeResp.codes)) setCodes(finalizeResp.codes)
           }
         }
       } catch (e) {
@@ -241,7 +242,7 @@ const ParentsSuccess = () => {
 
                   <div className="retry-btn w-100 mt-3">
                     <div className="d-grid gap-2">
-                      <Button variant="secondary" className="btn-text w-100 mx-auto" disabled={billingLoading} onClick={handleManageBilling}>
+                      <Button variant="secondary" className="btn-text w-100 mx-auto btn-manage-billing" disabled={billingLoading} onClick={handleManageBilling}>
                         {billingLoading ? 'Opening…' : 'Manage billing'}
                       </Button>
                       <Button variant="primary" className="btn-text w-100 mx-auto" onClick={() => { navigate(ENUMFORROUTES.PARENTS) }}>Back to Parents</Button>

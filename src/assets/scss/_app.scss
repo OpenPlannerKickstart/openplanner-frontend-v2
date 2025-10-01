@@ -692,6 +692,17 @@
     }
 }
 
+.btn-manage-billing {
+  background-color: #F4C430 !important; /* darker yellow */
+  border-color: #F4C430 !important;
+
+  &:hover,
+  &:focus {
+    background-color: #FCE588 !important; /* lighter on hover */
+    border-color: #FCE588 !important;
+  }
+}
+
 /* Parents page mobile-ish fixes (treat widths <=1030px as mobile for layout) */
 @media (max-width: 1030px) {
   .payment-plans-container.parents-plans {

@@ -15,7 +15,14 @@ const ParentsContinue = () => {
       try {
         if (sessionId) {
           try {
-            await dispatch<any>(parentsSubscriptionFinalizeAPI({ session_id: sessionId }))
+            const resp: any = await dispatch<any>(parentsSubscriptionFinalizeAPI({ session_id: sessionId }))
+            if (resp && Array.isArray(resp.codes)) {
+              try {
+                const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
+                const next = [...prev, ...resp.codes]
+                localStorage.setItem('parents_codes_accum', JSON.stringify(next))
+              } catch {}
+            }
           } catch {}
         }
         let idx = 0
