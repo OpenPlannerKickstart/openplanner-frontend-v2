@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { NavLink, useNavigate, useSearchParams } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { parentsGetCodesBySessionAPI } from '../../redux/Service/User/Settings/settings'
-import { te, ts } from '../../Utility/Toaster'
+import { parentsGetCodesBySessionAPI, parentsSubscriptionFinalizeAPI } from '../../redux/Service/User/Settings/settings'
+import { te } from '../../Utility/Toaster'
 import authLogo from '/assets/images/auth-logo.svg'
 import authBGLogo from '/assets/images/registerpayment-success.svg'
-import { Button, Form } from 'react-bootstrap'
+import { Button } from 'react-bootstrap'
 import { ENUMFORROUTES } from '../../interfaces/enum'
 
 const ParentsSuccess = () => {
@@ -14,8 +14,15 @@ const ParentsSuccess = () => {
   const dispatch = useDispatch();
   const [codes, setCodes] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [studentEmails, setStudentEmails] = useState<Record<string, string>>({})
-  const [emailErrors, setEmailErrors] = useState<Record<string, string>>({})
+  //const [studentEmails, setStudentEmails] = useState<Record<string, string>>({})
+  //const [emailErrors, setEmailErrors] = useState<Record<string, string>>({})
+  // Removed per-code email send for now
+  // const [billingLoading, setBillingLoading] = useState<boolean>(false)
+  const [subscriptionId, setSubscriptionId] = useState<string>('')
+  const [finalizing, setFinalizing] = useState<boolean>(false)
+  // const parentEmailFromStorage = useMemo(() => {
+  //   try { return localStorage.getItem('parent_email') || '' } catch { return '' }
+  // }, [])
 
   useEffect(() => {
     // Dev-only mock: preview UI with ?mock=1
@@ -41,8 +48,26 @@ const ParentsSuccess = () => {
           // try
           const data: any = await dispatch<any>(parentsGetCodesBySessionAPI(sessionId));
           if (cancelled) return;
+          if (data?.stripe_subscription_id && !subscriptionId) {
+            setSubscriptionId(data.stripe_subscription_id);
+          }
           if (Array.isArray(data?.codes) && data.codes.length > 0) {
-            setCodes(data.codes);
+            try {
+              const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
+              const fresh = data.codes
+              // simple de-dup by code string if present
+              const seen: Record<string, boolean> = {}
+              const combined = [...prev, ...fresh].filter((c: any) => {
+                const key = typeof c?.code === 'string' ? c.code : JSON.stringify(c)
+                if (seen[key]) return false
+                seen[key] = true
+                return true
+              })
+              setCodes(combined)
+              localStorage.setItem('parents_codes_accum', JSON.stringify(combined))
+            } catch {
+              setCodes(data.codes)
+            }
             break;
           }
           if (i === delays.length) break; // stop
@@ -60,7 +85,7 @@ const ParentsSuccess = () => {
 
     fetchCodesWithBackoff();
     return () => { cancelled = true }
-  }, [sessionId, dispatch])
+  }, [sessionId, dispatch, params, subscriptionId])
 
   useEffect(() => {
     let meta: HTMLMetaElement | null = document.querySelector('meta[name="robots"]');
@@ -77,27 +102,97 @@ const ParentsSuccess = () => {
         else document.head.removeChild(meta);
       }
     }
-  }, [])
+  }, [params])
 
   const navigate = useNavigate();
 
   // Per-code copy handled inline; bulk copy intentionally removed
 
-  const validateEmail = (email: string) => {
-    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-  };
+  
 
-  const handleSendToStudentFor = (id: string) => {
-    const email = studentEmails[id] || '';
-    if (!email || !validateEmail(email)) {
-      setEmailErrors((prev) => ({ ...prev, [id]: 'Please enter a valid email address.' }));
-      return;
+  // const handleSendToStudentFor = (id: string) => {
+  //   const email = studentEmails[id] || '';
+  //   if (!email || !validateEmail(email)) {
+  //     setEmailErrors((prev) => ({ ...prev, [id]: 'Please enter a valid email address.' }));
+  //     return;
+  //   }
+  //   setEmailErrors((prev) => ({ ...prev, [id]: '' }));
+  //   ts('Code sent to student email');
+  //   setStudentEmails((prev) => ({ ...prev, [id]: '' }));
+  // };
+
+  // const handleManageBilling = async () => {
+  //   try {
+  //     setBillingLoading(true)
+  //     const payload: any = {}
+  //     if (subscriptionId) payload.stripe_subscription_id = subscriptionId
+  //     else if (parentEmailFromStorage) payload.parent_email = parentEmailFromStorage
+  //     else {
+  //       te("Couldn't open billing portal. Please try again.")
+  //       setBillingLoading(false)
+  //       return
+  //     }
+  //     const data: any = await (dispatch as any)(parentsBillingPortalAPI(payload))
+  //     const url = data?.url
+  //     if (!url) throw new Error('missing portal url')
+  //     window.location.assign(url)
+  //   } catch (e) {
+  //     // eslint-disable-next-line no-console
+  //     console.error(e)
+  //     te("Couldn't open billing portal. Please try again.")
+  //   } finally {
+  //     setBillingLoading(false)
+  //   }
+  // }
+
+  // Finalize current (final) session and show codes (no auto-advance here)
+  useEffect(() => {
+    const runFinalize = async () => {
+      if (!sessionId || finalizing) return
+      setFinalizing(true)
+      try {
+        // finalize with retries
+        const delays = [300, 600, 1200]
+        let finalizeResp: any | null = null
+        for (let i = 0; i < delays.length + 1; i++) {
+          try {
+            finalizeResp = await (dispatch as any)(parentsSubscriptionFinalizeAPI({ session_id: sessionId }))
+            break
+          } catch (e) {
+            if (i === delays.length) throw e
+            await new Promise((res) => setTimeout(res, delays[i]))
+          }
+        }
+
+        if (finalizeResp) {
+          if (finalizeResp.stripe_subscription_id && !subscriptionId) setSubscriptionId(finalizeResp.stripe_subscription_id)
+          // Merge with previously accumulated codes so we show all groups
+          try {
+            const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
+            // Prefer detailed codes (with plan_name/expires_at) from GET if available
+            let detailed = [] as any[]
+            try {
+              const getResp: any = await (dispatch as any)(parentsGetCodesBySessionAPI(sessionId))
+              if (Array.isArray(getResp?.codes)) detailed = getResp.codes
+            } catch {}
+            const thisCodes = detailed.length > 0 ? detailed : (Array.isArray(finalizeResp.codes) ? finalizeResp.codes : [])
+            const next = [...prev, ...thisCodes]
+            setCodes(next)
+            localStorage.setItem('parents_codes_accum', JSON.stringify(next))
+          } catch {
+            if (Array.isArray(finalizeResp.codes)) setCodes(finalizeResp.codes)
+          }
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('finalize error', e)
+      } finally {
+        setFinalizing(false)
+      }
     }
-    setEmailErrors((prev) => ({ ...prev, [id]: '' }));
-    ts('Code sent to student email');
-    setStudentEmails((prev) => ({ ...prev, [id]: '' }));
-  };
+    runFinalize()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId])
 
   return (
     <>
@@ -159,7 +254,7 @@ const ParentsSuccess = () => {
                                 <Button variant="outline-primary" size="sm" onClick={() => handleSendToStudentFor(c.id)}>Send</Button>
                               </div> */}
                             </div>
-                            {emailErrors[c.id] && <div className="invalid-feedback d-block">{emailErrors[c.id]}</div>}
+                            {/* validation message placeholder removed */}
                           </li>
                         ))}
                       </ul>
@@ -167,7 +262,12 @@ const ParentsSuccess = () => {
                   )}
 
                   <div className="retry-btn w-100 mt-3">
-                    <Button variant="primary" className="btn-text w-100 mx-auto" onClick={() => { navigate(ENUMFORROUTES.PARENTS) }}>Back to Parents</Button>
+                    <div className="d-grid gap-2">
+                      {/* <Button variant="secondary" className="btn-text w-100 mx-auto btn-manage-billing" disabled={billingLoading} onClick={handleManageBilling}>
+                        {billingLoading ? 'Opening…' : 'Manage billing'}
+                      </Button> */}
+                      <Button variant="primary" className="btn-text w-100 mx-auto" onClick={() => { navigate(ENUMFORROUTES.PARENTS) }}>Back to Parents</Button>
+                    </div>
                   </div>
                 </div>
               </div>

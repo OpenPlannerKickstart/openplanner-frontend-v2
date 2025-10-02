@@ -53,6 +53,7 @@ export const ENUMFORROUTES = {
   GROUPS: "/groups",
   PARENTS: "/parents",
   PARENTS_SUCCESS: "/parents/success",
+  PARENTS_CONTINUE: "/parents/continue",
   PARENTS_CANCEL: "/parents/cancel"
 
 }

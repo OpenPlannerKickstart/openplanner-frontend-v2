@@ -37,6 +37,8 @@ import Groups from './pages/Customer/Groups/Groups';
 const ParentsLanding = React.lazy(() => import('./pages/Parents/ParentsLanding'));
 // @ts-ignore - TS resolver can misreport on lazy dynamic imports in some configs
 const ParentsSuccess = React.lazy(() => import('./pages/Parents/ParentsSuccess'));
+// @ts-ignore
+const ParentsContinue = React.lazy(() => import('./pages/Parents/ParentsContinue'));
 // @ts-ignore - TS resolver can misreport on lazy dynamic imports in some configs
 const ParentsCancel = React.lazy(() => import('./pages/Parents/ParentsCancel'));
 
@@ -363,6 +365,7 @@ const AppRouter = (): JSX.Element => {
             {/* Parents flow (standalone, accessible regardless of auth) */}
             <Route caseSensitive path={ENUMFORROUTES.PARENTS} element={<ParentsLanding />} />
             <Route caseSensitive path={ENUMFORROUTES.PARENTS_SUCCESS} element={<ParentsSuccess />} />
+            <Route caseSensitive path={ENUMFORROUTES.PARENTS_CONTINUE} element={<ParentsContinue />} />
             <Route caseSensitive path={ENUMFORROUTES.PARENTS_CANCEL} element={<ParentsCancel />} />
 
             {publicRoutes.map((route, i) => (

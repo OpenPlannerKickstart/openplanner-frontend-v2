@@ -78,12 +78,19 @@ const ParentsLanding = () => {
   // No student email collection here
 
   const handleProceed = () => {
+    const normalizeDuration = (d: string) => {
+      const s = (d || '').toLowerCase();
+      if (s.includes('1 month')) return '1m';
+      if (s.includes('6 month')) return '6m';
+      if (s.includes('1 year')) return '1y';
+      return s || 'other';
+    }
     const items = Object.entries(cart)
       .map(([key, quantity]) => {
         const p: any = plans.find(pl => pl.product_id === key)
         const product_id = p?.product_id || key
-        // Option (b): send only product_id; BE resolves price internally
-        return { product_id, quantity }
+        const durationKey = normalizeDuration(p?.duration || '')
+        return { product_id, quantity, durationKey }
       })
       .filter((i) => i.quantity > 0)
     if (items.length === 0) return
@@ -91,9 +98,38 @@ const ParentsLanding = () => {
       te('Please enter a valid parent email')
       return
     }
-    const body: any = { items }
-    body.parent_email = parentEmail.trim()
-    dispatch(parentsCreateSessionAPI(body))
+
+    // Group by duration; each group will run as a separate checkout
+    const grouped: Record<string, { product_id: string; quantity: number }[]> = {}
+    for (const it of items) {
+      if (!grouped[it.durationKey]) grouped[it.durationKey] = []
+      grouped[it.durationKey].push({ product_id: it.product_id, quantity: it.quantity })
+    }
+    const base = window.location.origin + '/#'
+    const successUrlContinue = base + '/parents/continue'
+    const successUrlFinal = base + '/parents/success'
+    const cancelUrl = base + '/parents/cancel'
+    const durations = Object.keys(grouped)
+    const queue = durations.map((key, index) => {
+      const isFinal = index === (durations.length - 1)
+      return {
+        items: grouped[key],
+        parent_email: parentEmail.trim(),
+        success_url: isFinal ? successUrlFinal : successUrlContinue,
+        cancel_url: cancelUrl,
+      }
+    })
+    if (queue.length === 0) return
+
+    try {
+      localStorage.setItem('parent_email', parentEmail.trim())
+      localStorage.setItem('parents_checkout_queue', JSON.stringify(queue))
+      localStorage.setItem('parents_checkout_idx', '0')
+      localStorage.setItem('parents_codes_accum', JSON.stringify([]))
+      localStorage.setItem('parents_final_success', successUrlFinal.replace(base, ''))
+    } catch {}
+
+    dispatch(parentsCreateSessionAPI(queue[0]))
       .then((data: any) => {
         if (data?.url) {
           window.location.href = data.url
@@ -114,7 +150,9 @@ const ParentsLanding = () => {
           <div className="admin-auth-row">
             <div className="admin-auth-col admin-auth-left">
               <div className="admin-auth-logo d-flex align-items-center justify-content-between">
-                <img src={authLogo} alt="OpenPlanner" />
+                <a href="/">
+                  <img src={authLogo} alt="OpenPlanner" />
+                </a>
                 <div></div>
               </div>
 
@@ -172,7 +210,7 @@ const ParentsLanding = () => {
 
                 {/* Summary section below cards (not in a Card) */}
                 <div className="mt-2">
-                  <p className="text-muted mb-1">Select quantities above. Codes will be shown on the next screen and can be emailed to students.</p>
+                  <p className="text-muted mb-1">Select quantities above. You’ll complete checkout once per plan duration. After all checkouts finish, your codes will appear on the final screen and we’ll email them to you.</p>
                   <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2">
                     <Form.Control style={{ maxWidth: 360 }} type="email" placeholder="Parent email (required)" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} />
                     <div className="ms-md-auto d-flex align-items-center gap-2">

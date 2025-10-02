@@ -26,7 +26,7 @@ const Navbar = (props) => {
   const [SidebarSize, setSidebarSize] = useState('lg');
   const windowSize = document.documentElement.clientWidth;
 
-  const toogleMenu = () => {
+  const toggleMenu = () => {
     if (windowSize > 1024) {
       setSidebarSize(SidebarSize === 'sm' ? 'lg' : 'sm');
       document.documentElement.setAttribute('data-sidebar-size', SidebarSize === 'lg' ? 'sm' : 'lg');
@@ -309,7 +309,7 @@ const Navbar = (props) => {
               {/* <!-- LOGO --> */}
 
 
-              <Button variant='primary' className="btn-icon btn-secondary-two" id="topnav-hamburger-icon" onClick={toogleMenu}>
+              <Button variant='primary' className="btn-icon btn-secondary-two" id="topnav-hamburger-icon" onClick={toggleMenu}>
                 <i className='material-symbols-outlined'>menu</i>
               </Button>
 

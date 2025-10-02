@@ -11,6 +11,8 @@ import {
     PLAN_MASTER,
     PARENTS_CREATE_SESSION,
     PARENTS_CODES_BY_SESSION,
+    PARENTS_BILLING_PORTAL,
+    PARENTS_SUBSCRIPTION_FINALIZE,
     REDEEM_CODE,
     SUBSCRIPTION_STATUS,
 } from "../../../../Utility/ApiList";
@@ -38,7 +40,7 @@ import {
 import { setLoading } from "../../../Loader/LoaderSlice";
 import { AppDispatch } from "../../../store";
 import { ts } from "../../../../Utility/Toaster";
-import { getToken } from '../../../../Utility/Helper';
+// import { getToken } from '../../../../Utility/Helper';
 
 /**
  * Fetch User Data
@@ -170,6 +172,42 @@ export const parentsGetCodesBySessionAPI =
                 return response.data.data; // { session_id, codes: [...] }
             } catch (err) {
                 throw err;
+            }
+        };
+
+// Parents billing portal
+export const parentsBillingPortalAPI =
+    (payload: { parent_email?: string; stripe_subscription_id?: string }) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const response: any = await post(PARENTS_BILLING_PORTAL, payload);
+                if (!response.data.error) {
+                    return response.data.data; // { url }
+                }
+                throw new Error('Failed to create billing portal session');
+            } catch (err) {
+                throw err;
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+// Parents subscription finalize
+export const parentsSubscriptionFinalizeAPI =
+    (payload: { session_id: string }) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const response: any = await post(PARENTS_SUBSCRIPTION_FINALIZE, payload);
+                if (!response.data.error) {
+                    return response.data.data; // { stripe_subscription_id, codes: [...] }
+                }
+                throw new Error('Failed to finalize subscription');
+            } catch (err) {
+                throw err;
+            } finally {
+                dispatch(setLoading(false));
             }
         };
 
