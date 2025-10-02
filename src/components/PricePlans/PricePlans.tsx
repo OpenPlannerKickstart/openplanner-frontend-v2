@@ -207,17 +207,18 @@ export const PricePlans = (props) => {
     <div className="pricing-wrapper">
       <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between px-3 px-md-4">
         {plans.map((plan, index) => {
+          console.log("Plan object:", plan);
           return (
           <Col key={index}>
             <Card className={`pricing-card ${selectedPlan === plan?.product_id ? 'active' : ''}`}>
               <Card.Header>
-                {plan?.friendly_id === 'one_month' && !isUpdatePlan ? (
+                {plan.duration === 'for 1 month' && !isUpdatePlan && (
                   <span className="trial-label" style={{ visibility: 'hidden' }}></span>
-                ) : (
-                  <span className="trial-label">{plan.title}</span>
                 )}
-                {plan?.friendly_id == 'one_year' ? (<span className="popular-tag">Popular</span>):undefined}
-              </Card.Header>
+                {plan.duration === 'for 1 year' && (
+                  <span className="popular-tag">Popular</span>
+                )}
+            </Card.Header>
               <Card.Body>
                 <div className="price-section">
                   <div >
