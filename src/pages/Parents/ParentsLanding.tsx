@@ -159,7 +159,7 @@ const ParentsLanding = () => {
               <div className="subscription-box subscription-plans auth-plans" style={{ maxWidth: 1440, margin: '0 auto' }}>
                 <div className="plans-header">
                   <h2>Choose Your Plan</h2>
-                  <p>Start with a 7-day free trial. Upgrade anytime for full access to all features.</p>
+                  <p>Start with a 7-day FREE trial!</p>
                 </div>
 
                 <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between">
