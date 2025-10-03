@@ -177,9 +177,6 @@ const ParentsLanding = () => {
                     <Col key={plan.product_id}>
                       <Card className="pricing-card">
                         <Card.Header>
-                          {plan.duration !== 'for 1 month' && (
-                            <span className="trial-label">7 Day Free Trial</span>
-                          )}
                           {plan.duration === 'for 1 year' && (
                             <span className="popular-tag">Popular</span>
                           )}
