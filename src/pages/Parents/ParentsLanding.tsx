@@ -5,6 +5,7 @@ import { AppDispatch } from '../../redux/store'
 import { getAllPlanAPI, parentsCreateSessionAPI } from '../../redux/Service/User/Settings/settings'
 import { te } from '../../Utility/Toaster'
 import authLogo from '/assets/images/auth-logo.svg'
+import { ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES } from '../../interfaces/enum';
 
 type Plan = {
   product_id: string
@@ -13,7 +14,16 @@ type Plan = {
   duration: string
   features: string[]
 }
-
+const undiscountedMap = {
+  "for 1 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_MONTH,
+  "for 6 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.SIX_MONTH,
+  "for 1 year": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_YEAR,
+};
+const fallbackPlans: any[] = [
+  { product_id: 'one_month', title: '1 Month', price: 3.99, Stripe_id: 'for 1 month', duration: 'for 1 month'  },
+  { product_id: 'six_month', title: '6 Months', price: 14.99, Stripe_id: 'for 6 month', duration: 'for 6 months'  },
+  { product_id: 'one_year', title: '1 Year', price: 23.99, Stripe_id: 'for 1 year', duration: 'for 1 year'},
+];
 // no defaultPlans in testing; we rely on BE response exclusively
 
 const ParentsLanding = () => {
@@ -167,13 +177,22 @@ const ParentsLanding = () => {
                     <Col key={plan.product_id}>
                       <Card className="pricing-card">
                         <Card.Header>
-                          <span className="trial-label">{plan.title}</span>
-                          <span className="popular-tag">Popular</span>
+                          {plan.duration !== 'for 1 month' && (
+                            <span className="trial-label">7 Day Free Trial</span>
+                          )}
+                          {plan.duration === 'for 1 year' && (
+                            <span className="popular-tag">Popular</span>
+                          )}
                         </Card.Header>
                         <Card.Body>
-                          <div className="price-section d-flex align-items-baseline flex-wrap gap-2">
-                            <span className="price">${Number(plan.price).toFixed(2)}</span>
-                            <span className="duration d-block d-lg-inline-block mt-1 mt-lg-0 ms-0 ms-lg-1" style={{ lineHeight: 1.2 }}>{plan.duration}</span>
+                          <div className="price-section">
+                            <div >
+                              <span className="original-price">${undiscountedMap[plan.duration]}</span>
+                            </div>
+                            <span className="price">${plan.price}</span>
+                            <span className="duration">
+                              {fallbackPlans.find(fb => fb.Stripe_id === plan.duration)?.duration || plan.duration}
+                            </span>
                           </div>
                           <div className="divider"></div>
                           <div className="features-section">
