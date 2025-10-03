@@ -208,7 +208,6 @@ export const PricePlans = (props) => {
       <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between px-3 px-md-4">
         {plans.map((plan, index) => {
           return (
-            console.log(plan, "plan"),
           <Col key={index}>
             <Card className={`pricing-card ${selectedPlan === plan?.product_id ? 'active' : ''}`}>
               <Card.Header>
@@ -231,7 +230,7 @@ export const PricePlans = (props) => {
                   variant="primary"
                   // disabled={selectedPlan === plan?.product_id}
                   className="btn-text w-100 mb-4"
-                  onClick={() => {
+                  onClick={() => {  
                     if (selectedPlan === plan?.product_id) return;
                     if (isUpdatePlan) {
                       handleConfirmationShow(plan)
