@@ -3,20 +3,31 @@ import authLogo from '/assets/images/auth-logo.svg'
 import authBGLogo from '/assets/images/registerpayment-success.svg'
 import { Button } from 'react-bootstrap'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch } from '../../../redux/store'
-import { isNullUndefinedOrBlank } from '../../../Utility/Helper'
+// import { useDispatch } from 'react-redux'
+// import { AppDispatch } from '../../../redux/store'
 import { ENUMFORROUTES } from '../../../interfaces/enum'
-import { loginToSystem } from '../../../redux/Service/auth/login'
+// import { loginToSystem } from '../../../redux/Service/auth/login'
 
 export const PaymentSuccessfull = () => {
     // const loginData = useSelector((state: any) => state.SignupReducer.savedLoginData);
     // console.log(loginData, "loginData");
-    const dispatch: AppDispatch = useDispatch();
+    // const dispatch: AppDispatch = useDispatch();
     const navigate = useNavigate();
     const handleGotoLogin = () => {
         navigate(ENUMFORROUTES.LOGIN)
     }
+
+    React.useEffect(() => {
+        try {
+            const accum = localStorage.getItem('parents_codes_accum');
+            const ref = document.referrer || '';
+            const cameFromPortal = /billing\.stripe\.com\/.+\/login\//.test(ref);
+            if (cameFromPortal || (accum && accum !== '[]')) {
+                navigate(ENUMFORROUTES.PARENTS_SUCCESS, { replace: true });
+            }
+        } catch {}
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     // const handleGotoDashBord = async () => {
     //     if (!loginData) {

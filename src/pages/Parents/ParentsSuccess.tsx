@@ -132,6 +132,11 @@ const ParentsSuccess = () => {
         setBillingLoading(false)
         return
       }
+      // Ensure Stripe portal back button returns to parents success
+      try {
+        const base = window.location.origin + '/#'
+        payload.return_url = base + ENUMFORROUTES.PARENTS_SUCCESS
+      } catch {}
       const data: any = await (dispatch as any)(parentsBillingPortalAPI(payload))
       const url = data?.url
       if (!url) throw new Error('missing portal url')
