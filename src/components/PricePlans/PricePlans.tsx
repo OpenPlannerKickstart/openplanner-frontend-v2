@@ -212,9 +212,6 @@ export const PricePlans = (props) => {
           <Col key={index}>
             <Card className={`pricing-card ${selectedPlan === plan?.product_id ? 'active' : ''}`}>
               <Card.Header>
-                {plan.duration !== 'for 1 month' && !isUpdatePlan && (
-                  <span className="trial-label">7 Day Free Trial</span>
-                )}
                 {plan.duration === 'for 1 year' && (
                   <span className="popular-tag">Popular</span>
                 )}
