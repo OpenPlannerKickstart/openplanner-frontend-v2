@@ -2085,11 +2085,16 @@ $sm_sidebar_home_link_width: 170px;
     border-bottom: none;
     padding: 0;
 
-    .trial-label {
-        font-size: 18px;
-        line-height: 28px;
-        font-weight: 600;
-    }
+   .trial-label {
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 12px;
+    left: 24px;
+    display: inline-block;
+    position: absolute;
+}
 
     .popular-tag {
         background: #f4ebff;
@@ -2108,15 +2113,18 @@ $sm_sidebar_home_link_width: 170px;
   }
 
   .price-section {
+    padding-top: 10px;
     .price {
         font-weight: 600;
         font-size: 42px;
         line-height: 72px;
     }
     .original-price {
-    text-decoration: line-through;
-    color: #535862;
-  }
+        font-weight: 400;
+        font-size: 18px;
+        text-decoration: line-through;
+        color: #535862;
+    }
     .duration {
         font-size: 16px;
         color: #535862;

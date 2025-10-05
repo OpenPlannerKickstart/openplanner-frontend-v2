@@ -168,9 +168,9 @@ export const PricePlans = (props) => {
   /** --------------get plans start------------------------------*/
   const [plans, setPlans] = useState<any>([]);
   const fallbackPlans: any[] = [
-    { product_id: 'one_month', title: '1 Month', price: 3.99, duration: 'for 1 month', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
-    { product_id: 'six_month', title: '6 Months', price: 14.99, duration: 'for 6 months', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
-    { product_id: 'one_year', title: '1 Year', price: 23.99, duration: 'for 1 year', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
+    { product_id: 'one_month', title: '1 Month', price: 3.99, Stripe_id: 'for 1 month', duration: 'for 1 month', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
+    { product_id: 'six_month', title: '6 Months', price: 14.99, Stripe_id: 'for 6 month', duration: 'for 6 months', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
+    { product_id: 'one_year', title: '1 Year', price: 23.99, Stripe_id: 'for 1 year', duration: 'for 1 year', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
   ];
 
   const getPlansAPI = async () => {
@@ -207,14 +207,10 @@ export const PricePlans = (props) => {
     <div className="pricing-wrapper">
       <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between px-3 px-md-4">
         {plans.map((plan, index) => {
-          console.log("Plan object:", plan);
           return (
           <Col key={index}>
             <Card className={`pricing-card ${selectedPlan === plan?.product_id ? 'active' : ''}`}>
               <Card.Header>
-                {plan.duration === 'for 1 month' && !isUpdatePlan && (
-                  <span className="trial-label" style={{ visibility: 'hidden' }}></span>
-                )}
                 {plan.duration === 'for 1 year' && (
                   <span className="popular-tag">Popular</span>
                 )}
@@ -225,14 +221,16 @@ export const PricePlans = (props) => {
                     <span className="original-price">${undiscountedMap[plan.duration]}</span>
                   </div>
                   <span className="price">${plan.price}</span>
-                  <span className="duration">{plan.duration}</span>
+                  <span className="duration">
+                    {fallbackPlans.find(fb => fb.Stripe_id === plan.duration)?.duration || plan.duration}
+                  </span>
                 </div>
 
                 <Button
                   variant="primary"
                   // disabled={selectedPlan === plan?.product_id}
                   className="btn-text w-100 mb-4"
-                  onClick={() => {
+                  onClick={() => {  
                     if (selectedPlan === plan?.product_id) return;
                     if (isUpdatePlan) {
                       handleConfirmationShow(plan)
