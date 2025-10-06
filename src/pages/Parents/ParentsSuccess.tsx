@@ -24,6 +24,20 @@ const ParentsSuccess = () => {
     try { return localStorage.getItem('parent_email') || '' } catch { return '' }
   }, [])
 
+  const normalizeAndDedupeCodes = React.useCallback((a: any[], b: any[]) => {
+    const toArr = (x: any): any[] => Array.isArray(x) ? x : []
+    const list = [...toArr(a), ...toArr(b)]
+    const seen: Record<string, boolean> = {}
+    const result: any[] = []
+    for (const c of list) {
+      const codeStr = typeof c === 'string' ? c : (typeof c?.code === 'string' ? c.code : JSON.stringify(c))
+      if (seen[codeStr]) continue
+      seen[codeStr] = true
+      result.push(c)
+    }
+    return result
+  }, [])
+
   useEffect(() => {
     // Dev-only mock: preview UI with ?mock=1
     const isMock = params.get('mock');
@@ -38,7 +52,15 @@ const ParentsSuccess = () => {
       return;
     }
 
-    if (!sessionId) return;
+    if (!sessionId) {
+      try {
+        const saved = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
+        const deduped = normalizeAndDedupeCodes(saved, [])
+        setCodes(deduped)
+      } catch {}
+      setIsLoading(false)
+      return;
+    }
     let cancelled = false;
 
             const fetchCodesWithBackoff = async () => {
@@ -55,14 +77,7 @@ const ParentsSuccess = () => {
             try {
               const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
               const fresh = data.codes
-              // simple de-dup by code string if present
-              const seen: Record<string, boolean> = {}
-              const combined = [...prev, ...fresh].filter((c: any) => {
-                const key = typeof c?.code === 'string' ? c.code : JSON.stringify(c)
-                if (seen[key]) return false
-                seen[key] = true
-                return true
-              })
+              const combined = normalizeAndDedupeCodes(prev, fresh)
               setCodes(combined)
               localStorage.setItem('parents_codes_accum', JSON.stringify(combined))
             } catch {
@@ -85,7 +100,7 @@ const ParentsSuccess = () => {
 
     fetchCodesWithBackoff();
     return () => { cancelled = true }
-  }, [sessionId, dispatch, params, subscriptionId])
+  }, [sessionId, dispatch, params, subscriptionId, normalizeAndDedupeCodes])
 
   useEffect(() => {
     let meta: HTMLMetaElement | null = document.querySelector('meta[name="robots"]');
