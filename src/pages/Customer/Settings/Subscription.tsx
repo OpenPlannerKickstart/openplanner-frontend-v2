@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Modal, Table } from 'react-bootstrap'
 import { PricePlans } from '../../../components/PricePlans/PricePlans'
-import { cancelSubscriptionAPI, getTransactionAPI } from '../../../redux/Service/User/Settings/settings';
+import { cancelSubscriptionAPI, getTransactionAPI, getSubscriptionStatusAPI } from '../../../redux/Service/User/Settings/settings';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
@@ -16,6 +16,7 @@ export const Subscription = (props) => {
         (state: RootState) => state.SettingsReducer.billingData);
     const [transactionData, setTransactionData] = useState<any>();
     const [showPlans, setShowPlans] = useState(false)
+    const [statusPlan, setStatusPlan] = useState<any | null>(null)
 
     const getTransactionList = async () => {
         await dispatch(getTransactionAPI());
@@ -37,6 +38,18 @@ export const Subscription = (props) => {
             setTimeout(() => {
                 getTransactionList();
             }, 200);
+            // Also fetch canonical subscription status to normalize UI
+            (async () => {
+                try {
+                    const resp: any = await dispatch<any>(getSubscriptionStatusAPI());
+                    const payload = resp?.payload || resp;
+                    const plan = payload?.plan || payload; // BE returns { plan: {...} }
+                    if (plan && typeof plan === 'object') setStatusPlan(plan);
+                    else setStatusPlan(null);
+                } catch {
+                    setStatusPlan(null);
+                }
+            })();
         }
 
         // eslint-disable-next-line
@@ -74,6 +87,23 @@ export const Subscription = (props) => {
         return label as string;
     }
 
+    const computed = {
+        managedByParent: statusPlan?.managed_by_parent === true,
+        planLabel: (() => {
+            if (typeof statusPlan?.display_label === 'string' && statusPlan.display_label.trim()) return statusPlan.display_label;
+            return normalizePlanLabel(transactionData?.currentPlan?.plan_type);
+        })(),
+        paymentAmount: (() => {
+            if (statusPlan && typeof statusPlan.payment_amount === 'number') return statusPlan.payment_amount;
+            return !isNullUndefinedOrBlank(transactionData?.currentPlan?.amount) ? transactionData?.currentPlan?.amount : '-';
+        })(),
+        nextInvoiceDate: (() => {
+            const next = statusPlan?.next_invoice_date || transactionData?.currentPlan?.next_billing_date;
+            return !isNullUndefinedOrBlank(next) ? formatedDate(next, 'DD MMM, YYYY') : '-';
+        })(),
+        subscriptionStatus: (statusPlan?.subscription_status || transactionData?.currentPlan?.subscription_status || '-')
+    }
+
 
     const handleDeleteClose = () => {
         setDeleteShow(false);
@@ -97,11 +127,11 @@ export const Subscription = (props) => {
                                         <div className="plan-container">
                                             <div className="plan-item">
                                                 <p className="plan-label">Plan Tenure</p>
-                                                <p className="plan-value bold">{normalizePlanLabel(transactionData?.currentPlan?.plan_type)}</p>
+                                                <p className="plan-value bold">{computed.planLabel}</p>
                                             </div>
                                             <div className="plan-item">
                                                 <p className="plan-label">Payment Amount</p>
-                                                <p className="plan-value bold">${!isNullUndefinedOrBlank(transactionData?.currentPlan?.amount) ? transactionData?.currentPlan?.amount : "-"}</p>
+                                                <p className="plan-value bold">${computed.paymentAmount}</p>
                                             </div>
 
                                             {/* {
@@ -120,7 +150,7 @@ export const Subscription = (props) => {
 
                                             <div className="plan-item">
                                                 <p className="plan-label">Next invoice issue date</p>
-                                                <p className="plan-value bold">{!isNullUndefinedOrBlank(transactionData?.currentPlan?.next_billing_date) ? formatedDate(transactionData?.currentPlan?.next_billing_date, 'DD MMM, YYYY') : '-'}</p>
+                                                <p className="plan-value bold">{computed.nextInvoiceDate}</p>
                                             </div>
                                             <div className="plan-item">
                                                 <p className="plan-label">Total Billing</p>
@@ -128,7 +158,7 @@ export const Subscription = (props) => {
                                             </div>
                                             <div className="plan-item">
                                                 <p className="plan-label">Subscription Status</p>
-                                                <p className="plan-value bold">{!isNullUndefinedOrBlank(transactionData?.currentPlan?.subscription_status) ? transactionData?.currentPlan?.subscription_status : '-'}</p>
+                                                <p className="plan-value bold">{computed.subscriptionStatus}</p>
                                             </div>
 
                                             {
@@ -148,7 +178,7 @@ export const Subscription = (props) => {
                                             }
                                         </div>
                                         {
-                                            (transactionData?.currentPlan?.managed_by_parent === true) && (
+                                            (computed.managedByParent === true) && (
                                                 <div className="alert alert-info mt-3" role="alert">
                                                     Your subscription is managed by a parent. Billing and plan changes are handled by them.
                                                 </div>
@@ -158,7 +188,7 @@ export const Subscription = (props) => {
                                     <div className="button-group">
 
                                         {
-                                            ((transactionData?.currentPlan?.payment_method === "Stripe") && (transactionData?.currentPlan?.is_canceled === false) && (transactionData?.currentPlan?.managed_by_parent !== true)) ?
+                                            ((transactionData?.currentPlan?.payment_method === "Stripe") && (transactionData?.currentPlan?.is_canceled === false) && (computed.managedByParent !== true)) ?
                                                 <>
 
                                                     <Button variant="primary" className="btn-icon-text" onClick={() => { setShowPlans(true) }}>
@@ -169,7 +199,7 @@ export const Subscription = (props) => {
                                                     </Button>
                                                 </> :
                                                 (
-                                                    transactionData?.currentPlan?.managed_by_parent === true ? (
+                                                    computed.managedByParent === true ? (
                                                         <>
                                                             <Button variant="primary" className="btn-icon-text" onClick={() => { setShowPlans(true) }}>
                                                                 <i className="material-symbols-outlined">upgrade</i> Upgrade with your own plan
