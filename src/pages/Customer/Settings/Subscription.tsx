@@ -4,9 +4,9 @@ import { PricePlans } from '../../../components/PricePlans/PricePlans'
 import { cancelSubscriptionAPI, getTransactionAPI } from '../../../redux/Service/User/Settings/settings';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { convertUTCToLocal, formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
+import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { ENUMFORACCOUNTTAB, } from '../../../interfaces/enum';
 
 
@@ -18,7 +18,7 @@ export const Subscription = (props) => {
     const [showPlans, setShowPlans] = useState(false)
 
     const getTransactionList = async () => {
-        const response = await dispatch(getTransactionAPI());
+        await dispatch(getTransactionAPI());
         // if (!isNullUndefinedOrBlank(response?.payload)) {
         //     setTransactionData(JSON.parse(JSON.stringify(response?.payload))); // Save deep-cloned data to state
         // }
@@ -51,7 +51,7 @@ export const Subscription = (props) => {
         }
         // eslint-disable-next-line
     }, [showPlans]);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const handleCancelSubscription = async () => {
         const response = await dispatch(cancelSubscriptionAPI());
         if (!isNullUndefinedOrBlank(response?.payload)) {
@@ -63,6 +63,16 @@ export const Subscription = (props) => {
     }
 
     const [deleteShow, setDeleteShow] = useState(false);
+    const normalizePlanLabel = (label?: string): string => {
+        const raw = (label || '').toString().trim().toLowerCase();
+        if (!raw) return '-';
+        // common variants from BE or legacy data
+        if (raw.includes('1 month')) return 'One Month';
+        if (raw.includes('6 month')) return 'Six Month';
+        if (raw.includes('12 month') || raw.includes('1 year') || raw.includes('one year') || raw.includes('annual')) return 'Annual';
+        // already nice names, just capitalize first letter
+        return label as string;
+    }
 
 
     const handleDeleteClose = () => {
@@ -87,7 +97,7 @@ export const Subscription = (props) => {
                                         <div className="plan-container">
                                             <div className="plan-item">
                                                 <p className="plan-label">Plan Tenure</p>
-                                                <p className="plan-value bold">{!isNullUndefinedOrBlank(transactionData?.currentPlan?.plan_type) ? transactionData?.currentPlan?.plan_type : "-"}</p>
+                                                <p className="plan-value bold">{normalizePlanLabel(transactionData?.currentPlan?.plan_type)}</p>
                                             </div>
                                             <div className="plan-item">
                                                 <p className="plan-label">Payment Amount</p>
@@ -137,11 +147,18 @@ export const Subscription = (props) => {
                                                 </div>
                                             }
                                         </div>
+                                        {
+                                            (transactionData?.currentPlan?.managed_by_parent === true) && (
+                                                <div className="alert alert-info mt-3" role="alert">
+                                                    Your subscription is managed by a parent. Billing and plan changes are handled by them.
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                     <div className="button-group">
 
                                         {
-                                            ((transactionData?.currentPlan?.payment_method === "Stripe") && (transactionData?.currentPlan?.is_canceled == false)) ?
+                                            ((transactionData?.currentPlan?.payment_method === "Stripe") && (transactionData?.currentPlan?.is_canceled === false) && (transactionData?.currentPlan?.managed_by_parent !== true)) ?
                                                 <>
 
                                                     <Button variant="primary" className="btn-icon-text" onClick={() => { setShowPlans(true) }}>
@@ -151,7 +168,15 @@ export const Subscription = (props) => {
                                                         <i className="material-symbols-outlined">close</i> Cancel Subscription
                                                     </Button>
                                                 </> :
-                                                <></>
+                                                (
+                                                    transactionData?.currentPlan?.managed_by_parent === true ? (
+                                                        <>
+                                                            <Button variant="primary" className="btn-icon-text" onClick={() => { setShowPlans(true) }}>
+                                                                <i className="material-symbols-outlined">upgrade</i> Upgrade with your own plan
+                                                            </Button>
+                                                        </>
+                                                    ) : <></>
+                                                )
                                         }
 
                                     </div>
@@ -200,7 +225,7 @@ export const Subscription = (props) => {
                                                                     {/* <td>{!isNullUndefinedOrBlank(key?.payment_method) ? key?.payment_method : ""}</td> */}
                                                                     <td>
 
-                                                                        <div className={key?.transaction_status == 'paid' || key?.transaction_status == 'completed' ? "badge badge-success" : "badge badge-danger"}>
+                                                                        <div className={key?.transaction_status === 'paid' || key?.transaction_status === 'completed' ? "badge badge-success" : "badge badge-danger"}>
                                                                             {!isNullUndefinedOrBlank(key?.transaction_status) ? key?.transaction_status : ""}
                                                                         </div>
                                                                     </td>
