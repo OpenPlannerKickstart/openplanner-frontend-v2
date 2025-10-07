@@ -88,37 +88,37 @@ export const PaymentPlans = () => {
     }
   };
 
-  const handleCopyParentsLink = async () => {
-    const url = `${window.location.origin}/#/parents`;
-    const legacyCopy = () => {
-      try {
-        const ta = document.createElement('textarea');
-        ta.value = url;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        const ok = document.execCommand('copy');
-        document.body.removeChild(ta);
-        return ok;
-      } catch {
-        return false;
-      }
-    };
-    try {
-      if (navigator?.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(url);
-        ts('Parents payment link copied');
-      } else {
-        const ok = legacyCopy();
-        ok ? ts('Parents payment link copied') : te(`Unable to copy. Link: ${url}`);
-      }
-    } catch {
-      const ok = legacyCopy();
-      ok ? ts('Parents payment link copied') : te(`Unable to copy. Link: ${url}`);
-    }
-  };
+  // const handleCopyParentsLink = async () => {
+  //   const url = `${window.location.origin}/#/parents`;
+  //   const legacyCopy = () => {
+  //     try {
+  //       const ta = document.createElement('textarea');
+  //       ta.value = url;
+  //       ta.style.position = 'fixed';
+  //       ta.style.opacity = '0';
+  //       document.body.appendChild(ta);
+  //       ta.focus();
+  //       ta.select();
+  //       const ok = document.execCommand('copy');
+  //       document.body.removeChild(ta);
+  //       return ok;
+  //     } catch {
+  //       return false;
+  //     }
+  //   };
+  //   try {
+  //     if (navigator?.clipboard && window.isSecureContext) {
+  //       await navigator.clipboard.writeText(url);
+  //       ts('Parents payment link copied');
+  //     } else {
+  //       const ok = legacyCopy();
+  //       ok ? ts('Parents payment link copied') : te(`Unable to copy. Link: ${url}`);
+  //     }
+  //   } catch {
+  //     const ok = legacyCopy();
+  //     ok ? ts('Parents payment link copied') : te(`Unable to copy. Link: ${url}`);
+  //   }
+  // };
   return (
 
     <>
@@ -161,13 +161,13 @@ export const PaymentPlans = () => {
         <Modal.Body>
           <Form.Group className="form-group">
             <Form.Label>Enter your redemption code</Form.Label>
-            <Form.Control
+              <Form.Control
               type="text"
-              placeholder="e.g. C5AB2379D25C or OP-XXXX-YYYY"
+              placeholder="e.g. C5AB2379D25C"
               value={redeemCode}
               onChange={(e) => setRedeemCode(formatDisplayCode(e.target.value))}
             />
-            <div className="form-text">Codes can include letters and numbers, with or without dashes. We’ll handle formatting for you.</div>
+            <div className="form-text">After you redeem, activating your subscription can take a few seconds. Please stay on this screen—we’ll update automatically once it’s ready.</div>
           </Form.Group>
           <div className="d-flex justify-content-end gap-2 mt-3">
             <Button variant="light" onClick={() => setShowRedeem(false)} disabled={redeemLoading}>Cancel</Button>
