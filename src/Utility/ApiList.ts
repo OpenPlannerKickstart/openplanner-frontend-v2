@@ -91,5 +91,7 @@ export const PARENTS_SUBSCRIPTION_FINALIZE = 'api/parents/subscription/finalize'
 export const SUBSCRIPTION_STATUS = 'api/subscription/status'
 // Student redeem flow
 export const REDEEM_CODE = 'api/redeem'
+// Student billing portal
+export const STUDENT_BILLING_PORTAL = 'api/billing/portal'
 
 

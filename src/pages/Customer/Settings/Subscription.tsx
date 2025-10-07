@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Card, Modal, Table } from 'react-bootstrap'
 import { PricePlans } from '../../../components/PricePlans/PricePlans'
-import { cancelSubscriptionAPI, getTransactionAPI, getSubscriptionStatusAPI } from '../../../redux/Service/User/Settings/settings';
+import { cancelSubscriptionAPI, getTransactionAPI, getSubscriptionStatusAPI, studentBillingPortalAPI } from '../../../redux/Service/User/Settings/settings';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank } from '../../../Utility/Helper';
@@ -198,6 +198,24 @@ export const Subscription = (props) => {
                                                     </Button>
                                                     <Button variant="danger" className="btn-icon-text" onClick={() => { handleDeleteShow() }}>
                                                         <i className="material-symbols-outlined">close</i> Cancel Subscription
+                                                    </Button>
+                                                    <Button
+                                                        variant="secondary"
+                                                        className="btn-icon-text"
+                                                        onClick={async () => {
+                                                            try {
+                                                                const base = window.location.origin + '/#';
+                                                                const data: any = await (dispatch as any)(studentBillingPortalAPI(base + 'settings'));
+                                                                const url = data?.url;
+                                                                if (url) {
+                                                                    window.location.assign(url);
+                                                                }
+                                                            } catch (e) {
+                                                                // noop; Toaster already in interceptor if needed
+                                                            }
+                                                        }}
+                                                    >
+                                                        <i className="material-symbols-outlined">account_balance_wallet</i> Manage billing
                                                     </Button>
                                                 </> :
                                                 (
