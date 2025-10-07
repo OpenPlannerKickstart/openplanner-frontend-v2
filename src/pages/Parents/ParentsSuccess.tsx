@@ -24,15 +24,20 @@ const ParentsSuccess = () => {
     try { return localStorage.getItem('parent_email') || '' } catch { return '' }
   }, [])
 
-  const normalizeAndDedupeCodes = React.useCallback((a: any[], b: any[]) => {
+  const normalizeAndDedupeCodes = React.useCallback((...lists: any[][]) => {
     const toArr = (x: any): any[] => Array.isArray(x) ? x : []
-    const list = [...toArr(a), ...toArr(b)]
+    const list = ([] as any[]).concat(...lists.map(toArr))
     const seen: Record<string, boolean> = {}
+    const normalizeKey = (val: any): string => {
+      const raw = typeof val === 'string' ? val : (typeof val?.code === 'string' ? val.code : JSON.stringify(val))
+      // Normalize to be case-insensitive and ignore dashes/spaces
+      return String(raw).toUpperCase().replace(/[^A-Z0-9]/g, '')
+    }
     const result: any[] = []
     for (const c of list) {
-      const codeStr = typeof c === 'string' ? c : (typeof c?.code === 'string' ? c.code : JSON.stringify(c))
-      if (seen[codeStr]) continue
-      seen[codeStr] = true
+      const key = normalizeKey(c)
+      if (seen[key]) continue
+      seen[key] = true
       result.push(c)
     }
     return result
@@ -55,7 +60,7 @@ const ParentsSuccess = () => {
     if (!sessionId) {
       try {
         const saved = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
-        const deduped = normalizeAndDedupeCodes(saved, [])
+        const deduped = normalizeAndDedupeCodes(codes, saved)
         setCodes(deduped)
       } catch {}
       setIsLoading(false)
@@ -77,7 +82,7 @@ const ParentsSuccess = () => {
             try {
               const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
               const fresh = data.codes
-              const combined = normalizeAndDedupeCodes(prev, fresh)
+              const combined = normalizeAndDedupeCodes(codes, prev, fresh)
               setCodes(combined)
               localStorage.setItem('parents_codes_accum', JSON.stringify(combined))
             } catch {
@@ -100,7 +105,7 @@ const ParentsSuccess = () => {
 
     fetchCodesWithBackoff();
     return () => { cancelled = true }
-  }, [sessionId, dispatch, params, subscriptionId, normalizeAndDedupeCodes])
+  }, [sessionId, dispatch, params, subscriptionId, normalizeAndDedupeCodes, codes])
 
   useEffect(() => {
     let meta: HTMLMetaElement | null = document.querySelector('meta[name="robots"]');
@@ -196,7 +201,7 @@ const ParentsSuccess = () => {
               if (Array.isArray(getResp?.codes)) detailed = getResp.codes
             } catch {}
             const thisCodes = detailed.length > 0 ? detailed : (Array.isArray(finalizeResp.codes) ? finalizeResp.codes : [])
-            const next = [...prev, ...thisCodes]
+            const next = normalizeAndDedupeCodes(codes, prev, thisCodes)
             setCodes(next)
             localStorage.setItem('parents_codes_accum', JSON.stringify(next))
           } catch {
