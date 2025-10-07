@@ -152,14 +152,14 @@ export const PaymentPlans = () => {
         </div>
       </div>
       <Modal className='modal-theme' show={showRedeem} onHide={() => setShowRedeem(false)} centered>
-        <Modal.Header>
-          <h4 className="modal-title">Redeem a code</h4>
+        <Modal.Header className="pb-2" style={{ borderBottom: '1px solid #e9ecef' }}>
+          <h4 className="modal-title mb-0">Redeem a code</h4>
           <button type="button" className="btn-close" onClick={() => setShowRedeem(false)}>
             <i className="material-symbols-outlined">close</i>
           </button>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group className="form-group">
+          <Form.Group className="form-group mt-2">
             <Form.Label>Enter your redemption code</Form.Label>
               <Form.Control
               type="text"
