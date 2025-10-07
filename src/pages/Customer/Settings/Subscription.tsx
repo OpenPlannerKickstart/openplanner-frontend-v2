@@ -101,7 +101,11 @@ export const Subscription = (props) => {
             const next = statusPlan?.next_invoice_date || transactionData?.currentPlan?.next_billing_date;
             return !isNullUndefinedOrBlank(next) ? formatedDate(next, 'DD MMM, YYYY') : '-';
         })(),
-        subscriptionStatus: (statusPlan?.subscription_status || transactionData?.currentPlan?.subscription_status || '-')
+        subscriptionStatus: (statusPlan?.subscription_status || transactionData?.currentPlan?.subscription_status || '-'),
+        currentPeriodEnd: (() => {
+            const end = statusPlan?.current_period_end || transactionData?.currentPlan?.next_billing_date;
+            return !isNullUndefinedOrBlank(end) ? formatedDate(end, 'DD MMM, YYYY') : '';
+        })(),
     }
 
 
@@ -390,7 +394,11 @@ export const Subscription = (props) => {
                         </div>
                         <div className="modal-confirmation-content">
                             <h5> Are You Sure?</h5>
-                            <p> You want to cancel this subscription? You will be logged out afterward.</p>
+                            <p>
+                                If you cancel now, your subscription will remain active until
+                                {computed.currentPeriodEnd ? ` ${computed.currentPeriodEnd}` : ' the end of your current billing period'}. You’ll
+                                keep access until then and won’t be charged again.
+                            </p>
                         </div>
                     </div>
                     <div className="modal-button-group modal-full-width-btn modal-footer-button">
