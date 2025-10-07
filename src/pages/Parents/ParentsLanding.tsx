@@ -227,7 +227,7 @@ const ParentsLanding = () => {
 
                 {/* Summary section below cards (not in a Card) */}
                 <div className="mt-2">
-                  <p className="text-muted mb-1">Select quantities above. You’ll complete checkout once per plan duration. After all checkouts finish, your codes will appear on the final screen and we’ll email them to you.</p>
+                  <p className="text-muted mb-1">You’re purchasing codes for students. Your subscription begins with a 7‑day free trial. Students get access when they redeem a code. You won’t be charged until the trial ends, and you can cancel any time before then.</p>
                   <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2">
                     <Form.Control style={{ maxWidth: 360 }} type="email" placeholder="Parent email (required)" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} />
                     <div className="ms-md-auto d-flex align-items-center gap-2">
