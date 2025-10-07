@@ -5,7 +5,7 @@ import { AppDispatch } from '../../redux/store'
 import { getAllPlanAPI, parentsCreateSessionAPI } from '../../redux/Service/User/Settings/settings'
 import { te } from '../../Utility/Toaster'
 import authLogo from '/assets/images/auth-logo.svg'
-import { ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES } from '../../interfaces/enum';
+import { ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT } from '../../interfaces/enum';
 //const __keepEnumsForFuture = [ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES];
 
 type Plan = {
@@ -171,11 +171,6 @@ const ParentsLanding = () => {
                 <div className="plans-header">
                   <h2>Choose Your Plan</h2>
                   <p>Start with a 7-day FREE trial!</p>
-                </div>
-                <div className="mb-3">
-                  <div className="alert alert-info" role="alert" style={{ marginBottom: 0 }}>
-                    You’re purchasing codes for students. Your subscription begins with a 7‑day free trial. Students get access when they redeem a code. You won’t be charged until the trial ends, and you can cancel any time before then.
-                  </div>
                 </div>
 
                 <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between">
