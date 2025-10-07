@@ -181,13 +181,11 @@ export const Subscription = (props) => {
                                                 </div>
                                             }
                                         </div>
-                                        {
-                                            (computed.managedByParent === true) && (
-                                                <div className="alert alert-info mt-3" role="alert">
-                                                    Your subscription is managed by a parent. Billing and plan changes are handled by them.
-                                                </div>
-                                            )
-                                        }
+                                        {computed.managedByParent === true && (
+                                            <p className="mt-3 text-muted" style={{ marginBottom: 0 }}>
+                                                Your subscription is managed by a parent. Billing and plan changes are handled by them.
+                                            </p>
+                                        )}
                                     </div>
                                     <div className="button-group">
 
