@@ -227,9 +227,15 @@ const ParentsLanding = () => {
 
                 {/* Summary section below cards (not in a Card) */}
                 <div className="mt-2">
-                  <p className="text-muted mb-1">You’re purchasing codes for students. Your subscription begins with a 7‑day free trial. Students get access when they redeem a code. You won’t be charged until the trial ends, and you can cancel any time before then.</p>
+                  <p className="text-muted mb-1">Student codes will be sent to your email. Your subscription begins with a 7‑day free trial. Students get access when they redeem a code. You won’t be charged until the trial ends, and you can cancel any time before then.</p>
                   <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2">
-                    <Form.Control style={{ maxWidth: 360 }} type="email" placeholder="Parent email (required)" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} />
+                    <Form.Control
+                      style={{ maxWidth: 360, boxShadow: 'none', outline: 'none' }}
+                      type="email"
+                      placeholder="Parent email (required)"
+                      value={parentEmail}
+                      onChange={(e) => setParentEmail(e.target.value)}
+                    />
                     <div className="ms-md-auto d-flex align-items-center gap-2">
                       <strong>Total:</strong>
                       <span>${totalAmount.toFixed(2)}</span>
