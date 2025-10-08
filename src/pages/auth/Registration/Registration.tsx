@@ -174,7 +174,7 @@ const Registeration = (props) => {
     if (data || data?.payload) {
       let other = [{
         value: "Other",
-        label: "Other"
+        label: "Other/Highschool"
       }]
 
       setUnivercityData([...other, ...data?.payload])
@@ -459,7 +459,7 @@ const Registeration = (props) => {
                             />
                           </div> */}
 
-                          <Form.Label>Select University Name</Form.Label>
+                          <Form.Label>Select School Name</Form.Label>
                           <Select
                             options={univercityData}
                             placeholder={<div>Select </div>}
@@ -489,7 +489,7 @@ const Registeration = (props) => {
                             ? renderError(signUpFormData.errors.university_name)
                             : null}
                           {
-                            signUpFormData.values.university_name === "Other" &&
+                            signUpFormData.values.university_name === "Other/Highschool" &&
                             (
                               <>
                                 {/* <Form.Label>University Id</Form.Label>
@@ -512,12 +512,12 @@ const Registeration = (props) => {
                                   : null} */}
                                 <Row className="mt-3">
                                   <Col xs={10}>
-                                    <Form.Label>University Name</Form.Label>
+                                    <Form.Label>School Name</Form.Label>
                                     <div className="form-group-icon-start">
                                       <i className="material-symbols-outlined">home_work</i>
                                       <Form.Control
                                         type="text"
-                                        placeholder="Enter University Name"
+                                        placeholder="Enter School Name"
                                         {...formData.getFieldProps("institution_name")}
                                         maxLength={MAX_50}
                                         minLength={MAX_5}
