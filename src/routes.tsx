@@ -41,6 +41,8 @@ const ParentsSuccess = React.lazy(() => import('./pages/Parents/ParentsSuccess')
 const ParentsContinue = React.lazy(() => import('./pages/Parents/ParentsContinue'));
 // @ts-ignore - TS resolver can misreport on lazy dynamic imports in some configs
 const ParentsCancel = React.lazy(() => import('./pages/Parents/ParentsCancel'));
+// @ts-ignore - TS resolver can misreport on lazy dynamic imports in some configs
+const ParentsManageBilling = React.lazy(() => import('./pages/Parents/ParentsManageBilling'));
 
 /** Define private  routes */
 const privateRoutes: RouterProps[] = [
@@ -367,6 +369,7 @@ const AppRouter = (): JSX.Element => {
             <Route caseSensitive path={ENUMFORROUTES.PARENTS_SUCCESS} element={<ParentsSuccess />} />
             <Route caseSensitive path={ENUMFORROUTES.PARENTS_CONTINUE} element={<ParentsContinue />} />
             <Route caseSensitive path={ENUMFORROUTES.PARENTS_CANCEL} element={<ParentsCancel />} />
+            <Route caseSensitive path={ENUMFORROUTES.PARENTS_MANAGE_BILLING} element={<ParentsManageBilling />} />
 
             {publicRoutes.map((route, i) => (
               <Route
