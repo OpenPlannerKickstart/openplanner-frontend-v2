@@ -15,6 +15,7 @@ import {
     PARENTS_SUBSCRIPTION_FINALIZE,
     REDEEM_CODE,
     SUBSCRIPTION_STATUS,
+    STUDENT_BILLING_PORTAL,
 } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
 import {
@@ -361,6 +362,25 @@ export const getAllPlanAPI =
                 }
             } catch (err) {
                 dispatch(updatePlanFailure());
+            } finally {
+                dispatch(setLoading(false));
+            }
+        };
+
+// Student billing portal
+export const studentBillingPortalAPI =
+    (returnUrl?: string) =>
+        async (dispatch: AppDispatch) => {
+            dispatch(setLoading(true));
+            try {
+                const body = returnUrl ? { return_url: returnUrl } : undefined;
+                const response: any = await post(STUDENT_BILLING_PORTAL, body as any);
+                if (!response.data.error) {
+                    return response.data.data; // { url }
+                }
+                throw new Error('Failed to create billing portal session');
+            } catch (err) {
+                throw err;
             } finally {
                 dispatch(setLoading(false));
             }

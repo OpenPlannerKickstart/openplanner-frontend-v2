@@ -5,6 +5,8 @@ import { AppDispatch } from '../../redux/store'
 import { getAllPlanAPI, parentsCreateSessionAPI } from '../../redux/Service/User/Settings/settings'
 import { te } from '../../Utility/Toaster'
 import authLogo from '/assets/images/auth-logo.svg'
+import { ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT } from '../../interfaces/enum';
+//const __keepEnumsForFuture = [ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES];
 
 type Plan = {
   product_id: string
@@ -13,7 +15,16 @@ type Plan = {
   duration: string
   features: string[]
 }
-
+const undiscountedMap = {
+  "for 1 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_MONTH,
+  "for 6 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.SIX_MONTH,
+  "for 1 year": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_YEAR,
+};
+const fallbackPlans: any[] = [
+  { product_id: 'one_month', title: '1 Month', price: 3.99, Stripe_id: 'for 1 month', duration: 'for 1 month'  },
+  { product_id: 'six_month', title: '6 Months', price: 14.99, Stripe_id: 'for 6 month', duration: 'for 6 months'  },
+  { product_id: 'one_year', title: '1 Year', price: 23.99, Stripe_id: 'for 1 year', duration: 'for 1 year'},
+];
 // no defaultPlans in testing; we rely on BE response exclusively
 
 const ParentsLanding = () => {
@@ -159,7 +170,7 @@ const ParentsLanding = () => {
               <div className="subscription-box subscription-plans auth-plans" style={{ maxWidth: 1440, margin: '0 auto' }}>
                 <div className="plans-header">
                   <h2>Choose Your Plan</h2>
-                  <p>Start with a 7-day free trial. Upgrade anytime for full access to all features.</p>
+                  <p>Start with a 7-day FREE trial!</p>
                 </div>
 
                 <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between">
@@ -167,13 +178,19 @@ const ParentsLanding = () => {
                     <Col key={plan.product_id}>
                       <Card className="pricing-card">
                         <Card.Header>
-                          <span className="trial-label">{plan.title}</span>
-                          <span className="popular-tag">Popular</span>
+                          {plan.duration === 'for 1 year' && (
+                            <span className="popular-tag">Popular</span>
+                          )}
                         </Card.Header>
                         <Card.Body>
-                          <div className="price-section d-flex align-items-baseline flex-wrap gap-2">
-                            <span className="price">${Number(plan.price).toFixed(2)}</span>
-                            <span className="duration d-block d-lg-inline-block mt-1 mt-lg-0 ms-0 ms-lg-1" style={{ lineHeight: 1.2 }}>{plan.duration}</span>
+                          <div className="price-section">
+                            <div >
+                              <span className="original-price">${undiscountedMap[plan.duration]}</span>
+                            </div>
+                            <span className="price">${plan.price}</span>
+                            <span className="duration">
+                              {fallbackPlans.find(fb => fb.Stripe_id === plan.duration)?.duration || plan.duration}
+                            </span>
                           </div>
                           <div className="divider"></div>
                           <div className="features-section">
@@ -210,9 +227,15 @@ const ParentsLanding = () => {
 
                 {/* Summary section below cards (not in a Card) */}
                 <div className="mt-2">
-                  <p className="text-muted mb-1">Select quantities above. You’ll complete checkout once per plan duration. After all checkouts finish, your codes will appear on the final screen and we’ll email them to you.</p>
+                  <p className="text-muted mb-1">Student codes will be sent to your email. Your subscription begins with a 7‑day free trial. Students get access when they redeem a code. You won’t be charged until the trial ends, and you can cancel any time before then.</p>
                   <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2">
-                    <Form.Control style={{ maxWidth: 360 }} type="email" placeholder="Parent email (required)" value={parentEmail} onChange={(e) => setParentEmail(e.target.value)} />
+                    <Form.Control
+                      style={{ maxWidth: 360, boxShadow: 'none', outline: 'none' }}
+                      type="email"
+                      placeholder="Parent email (required)"
+                      value={parentEmail}
+                      onChange={(e) => setParentEmail(e.target.value)}
+                    />
                     <div className="ms-md-auto d-flex align-items-center gap-2">
                       <strong>Total:</strong>
                       <span>${totalAmount.toFixed(2)}</span>

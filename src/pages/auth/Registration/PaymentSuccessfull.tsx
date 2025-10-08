@@ -3,20 +3,50 @@ import authLogo from '/assets/images/auth-logo.svg'
 import authBGLogo from '/assets/images/registerpayment-success.svg'
 import { Button } from 'react-bootstrap'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
-import { isNullUndefinedOrBlank } from '../../../Utility/Helper'
 import { ENUMFORROUTES } from '../../../interfaces/enum'
-import { loginToSystem } from '../../../redux/Service/auth/login'
+import { getSubscriptionStatusAPI } from '../../../redux/Service/User/Settings/settings'
+import { getToken } from '../../../Utility/Helper'
 
 export const PaymentSuccessfull = () => {
-    // const loginData = useSelector((state: any) => state.SignupReducer.savedLoginData);
-    // console.log(loginData, "loginData");
     const dispatch: AppDispatch = useDispatch();
     const navigate = useNavigate();
+
+    const isLoggedIn = React.useMemo(() => !!getToken(), []);
+
     const handleGotoLogin = () => {
         navigate(ENUMFORROUTES.LOGIN)
     }
+
+    // After checkout success, for students we poll subscription status and then enter the app
+    React.useEffect(() => {
+        let cancelled = false;
+        const run = async () => {
+            const delays = [500, 500, 750, 1000, 1500, 2000, 2500, 3000];
+            for (let i = 0; i <= delays.length; i++) {
+                try {
+                    const resp: any = await (dispatch as any)(getSubscriptionStatusAPI());
+                    const payload = resp?.payload || resp;
+                    if (payload && payload.isSubscription === true) {
+                        try { localStorage.setItem('has_subscription', 'true'); } catch {}
+                        if (!cancelled) navigate(ENUMFORROUTES.DASHBOARD, { replace: true });
+                        return;
+                    }
+                } catch {
+                    // ignore and retry
+                }
+                if (i < delays.length) {
+                    await new Promise((res) => setTimeout(res, delays[i]));
+                }
+            }
+        };
+        if (isLoggedIn) {
+            run();
+        }
+        return () => { cancelled = true };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dispatch, navigate, isLoggedIn])
 
     // const handleGotoDashBord = async () => {
     //     if (!loginData) {

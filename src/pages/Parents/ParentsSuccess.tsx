@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { parentsGetCodesBySessionAPI, parentsSubscriptionFinalizeAPI } from '../../redux/Service/User/Settings/settings'
+import { parentsGetCodesBySessionAPI, parentsSubscriptionFinalizeAPI, parentsBillingPortalAPI } from '../../redux/Service/User/Settings/settings'
 import { te } from '../../Utility/Toaster'
 import authLogo from '/assets/images/auth-logo.svg'
 import authBGLogo from '/assets/images/registerpayment-success.svg'
@@ -17,12 +17,31 @@ const ParentsSuccess = () => {
   //const [studentEmails, setStudentEmails] = useState<Record<string, string>>({})
   //const [emailErrors, setEmailErrors] = useState<Record<string, string>>({})
   // Removed per-code email send for now
-  // const [billingLoading, setBillingLoading] = useState<boolean>(false)
+  const [billingLoading, setBillingLoading] = useState<boolean>(false)
   const [subscriptionId, setSubscriptionId] = useState<string>('')
   const [finalizing, setFinalizing] = useState<boolean>(false)
-  // const parentEmailFromStorage = useMemo(() => {
-  //   try { return localStorage.getItem('parent_email') || '' } catch { return '' }
-  // }, [])
+  const parentEmailFromStorage = React.useMemo(() => {
+    try { return localStorage.getItem('parent_email') || '' } catch { return '' }
+  }, [])
+
+  const normalizeAndDedupeCodes = React.useCallback((...lists: any[][]) => {
+    const toArr = (x: any): any[] => Array.isArray(x) ? x : []
+    const list = ([] as any[]).concat(...lists.map(toArr))
+    const seen: Record<string, boolean> = {}
+    const normalizeKey = (val: any): string => {
+      const raw = typeof val === 'string' ? val : (typeof val?.code === 'string' ? val.code : JSON.stringify(val))
+      // Normalize to be case-insensitive and ignore dashes/spaces
+      return String(raw).toUpperCase().replace(/[^A-Z0-9]/g, '')
+    }
+    const result: any[] = []
+    for (const c of list) {
+      const key = normalizeKey(c)
+      if (seen[key]) continue
+      seen[key] = true
+      result.push(c)
+    }
+    return result
+  }, [])
 
   useEffect(() => {
     // Dev-only mock: preview UI with ?mock=1
@@ -38,7 +57,15 @@ const ParentsSuccess = () => {
       return;
     }
 
-    if (!sessionId) return;
+    if (!sessionId) {
+      try {
+        const saved = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
+        const deduped = normalizeAndDedupeCodes(codes, saved)
+        setCodes(deduped)
+      } catch {}
+      setIsLoading(false)
+      return;
+    }
     let cancelled = false;
 
             const fetchCodesWithBackoff = async () => {
@@ -55,14 +82,7 @@ const ParentsSuccess = () => {
             try {
               const prev = JSON.parse(localStorage.getItem('parents_codes_accum') || '[]')
               const fresh = data.codes
-              // simple de-dup by code string if present
-              const seen: Record<string, boolean> = {}
-              const combined = [...prev, ...fresh].filter((c: any) => {
-                const key = typeof c?.code === 'string' ? c.code : JSON.stringify(c)
-                if (seen[key]) return false
-                seen[key] = true
-                return true
-              })
+              const combined = normalizeAndDedupeCodes(codes, prev, fresh)
               setCodes(combined)
               localStorage.setItem('parents_codes_accum', JSON.stringify(combined))
             } catch {
@@ -85,7 +105,7 @@ const ParentsSuccess = () => {
 
     fetchCodesWithBackoff();
     return () => { cancelled = true }
-  }, [sessionId, dispatch, params, subscriptionId])
+  }, [sessionId, dispatch, params, subscriptionId, normalizeAndDedupeCodes, codes])
 
   useEffect(() => {
     let meta: HTMLMetaElement | null = document.querySelector('meta[name="robots"]');
@@ -121,29 +141,34 @@ const ParentsSuccess = () => {
   //   setStudentEmails((prev) => ({ ...prev, [id]: '' }));
   // };
 
-  // const handleManageBilling = async () => {
-  //   try {
-  //     setBillingLoading(true)
-  //     const payload: any = {}
-  //     if (subscriptionId) payload.stripe_subscription_id = subscriptionId
-  //     else if (parentEmailFromStorage) payload.parent_email = parentEmailFromStorage
-  //     else {
-  //       te("Couldn't open billing portal. Please try again.")
-  //       setBillingLoading(false)
-  //       return
-  //     }
-  //     const data: any = await (dispatch as any)(parentsBillingPortalAPI(payload))
-  //     const url = data?.url
-  //     if (!url) throw new Error('missing portal url')
-  //     window.location.assign(url)
-  //   } catch (e) {
-  //     // eslint-disable-next-line no-console
-  //     console.error(e)
-  //     te("Couldn't open billing portal. Please try again.")
-  //   } finally {
-  //     setBillingLoading(false)
-  //   }
-  // }
+  const handleManageBilling = async () => {
+    try {
+      setBillingLoading(true)
+      const payload: any = {}
+      if (subscriptionId) payload.stripe_subscription_id = subscriptionId
+      else if (parentEmailFromStorage) payload.parent_email = parentEmailFromStorage
+      else {
+        te("Couldn't open billing portal. Please try again.")
+        setBillingLoading(false)
+        return
+      }
+      // Ensure Stripe portal back button returns to parents success
+      try {
+        const base = window.location.origin + '/#'
+        payload.return_url = base + ENUMFORROUTES.PARENTS_SUCCESS
+      } catch {}
+      const data: any = await (dispatch as any)(parentsBillingPortalAPI(payload))
+      const url = data?.url
+      if (!url) throw new Error('missing portal url')
+      window.location.assign(url)
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e)
+      te("Couldn't open billing portal. Please try again.")
+    } finally {
+      setBillingLoading(false)
+    }
+  }
 
   // Finalize current (final) session and show codes (no auto-advance here)
   useEffect(() => {
@@ -176,7 +201,7 @@ const ParentsSuccess = () => {
               if (Array.isArray(getResp?.codes)) detailed = getResp.codes
             } catch {}
             const thisCodes = detailed.length > 0 ? detailed : (Array.isArray(finalizeResp.codes) ? finalizeResp.codes : [])
-            const next = [...prev, ...thisCodes]
+            const next = normalizeAndDedupeCodes(codes, prev, thisCodes)
             setCodes(next)
             localStorage.setItem('parents_codes_accum', JSON.stringify(next))
           } catch {
@@ -263,9 +288,9 @@ const ParentsSuccess = () => {
 
                   <div className="retry-btn w-100 mt-3">
                     <div className="d-grid gap-2">
-                      {/* <Button variant="secondary" className="btn-text w-100 mx-auto btn-manage-billing" disabled={billingLoading} onClick={handleManageBilling}>
+                      <Button variant="secondary" className="btn-text w-100 mx-auto btn-manage-billing" disabled={billingLoading} onClick={handleManageBilling}>
                         {billingLoading ? 'Opening…' : 'Manage billing'}
-                      </Button> */}
+                      </Button>
                       <Button variant="primary" className="btn-text w-100 mx-auto" onClick={() => { navigate(ENUMFORROUTES.PARENTS) }}>Back to Parents</Button>
                     </div>
                   </div>
