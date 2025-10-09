@@ -73,7 +73,31 @@ const ParentsLanding = () => {
     }, 0)
   }, [cart, plans])
 
+  const normalizeDuration = (d: string) => {
+    const s = (d || '').toLowerCase();
+    if (s.includes('1 month')) return '1m';
+    if (s.includes('6 month')) return '6m';
+    if (s.includes('1 year')) return '1y';
+    return s || 'other';
+  }
+
   const increment = (productId: string) => {
+    // Enforce one plan type (duration) at a time
+    const currentSelectedDuration = (() => {
+      for (const [pid, qty] of Object.entries(cart)) {
+        if ((qty as number) > 0) {
+          const plan = plans.find(p => p.product_id === pid)
+          return normalizeDuration(plan?.duration || '')
+        }
+      }
+      return ''
+    })()
+    const thisPlan = plans.find(p => p.product_id === productId)
+    const thisDuration = normalizeDuration(thisPlan?.duration || '')
+    if (currentSelectedDuration && thisDuration && currentSelectedDuration !== thisDuration) {
+      te('You can purchase one plan type at a time.')
+      return
+    }
     setCart(prev => ({ ...prev, [productId]: (prev[productId] || 0) + 1 }))
   }
   const decrement = (productId: string) => {
@@ -89,13 +113,6 @@ const ParentsLanding = () => {
   // No student email collection here
 
   const handleProceed = () => {
-    const normalizeDuration = (d: string) => {
-      const s = (d || '').toLowerCase();
-      if (s.includes('1 month')) return '1m';
-      if (s.includes('6 month')) return '6m';
-      if (s.includes('1 year')) return '1y';
-      return s || 'other';
-    }
     const items = Object.entries(cart)
       .map(([key, quantity]) => {
         const p: any = plans.find(pl => pl.product_id === key)
@@ -105,6 +122,12 @@ const ParentsLanding = () => {
       })
       .filter((i) => i.quantity > 0)
     if (items.length === 0) return
+    // Defensive guard: block mixed durations
+    const distinctDurations = Array.from(new Set(items.map(i => i.durationKey)))
+    if (distinctDurations.length > 1) {
+      te('You can purchase one plan type at a time.')
+      return
+    }
     if (!isValidEmail(parentEmail)) {
       te('Please enter a valid parent email')
       return
