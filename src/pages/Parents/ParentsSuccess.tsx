@@ -13,6 +13,7 @@ const ParentsSuccess = () => {
   const sessionId = params.get('session_id');
   const dispatch = useDispatch();
   const [codes, setCodes] = useState<any[]>([])
+  const [copied, setCopied] = useState<Record<string, boolean>>({})
   const [isLoading, setIsLoading] = useState<boolean>(true)
   //const [studentEmails, setStudentEmails] = useState<Record<string, string>>({})
   //const [emailErrors, setEmailErrors] = useState<Record<string, string>>({})
@@ -254,34 +255,59 @@ const ParentsSuccess = () => {
                   )}
                   {!isLoading && codes.length > 0 && (
                     <div className="mt-3">
-                      {/* Bulk actions removed; codes are managed one at a time */}
                       <ul className="list-group">
-                        {codes.map((c: any) => (
-                          <li key={c.id} className="list-group-item border-0">
-                            <div className="d-flex justify-content-center align-items-center flex-wrap gap-3 text-center">
-                              <div>
-                                <strong>{c.plan_name}:</strong> {c.code}
+                        {codes.map((c: any) => {
+                          const key = String(c?.id || c?.code || Math.random())
+                          const isCopied = !!copied[key]
+                          const handleCopy = async () => {
+                            const text = String(c?.code || '')
+                            const legacyCopy = () => {
+                              try {
+                                const ta = document.createElement('textarea')
+                                ta.value = text
+                                ta.style.position = 'fixed'
+                                ta.style.opacity = '0'
+                                document.body.appendChild(ta)
+                                ta.focus(); ta.select()
+                                const ok = document.execCommand('copy')
+                                document.body.removeChild(ta)
+                                return ok
+                              } catch {
+                                return false
+                              }
+                            }
+                            try {
+                              if (navigator?.clipboard && window.isSecureContext) {
+                                await navigator.clipboard.writeText(text)
+                              } else {
+                                legacyCopy()
+                              }
+                              setCopied((prev) => ({ ...prev, [key]: true }))
+                              setTimeout(() => setCopied((prev) => ({ ...prev, [key]: false })), 1500)
+                            } catch {
+                              legacyCopy()
+                              setCopied((prev) => ({ ...prev, [key]: true }))
+                              setTimeout(() => setCopied((prev) => ({ ...prev, [key]: false })), 1500)
+                            }
+                          }
+                          return (
+                            <li key={key} className="list-group-item border-0">
+                              <div className="d-flex flex-column align-items-center gap-1">
+                                <div className="fw-semibold">{c.plan_name || 'Plan'}</div>
+                                <div className="input-group" style={{ maxWidth: 520 }}>
+                                  <span className="input-group-text"><i className="material-symbols-outlined">key</i></span>
+                                  <input type="text" className="form-control" readOnly value={String(c.code || '')} />
+                                  <button className={`btn ${isCopied ? 'btn-success' : 'btn-primary'}`} onClick={handleCopy} type="button">
+                                    {isCopied ? 'Copied' : 'Copy'}
+                                  </button>
+                                </div>
                                 {c.expires_at && (
-                                  <span className="text-muted small ms-2">Expires: {new Date(c.expires_at).toLocaleDateString()}</span>
+                                  <div className="text-muted small">Expires: {new Date(c.expires_at).toLocaleDateString()}</div>
                                 )}
                               </div>
-                              {/* <div className="d-flex align-items-center justify-content-center gap-2">
-                                <Button variant="outline-primary" size="sm" onClick={() => navigator.clipboard.writeText(c.code)}>Copy</Button>
-                                <Form.Control
-                                  type="email"
-                                  placeholder="student@email.com"
-                                  value={studentEmails[c.id] || ''}
-                                  isInvalid={!!emailErrors[c.id]}
-                                  onChange={(e) => setStudentEmails((prev) => ({ ...prev, [c.id]: e.target.value }))}
-                                  style={{ maxWidth: 260 }}
-                                  size="sm"
-                                />
-                                <Button variant="outline-primary" size="sm" onClick={() => handleSendToStudentFor(c.id)}>Send</Button>
-                              </div> */}
-                            </div>
-                            {/* validation message placeholder removed */}
-                          </li>
-                        ))}
+                            </li>
+                          )
+                        })}
                       </ul>
                     </div>
                   )}
