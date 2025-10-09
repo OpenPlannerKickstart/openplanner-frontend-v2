@@ -112,9 +112,9 @@ export const Subscription = (props) => {
     const handleDeleteClose = () => {
         setDeleteShow(false);
     }
-    const handleDeleteShow = () => {
-        setDeleteShow(true);
-    }
+    // const handleDeleteShow = () => {
+    //     setDeleteShow(true);
+    // }
     return (
         // subscription main dashboard
         <div className='subscription-main-container'>
@@ -196,12 +196,9 @@ export const Subscription = (props) => {
                                                     <Button variant="primary" className="btn-icon-text" onClick={() => { setShowPlans(true) }}>
                                                         <i className="material-symbols-outlined">refresh</i> Change Plan
                                                     </Button>
-                                                    <Button variant="danger" className="btn-icon-text" onClick={() => { handleDeleteShow() }}>
-                                                        <i className="material-symbols-outlined">close</i> Cancel Subscription
-                                                    </Button>
                                                     <Button
                                                         variant="secondary"
-                                                        className="btn-icon-text"
+                                                        className="btn-icon-text btn-manage-billing"
                                                         onClick={async () => {
                                                             try {
                                                                 const base = window.location.origin + '/#';
