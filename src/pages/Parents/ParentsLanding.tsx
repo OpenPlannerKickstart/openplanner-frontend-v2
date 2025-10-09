@@ -95,7 +95,7 @@ const ParentsLanding = () => {
     const thisPlan = plans.find(p => p.product_id === productId)
     const thisDuration = normalizeDuration(thisPlan?.duration || '')
     if (currentSelectedDuration && thisDuration && currentSelectedDuration !== thisDuration) {
-      te('You can purchase one plan type at a time.')
+      te('You can only purchase one plan type at a time.')
       return
     }
     setCart(prev => ({ ...prev, [productId]: (prev[productId] || 0) + 1 }))
