@@ -54,7 +54,8 @@ export const ENUMFORROUTES = {
   PARENTS: "/parents",
   PARENTS_SUCCESS: "/parents/success",
   PARENTS_CONTINUE: "/parents/continue",
-  PARENTS_CANCEL: "/parents/cancel"
+  PARENTS_CANCEL: "/parents/cancel",
+  PARENTS_MANAGE_BILLING: "/parents/manage-billing"
 
 }
 
