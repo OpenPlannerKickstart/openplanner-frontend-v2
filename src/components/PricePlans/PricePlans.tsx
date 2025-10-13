@@ -3,7 +3,7 @@ import { Button, Card, Col, Modal, Row } from 'react-bootstrap';
 import { ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUMFORROUTES } from '../../interfaces/enum';
 import { useNavigate } from 'react-router-dom';
 import { AppDispatch } from '../../redux/store';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createCheckOutAPI } from '../../redux/Service/auth/signup';
 import { isNullUndefinedOrBlank } from '../../Utility/Helper';
 import { getAllPlanAPI, updatePlanAPI } from '../../redux/Service/User/Settings/settings';
@@ -63,6 +63,7 @@ export const PricePlans = (props) => {
 
   // rely directly on props.updatePlan instead of local state to avoid initial-render race
   const dispatch: AppDispatch = useDispatch();
+  const savedLoginData = useSelector((state: any) => state?.SignupReducer?.savedLoginData);
   // removed unused local modal states; using explicit confirmation modal already below
   const navigate = useNavigate();
 
@@ -75,6 +76,14 @@ export const PricePlans = (props) => {
     }
 
   }, [props?.state])
+
+  // Fallback: if no state provided (e.g., opened from Settings), use saved login data if available
+  useEffect(() => {
+    if (!userData && !isNullUndefinedOrBlank(savedLoginData)) {
+      setuserData(savedLoginData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedLoginData])
 
   useEffect(() => {
     if (!isNullUndefinedOrBlank(props?.currentProductId)) {
@@ -99,19 +108,20 @@ export const PricePlans = (props) => {
  // }; removed helper
 
   const handleGetStarted = async (plan) => {
-    if (!userData) {
+    // For upgrade flow (from Settings), allow BE to derive user from auth even if userData is missing
+    if (!userData && !props?.upgradeNoTrial) {
       te("Please Login First!!");
       navigate(ENUMFORROUTES.LOGIN)
       return;
     }
 
-    let reqBody = {
-      user_id: userData?.user_id,
-      customer_id: userData?.customer_id,
+    let reqBody: any = {
       product_id: plan.product_id,
       price: plan.price.toString(),
       ...(props?.upgradeNoTrial ? { no_trial: true, student_upgrade: true } : {})
-    }
+    };
+    if (userData?.user_id) reqBody.user_id = userData.user_id;
+    if (userData?.customer_id) reqBody.customer_id = userData.customer_id;
     // console.log(reqBody, "reqBody", decrypted(userData?.customer_id))
     const response = await dispatch(createCheckOutAPI(reqBody));
     if (response) {
