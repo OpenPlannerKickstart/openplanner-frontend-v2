@@ -61,7 +61,7 @@ export const PricePlans = (props) => {
   const [userData, setuserData] = useState<any>(null)
   const [selectedPlan, setSelectedPlan] = useState(null)
 
-  const [isUpdatePlan, setisUpdatePlan] = useState(false)
+  // rely directly on props.updatePlan instead of local state to avoid initial-render race
   const dispatch: AppDispatch = useDispatch();
   // removed unused local modal states; using explicit confirmation modal already below
   const navigate = useNavigate();
@@ -84,15 +84,7 @@ export const PricePlans = (props) => {
 
 
 
-  useEffect(() => {
-
-    if (!isNullUndefinedOrBlank(props?.updatePlan)) {
-      setisUpdatePlan(true)
-    } else {
-      setisUpdatePlan(false);
-    }
-
-  }, [props?.updatePlan])
+  // no need to mirror updatePlan into local state
   // console.log("userData", userData)
 
 
@@ -234,14 +226,14 @@ export const PricePlans = (props) => {
                   className="btn-text w-100 mb-4"
                   onClick={() => {  
                     if (selectedPlan === plan?.product_id) return;
-                if (isUpdatePlan && !props?.upgradeNoTrial) {
+                if (props?.updatePlan && !props?.upgradeNoTrial) {
                       handleConfirmationShow(plan)
                     } else {
                       handleGetStarted(plan);
                     }
                   }}
                 >
-                  {selectedPlan === plan?.product_id ? "Active" : isUpdatePlan ? "Change Plan" : "Get Started"}
+                  {selectedPlan === plan?.product_id ? "Active" : props?.updatePlan ? "Change Plan" : "Get Started"}
 
                 </Button>
 
