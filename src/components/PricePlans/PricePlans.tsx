@@ -115,11 +115,10 @@ export const PricePlans = (props) => {
       return;
     }
 
-    // For upgrades (managed_by_parent), BE infers user/customer and accepts flags.
-    // Do NOT include IDs for upgrade path to avoid validator mismatches across envs.
-    // For direct student purchases (non-upgrade), include IDs if available.
+    // For upgrades (managed_by_parent), prefer BE inference but include IDs when available
+    // to be backward compatible with older deployments that still require them.
     let ensuredUser = userData;
-    if (!props?.upgradeNoTrial && (!ensuredUser?.user_id || !ensuredUser?.customer_id)) {
+    if ((!ensuredUser?.user_id || !ensuredUser?.customer_id)) {
       try {
         const resp: any = await dispatch<any>(getUserAPI());
         const payload = resp?.payload || resp;
@@ -138,13 +137,11 @@ export const PricePlans = (props) => {
       price: plan.price.toString(),
       ...(props?.upgradeNoTrial ? { no_trial: true, student_upgrade: true } : {})
     };
-    if (!props?.upgradeNoTrial) {
-      if (ensuredUser?.user_id) reqBody.user_id = ensuredUser.user_id;
-      if (ensuredUser?.customer_id) {
-        // include both keys for compatibility if BE expects stripe_customer_id
-        reqBody.customer_id = ensuredUser.customer_id;
-        (reqBody as any).stripe_customer_id = ensuredUser.customer_id;
-      }
+    // Always include IDs when available for maximum compatibility across BE envs
+    if (ensuredUser?.user_id) (reqBody as any).user_id = ensuredUser.user_id;
+    if (ensuredUser?.customer_id) {
+      (reqBody as any).customer_id = ensuredUser.customer_id;
+      (reqBody as any).stripe_customer_id = ensuredUser.customer_id;
     }
     // console.log(reqBody, "reqBody", decrypted(userData?.customer_id))
     const response = await dispatch(createCheckOutAPI(reqBody));
