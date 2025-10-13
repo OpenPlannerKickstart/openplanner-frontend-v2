@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Col, Modal, Row } from 'react-bootstrap';
-import { ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES } from '../../interfaces/enum';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUMFORROUTES } from '../../interfaces/enum';
+import { useNavigate } from 'react-router-dom';
 import { AppDispatch } from '../../redux/store';
 import { useDispatch } from 'react-redux';
 import { createCheckOutAPI } from '../../redux/Service/auth/signup';
-import { decrypted, isNullUndefinedOrBlank } from '../../Utility/Helper';
+import { isNullUndefinedOrBlank } from '../../Utility/Helper';
 import { getAllPlanAPI, updatePlanAPI } from '../../redux/Service/User/Settings/settings';
 import { te } from '../../Utility/Toaster';
 
@@ -63,8 +63,7 @@ export const PricePlans = (props) => {
 
   const [isUpdatePlan, setisUpdatePlan] = useState(false)
   const dispatch: AppDispatch = useDispatch();
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [pendingProductId, setPendingProductId] = useState(null);
+  // removed unused local modal states; using explicit confirmation modal already below
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -96,15 +95,17 @@ export const PricePlans = (props) => {
   }, [props?.updatePlan])
   // console.log("userData", userData)
 
-  const openInNewTab = (url) => {
-    const a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  };
+
+  //const openInNewTab = (url) => {
+    //const a = document.createElement("a");
+    //a.href = url;
+    //a.target = "_blank";
+    //a.rel = "noopener noreferrer";
+    //document.body.appendChild(a);
+   // a.click();
+   // a.remove();
+ // }; removed helper
+
   const handleGetStarted = async (plan) => {
     if (!userData) {
       te("Please Login First!!");
@@ -116,7 +117,8 @@ export const PricePlans = (props) => {
       user_id: userData?.user_id,
       customer_id: userData?.customer_id,
       product_id: plan.product_id,
-      price: plan.price.toString()
+      price: plan.price.toString(),
+      ...(props?.upgradeNoTrial ? { no_trial: true, student_upgrade: true } : {})
     }
     // console.log(reqBody, "reqBody", decrypted(userData?.customer_id))
     const response = await dispatch(createCheckOutAPI(reqBody));
@@ -167,13 +169,13 @@ export const PricePlans = (props) => {
 
   /** --------------get plans start------------------------------*/
   const [plans, setPlans] = useState<any>([]);
-  const fallbackPlans: any[] = [
+  const fallbackPlans: any[] = React.useMemo(() => ([
     { product_id: 'one_month', title: '1 Month', price: 3.99, Stripe_id: 'for 1 month', duration: 'for 1 month', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
     { product_id: 'six_month', title: '6 Months', price: 14.99, Stripe_id: 'for 6 month', duration: 'for 6 months', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
     { product_id: 'one_year', title: '1 Year', price: 23.99, Stripe_id: 'for 1 year', duration: 'for 1 year', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
-  ];
+  ]), []);
 
-  const getPlansAPI = async () => {
+  const getPlansAPI = useCallback(async () => {
     /** --------------get plans start------------------------------*/
     let reqBody = {
       payment_method: "Stripe"
@@ -193,11 +195,11 @@ export const PricePlans = (props) => {
       list.sort((a: any, b: any) => Number(a.price) - Number(b.price));
       setPlans(list);
     }
-  }
+  }, [dispatch, fallbackPlans])
 
   useEffect(() => {
     getPlansAPI();
-  }, [])
+  }, [getPlansAPI])
 
 
   /** --------------get plans end------------------------------*/
@@ -232,7 +234,7 @@ export const PricePlans = (props) => {
                   className="btn-text w-100 mb-4"
                   onClick={() => {  
                     if (selectedPlan === plan?.product_id) return;
-                    if (isUpdatePlan) {
+                if (isUpdatePlan && !props?.upgradeNoTrial) {
                       handleConfirmationShow(plan)
                     } else {
                       handleGetStarted(plan);
