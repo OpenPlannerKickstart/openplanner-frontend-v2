@@ -6,7 +6,7 @@ import { AppDispatch } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { createCheckOutAPI } from '../../redux/Service/auth/signup';
 import { isNullUndefinedOrBlank } from '../../Utility/Helper';
-import { getAllPlanAPI, updatePlanAPI } from '../../redux/Service/User/Settings/settings';
+import { getAllPlanAPI, updatePlanAPI, getUserAPI } from '../../redux/Service/User/Settings/settings';
 import { te } from '../../Utility/Toaster';
 
 
@@ -115,13 +115,29 @@ export const PricePlans = (props) => {
       return;
     }
 
+    // If upgrading, ensure we have IDs if BE still validates them; fetch if missing
+    let ensuredUser = userData;
+    if (props?.upgradeNoTrial && (!ensuredUser?.user_id || !ensuredUser?.customer_id)) {
+      try {
+        const resp: any = await dispatch<any>(getUserAPI());
+        const payload = resp?.payload || resp;
+        if (payload) {
+          ensuredUser = {
+            user_id: payload?.id || payload?.user_id,
+            customer_id: payload?.stripe_customer_id || payload?.customer_id,
+          };
+          setuserData((prev) => ({ ...prev, ...ensuredUser }));
+        }
+      } catch {}
+    }
+
     let reqBody: any = {
       product_id: plan.product_id,
       price: plan.price.toString(),
       ...(props?.upgradeNoTrial ? { no_trial: true, student_upgrade: true } : {})
     };
-    if (userData?.user_id) reqBody.user_id = userData.user_id;
-    if (userData?.customer_id) reqBody.customer_id = userData.customer_id;
+    if (ensuredUser?.user_id) reqBody.user_id = ensuredUser.user_id;
+    if (ensuredUser?.customer_id) reqBody.customer_id = ensuredUser.customer_id;
     // console.log(reqBody, "reqBody", decrypted(userData?.customer_id))
     const response = await dispatch(createCheckOutAPI(reqBody));
     if (response) {
