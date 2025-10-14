@@ -218,11 +218,11 @@ export const Subscription = (props) => {
                                                 </> :
                                                 (
                                                     computed.managedByParent === true ? (
-                                                        <></>
-                                                        // Temporarily hidden until EB instances are fully updated
-                                                        // <Button variant="primary" className="btn-icon-text" onClick={() => { setPlansMode('upgrade'); setShowPlans(true) }}>
-                                                        //     <i className="material-symbols-outlined">upgrade</i> Upgrade with your own plan
-                                                        // </Button>
+                                                        <>
+                                                            <Button variant="primary" className="btn-icon-text" onClick={() => { setPlansMode('upgrade'); setShowPlans(true) }}>
+                                                                <i className="material-symbols-outlined">upgrade</i> Upgrade with your own plan
+                                                            </Button>
+                                                        </>
                                                     ) : <></>
                                                 )
                                         }
