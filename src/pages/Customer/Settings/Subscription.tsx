@@ -17,6 +17,7 @@ export const Subscription = (props) => {
     const [transactionData, setTransactionData] = useState<any>();
     const [showPlans, setShowPlans] = useState(false)
     const [statusPlan, setStatusPlan] = useState<any | null>(null)
+    const [plansMode, setPlansMode] = useState<'update' | 'upgrade'>('update')
 
     const getTransactionList = async () => {
         await dispatch(getTransactionAPI());
@@ -193,7 +194,7 @@ export const Subscription = (props) => {
                                             ((transactionData?.currentPlan?.payment_method === "Stripe") && (transactionData?.currentPlan?.is_canceled === false) && (computed.managedByParent !== true)) ?
                                                 <>
 
-                                                    <Button variant="primary" className="btn-icon-text" onClick={() => { setShowPlans(true) }}>
+                                                    <Button variant="primary" className="btn-icon-text" onClick={() => { setPlansMode('update'); setShowPlans(true) }}>
                                                         <i className="material-symbols-outlined">refresh</i> Change Plan
                                                     </Button>
                                                     <Button
@@ -218,7 +219,7 @@ export const Subscription = (props) => {
                                                 (
                                                     computed.managedByParent === true ? (
                                                         <>
-                                                            <Button variant="primary" className="btn-icon-text" onClick={() => { setShowPlans(true) }}>
+                                                            <Button variant="primary" className="btn-icon-text" onClick={() => { setPlansMode('upgrade'); setShowPlans(true) }}>
                                                                 <i className="material-symbols-outlined">upgrade</i> Upgrade with your own plan
                                                             </Button>
                                                         </>
@@ -349,7 +350,14 @@ export const Subscription = (props) => {
                                     <Button variant='white' className='btn-icon btn-light-white btn-icon-text btn-md' onClick={() => { setShowPlans(false) }}><i className="material-symbols-outlined fs-4">arrow_left_alt</i></Button>
                                     <h2 className="mb-0">Choose Your Plan</h2>
                                 </div>
-                                <PricePlans updatePlan={true} currentProductId={transactionData?.currentPlan?.current_product_id} showPlans={showPlans} setShowPlans={setShowPlans} getTransactionList={getTransactionList} />
+                                <PricePlans
+                                  updatePlan={plansMode === 'update'}
+                                  upgradeNoTrial={plansMode === 'upgrade'}
+                                  currentProductId={transactionData?.currentPlan?.current_product_id}
+                                  showPlans={showPlans}
+                                  setShowPlans={setShowPlans}
+                                  getTransactionList={getTransactionList}
+                                />
                             </Card.Body>
                         </Card>
                     </div>

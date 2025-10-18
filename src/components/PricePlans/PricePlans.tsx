@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button, Card, Col, Modal, Row } from 'react-bootstrap';
-import { ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES } from '../../interfaces/enum';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUMFORROUTES } from '../../interfaces/enum';
+import { useNavigate } from 'react-router-dom';
 import { AppDispatch } from '../../redux/store';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createCheckOutAPI } from '../../redux/Service/auth/signup';
-import { decrypted, isNullUndefinedOrBlank } from '../../Utility/Helper';
-import { getAllPlanAPI, updatePlanAPI } from '../../redux/Service/User/Settings/settings';
+import { isNullUndefinedOrBlank } from '../../Utility/Helper';
+import { getAllPlanAPI, updatePlanAPI, getUserAPI } from '../../redux/Service/User/Settings/settings';
 import { te } from '../../Utility/Toaster';
 
 
@@ -61,10 +61,10 @@ export const PricePlans = (props) => {
   const [userData, setuserData] = useState<any>(null)
   const [selectedPlan, setSelectedPlan] = useState(null)
 
-  const [isUpdatePlan, setisUpdatePlan] = useState(false)
+  // rely directly on props.updatePlan instead of local state to avoid initial-render race
   const dispatch: AppDispatch = useDispatch();
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [pendingProductId, setPendingProductId] = useState(null);
+  const savedLoginData = useSelector((state: any) => state?.SignupReducer?.savedLoginData);
+  // removed unused local modal states; using explicit confirmation modal already below
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -77,6 +77,14 @@ export const PricePlans = (props) => {
 
   }, [props?.state])
 
+  // Fallback: if no state provided (e.g., opened from Settings), use saved login data if available
+  useEffect(() => {
+    if (!userData && !isNullUndefinedOrBlank(savedLoginData)) {
+      setuserData(savedLoginData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedLoginData])
+
   useEffect(() => {
     if (!isNullUndefinedOrBlank(props?.currentProductId)) {
       setSelectedPlan(props?.currentProductId)
@@ -85,38 +93,55 @@ export const PricePlans = (props) => {
 
 
 
-  useEffect(() => {
-
-    if (!isNullUndefinedOrBlank(props?.updatePlan)) {
-      setisUpdatePlan(true)
-    } else {
-      setisUpdatePlan(false);
-    }
-
-  }, [props?.updatePlan])
+  // no need to mirror updatePlan into local state
   // console.log("userData", userData)
 
-  const openInNewTab = (url) => {
-    const a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  };
+
+  //const openInNewTab = (url) => {
+    //const a = document.createElement("a");
+    //a.href = url;
+    //a.target = "_blank";
+    //a.rel = "noopener noreferrer";
+    //document.body.appendChild(a);
+   // a.click();
+   // a.remove();
+ // }; removed helper
+
   const handleGetStarted = async (plan) => {
-    if (!userData) {
+    // For upgrade flow (from Settings), allow BE to derive user from auth even if userData is missing
+    if (!userData && !props?.upgradeNoTrial) {
       te("Please Login First!!");
       navigate(ENUMFORROUTES.LOGIN)
       return;
     }
 
-    let reqBody = {
-      user_id: userData?.user_id,
-      customer_id: userData?.customer_id,
+    // For upgrades (managed_by_parent), prefer BE inference but include IDs when available
+    // to be backward compatible with older deployments that still require them.
+    let ensuredUser = userData;
+    if ((!ensuredUser?.user_id || !ensuredUser?.customer_id)) {
+      try {
+        const resp: any = await dispatch<any>(getUserAPI());
+        const payload = resp?.payload || resp;
+        if (payload) {
+          ensuredUser = {
+            user_id: payload?.id || payload?.user_id,
+            customer_id: payload?.stripe_customer_id || payload?.customer_id,
+          };
+          setuserData((prev) => ({ ...prev, ...ensuredUser }));
+        }
+      } catch {}
+    }
+
+    let reqBody: any = {
       product_id: plan.product_id,
-      price: plan.price.toString()
+      price: plan.price.toString(),
+      ...(props?.upgradeNoTrial ? { no_trial: true, student_upgrade: true } : {})
+    };
+    // Always include IDs when available for maximum compatibility across BE envs
+    if (ensuredUser?.user_id) (reqBody as any).user_id = ensuredUser.user_id;
+    if (ensuredUser?.customer_id) {
+      (reqBody as any).customer_id = ensuredUser.customer_id;
+      (reqBody as any).stripe_customer_id = ensuredUser.customer_id;
     }
     // console.log(reqBody, "reqBody", decrypted(userData?.customer_id))
     const response = await dispatch(createCheckOutAPI(reqBody));
@@ -167,13 +192,13 @@ export const PricePlans = (props) => {
 
   /** --------------get plans start------------------------------*/
   const [plans, setPlans] = useState<any>([]);
-  const fallbackPlans: any[] = [
+  const fallbackPlans: any[] = React.useMemo(() => ([
     { product_id: 'one_month', title: '1 Month', price: 3.99, Stripe_id: 'for 1 month', duration: 'for 1 month', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
     { product_id: 'six_month', title: '6 Months', price: 14.99, Stripe_id: 'for 6 month', duration: 'for 6 months', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
     { product_id: 'one_year', title: '1 Year', price: 23.99, Stripe_id: 'for 1 year', duration: 'for 1 year', features: ['Unlimited syllabus uploads', 'Full website access', 'Full mobile application access', 'Notifications'] },
-  ];
+  ]), []);
 
-  const getPlansAPI = async () => {
+  const getPlansAPI = useCallback(async () => {
     /** --------------get plans start------------------------------*/
     let reqBody = {
       payment_method: "Stripe"
@@ -193,11 +218,11 @@ export const PricePlans = (props) => {
       list.sort((a: any, b: any) => Number(a.price) - Number(b.price));
       setPlans(list);
     }
-  }
+  }, [dispatch, fallbackPlans])
 
   useEffect(() => {
     getPlansAPI();
-  }, [])
+  }, [getPlansAPI])
 
 
   /** --------------get plans end------------------------------*/
@@ -232,14 +257,14 @@ export const PricePlans = (props) => {
                   className="btn-text w-100 mb-4"
                   onClick={() => {  
                     if (selectedPlan === plan?.product_id) return;
-                    if (isUpdatePlan) {
+                if (props?.updatePlan && !props?.upgradeNoTrial) {
                       handleConfirmationShow(plan)
                     } else {
                       handleGetStarted(plan);
                     }
                   }}
                 >
-                  {selectedPlan === plan?.product_id ? "Active" : isUpdatePlan ? "Change Plan" : "Get Started"}
+                  {selectedPlan === plan?.product_id ? "Active" : props?.updatePlan ? "Change Plan" : "Get Started"}
 
                 </Button>
 
