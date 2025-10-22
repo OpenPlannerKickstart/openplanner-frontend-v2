@@ -16,47 +16,6 @@ import {
 } from "../../redux/Service/User/Settings/settings";
 import { te } from "../../Utility/Toaster";
 
-// const plans = [
-//   {
-//     title: "7 Day Free Trial",
-//     price: ENUM_FOR_PLAN_AMOUNT.SIX_MONTH,
-//     product_id: ENUM_FOR_PLAN_ID.SIX_MONTH,
-//     duration: "for 6 months",
-//     features: [
-//       "Unlimited syllabus uploads",
-//       "Full website access",
-//       "Full mobile application access",
-//       "Notifications",
-//     ],
-//   },
-//   {
-//     title: "7 Day Free Trial",
-//     price: ENUM_FOR_PLAN_AMOUNT.ONE_YEAR,
-//     product_id: ENUM_FOR_PLAN_ID.ONE_YEAR,
-//     duration: "for 1 year",
-//     features: [
-//       "Unlimited syllabus uploads",
-//       "Full website access",
-//       "Full mobile application access",
-//       "Notifications",
-//     ],
-//   },
-//   {
-//     title: "7 Day Free Trial",
-//     price: ENUM_FOR_PLAN_AMOUNT.TWO_YEAR,
-//     product_id: ENUM_FOR_PLAN_ID.TWO_YEAR,
-//     duration: "for 2 years",
-//     features: [
-//       "Unlimited syllabus uploads",
-//       "Full website access",
-//       "Full mobile application access",
-//       "Notifications",
-//     ],
-//   },
-// ];
-
-// console.log(plans)
-
 const undiscountedMap = {
   "for 1 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_MONTH,
   "for 6 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.SIX_MONTH,
