@@ -5,6 +5,7 @@ import { get, post } from '../../../Utility/httpInterceptor';
 import { ts, te } from '../../../Utility/Toaster';
 import GroupListItem from '../../..//components/Groups/GroupListItem';
 import { useNotifications } from '../../../context/SocketContext';
+import { getDecodeIDToken } from '../../../Utility/Helper';
 import { v4 as uuidv4 } from 'uuid';
 
 const Groups: React.FC = () => {
@@ -26,6 +27,9 @@ const Groups: React.FC = () => {
   const [nextCursorByGroup, setNextCursorByGroup] = useState<Record<string, string | null>>({});
   const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
   const timelineRef = useRef<HTMLDivElement | null>(null);
+  const currentUserSub = React.useMemo(() => {
+    try { return getDecodeIDToken()?.sub || null; } catch { return null; }
+  }, []);
 
   const fetchMyGroups = async () => {
     try {
@@ -418,20 +422,81 @@ const Groups: React.FC = () => {
                       <button className="btn btn-outline-white" onClick={handleLoadOlder} disabled={loadingMessages}>Load older</button>
                     </div>
                   )}
-                  {(selectedGroupId ? (messages[selectedGroupId] ?? []) : []).map((m, i) => {
-                    if (!m) return null;
-                    const key = (m.id as string) || (m.clientId as string) || String(i);
-                    const created = m.createdAt ? new Date(m.createdAt) : new Date();
+
+                  {(() => {
+                    const list = selectedGroupId ? (messages[selectedGroupId] ?? []) : [];
+                    if (!list.length) return null;
+
+                    // Group messages by calendar day (local time)
+                    const byDay: { label: string; items: any[] }[] = [];
+                    const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+                    let currentLabel = '';
+                    list.forEach((m) => {
+                      if (!m) return;
+                      const d = m.createdAt ? new Date(m.createdAt) : new Date();
+                      const today = new Date();
+                      let label = d.toLocaleDateString(undefined, { weekday: 'long' });
+                      if (isSameDay(d, today)) label = 'Today';
+                      if (label !== currentLabel) {
+                        byDay.push({ label, items: [m] });
+                        currentLabel = label;
+                      } else {
+                        byDay[byDay.length - 1].items.push(m);
+                      }
+                    });
+
                     return (
-                      <div key={key} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 12 }}>
-                        <div style={{ width: 32, height: 32, background: '#E5E7EB', borderRadius: '50%' }} />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 2 }}>{m?.sender?.name || 'User'} · {created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                          <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '8px 12px' }}>{m.content}</div>
-                        </div>
-                      </div>
+                      <>
+                        {byDay.map((section, sIdx) => (
+                          <div key={`sec-${sIdx}`}>
+                            {/* Day separator */}
+                            <div className="d-flex align-items-center my-3" aria-hidden="true">
+                              <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                              <div style={{ padding: '0 10px', color: '#6B7280', fontSize: 12 }}>{section.label}</div>
+                              <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                            </div>
+
+                            {section.items.map((m, i) => {
+                              const key = (m.id as string) || (m.clientId as string) || `${sIdx}-${i}`;
+                              const created = m.createdAt ? new Date(m.createdAt) : new Date();
+                              const isMine = Boolean(
+                                (m?.sender?.id && currentUserSub && m.sender.id === currentUserSub) ||
+                                m?.sender?.id === 'me' ||
+                                (m?.sender?.name && m.sender.name.toLowerCase() === 'you')
+                              );
+                              if (isMine) {
+                                return (
+                                  <div key={key} className="d-flex justify-content-end mb-2">
+                                    <div style={{ maxWidth: '72%' }}>
+                                      <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
+                                        <div style={{ textAlign: 'left' }}>You</div>
+                                        <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                      </div>
+                                      <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              const avatar = m?.sender?.avatar || '/assets/images/avatar-default.svg';
+                              const senderName = m?.sender?.name || 'User';
+                              return (
+                                <div key={key} className="d-flex align-items-start gap-2 mb-2">
+                                  <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                                  <div style={{ maxWidth: '72%' }}>
+                                    <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
+                                      <div>{senderName}</div>
+                                      <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                    </div>
+                                    <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </>
                     );
-                  })}
+                  })()}
                 </div>
                 {/* Composer */}
                 <Composer onSend={handleSendMessage} disabled={!selectedGroupId} />
@@ -603,17 +668,30 @@ export default Groups;
 // Lightweight internal composer component
 const Composer: React.FC<{ onSend: (text: string) => void; disabled?: boolean }> = ({ onSend, disabled }) => {
   const [text, setText] = useState('');
-  const send = () => { if (!disabled && text.trim()) { onSend(text); setText(''); } };
+  const textRef = useRef<HTMLTextAreaElement | null>(null);
+  const send = () => { if (!disabled && text.trim()) { onSend(text); setText(''); resize(); } };
+  const resize = () => {
+    const el = textRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    const max = 160; // ~6 lines
+    el.style.height = Math.min(el.scrollHeight, max) + 'px';
+  };
+  useEffect(() => { resize(); }, [text]);
+
   return (
-    <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}>
-      <div className="input-group">
-        <input
+    <div className="d-flex align-items-end" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}>
+      <div className="input-group" style={{ width: '100%', alignItems: 'flex-end' }}>
+        <textarea
+          ref={textRef}
           className="form-control"
           placeholder="Send a message"
           value={text}
+          rows={1}
           onChange={(e) => setText(e.target.value)}
+          onInput={resize}
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-          style={{ outline: 'none', boxShadow: 'none' }}
+          style={{ outline: 'none', boxShadow: 'none', resize: 'none', overflowY: 'auto' }}
           disabled={disabled}
         />
         <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled}>
