@@ -358,18 +358,7 @@ const Groups: React.FC = () => {
                           Upload a syllabus to get tailored group suggestions.
                         </p>
                       </div>
-                      {/* Temporary placeholder rows for Groups tab as well */}
-                      <div className="px-3" aria-hidden="true">
-                        {[...Array(40)].map((_, i) => (
-                          <div key={`grouprow-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
-                            <div style={{ width: 36, height: 36, background: '#E5E7EB', borderRadius: '50%' }} />
-                            <div style={{ flex: 1 }}>
-                              <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 3 === 0 ? '55%' : '45%' }} />
-                              <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 4 === 0 ? '35%' : '25%', marginTop: 6 }} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      {/* Suggested groups list will be rendered here when available (filler removed) */}
                     </div>
                   )}
                   </div>
