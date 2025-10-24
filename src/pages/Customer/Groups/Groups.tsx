@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import AddEditGroup from '../../../common/Groups/AddEditGroup';
 import { get, post } from '../../../Utility/httpInterceptor';
 import { ts, te } from '../../../Utility/Toaster';
 import GroupListItem from '../../..//components/Groups/GroupListItem';
+import { useNotifications } from '../../../context/SocketContext';
+import { v4 as uuidv4 } from 'uuid';
 
 const Groups: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'chats' | 'groups'>('chats');
@@ -17,6 +19,13 @@ const Groups: React.FC = () => {
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
+  const { subscribeToPath, unsubscribeFromPath, sendNotification } = useNotifications();
+
+  // chat timeline state
+  const [messages, setMessages] = useState<Record<string, any[]>>({}); // keyed by groupId
+  const [nextCursorByGroup, setNextCursorByGroup] = useState<Record<string, string | null>>({});
+  const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
+  const timelineRef = useRef<HTMLDivElement | null>(null);
 
   const fetchMyGroups = async () => {
     try {
@@ -33,6 +42,123 @@ const Groups: React.FC = () => {
   }, []);
 
   const selectedGroup = selectedGroupId ? myGroups.find(g => g.id === selectedGroupId) : null;
+
+  // fetch messages helper
+  const fetchMessages = async (groupId: string, before?: string) => {
+    try {
+      setLoadingMessages(true);
+      const qs = new URLSearchParams();
+      qs.set('limit', '50');
+      if (before) qs.set('before', before);
+      const res: any = await get(`groups/${groupId}/messages?${qs.toString()}`);
+      const payload = res?.data ?? res;
+      const list: any[] = payload?.messages ?? [];
+      const next: string | null = payload?.nextCursor ?? null;
+      setMessages(prev => ({
+        ...prev,
+        [groupId]: before ? [...list, ...(prev[groupId] ?? [])] : list,
+      }));
+      setNextCursorByGroup(prev => ({ ...prev, [groupId]: next }));
+    } catch (e) {
+      te('Failed to load messages');
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  // when a group is selected, fetch its messages and subscribe to socket room
+  useEffect(() => {
+    if (!selectedGroupId) return;
+
+    // initial load if not present
+    if (!messages[selectedGroupId]) {
+      fetchMessages(selectedGroupId);
+    }
+
+    const eventName = `group:${selectedGroupId}:message`;
+    const onMessage = (msg: any) => {
+      setMessages(prev => {
+        const current = prev[selectedGroupId] ?? [];
+        // dedupe by id or clientId
+        if (msg?.clientId && current.some(m => m && m.clientId && m.clientId === msg.clientId)) {
+          // replace optimistic item
+          const replaced = current.map(m => (m && m.clientId === msg.clientId ? msg : m));
+          return { ...prev, [selectedGroupId]: replaced };
+        }
+        if (msg?.id && current.some(m => m && m.id === msg.id)) return prev;
+        return { ...prev, [selectedGroupId]: [...current, msg] };
+      });
+      // keep timeline scrolled to bottom on new message if user is near bottom
+      const el = timelineRef.current;
+      if (el) {
+        const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+        if (nearBottom) {
+          requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+        }
+      }
+    };
+
+    // attempt to join server room (no-op if backend ignores)
+    try { sendNotification?.('group:join', { room: `group:${selectedGroupId}` }); } catch {}
+    subscribeToPath(eventName, onMessage);
+    return () => {
+      unsubscribeFromPath(eventName, onMessage);
+      try { sendNotification?.('group:leave', { room: `group:${selectedGroupId}` }); } catch {}
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedGroupId]);
+
+  const handleLoadOlder = async () => {
+    if (!selectedGroupId) return;
+    const cursor = nextCursorByGroup[selectedGroupId];
+    if (!cursor || loadingMessages) return;
+    const el = timelineRef.current;
+    const prevScrollBottom = el ? el.scrollHeight - el.scrollTop : 0;
+    await fetchMessages(selectedGroupId, cursor);
+    // maintain viewport position after prepend
+    if (el) {
+      requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight - prevScrollBottom;
+      });
+    }
+  };
+
+  const handleSendMessage = async (text: string) => {
+    if (!selectedGroupId) return;
+    const content = text.trim();
+    if (!content) return;
+    const clientId = uuidv4();
+    const optimistic = {
+      id: `optimistic-${clientId}`,
+      groupId: selectedGroupId,
+      sender: { id: 'me', name: 'You' },
+      content,
+      createdAt: new Date().toISOString(),
+      clientId,
+      optimistic: true,
+    };
+    setMessages(prev => ({
+      ...prev,
+      [selectedGroupId]: [ ...(prev[selectedGroupId] ?? []), optimistic ],
+    }));
+    // scroll to bottom
+    requestAnimationFrame(() => { timelineRef.current && (timelineRef.current.scrollTop = timelineRef.current.scrollHeight); });
+    try {
+      const res: any = await post(`groups/${selectedGroupId}/messages`, { content, clientId }, true, false, false);
+      const msg = res?.data ?? res;
+      setMessages(prev => ({
+        ...prev,
+        [selectedGroupId]: (prev[selectedGroupId] ?? []).map(m => (m && m.clientId === clientId ? msg : m)),
+      }));
+    } catch (e: any) {
+      te('Failed to send');
+      // remove optimistic item on failure
+      setMessages(prev => ({
+        ...prev,
+        [selectedGroupId]: (prev[selectedGroupId] ?? []).filter(m => m && m.clientId !== clientId),
+      }));
+    }
+  };
 
   const handleLeaveGroup = async () => {
     if (!selectedGroupId) return;
@@ -285,27 +411,30 @@ const Groups: React.FC = () => {
               </div>
               {/* Chat timeline (independent scroll) */}
               <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
-                <div className="flex-grow-1" style={{ background: '#FAFAFA', padding: '16px 24px' }}>
-                  {[...Array(25)].map((_, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-                      <div style={{ width: 32, height: 32, background: '#E5E7EB', borderRadius: '50%' }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 3 === 0 ? '60%' : '40%' }} />
-                        <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 4 === 0 ? '30%' : '20%', marginTop: 6 }} />
-                      </div>
+                <div ref={timelineRef} className="flex-grow-1" style={{ background: '#FAFAFA', padding: '16px 24px', overflow: 'auto' }}>
+                  {/* Load older */}
+                  {selectedGroupId && nextCursorByGroup[selectedGroupId] && (
+                    <div className="text-center mb-3">
+                      <button className="btn btn-outline-white" onClick={handleLoadOlder} disabled={loadingMessages}>Load older</button>
                     </div>
-                  ))}
+                  )}
+                  {(selectedGroupId ? (messages[selectedGroupId] ?? []) : []).map((m, i) => {
+                    if (!m) return null;
+                    const key = (m.id as string) || (m.clientId as string) || String(i);
+                    const created = m.createdAt ? new Date(m.createdAt) : new Date();
+                    return (
+                      <div key={key} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 12 }}>
+                        <div style={{ width: 32, height: 32, background: '#E5E7EB', borderRadius: '50%' }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 2 }}>{m?.sender?.name || 'User'} · {created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                          <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 10, padding: '8px 12px' }}>{m.content}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
                 {/* Composer */}
-                <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}> 
-                  <div className="input-group">
-                    <input className="form-control" placeholder="Send a message" style={{ outline: 'none', boxShadow: 'none' }} />
-                    <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach">
-                      <i className="material-symbols-outlined">attach_file</i>
-                    </button>
-                    <button className="btn btn-primary" type="button">Send</button>
-                  </div>
-                </div>
+                <Composer onSend={handleSendMessage} disabled={!selectedGroupId} />
               </div>
 
               {/* Nested Group Info panel (animated slide) */}
@@ -470,3 +599,28 @@ const Groups: React.FC = () => {
 };
 
 export default Groups;
+
+// Lightweight internal composer component
+const Composer: React.FC<{ onSend: (text: string) => void; disabled?: boolean }> = ({ onSend, disabled }) => {
+  const [text, setText] = useState('');
+  const send = () => { if (!disabled && text.trim()) { onSend(text); setText(''); } };
+  return (
+    <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}>
+      <div className="input-group">
+        <input
+          className="form-control"
+          placeholder="Send a message"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
+          style={{ outline: 'none', boxShadow: 'none' }}
+          disabled={disabled}
+        />
+        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled}>
+          <i className="material-symbols-outlined">attach_file</i>
+        </button>
+        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled}>Send</button>
+      </div>
+    </div>
+  );
+};

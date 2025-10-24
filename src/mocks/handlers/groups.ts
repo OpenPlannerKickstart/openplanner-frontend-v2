@@ -1,12 +1,9 @@
 import { http, HttpResponse, delay, passthrough } from 'msw';
 import seed from '../groups/seed.json';
 import type {
-  MessagesResponse,
   SuggestionCandidate,
   GroupDetail,
-  GroupSummary,
   Invite,
-  Message,
 } from '../../interfaces/groups';
 
 const API_BASE = '';
@@ -23,7 +20,7 @@ const escapeHtml = (value: unknown): string => {
 };
 
 const suggestionsPath = `${API_BASE}/groups/suggestions`;
-const messagesPath = (id: string) => `${API_BASE}/groups/${id}/messages`;
+// const messagesPath = (id: string) => `${API_BASE}/groups/${id}/messages`;
 
 export const groupsHandlers = [
   // POST /groups/suggestions
@@ -65,60 +62,14 @@ export const groupsHandlers = [
     }
   }),
 
-  // GET /groups/:id/messages
-  http.get(new RegExp(`/groups/([0-9a-fA-F-]+)/messages`), async ({ params, request }) => {
-    const id = (params as any)[0];
-    const url = new URL(request.url);
-    const limit = Math.min(Number(url.searchParams.get('limit') || '50'), 100);
-
-    const messages = ((seed as any).messages as Message[])
-      .filter(m => m.groupId === id)
-      .slice(0, limit)
-      .map((m) => ({
-        ...m,
-        content: escapeHtml(m.content),
-        sender: m.sender ? { ...m.sender, name: escapeHtml((m.sender as any).name) } : m.sender,
-      }));
-    const res: MessagesResponse = { messages, nextCursor: null };
-    await delay(120);
-    return HttpResponse.json(res);
+  // GET /groups/:id/messages → passthrough to real backend
+  http.get(new RegExp(`/groups/([0-9a-fA-F-]+)/messages`), () => {
+    return passthrough();
   }),
 
-  // POST /groups/:id/messages
-  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/messages`), async ({ params, request }) => {
-    const id = (params as any)[0];
-    const body = (await request.json()) as Record<string, any>;
-    // Minimal CSRF check for development mocks. Backend must enforce proper protection.
-    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
-    if (!csrf) {
-      return HttpResponse.json(
-        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
-        { status: 403 }
-      );
-    }
-    const content = String((body as any)?.content || '');
-    if (content.length > 4000) {
-      return HttpResponse.json({ code: 'RATE_LIMITED', message: 'Content too long' }, {
-        status: 429,
-        headers: {
-          'Retry-After': '2',
-          'X-RateLimit-Limit': '60',
-          'X-RateLimit-Remaining': '59',
-          'X-RateLimit-Reset': String(Math.floor(Date.now() / 1000) + 2),
-        }
-      });
-    }
-
-    const msg: Message = {
-      id: crypto.randomUUID(),
-      groupId: id as string,
-      sender: { id: 'me', name: 'You' },
-      content: escapeHtml(content),
-      createdAt: new Date().toISOString(),
-      clientId: (body as any)?.clientId ?? undefined,
-    };
-    await delay(80);
-    return HttpResponse.json(msg);
+  // POST /groups/:id/messages → passthrough to real backend
+  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/messages`), () => {
+    return passthrough();
   }),
 
   // POST /groups/join (with simple CSRF header validation in mocks)
@@ -178,10 +129,10 @@ export const groupsHandlers = [
         { status: 403 }
       );
     }
-    const id = (params as any)[0];
+    // const id = (params as any)[0];
     const token = crypto.randomUUID();
     const invite: Invite = {
-      url: escapeHtml(`${location.origin}/invite/${token}`),
+      url: escapeHtml(`/invite/${token}`),
       token: escapeHtml(token),
       expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
       singleUse: true,
@@ -202,8 +153,8 @@ export const groupsHandlers = [
       );
     }
     await delay(50);
-    const gid = escapeHtml(String((seed as any).groups?.[0]?.id ?? ''));
-    return HttpResponse.json({ ok: true, groupId: gid });
+    const firstId = String((seed as any).groups?.[0]?.id ?? '');
+    return HttpResponse.json({ ok: true, groupId: escapeHtml(firstId) });
   }),
 
   // POST /groups/:id/report

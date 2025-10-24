@@ -190,9 +190,11 @@ export const post = (
   if (excludeTokenAPIList.indexOf(url) < 0) {
     header = {
       Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
+      "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     };
   }
+  // Remove dev-only CSRF header now that BE endpoints are live
   // if (url === GET_LOGIN_DATA_API) {
   //     header = {
   //         'Content-Type': "application/json"
