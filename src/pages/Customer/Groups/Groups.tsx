@@ -229,14 +229,14 @@ const Groups: React.FC = () => {
           </button>
         </div>
       </div>
-      <div className="content-area content-area-title-filter" style={{ overflow: 'hidden' }}>
-        <div className="page-content-wrapper h-100" style={{ overflow: 'hidden' }}>
+      <div className="content-area content-area-title-filter" style={{ overflow: isMobile ? 'visible' : 'hidden', height: isMobile && mobileView === 'chat' ? '100dvh' : undefined, minHeight: isMobile && mobileView === 'chat' ? 0 : undefined }}>
+        <div className="page-content-wrapper h-100" style={{ overflow: isMobile ? 'visible' : 'hidden' }}>
           <div className="row gx-0 gy-0" style={{ minHeight: 0 }}>
             <div className="col-12 col-lg-4 px-0" >
-              <div className="d-flex flex-column h-100 bg-white" style={{ overflow: 'hidden' }}>
+              <div className="d-flex flex-column h-100 bg-white" style={{ overflow: isMobile ? 'visible' : 'hidden' }}>
                 {/* Search - hide entirely on mobile when in chat view */}
                 {!(isMobile && mobileView === 'chat') && (
-                  <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff' }}>
+                  <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', position: 'sticky', top: 0, zIndex: 2 }}>
                     <div className="px-2 w-100" style={{ position: 'relative' }}>
                       <i
                         className="material-symbols-outlined"
@@ -266,7 +266,7 @@ const Groups: React.FC = () => {
                 )}
 
                 {/* Tabs - hidden on mobile when in chat; visible otherwise */}
-                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', paddingBottom: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block' }}>
+                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', paddingBottom: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', position: 'sticky', top: 64, zIndex: 1 }}>
                   <nav>
                     <div
                       className="nav nav-tabs page-filters"
@@ -321,8 +321,8 @@ const Groups: React.FC = () => {
                 </div>
 
                 {/* Left column content: on mobile, toggle between list and chat */}
-                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0, height: isMobile ? '100%' : undefined, overflow: isMobile && mobileView === 'chat' ? 'hidden' : undefined }}>
-                  <div className="flex-grow-1 overflow-auto left-list-scroll" style={{ minHeight: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', paddingBottom: 0 }}>
+                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0, flex: '1 1 auto', overflow: isMobile && mobileView === 'chat' ? 'hidden' : undefined }}>
+                  <div className="flex-grow-1 overflow-auto left-list-scroll" style={{ minHeight: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', paddingBottom: 16, WebkitOverflowScrolling: 'touch', overflowY: 'auto' }}>
                   {activeTab === 'chats' ? (
                     <div className="text-center p-4">
                       <img src={'/assets/images/not-voucher-found.svg'} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
@@ -396,7 +396,7 @@ const Groups: React.FC = () => {
                   {isMobile && mobileView === 'chat' && (
                     <div className="d-flex flex-column" style={{ minHeight: 0, position: 'relative', flex: '1 1 auto', height: '100%' }}>
                       {/* Establish a fixed header + scroll + fixed footer layout using CSS grid */}
-                      <div style={{ display: 'grid', gridTemplateRows: '56px 1fr auto', minHeight: 0, height: '100%' }}>
+                      <div style={{ display: 'grid', gridTemplateRows: '56px 1fr auto', minHeight: 0, height: '100vh' }}>
                       {/* Reuse right column header content (compact) */}
                       <div className="d-flex align-items-center justify-content-between" style={{ height: 56, padding: '8px 16px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', zIndex: 1, position: 'sticky', top: 0 }}>
                         <div className="d-flex align-items-center gap-2">
@@ -491,7 +491,7 @@ const Groups: React.FC = () => {
                           })()}
                       </div>
                       {/* Composer (bottom row) */}
-                      <div style={{ position: 'sticky', bottom: 0 }}>
+                      <div style={{ position: 'sticky', bottom: 0, background: '#FAFAFA' }}>
                         <Composer onSend={handleSendMessage} disabled={!selectedGroupId} />
                       </div>
                       </div>
