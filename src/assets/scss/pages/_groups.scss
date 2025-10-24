@@ -1,0 +1,58 @@
+/* --- Groups page: remove bottom band and let inner area reach the bottom --- */
+.groups-page {
+  /* 1) Some themes add a decorative bottom fade via ::after. Disable it here. */
+  .content-area-title-filter::after {
+    display: none !important;
+  }
+
+  /* 2) Make the content frame a fixed-height viewport under the 60px title bar */
+  .content-area {
+    height: calc(100vh - 60px) !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 0 !important; /* critical so children can shrink/grow */
+    overflow: hidden !important; /* prevents outer page scroll on desktop */
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* 3) Every flex ancestor must allow shrink/grow */
+  .page-content-wrapper,
+  .row {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+  }
+
+  /* 4) Column roots are flex containers; allow their children to size */
+  .col-lg-4 > .d-flex.flex-column,
+  .col-lg-8.d-flex.flex-column {
+    min-height: 0 !important;
+  }
+
+  /* 5) Fixed elements should not consume flexible height */
+  .search-row,
+  .tabs-row {
+    flex: 0 0 auto;
+  }
+
+  /* 6) The scrolling region under the tabs */
+  .left-list-scroll {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding-bottom: env(safe-area-inset-bottom, 0); /* iOS safe area without visible gap */
+    scrollbar-gutter: stable; /* avoids layout shift when scrollbar appears */
+    margin-bottom: 0 !important;
+  }
+
+  /* Optional: when the layout stacks on small screens, let the page scroll */
+  @media (max-width: 991.98px) {
+    .content-area {
+      height: auto !important;
+      min-height: 100dvh !important;  /* mobile-friendly viewport */
+      overflow: visible !important;
+    }
+  }
+}
+
+

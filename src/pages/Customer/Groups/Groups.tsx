@@ -8,7 +8,29 @@ import { useNotifications } from '../../../context/SocketContext';
 import { getDecodeIDToken } from '../../../Utility/Helper';
 import { v4 as uuidv4 } from 'uuid';
 
+// Simple responsive hook for mobile breakpoint detection (align with Bootstrap lg)
+const useIsMobile = (maxWidthPx: number = 991.98) => {
+  const [isMobile, setIsMobile] = useState<boolean>(
+    typeof window !== 'undefined' ? window.matchMedia(`(max-width: ${maxWidthPx}px)`).matches : false
+  );
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mql = window.matchMedia(`(max-width: ${maxWidthPx}px)`);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    // Older Safari uses addListener/removeListener
+    if (mql.addEventListener) mql.addEventListener('change', handler);
+    else if ((mql as any).addListener) (mql as any).addListener(handler);
+    return () => {
+      if (mql.removeEventListener) mql.removeEventListener('change', handler);
+      else if ((mql as any).removeListener) (mql as any).removeListener(handler);
+    };
+  }, [maxWidthPx]);
+  return isMobile;
+};
+
 const Groups: React.FC = () => {
+  const isMobile = useIsMobile();
+  const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
   const [activeTab, setActiveTab] = useState<'chats' | 'groups'>('chats');
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -212,37 +234,39 @@ const Groups: React.FC = () => {
           <div className="row gx-0 gy-0" style={{ minHeight: 0 }}>
             <div className="col-12 col-lg-4 px-0" >
               <div className="d-flex flex-column h-100 bg-white" style={{ overflow: 'hidden' }}>
-                {/* Search */}
-                <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff' }}>
-                  <div className="px-2 w-100" style={{ position: 'relative' }}>
-                    <i
-                      className="material-symbols-outlined"
-                      style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }}
-                    >
-                      search
-                    </i>
-                    <input
-                      className="form-control w-100"
-                      placeholder="Search"
-                      aria-label="Search"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onFocus={() => setSearchFocused(true)}
-                      onBlur={() => setSearchFocused(false)}
-                      style={{
-                        height: 44,
-                        paddingLeft: 44,
-                        borderRadius: 10,
-                        border: searchFocused ? '1px solid #0EA5E9' : '1px solid #E5E7EB',
-                        outline: 'none',
-                        boxShadow: 'none'
-                      }}
-                    />
+                {/* Search - hide entirely on mobile when in chat view */}
+                {!(isMobile && mobileView === 'chat') && (
+                  <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff' }}>
+                    <div className="px-2 w-100" style={{ position: 'relative' }}>
+                      <i
+                        className="material-symbols-outlined"
+                        style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }}
+                      >
+                        search
+                      </i>
+                      <input
+                        className="form-control w-100"
+                        placeholder="Search"
+                        aria-label="Search"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onFocus={() => setSearchFocused(true)}
+                        onBlur={() => setSearchFocused(false)}
+                        style={{
+                          height: 44,
+                          paddingLeft: 44,
+                          borderRadius: 10,
+                          border: searchFocused ? '1px solid #0EA5E9' : '1px solid #E5E7EB',
+                          outline: 'none',
+                          boxShadow: 'none'
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Tabs - site styling with single baseline and aligned indicator */}
-                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', paddingBottom: 0 }}>
+                {/* Tabs - hidden on mobile when in chat; visible otherwise */}
+                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', paddingBottom: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block' }}>
                   <nav>
                     <div
                       className="nav nav-tabs page-filters"
@@ -264,7 +288,13 @@ const Groups: React.FC = () => {
                         <button
                           type="button"
                           className={`nav-link ${activeTab === 'groups' ? 'active' : ''}`}
-                          onClick={() => setActiveTab('groups')}
+                          onClick={() => {
+                            if (isMobile && mobileView === 'chat') {
+                              setMobileView('list');
+                              return;
+                            }
+                            setActiveTab('groups');
+                          }}
                           style={{ borderBottom: 'none', paddingTop: 8, paddingBottom: 8 }}
                         >
                           <div className="d-flex flex-column align-items-center">
@@ -290,9 +320,9 @@ const Groups: React.FC = () => {
                   </nav>
                 </div>
 
-                {/* List area wrapper (mirror right column pattern) */}
-                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0 }}>
-                  <div className="flex-grow-1 overflow-auto left-list-scroll" style={{ minHeight: 0 }}>
+                {/* Left column content: on mobile, toggle between list and chat */}
+                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0, height: isMobile ? '100%' : undefined, overflow: isMobile && mobileView === 'chat' ? 'hidden' : undefined }}>
+                  <div className="flex-grow-1 overflow-auto left-list-scroll" style={{ minHeight: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', paddingBottom: 0 }}>
                   {activeTab === 'chats' ? (
                     <div className="text-center p-4">
                       <img src={'/assets/images/not-voucher-found.svg'} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
@@ -332,7 +362,7 @@ const Groups: React.FC = () => {
                               avatarColor={g.avatarColor}
                               variant="mine"
                               isSelected={selectedGroupId === g.id}
-                              onClick={() => setSelectedGroupId(g.id)}
+                              onClick={() => { setSelectedGroupId(g.id); if (isMobile) setMobileView('chat'); }}
                             />
                             ))
                         ) : (
@@ -362,11 +392,213 @@ const Groups: React.FC = () => {
                     </div>
                   )}
                   </div>
+                  {/* Mobile chat view embedded in left column when mobileView === 'chat' */}
+                  {isMobile && mobileView === 'chat' && (
+                    <div className="d-flex flex-column" style={{ minHeight: 0, position: 'relative', flex: '1 1 auto', height: '100%' }}>
+                      {/* Establish a fixed header + scroll + fixed footer layout using CSS grid */}
+                      <div style={{ display: 'grid', gridTemplateRows: '56px 1fr auto', minHeight: 0, height: '100%' }}>
+                      {/* Reuse right column header content (compact) */}
+                      <div className="d-flex align-items-center justify-content-between" style={{ height: 56, padding: '8px 16px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', zIndex: 1, position: 'sticky', top: 0 }}>
+                        <div className="d-flex align-items-center gap-2">
+                          <button className="btn btn-outline-white" onClick={() => setMobileView('list')} aria-label="Back" title="Back">
+                            <i className="material-symbols-outlined">arrow_back</i>
+                          </button>
+                          <div className="d-flex align-items-center gap-2">
+                            <div style={{ width: 36, height: 36, borderRadius: 18, background: (myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 22, height: 'auto' }} />
+                            </div>
+                            <h6 className="mb-0" style={{ color: '#111827' }}>{myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h6>
+                          </div>
+                        </div>
+                        <div className="d-flex align-items-center gap-2">
+                          <button className="btn btn-primary" onClick={() => setShowGroupInfo(true)} style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Group Info" title="Group Info">
+                            <i className="material-symbols-outlined" style={{ color: '#fff' }}>info</i>
+                          </button>
+                          <button className="btn btn-outline-white" style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Search" title="Search"><i className="material-symbols-outlined">search</i></button>
+                        </div>
+                      </div>
+                      {/* Timeline (scrollable middle row) */}
+                      <div ref={timelineRef} style={{ background: '#FAFAFA', padding: '12px 16px', overflowY: 'auto', overflowX: 'hidden', minHeight: 0 }}>
+                          {/* Reuse the same message rendering block as right column */}
+                          {(() => {
+                            const list = selectedGroupId ? (messages[selectedGroupId] ?? []) : [];
+                            if (!list.length) return null;
+                            const byDay: { label: string; items: any[] }[] = [];
+                            const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+                            let currentLabel = '';
+                            list.forEach((m) => {
+                              if (!m) return;
+                              const d = m.createdAt ? new Date(m.createdAt) : new Date();
+                              const today = new Date();
+                              let label = d.toLocaleDateString(undefined, { weekday: 'long' });
+                              if (isSameDay(d, today)) label = 'Today';
+                              if (label !== currentLabel) {
+                                byDay.push({ label, items: [m] });
+                                currentLabel = label;
+                              } else {
+                                byDay[byDay.length - 1].items.push(m);
+                              }
+                            });
+                            return (
+                              <>
+                                {byDay.map((section, sIdx) => (
+                                  <div key={`msec-${sIdx}`}>
+                                    <div className="d-flex align-items-center my-3" aria-hidden="true">
+                                      <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                                      <div style={{ padding: '0 10px', color: '#6B7280', fontSize: 12 }}>{section.label}</div>
+                                      <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                                    </div>
+                                    {section.items.map((m, i) => {
+                                      const key = (m.id as string) || (m.clientId as string) || `${sIdx}-${i}`;
+                                      const created = m.createdAt ? new Date(m.createdAt) : new Date();
+                                      const isMine = Boolean(
+                                        (m?.sender?.id && currentUserSub && m.sender.id === currentUserSub) ||
+                                        m?.sender?.id === 'me' ||
+                                        (m?.sender?.name && m.sender.name.toLowerCase() === 'you')
+                                      );
+                                      if (isMine) {
+                                        return (
+                                          <div key={key} className="d-flex justify-content-end mb-2">
+                                            <div style={{ maxWidth: '90%' }}>
+                                              <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
+                                                <div style={{ textAlign: 'left' }}>You</div>
+                                                <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                              </div>
+                                              <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                            </div>
+                                          </div>
+                                        );
+                                      }
+                                      const avatar = m?.sender?.avatar || '/assets/images/avatar-default.svg';
+                                      const senderName = m?.sender?.name || 'User';
+                                      return (
+                                        <div key={key} className="d-flex align-items-start gap-2 mb-2">
+                                          <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />
+                                          <div style={{ maxWidth: '90%' }}>
+                                            <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
+                                              <div>{senderName}</div>
+                                              <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                            </div>
+                                            <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                ))}
+                              </>
+                            );
+                          })()}
+                      </div>
+                      {/* Composer (bottom row) */}
+                      <div style={{ position: 'sticky', bottom: 0 }}>
+                        <Composer onSend={handleSendMessage} disabled={!selectedGroupId} />
+                      </div>
+                      </div>
+
+                      {/* Mobile Group Info overlay (mirrors desktop panel) */}
+                      <div
+                        onClick={() => setShowGroupInfo(false)}
+                        style={{
+                          position: 'absolute', left: 0, right: 0, top: 56, bottom: 0,
+                          background: 'rgba(0,0,0,0.06)', zIndex: 2,
+                          opacity: showGroupInfo ? 1 : 0,
+                          transition: 'opacity 220ms ease',
+                          pointerEvents: showGroupInfo ? 'auto' : 'none'
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute', top: 56, right: 0, bottom: 0, width: 340,
+                          background: '#fff', borderLeft: '1px solid #E5E7EB', boxShadow: '0 0 24px rgba(0,0,0,0.08)', zIndex: 3,
+                          display: 'flex', flexDirection: 'column',
+                          transform: showGroupInfo ? 'translateX(0)' : 'translateX(100%)',
+                          transition: 'transform 240ms ease',
+                          pointerEvents: showGroupInfo ? 'auto' : 'none'
+                        }}
+                      >
+                        <div
+                          style={{
+                            background: (selectedGroup?.avatarColor) || '#E5F3FF',
+                            height: 88,
+                            padding: '12px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                          }}
+                        >
+                          <img src={'/assets/images/book.svg'} alt="group" style={{ width: 28, height: 'auto' }} />
+                          <button className="btn btn-outline-white" onClick={() => setShowGroupInfo(false)} aria-label="Close">
+                            <i className="material-symbols-outlined">close</i>
+                          </button>
+                        </div>
+                        <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
+                          <h6 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h6>
+                          <div className="text-muted" style={{ fontSize: 13 }}>
+                            {(() => {
+                              const typeLabel = selectedGroup?.type === 'canonical' ? 'Class' : 'Group';
+                              const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
+                              const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
+                              return `${typeLabel} - ${countLabel}`;
+                            })()}
+                          </div>
+                        </div>
+                        <div style={{ padding: '16px' }}>
+                          {(() => {
+                            const hex = selectedGroup?.avatarColor || '#E5F3FF';
+                            const toRGBA = (h: string, alpha: number) => {
+                              const m = h.replace('#','');
+                              const r = parseInt(m.substring(0,2), 16);
+                              const g = parseInt(m.substring(2,4), 16);
+                              const b = parseInt(m.substring(4,6), 16);
+                              return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                            };
+                            const bg = toRGBA(hex, 0.10);
+                            const border = toRGBA(hex, 0.25);
+                            const description = selectedGroup?.description || 'No description provided.';
+                            const creatorName = (selectedGroup?.createdBy && (selectedGroup?.createdBy.displayName || selectedGroup?.createdBy.name))
+                              || (selectedGroup?.owner && (selectedGroup?.owner.displayName || selectedGroup?.owner.name))
+                              || selectedGroup?.creatorName
+                              || 'Unknown';
+                            const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
+                            const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
+                            return (
+                              <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                                <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                                <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                                  Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                        {selectedGroup ? (
+                          <>
+                            <div style={{ borderTop: '1px solid #E5E7EB' }} />
+                            <div style={{ padding: '16px' }}>
+                              <div className="d-flex flex-column gap-3">
+                                <button type="button" className="btn btn-outline-white text-start" onClick={handleLeaveGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                  <i className="material-symbols-outlined">logout</i>
+                                  <span>Exit Group</span>
+                                </button>
+                                {selectedGroup?.type !== 'canonical' ? (
+                                  <button type="button" className="btn btn-outline-white text-start" onClick={handleDeleteGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                    <i className="material-symbols-outlined">delete</i>
+                                    <span>Delete Group</span>
+                                  </button>
+                                ) : null}
+                              </div>
+                            </div>
+                          </>
+                        ) : null}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-            {/* Right column (chat area) */}
-            <div className="col-12 col-lg-8 d-flex flex-column" style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}>
+            {/* Right column (chat area) - hide entirely on mobile to avoid duplicate stacked view */}
+            <div className={`col-12 col-lg-8 d-flex flex-column ${isMobile ? 'd-none' : ''}`} style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}>
               {/* Header */}
               <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
