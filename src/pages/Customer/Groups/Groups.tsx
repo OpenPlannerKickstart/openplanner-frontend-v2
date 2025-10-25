@@ -97,6 +97,14 @@ const Groups: React.FC = () => {
     requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
   }, [isMobile, mobileView, selectedGroupId, messages[selectedGroupId || '']?.length, composerHeight]);
 
+  // Desktop: keep timeline scrolled to bottom on select and when new messages arrive
+  useEffect(() => {
+    if (isMobile) return;
+    const el = timelineRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+  }, [isMobile, selectedGroupId, messages[selectedGroupId || '']?.length]);
+
   const fetchMyGroups = async () => {
     try {
       const res: any = await get('groups/mine');
@@ -464,11 +472,16 @@ const Groups: React.FC = () => {
                           {/* Reuse the same message rendering block as right column */}
                           {(() => {
                             const list = selectedGroupId ? (messages[selectedGroupId] ?? []) : [];
+                            const sorted = [...list].sort((a: any, b: any) => {
+                              const ad = new Date(a?.createdAt || a?.created_on || a?.created_at || 0).getTime();
+                              const bd = new Date(b?.createdAt || b?.created_on || b?.created_at || 0).getTime();
+                              return ad - bd; // oldest first, newest last (bottom)
+                            });
                             if (!list.length) return null;
                             const byDay: { label: string; items: any[] }[] = [];
                             const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
                             let currentLabel = '';
-                            list.forEach((m) => {
+                            sorted.forEach((m) => {
                               if (!m) return;
                               const d = m.createdAt ? new Date(m.createdAt) : new Date();
                               const today = new Date();
@@ -687,13 +700,18 @@ const Groups: React.FC = () => {
 
                   {(() => {
                     const list = selectedGroupId ? (messages[selectedGroupId] ?? []) : [];
+                    const sorted = [...list].sort((a: any, b: any) => {
+                      const ad = new Date(a?.createdAt || a?.created_on || a?.created_at || 0).getTime();
+                      const bd = new Date(b?.createdAt || b?.created_on || b?.created_at || 0).getTime();
+                      return ad - bd; // oldest first, newest last (bottom)
+                    });
                     if (!list.length) return null;
 
                     // Group messages by calendar day (local time)
                     const byDay: { label: string; items: any[] }[] = [];
                     const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
                     let currentLabel = '';
-                    list.forEach((m) => {
+                    sorted.forEach((m) => {
                       if (!m) return;
                       const d = m.createdAt ? new Date(m.createdAt) : new Date();
                       const today = new Date();
