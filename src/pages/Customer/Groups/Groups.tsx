@@ -52,6 +52,15 @@ const Groups: React.FC = () => {
   const currentUserSub = React.useMemo(() => {
     try { return getDecodeIDToken()?.sub || null; } catch { return null; }
   }, []);
+  // Rate-limit state: timestamp (ms) until which sending is disabled
+  const [rateLimitUntil, setRateLimitUntil] = useState<number | null>(null);
+  // Tick to refresh countdown text while rate-limited
+  const [rateTick, setRateTick] = useState<number>(0);
+  useEffect(() => {
+    if (!rateLimitUntil) return;
+    const id = setInterval(() => setRateTick((x) => x + 1), 1000);
+    return () => clearInterval(id);
+  }, [rateLimitUntil]);
   // Track composer height so the timeline bottom offset always clears it
   const composerWrapRef = useRef<HTMLDivElement | null>(null);
   const [composerHeight, setComposerHeight] = useState<number>(72);
@@ -208,10 +217,16 @@ const Groups: React.FC = () => {
     }
   };
 
-  const handleSendMessage = async (text: string) => {
-    if (!selectedGroupId) return;
+  const handleSendMessage = async (text: string): Promise<boolean> => {
+    if (!selectedGroupId) return false;
     const content = text.trim();
-    if (!content) return;
+    if (!content) return false;
+    // Block if currently rate-limited
+    if (rateLimitUntil && Date.now() < rateLimitUntil) {
+      const remaining = Math.max(1, Math.ceil((rateLimitUntil - Date.now()) / 1000));
+      te(`You're sending too fast, try again in ${remaining}s`);
+      return false;
+    }
     const clientId = uuidv4();
     const optimistic = {
       id: `optimistic-${clientId}`,
@@ -236,13 +251,26 @@ const Groups: React.FC = () => {
         [selectedGroupId]: (prev[selectedGroupId] ?? []).map(m => (m && m.clientId === clientId ? msg : m)),
       }));
     } catch (e: any) {
-      te('Failed to send');
       // remove optimistic item on failure
       setMessages(prev => ({
         ...prev,
         [selectedGroupId]: (prev[selectedGroupId] ?? []).filter(m => m && m.clientId !== clientId),
       }));
+      const status = e?.response?.status || e?.status;
+      if (status === 429) {
+        // Read Retry-After from headers (seconds)
+        const headers = (e?.response?.headers || {}) as Record<string, any>;
+        const retryRaw = headers['retry-after'] ?? headers['Retry-After'];
+        let retrySeconds = parseInt(String(retryRaw ?? ''), 10);
+        if (!Number.isFinite(retrySeconds) || retrySeconds <= 0) retrySeconds = 5;
+        setRateLimitUntil(Date.now() + retrySeconds * 1000);
+        te(`You're sending too fast, try again in ${retrySeconds}s`);
+      } else {
+        te('Failed to send');
+      }
+      return false;
     }
+    return true;
   };
 
   const handleLeaveGroup = async () => {
@@ -554,7 +582,12 @@ const Groups: React.FC = () => {
                       </div>
                       {/* Fixed composer at bottom of frame */}
                       <div ref={composerWrapRef} style={{ position: 'fixed', left: frameRect.left, width: frameRect.width, bottom: 0, background: '#FAFAFA', zIndex: 3 }}>
-                        <Composer onSend={handleSendMessage} disabled={!selectedGroupId} resizeSignal={frameRect.width} />
+                        <Composer
+                          onSend={handleSendMessage}
+                          disabled={!selectedGroupId || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                          countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                          resizeSignal={frameRect.width}
+                        />
                       </div>
 
                       {/* Mobile Group Info overlay (mirrors desktop panel) */}
@@ -786,7 +819,11 @@ const Groups: React.FC = () => {
                   })()}
                 </div>
                 {/* Composer */}
-                <Composer onSend={handleSendMessage} disabled={!selectedGroupId} />
+                <Composer
+                  onSend={handleSendMessage}
+                  disabled={!selectedGroupId || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                  countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                />
               </div>
 
               {/* Nested Group Info panel (animated slide) */}
@@ -953,13 +990,13 @@ const Groups: React.FC = () => {
 export default Groups;
 
 // Lightweight internal composer component
-const Composer: React.FC<{ onSend: (text: string) => void; disabled?: boolean; resizeSignal?: any }> = ({ onSend, disabled, resizeSignal }) => {
+const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean; disabled?: boolean; countdownSeconds?: number; resizeSignal?: any }> = ({ onSend, disabled, countdownSeconds, resizeSignal }) => {
   const [text, setText] = useState('');
   const textRef = useRef<HTMLTextAreaElement | null>(null);
   const igRef = useRef<HTMLDivElement | null>(null);
   const [baseHeight, setBaseHeight] = useState<number>(40);
   const [isMultiline, setIsMultiline] = useState<boolean>(false);
-  const send = () => { if (!disabled && text.trim()) { onSend(text); setText(''); resize(); } };
+  const send = async () => { if (!disabled && text.trim()) { const ok = await onSend(text); if (ok) { setText(''); resize(); } } };
   const resize = () => {
     const el = textRef.current;
     if (!el) return;
@@ -1010,7 +1047,9 @@ const Composer: React.FC<{ onSend: (text: string) => void; disabled?: boolean; r
         <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled}>
           <i className="material-symbols-outlined">attach_file</i>
         </button>
-        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled}>Send</button>
+        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled}>
+          {disabled && (countdownSeconds ?? 0) > 0 ? `Send (${Math.max(0, countdownSeconds || 0)}s)` : 'Send'}
+        </button>
       </div>
     </div>
   );
