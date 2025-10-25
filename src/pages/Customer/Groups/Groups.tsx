@@ -453,14 +453,14 @@ const Groups: React.FC = () => {
                           </div>
                         </div>
                         <div className="d-flex align-items-center gap-2">
-                          <button className="btn btn-primary" onClick={() => setShowGroupInfo(true)} style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Group Info" title="Group Info">
+                          <button className="btn btn-primary" onClick={() => setShowGroupInfo(prev => !prev)} style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Group Info" title="Group Info">
                             <i className="material-symbols-outlined" style={{ color: '#fff' }}>info</i>
                           </button>
                           <button className="btn btn-outline-white" style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Search" title="Search"><i className="material-symbols-outlined">search</i></button>
                         </div>
                       </div>
                       {/* Timeline: the only scroller, between fixed header (56px) and measured composer height */}
-                      <div ref={timelineRef} style={{ position: 'absolute', top: 56, bottom: composerHeight, left: 0, right: 0, background: '#FAFAFA', padding: '12px 16px', paddingBottom: composerHeight + 16, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                      <div ref={timelineRef} style={{ position: 'absolute', top: 56, bottom: composerHeight, left: 0, right: 0, background: '#FAFAFA', padding: '12px 16px', paddingBottom: composerHeight + 70, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
                           {/* Reuse the same message rendering block as right column */}
                           {(() => {
                             const list = selectedGroupId ? (messages[selectedGroupId] ?? []) : [];
@@ -534,7 +534,7 @@ const Groups: React.FC = () => {
                       </div>
                       {/* Fixed composer at bottom of frame */}
                       <div ref={composerWrapRef} style={{ position: 'fixed', left: frameRect.left, width: frameRect.width, bottom: 0, background: '#FAFAFA', zIndex: 3 }}>
-                        <Composer onSend={handleSendMessage} disabled={!selectedGroupId} />
+                        <Composer onSend={handleSendMessage} disabled={!selectedGroupId} resizeSignal={frameRect.width} />
                       </div>
 
                       {/* Mobile Group Info overlay (mirrors desktop panel) */}
@@ -639,7 +639,7 @@ const Groups: React.FC = () => {
               </div>
             </div>
             {/* Right column (chat area) - hide entirely on mobile to avoid duplicate stacked view */}
-            <div className={`col-12 col-lg-8 d-flex flex-column ${isMobile ? 'd-none' : ''}`} style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}>
+            <div className={`col-12 col-lg-8 d-flex flex-column right-pane-scroll ${isMobile ? 'd-none' : ''}`} style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}>
               {/* Header */}
               <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
@@ -665,7 +665,7 @@ const Groups: React.FC = () => {
                       className="btn btn-primary"
                       style={{ height: 40, minWidth: 120, borderRadius: 8, opacity: selectedGroupId ? 1 : 0.6 }}
                       disabled={!selectedGroupId}
-                      onClick={() => setShowGroupInfo(true)}
+                      onClick={() => setShowGroupInfo(prev => !prev)}
                     >
                       Group Info
                     </button>
@@ -677,7 +677,7 @@ const Groups: React.FC = () => {
               </div>
               {/* Chat timeline (independent scroll) */}
               <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
-                <div ref={timelineRef} className="flex-grow-1" style={{ background: '#FAFAFA', padding: '16px 24px', overflow: 'auto' }}>
+                <div ref={timelineRef} className="flex-grow-1 right-timeline-scroll" style={{ background: '#FAFAFA', padding: '16px 24px', overflow: selectedGroupId ? 'auto' : 'hidden' }}>
                   {/* Load older */}
                   {selectedGroupId && nextCursorByGroup[selectedGroupId] && (
                     <div className="text-center mb-3">
@@ -928,25 +928,42 @@ const Groups: React.FC = () => {
 export default Groups;
 
 // Lightweight internal composer component
-const Composer: React.FC<{ onSend: (text: string) => void; disabled?: boolean }> = ({ onSend, disabled }) => {
+const Composer: React.FC<{ onSend: (text: string) => void; disabled?: boolean; resizeSignal?: any }> = ({ onSend, disabled, resizeSignal }) => {
   const [text, setText] = useState('');
   const textRef = useRef<HTMLTextAreaElement | null>(null);
+  const igRef = useRef<HTMLDivElement | null>(null);
+  const [baseHeight, setBaseHeight] = useState<number>(40);
+  const [isMultiline, setIsMultiline] = useState<boolean>(false);
   const send = () => { if (!disabled && text.trim()) { onSend(text); setText(''); resize(); } };
   const resize = () => {
     const el = textRef.current;
     if (!el) return;
     el.style.height = 'auto';
     const max = 160; // ~6 lines
-    el.style.height = Math.min(el.scrollHeight, max) + 'px';
+    const target = Math.max(baseHeight, Math.min(el.scrollHeight, max));
+    el.style.height = target + 'px';
+    setIsMultiline(target > baseHeight + 1);
   };
   useEffect(() => { resize(); }, [text]);
+  // Reset height to single-line when composer mounts or when the chat frame re-measures
+  useEffect(() => {
+    const el = textRef.current;
+    const ig = igRef.current;
+    if (!el || !ig) return;
+    // Measure button height to align textarea baseline with controls
+    const btn = ig.querySelector('button.btn-primary') as HTMLElement | null;
+    const h = Math.round(btn?.getBoundingClientRect().height || 40);
+    setBaseHeight(h);
+    el.style.height = h + 'px';
+    setIsMultiline(false);
+  }, [resizeSignal]);
 
   return (
     <div className="d-flex align-items-end" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}>
-      <div className="input-group" style={{ width: '100%', alignItems: 'flex-end' }}>
+      <div ref={igRef} className="input-group" style={{ width: '100%', alignItems: 'flex-end' }}>
         <textarea
           ref={textRef}
-          className="form-control"
+          className={`form-control composer-textarea ${isMultiline ? 'multiline' : 'one-line'}`}
           placeholder="Send a message"
           value={text}
           rows={1}
