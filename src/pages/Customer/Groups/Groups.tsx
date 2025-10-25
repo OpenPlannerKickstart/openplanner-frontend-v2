@@ -52,6 +52,50 @@ const Groups: React.FC = () => {
   const currentUserSub = React.useMemo(() => {
     try { return getDecodeIDToken()?.sub || null; } catch { return null; }
   }, []);
+  // Track composer height so the timeline bottom offset always clears it
+  const composerWrapRef = useRef<HTMLDivElement | null>(null);
+  const [composerHeight, setComposerHeight] = useState<number>(72);
+  const chatFrameRef = useRef<HTMLDivElement | null>(null);
+  const [frameRect, setFrameRect] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
+  useEffect(() => {
+    if (!isMobile || mobileView !== 'chat') return;
+    const el = composerWrapRef.current;
+    if (!el) return;
+    const update = () => {
+      const h = el.getBoundingClientRect().height;
+      if (h && Math.abs(h - composerHeight) > 1) setComposerHeight(Math.ceil(h));
+    };
+    update();
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => { ro.disconnect(); window.removeEventListener('resize', update); };
+  }, [isMobile, mobileView, composerHeight]);
+
+  // Track chat frame position so the composer can be truly viewport-fixed within the frame bounds
+  useEffect(() => {
+    if (!isMobile || mobileView !== 'chat') return;
+    const fr = chatFrameRef.current;
+    if (!fr) return;
+    const update = () => {
+      const r = fr.getBoundingClientRect();
+      if (r) setFrameRect({ left: Math.round(r.left), width: Math.round(r.width) });
+    };
+    update();
+    const ro = new ResizeObserver(() => update());
+    ro.observe(document.body);
+    window.addEventListener('resize', update);
+    return () => { ro.disconnect(); window.removeEventListener('resize', update); };
+  }, [isMobile, mobileView]);
+
+  // Keep timeline scrolled to bottom when entering chat and when new messages append
+  useEffect(() => {
+    if (!isMobile || mobileView !== 'chat') return;
+    const el = timelineRef.current;
+    if (!el) return;
+    // slight delay to allow layout to apply new heights
+    requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+  }, [isMobile, mobileView, selectedGroupId, messages[selectedGroupId || '']?.length, composerHeight]);
 
   const fetchMyGroups = async () => {
     try {
@@ -213,7 +257,7 @@ const Groups: React.FC = () => {
   };
 
   return (
-    <div className="page-content groups-page">
+    <div className="page-content groups-page" style={isMobile && mobileView === 'chat' ? { height: 'calc(100dvh - 60px)', overflow: 'hidden' } : undefined}>
       <div className="page-title-wrapper" style={{ borderBottom: '1px solid #E5E7EB' }}>
         <div className="page-title-left">
           <div className="page-title">
@@ -229,8 +273,8 @@ const Groups: React.FC = () => {
           </button>
         </div>
       </div>
-      <div className="content-area content-area-title-filter" style={{ overflow: isMobile ? 'visible' : 'hidden', height: isMobile && mobileView === 'chat' ? '100dvh' : undefined, minHeight: isMobile && mobileView === 'chat' ? 0 : undefined }}>
-        <div className="page-content-wrapper h-100" style={{ overflow: isMobile ? 'visible' : 'hidden' }}>
+      <div className="content-area content-area-title-filter" style={{ overflow: isMobile ? (mobileView === 'chat' ? 'hidden' : 'visible') : 'hidden', height: isMobile && mobileView === 'chat' ? 'calc(100dvh - 60px)' : undefined, minHeight: isMobile && mobileView === 'chat' ? 0 : undefined }}>
+        <div className="page-content-wrapper h-100" style={{ overflow: isMobile ? (mobileView === 'chat' ? 'hidden' : 'visible') : 'hidden' }}>
           <div className="row gx-0 gy-0" style={{ minHeight: 0 }}>
             <div className="col-12 col-lg-4 px-0" >
               <div className="d-flex flex-column h-100 bg-white" style={{ overflow: isMobile ? 'visible' : 'hidden' }}>
@@ -394,11 +438,9 @@ const Groups: React.FC = () => {
                   </div>
                   {/* Mobile chat view embedded in left column when mobileView === 'chat' */}
                   {isMobile && mobileView === 'chat' && (
-                    <div className="d-flex flex-column" style={{ minHeight: 0, position: 'relative', flex: '1 1 auto', height: '100%' }}>
-                      {/* Establish a fixed header + scroll + fixed footer layout using CSS grid */}
-                      <div style={{ display: 'grid', gridTemplateRows: '56px 1fr auto', minHeight: 0, height: '100vh' }}>
-                      {/* Reuse right column header content (compact) */}
-                      <div className="d-flex align-items-center justify-content-between" style={{ height: 56, padding: '8px 16px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', zIndex: 1, position: 'sticky', top: 0 }}>
+                    <div ref={chatFrameRef} className="d-flex flex-column" style={{ minHeight: 0, position: 'relative', flex: '1 1 auto', height: 'calc(100dvh - 60px)', overflow: 'hidden' }}>
+                      {/* Fixed chat header inside the frame */}
+                      <div className="d-flex align-items-center justify-content-between" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 56, padding: '8px 16px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', zIndex: 2 }}>
                         <div className="d-flex align-items-center gap-2">
                           <button className="btn btn-outline-white" onClick={() => setMobileView('list')} aria-label="Back" title="Back">
                             <i className="material-symbols-outlined">arrow_back</i>
@@ -417,8 +459,8 @@ const Groups: React.FC = () => {
                           <button className="btn btn-outline-white" style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Search" title="Search"><i className="material-symbols-outlined">search</i></button>
                         </div>
                       </div>
-                      {/* Timeline (scrollable middle row) */}
-                      <div ref={timelineRef} style={{ background: '#FAFAFA', padding: '12px 16px', overflowY: 'auto', overflowX: 'hidden', minHeight: 0 }}>
+                      {/* Timeline: the only scroller, between fixed header (56px) and measured composer height */}
+                      <div ref={timelineRef} style={{ position: 'absolute', top: 56, bottom: composerHeight, left: 0, right: 0, background: '#FAFAFA', padding: '12px 16px', paddingBottom: composerHeight + 16, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
                           {/* Reuse the same message rendering block as right column */}
                           {(() => {
                             const list = selectedGroupId ? (messages[selectedGroupId] ?? []) : [];
@@ -490,17 +532,16 @@ const Groups: React.FC = () => {
                             );
                           })()}
                       </div>
-                      {/* Composer (bottom row) */}
-                      <div style={{ position: 'sticky', bottom: 0, background: '#FAFAFA' }}>
+                      {/* Fixed composer at bottom of frame */}
+                      <div ref={composerWrapRef} style={{ position: 'fixed', left: frameRect.left, width: frameRect.width, bottom: 0, background: '#FAFAFA', zIndex: 3 }}>
                         <Composer onSend={handleSendMessage} disabled={!selectedGroupId} />
-                      </div>
                       </div>
 
                       {/* Mobile Group Info overlay (mirrors desktop panel) */}
                       <div
                         onClick={() => setShowGroupInfo(false)}
                         style={{
-                          position: 'absolute', left: 0, right: 0, top: 56, bottom: 0,
+                          position: 'absolute', left: 0, right: 0, top: 56, bottom: composerHeight,
                           background: 'rgba(0,0,0,0.06)', zIndex: 2,
                           opacity: showGroupInfo ? 1 : 0,
                           transition: 'opacity 220ms ease',
@@ -509,7 +550,7 @@ const Groups: React.FC = () => {
                       />
                       <div
                         style={{
-                          position: 'absolute', top: 56, right: 0, bottom: 0, width: 340,
+                          position: 'absolute', top: 56, right: 0, bottom: composerHeight, width: 340,
                           background: '#fff', borderLeft: '1px solid #E5E7EB', boxShadow: '0 0 24px rgba(0,0,0,0.08)', zIndex: 3,
                           display: 'flex', flexDirection: 'column',
                           transform: showGroupInfo ? 'translateX(0)' : 'translateX(100%)',
