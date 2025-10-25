@@ -186,6 +186,13 @@ const Groups: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGroupId]);
 
+  // If a group is already selected and we move to mobile, auto-open chat view
+  useEffect(() => {
+    if (isMobile && selectedGroupId) {
+      setMobileView('chat');
+    }
+  }, [isMobile, selectedGroupId]);
+
   const handleLoadOlder = async () => {
     if (!selectedGroupId) return;
     const cursor = nextCursorByGroup[selectedGroupId];
@@ -958,9 +965,9 @@ const Composer: React.FC<{ onSend: (text: string) => void; disabled?: boolean; r
     if (!el) return;
     el.style.height = 'auto';
     const max = 160; // ~6 lines
-    const target = Math.max(baseHeight, Math.min(el.scrollHeight, max));
-    el.style.height = target + 'px';
-    setIsMultiline(target > baseHeight + 1);
+    const targetContentHeight = Math.max(baseHeight, Math.min(el.scrollHeight, max));
+    el.style.height = targetContentHeight + 'px';
+    setIsMultiline(targetContentHeight > baseHeight + 1);
   };
   useEffect(() => { resize(); }, [text]);
   // Reset height to single-line when composer mounts or when the chat frame re-measures
@@ -971,8 +978,17 @@ const Composer: React.FC<{ onSend: (text: string) => void; disabled?: boolean; r
     // Measure button height to align textarea baseline with controls
     const btn = ig.querySelector('button.btn-primary') as HTMLElement | null;
     const h = Math.round(btn?.getBoundingClientRect().height || 40);
-    setBaseHeight(h);
-    el.style.height = h + 'px';
+    // Compute textarea content height needed to visually match button height
+    const cs = window.getComputedStyle(el);
+    const box = cs.boxSizing;
+    const paddingTop = parseFloat(cs.paddingTop || '0');
+    const paddingBottom = parseFloat(cs.paddingBottom || '0');
+    const borderTop = parseFloat(cs.borderTopWidth || '0');
+    const borderBottom = parseFloat(cs.borderBottomWidth || '0');
+    const outerDelta = box === 'border-box' ? 0 : (paddingTop + paddingBottom + borderTop + borderBottom);
+    const contentHeightForButton = Math.max(24, h - outerDelta);
+    setBaseHeight(contentHeightForButton);
+    el.style.height = contentHeightForButton + 'px';
     setIsMultiline(false);
   }, [resizeSignal]);
 

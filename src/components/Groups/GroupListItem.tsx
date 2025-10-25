@@ -48,7 +48,7 @@ const GroupListItem: React.FC<Props> = ({
             }}
           />
         ) : null}
-        <div className="d-flex align-items-center gap-3">
+        <div className="d-flex align-items-center gap-3 flex-grow-1" style={{ minWidth: 0 }}>
           <GroupAvatar color={avatarColor || '#E5F3FF'} size={56} />
           <div>
             <div style={{ fontWeight: 600, color: '#111827' }}>{name}</div>
@@ -72,9 +72,7 @@ const GroupListItem: React.FC<Props> = ({
           >
             {privacy === 'public' ? 'Public' : 'Private'}
           </button>
-        ) : (
-          <div style={{ minWidth: 96 }} />
-        )}
+        ) : null}
       </div>
       <hr className="my-0" />
     </div>
