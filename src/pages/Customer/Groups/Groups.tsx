@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import AddEditGroup from '../../../common/Groups/AddEditGroup';
-import { get, post } from '../../../Utility/httpInterceptor';
+import { get, post, deleteAPI } from '../../../Utility/httpInterceptor';
 import { ts, te } from '../../../Utility/Toaster';
 import GroupListItem from '../../..//components/Groups/GroupListItem';
 import { useNotifications } from '../../../context/SocketContext';
@@ -43,6 +43,12 @@ const Groups: React.FC = () => {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
   const { subscribeToPath, unsubscribeFromPath, sendNotification } = useNotifications();
+  // Invite modal state
+  const [showInvite, setShowInvite] = useState<boolean>(false);
+  const [inviteLink, setInviteLink] = useState<string>('');
+  const [inviteLoading, setInviteLoading] = useState<boolean>(false);
+  const [inviteExpiresIn, setInviteExpiresIn] = useState<number>(7 * 24 * 3600); // 7 days default
+  const [inviteSingleUse, setInviteSingleUse] = useState<boolean>(false);
 
   // chat timeline state
   const [messages, setMessages] = useState<Record<string, any[]>>({}); // keyed by groupId
@@ -128,6 +134,39 @@ const Groups: React.FC = () => {
     fetchMyGroups();
   }, []);
 
+  // Accept invite via URL param or path: ?invite=TOKEN or /invite/TOKEN
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('invite');
+    let pathToken: string | null = null;
+    const path = window.location.pathname || '';
+    const match = path.match(/\/invite\/([^/?#]+)/);
+    if (match && match[1]) pathToken = decodeURIComponent(match[1]);
+    const finalToken = token || pathToken;
+    if (!finalToken) return;
+    (async () => {
+      try {
+        const res: any = await post('invites/accept', { token: finalToken });
+        const data = res?.data ?? res;
+        if (data?.groupId) {
+          ts('Joined group');
+          await fetchMyGroups();
+          setSelectedGroupId(data.groupId);
+          if (isMobile) setMobileView('chat');
+        }
+      } catch (e: any) {
+        te('Failed to accept invite');
+      } finally {
+        // Remove invite token from URL without reload
+        const url = new URL(window.location.href);
+        url.searchParams.delete('invite');
+        if (url.pathname.startsWith('/invite/')) url.pathname = '/';
+        window.history.replaceState({}, '', url.toString());
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const selectedGroup = selectedGroupId ? myGroups.find(g => g.id === selectedGroupId) : null;
 
   // fetch messages helper
@@ -163,6 +202,7 @@ const Groups: React.FC = () => {
     }
 
     const eventName = `group:${selectedGroupId}:message`;
+    const eventDeletedName = `group:${selectedGroupId}:message:deleted`;
     const onMessage = (msg: any) => {
       setMessages(prev => {
         const current = prev[selectedGroupId] ?? [];
@@ -187,9 +227,21 @@ const Groups: React.FC = () => {
 
     // attempt to join server room (no-op if backend ignores)
     try { sendNotification?.('group:join', { room: `group:${selectedGroupId}` }); } catch {}
+    const onDeleted = (payload: any) => {
+      if (!payload || !payload.id) return;
+      setMessages(prev => {
+        const current = prev[selectedGroupId] ?? [];
+        const updated = current.map(m => (m && (m.id === payload.id || m.clientId === payload.id)
+          ? { ...m, deleted: true, deletedAt: payload.deletedAt, deletedBy: payload.deletedBy, content: null }
+          : m));
+        return { ...prev, [selectedGroupId]: updated };
+      });
+    };
     subscribeToPath(eventName, onMessage);
+    subscribeToPath(eventDeletedName, onDeleted);
     return () => {
       unsubscribeFromPath(eventName, onMessage);
+      unsubscribeFromPath(eventDeletedName, onDeleted);
       try { sendNotification?.('group:leave', { room: `group:${selectedGroupId}` }); } catch {}
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -300,7 +352,39 @@ const Groups: React.FC = () => {
   };
 
   // UI-only delete confirmation (wire to BE later)
-  const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; messageId: string | null }>({ open: false, messageId: null });
+  const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; messageId: string | null; loading?: boolean }>({ open: false, messageId: null, loading: false });
+
+  const handleConfirmDelete = async () => {
+    if (!selectedGroupId || !confirmDelete.messageId) { setConfirmDelete({ open: false, messageId: null }); return; }
+    try {
+      setConfirmDelete(prev => ({ ...prev, loading: true }));
+      const res: any = await deleteAPI(`groups/${selectedGroupId}/messages/${confirmDelete.messageId}`);
+      const data = res?.data ?? res;
+      const targetId = data?.id || confirmDelete.messageId;
+      setMessages(prev => ({
+        ...prev,
+        [selectedGroupId]: (prev[selectedGroupId] ?? []).map(m => (m && (m.id === targetId || m.clientId === targetId)
+          ? { ...m, deleted: true, deletedAt: data?.deletedAt, deletedBy: data?.deletedBy, content: null }
+          : m)),
+      }));
+      ts('Message deleted');
+    } catch (e: any) {
+      const status = e?.response?.status || e?.status;
+      if (status === 429) {
+        const headers = (e?.response?.headers || {}) as Record<string, any>;
+        const retryRaw = headers['retry-after'] ?? headers['Retry-After'];
+        let retrySeconds = parseInt(String(retryRaw ?? ''), 10);
+        if (!Number.isFinite(retrySeconds) || retrySeconds <= 0) retrySeconds = 5;
+        te(`You're deleting too fast, try again in ${retrySeconds}s`);
+      } else if (status === 403) {
+        te('You do not have permission to delete this message');
+      } else {
+        te('Failed to delete message');
+      }
+    } finally {
+      setConfirmDelete({ open: false, messageId: null, loading: false });
+    }
+  };
 
   return (
     <div className="page-content groups-page" style={isMobile && mobileView === 'chat' ? { height: 'calc(100dvh - 60px)', overflow: 'hidden' } : undefined}>
@@ -550,6 +634,19 @@ const Groups: React.FC = () => {
                                         (m?.sender?.name && m.sender.name.toLowerCase() === 'you')
                                       );
                                       if (isMine) {
+                                        if (m?.deleted) {
+                                          return (
+                                            <div key={key} className="d-flex justify-content-end mb-2">
+                                              <div className="groups-message-row mine" style={{ maxWidth: '90%' }}>
+                                                <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
+                                                  <div style={{ textAlign: 'left' }}>You</div>
+                                                  <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                                </div>
+                                                <div style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
+                                              </div>
+                                            </div>
+                                          );
+                                        }
                                         return (
                                           <div key={key} className="d-flex justify-content-end mb-2">
                                             <div className="groups-message-row mine" style={{ maxWidth: '90%', position: 'relative' }}>
@@ -568,8 +665,23 @@ const Groups: React.FC = () => {
                                           </div>
                                         );
                                       }
-                                      const avatar = m?.sender?.avatar || '/assets/images/avatar-default.svg';
-                                      const senderName = m?.sender?.name || 'User';
+                              // Precompute sender display for branches below
+                              const senderName = m?.sender?.displayName || 'User';
+                              const avatar = m?.sender?.picture || '/assets/images/avatar-default.svg';
+                              if (m?.deleted) {
+                                        return (
+                                          <div key={key} className="d-flex align-items-start gap-2 mb-2">
+                                    <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />
+                                            <div style={{ maxWidth: '90%' }}>
+                                              <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
+                                                <div>{senderName}</div>
+                                                <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                              </div>
+                                              <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
+                                            </div>
+                                          </div>
+                                        );
+                                      }
                                       return (
                                         <div key={key} className="d-flex align-items-start gap-2 mb-2">
                                           <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />
@@ -794,6 +906,19 @@ const Groups: React.FC = () => {
                                 (m?.sender?.name && m.sender.name.toLowerCase() === 'you')
                               );
                               if (isMine) {
+                                if (m?.deleted) {
+                                  return (
+                                    <div key={key} className="d-flex justify-content-end mb-2">
+                                      <div className="groups-message-row mine" style={{ maxWidth: '72%' }}>
+                                        <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
+                                          <div style={{ textAlign: 'left' }}>You</div>
+                                          <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                        </div>
+                                        <div style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
+                                      </div>
+                                    </div>
+                                  );
+                                }
                                 return (
                                   <div key={key} className="d-flex justify-content-end mb-2">
                                     <div className="groups-message-row mine" style={{ maxWidth: '72%', position: 'relative' }}>
@@ -812,8 +937,22 @@ const Groups: React.FC = () => {
                                   </div>
                                 );
                               }
-                              const avatar = m?.sender?.avatar || '/assets/images/avatar-default.svg';
-                              const senderName = m?.sender?.name || 'User';
+                              const senderName = m?.sender?.displayName || 'User';
+                              const avatar = m?.sender?.picture || '/assets/images/avatar-default.svg';
+                              if (m?.deleted) {
+                                return (
+                                  <div key={key} className="d-flex align-items-start gap-2 mb-2">
+                                  <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                                    <div style={{ maxWidth: '72%' }}>
+                                      <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
+                                        <div>{senderName}</div>
+                                        <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                      </div>
+                                      <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
+                                    </div>
+                                  </div>
+                                );
+                              }
                               return (
                                 <div key={key} className="d-flex align-items-start gap-2 mb-2">
                                   <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%' }} />
@@ -928,6 +1067,23 @@ const Groups: React.FC = () => {
                     <div style={{ borderTop: '1px solid #E5E7EB' }} />
                     <div style={{ padding: '16px' }}>
                       <div className="d-flex flex-column gap-3">
+                        <button
+                          type="button"
+                          className="btn btn-outline-white text-start"
+                          onClick={() => { setInviteLink(''); setInviteLoading(false); setShowInvite(true); }}
+                          style={{
+                            border: '1px solid #E5E7EB',
+                            borderRadius: 12,
+                            padding: '14px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12,
+                            width: '100%'
+                          }}
+                        >
+                          <i className="material-symbols-outlined">person_add</i>
+                          <span>Invite Members</span>
+                        </button>
                       <button
                         type="button"
                         className="btn btn-outline-white text-start"
@@ -1009,7 +1165,63 @@ const Groups: React.FC = () => {
             </div>
             <div className="d-flex justify-content-end gap-2" style={{ padding: 16 }}>
               <button className="btn btn-outline-white" onClick={() => setConfirmDelete({ open: false, messageId: null })}>Cancel</button>
-              <button className="btn btn-primary" onClick={() => { ts('Delete action will be wired to backend'); setConfirmDelete({ open: false, messageId: null }); }}>Delete</button>
+              <button className="btn btn-primary" onClick={handleConfirmDelete} disabled={!!confirmDelete.loading}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Invite Members Modal */}
+      {showInvite && (
+        <div role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowInvite(false)}>
+          <div className="bg-white" style={{ width: 460, borderRadius: 12, boxShadow: '0 10px 24px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: 16, borderBottom: '1px solid #E5E7EB' }}>
+              <h6 className="mb-0" style={{ color: '#111827' }}>Invite to group</h6>
+            </div>
+            <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label className="form-label" style={{ fontWeight: 600 }}>Expiration (days)</label>
+                <input type="number" min={1} max={30} className="form-control" value={Math.round(inviteExpiresIn / 86400)} onChange={(e) => setInviteExpiresIn(Math.min(30, Math.max(1, parseInt(e.target.value || '7', 10))) * 86400)} />
+                <div className="text-muted" style={{ fontSize: 12 }}>1–30 days (default 7)</div>
+              </div>
+              <div className="form-check" style={{ userSelect: 'none' }}>
+                <input className="form-check-input" type="checkbox" id="inviteSingleUse" checked={inviteSingleUse} onChange={(e) => setInviteSingleUse(e.target.checked)} />
+                <label className="form-check-label" htmlFor="inviteSingleUse">Single-use link</label>
+              </div>
+              <div className="d-flex gap-2">
+                <button className="btn btn-primary" disabled={inviteLoading || !selectedGroupId} onClick={async () => {
+                  if (!selectedGroupId) return;
+                  try {
+                    setInviteLoading(true);
+                    const res: any = await post(`groups/${selectedGroupId}/invites`, { expiresIn: inviteExpiresIn, singleUse: inviteSingleUse });
+                    const data = res?.data ?? res;
+                    setInviteLink(data?.url || '');
+                    ts('Invite created');
+                  } catch (e: any) {
+                    te('Failed to create invite');
+                  } finally {
+                    setInviteLoading(false);
+                  }
+                }}>Create link</button>
+                {inviteLink && (
+                  <button className="btn btn-outline-white" onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(inviteLink);
+                      ts('Copied');
+                    } catch {
+                      te('Copy failed');
+                    }
+                  }}>Copy</button>
+                )}
+              </div>
+              {inviteLink ? (
+                <div className="text-break" style={{ border: '1px solid #E5E7EB', borderRadius: 10, padding: 12, background: '#F9FAFB' }}>{inviteLink}</div>
+              ) : (
+                <div className="text-muted" style={{ fontSize: 13 }}>Create an invite link to share with others.</div>
+              )}
+            </div>
+            <div className="d-flex justify-content-end" style={{ padding: 16, borderTop: '1px solid #E5E7EB' }}>
+              <button className="btn btn-outline-white" onClick={() => setShowInvite(false)}>Close</button>
             </div>
           </div>
         </div>

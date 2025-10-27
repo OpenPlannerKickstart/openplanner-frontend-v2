@@ -629,7 +629,7 @@ export const deleteAPI = (
   let header: any = {};
   if (excludeTokenAPIList.indexOf(url) < 0) {
     header = {
-      Authorization: getToken() ? getToken() : "",
+      Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
       "Access-Control-Allow-Origin": "*",
     };
   }

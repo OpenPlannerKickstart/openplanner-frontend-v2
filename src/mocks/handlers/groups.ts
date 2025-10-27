@@ -72,6 +72,11 @@ export const groupsHandlers = [
     return passthrough();
   }),
 
+  // DELETE /groups/:groupId/messages/:messageId → passthrough
+  http.delete(new RegExp(`/groups/([0-9a-fA-F-]+)/messages/([0-9a-fA-F-]+)`), () => {
+    return passthrough();
+  }),
+
   // POST /groups/join (with simple CSRF header validation in mocks)
   http.post(`${API_BASE}/groups/join`, async ({ request }) => {
     const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
@@ -120,41 +125,14 @@ export const groupsHandlers = [
     return HttpResponse.json(group);
   }),
 
-  // POST /groups/:id/invites
-  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/invites`), async ({ params, request }) => {
-    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
-    if (!csrf) {
-      return HttpResponse.json(
-        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
-        { status: 403 }
-      );
-    }
-    // const id = (params as any)[0];
-    const token = crypto.randomUUID();
-    const invite: Invite = {
-      url: escapeHtml(`/invite/${token}`),
-      token: escapeHtml(token),
-      expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-      singleUse: true,
-    };
-    await delay(50);
-    return HttpResponse.json(invite);
+  // POST /groups/:id/invites → passthrough to real backend (so FE sees real URL and headers)
+  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/invites`), () => {
+    return passthrough();
   }),
 
-  // POST /invites/accept (with simple CSRF header validation in mocks)
-  http.post(`${API_BASE}/invites/accept`, async ({ request }) => {
-    // Minimal CSRF check for development mocks. The real backend should
-    // implement robust CSRF/session protection. Here we require a header key.
-    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
-    if (!csrf) {
-      return HttpResponse.json(
-        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
-        { status: 403 }
-      );
-    }
-    await delay(50);
-    const firstId = String((seed as any).groups?.[0]?.id ?? '');
-    return HttpResponse.json({ ok: true, groupId: escapeHtml(firstId) });
+  // POST /invites/accept → passthrough to real backend
+  http.post(`${API_BASE}/invites/accept`, () => {
+    return passthrough();
   }),
 
   // POST /groups/:id/report
