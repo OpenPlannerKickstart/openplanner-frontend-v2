@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import AddEditGroup from '../../../common/Groups/AddEditGroup';
 import { get, post, deleteAPI } from '../../../Utility/httpInterceptor';
@@ -29,6 +30,9 @@ const useIsMobile = (maxWidthPx: number = 991.98) => {
 };
 
 const Groups: React.FC = () => {
+  const navigate = useNavigate();
+  const params = useParams();
+  const location = useLocation();
   const isMobile = useIsMobile();
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
   const [activeTab, setActiveTab] = useState<'chats' | 'groups'>('chats');
@@ -133,6 +137,85 @@ const Groups: React.FC = () => {
   React.useEffect(() => {
     fetchMyGroups();
   }, []);
+
+  // Sync selection with URL param and localStorage
+  useEffect(() => {
+    const gid = (params as any)?.groupId as string | undefined;
+    if (gid) {
+      // If URL has a groupId, prefer it
+      if (selectedGroupId !== gid) setSelectedGroupId(gid);
+      try { localStorage.setItem('groups.selected', gid); } catch {}
+      if (isMobile) setMobileView('chat');
+    } else {
+      // No group in URL → fallback to last selection from storage (one-time)
+      if (!selectedGroupId) {
+        try {
+          const saved = localStorage.getItem('groups.selected');
+          if (saved) {
+            setSelectedGroupId(saved);
+            const params = new URLSearchParams(location.search);
+            if (!params.get('tab')) {
+              const savedTab = (localStorage.getItem('groups.tab') as any) as ('chats'|'groups') | null;
+              if (savedTab === 'chats' || savedTab === 'groups') params.set('tab', savedTab);
+            }
+            const search = params.toString() ? `?${params.toString()}` : '';
+            if (!location.pathname.endsWith(`/groups/${saved}`) || location.search !== search) {
+              navigate({ pathname: `/groups/${saved}`, search }, { replace: true });
+            }
+          }
+        } catch {}
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.groupId]);
+
+  // If the selected group no longer exists (left/deleted), clear selection and URL
+  useEffect(() => {
+    if (!selectedGroupId) return;
+    if (myGroups && myGroups.length > 0 && !myGroups.some(g => g.id === selectedGroupId)) {
+      try { localStorage.removeItem('groups.selected'); } catch {}
+      if (location.pathname.startsWith('/groups/')) navigate('/groups', { replace: true });
+      setSelectedGroupId(null);
+    }
+  }, [myGroups, selectedGroupId, location.pathname, navigate]);
+
+  const applySelection = (id: string) => {
+    setSelectedGroupId(id);
+    try { localStorage.setItem('groups.selected', id); } catch {}
+    if (isMobile) setMobileView('chat');
+    const sp = new URLSearchParams(location.search);
+    sp.set('tab', activeTab);
+    const search = sp.toString() ? `?${sp.toString()}` : '';
+    if (!location.pathname.endsWith(`/groups/${id}`) || location.search !== search) {
+      navigate({ pathname: `/groups/${id}`, search });
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedGroupId(null);
+    try { localStorage.removeItem('groups.selected'); } catch {}
+    const sp = new URLSearchParams(location.search);
+    sp.set('tab', activeTab);
+    const search = sp.toString() ? `?${sp.toString()}` : '';
+    if (location.pathname.startsWith('/groups/')) navigate({ pathname: '/groups', search }, { replace: true });
+  };
+
+  // Ensure activeTab reflects the URL (with localStorage fallback) and normalize URL when missing
+  useEffect(() => {
+    const sp = new URLSearchParams(location.search);
+    let tab = sp.get('tab');
+    let nextTab: 'chats' | 'groups' = (tab === 'groups' || tab === 'chats') ? (tab as any) : null as any;
+    if (!nextTab) {
+      const saved = (localStorage.getItem('groups.tab') as any) as ('chats'|'groups') | null;
+      nextTab = (saved === 'groups' || saved === 'chats') ? saved : 'chats';
+      sp.set('tab', nextTab);
+      const search = sp.toString() ? `?${sp.toString()}` : '';
+      if (location.search !== search) navigate({ pathname: location.pathname, search }, { replace: true });
+    }
+    if (nextTab && activeTab !== nextTab) setActiveTab(nextTab);
+    try { if (nextTab) localStorage.setItem('groups.tab', nextTab); } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
 
   // Accept invite via URL param or path: ?invite=TOKEN or /invite/TOKEN
   useEffect(() => {
@@ -331,7 +414,7 @@ const Groups: React.FC = () => {
       await post('groups/leave', { groupId: selectedGroupId });
       ts('Left group');
       setShowGroupInfo(false);
-      setSelectedGroupId(null);
+      clearSelection();
       await fetchMyGroups();
     } catch (err) {
       te('Failed to leave group');
@@ -344,7 +427,7 @@ const Groups: React.FC = () => {
       await post(`groups/${selectedGroupId}/delete`, {});
       ts('Group deleted');
       setShowGroupInfo(false);
-      setSelectedGroupId(null);
+      clearSelection();
       await fetchMyGroups();
     } catch (err) {
       te('Failed to delete group');
@@ -451,7 +534,13 @@ const Groups: React.FC = () => {
                         <button
                           type="button"
                           className={`nav-link ${activeTab === 'chats' ? 'active' : ''}`}
-                          onClick={() => setActiveTab('chats')}
+                          onClick={() => {
+                            setActiveTab('chats');
+                            try { localStorage.setItem('groups.tab', 'chats'); } catch {}
+                            const sp = new URLSearchParams(location.search);
+                            sp.set('tab', 'chats');
+                            navigate({ pathname: location.pathname, search: `?${sp.toString()}` });
+                          }}
                           style={{ borderBottom: 'none', paddingTop: 8, paddingBottom: 8 }}
                         >
                           <div className="d-flex flex-column align-items-center">
@@ -468,6 +557,10 @@ const Groups: React.FC = () => {
                               return;
                             }
                             setActiveTab('groups');
+                            try { localStorage.setItem('groups.tab', 'groups'); } catch {}
+                            const sp = new URLSearchParams(location.search);
+                            sp.set('tab', 'groups');
+                            navigate({ pathname: location.pathname, search: `?${sp.toString()}` });
                           }}
                           style={{ borderBottom: 'none', paddingTop: 8, paddingBottom: 8 }}
                         >
@@ -536,7 +629,7 @@ const Groups: React.FC = () => {
                               avatarColor={g.avatarColor}
                               variant="mine"
                               isSelected={selectedGroupId === g.id}
-                              onClick={() => { setSelectedGroupId(g.id); if (isMobile) setMobileView('chat'); }}
+                              onClick={() => applySelection(g.id)}
                             />
                             ))
                         ) : (
