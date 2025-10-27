@@ -338,7 +338,7 @@ const handleError = (error: any): any => {
   else if (parsedError && parsedError.status === 503) {
     errorMsg = parsedError.error;
     te(errorMsg);
-    return;
+    return Promise.reject(error);
   }
   // Check if the response status indicates unauthorized (401)
   else if (
@@ -365,7 +365,7 @@ const handleError = (error: any): any => {
     te(response.data.message);
   } else if (response && response !== undefined && response.status === 403) {
     logoutFromSystem("Access Denied Because Subscription Not Found");
-    return;
+    return Promise.reject(error);
   } else if (response && response !== undefined && response.status === 405) {
     // console.log(response.data.Message)
     te(response.data.message);
@@ -385,6 +385,8 @@ const handleError = (error: any): any => {
   else {
     te("Sorry, something went wrong. Please try again.");
   }
+  // Always reject so callers can handle status/headers (e.g., 429 rate limit)
+  return Promise.reject(error);
 };
 /**
  * Signal a synchronous logout by throwing an error.

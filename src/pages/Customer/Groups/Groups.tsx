@@ -299,6 +299,9 @@ const Groups: React.FC = () => {
     }
   };
 
+  // UI-only delete confirmation (wire to BE later)
+  const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; messageId: string | null }>({ open: false, messageId: null });
+
   return (
     <div className="page-content groups-page" style={isMobile && mobileView === 'chat' ? { height: 'calc(100dvh - 60px)', overflow: 'hidden' } : undefined}>
       <div className="page-title-wrapper" style={{ borderBottom: '1px solid #E5E7EB' }}>
@@ -549,7 +552,13 @@ const Groups: React.FC = () => {
                                       if (isMine) {
                                         return (
                                           <div key={key} className="d-flex justify-content-end mb-2">
-                                            <div style={{ maxWidth: '90%' }}>
+                                            <div className="groups-message-row mine" style={{ maxWidth: '90%', position: 'relative' }}>
+                                              {/* Hover actions (mine → top-left of bubble) */}
+                                              <div className="message-actions" style={{ position: 'absolute', top: -14, right: -6, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', gap: 4, padding: 4, opacity: 0, pointerEvents: 'none', transition: 'opacity 150ms ease', zIndex: 5 }}>
+                                                <button className="btn btn-outline-white" aria-label="Delete message" title="Delete" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ open: true, messageId: m.id || m.clientId }); }} style={{ height: 28, width: 28, borderRadius: 8 }}>
+                                                  <i className="material-symbols-outlined" style={{ color: '#DC2626' }}>delete</i>
+                                                </button>
+                                              </div>
                                               <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
                                                 <div style={{ textAlign: 'left' }}>You</div>
                                                 <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
@@ -787,7 +796,13 @@ const Groups: React.FC = () => {
                               if (isMine) {
                                 return (
                                   <div key={key} className="d-flex justify-content-end mb-2">
-                                    <div style={{ maxWidth: '72%' }}>
+                                    <div className="groups-message-row mine" style={{ maxWidth: '72%', position: 'relative' }}>
+                                      {/* Hover actions (mine → top-left of bubble) */}
+                                      <div className="message-actions" style={{ position: 'absolute', top: -14, right: -6, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', gap: 4, padding: 4, opacity: 0, pointerEvents: 'none', transition: 'opacity 150ms ease', zIndex: 5 }}>
+                                        <button className="btn btn-outline-white" aria-label="Delete message" title="Delete" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ open: true, messageId: m.id || m.clientId }); }} style={{ height: 28, width: 28, borderRadius: 8 }}>
+                                          <i className="material-symbols-outlined" style={{ color: '#DC2626' }}>delete</i>
+                                        </button>
+                                      </div>
                                       <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
                                         <div style={{ textAlign: 'left' }}>You</div>
                                         <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
@@ -983,6 +998,22 @@ const Groups: React.FC = () => {
           }
         }}
       />
+
+      {/* Confirm Delete (UI only for now) */}
+      {confirmDelete.open && (
+        <div role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setConfirmDelete({ open: false, messageId: null })}>
+          <div className="bg-white" style={{ width: 360, borderRadius: 12, boxShadow: '0 10px 24px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '16px 16px 0 16px' }}>
+              <h6 className="mb-1" style={{ color: '#111827' }}>Delete message?</h6>
+              <div className="text-muted" style={{ fontSize: 14 }}>This can’t be undone. We’ll wire this to backend next.</div>
+            </div>
+            <div className="d-flex justify-content-end gap-2" style={{ padding: 16 }}>
+              <button className="btn btn-outline-white" onClick={() => setConfirmDelete({ open: false, messageId: null })}>Cancel</button>
+              <button className="btn btn-primary" onClick={() => { ts('Delete action will be wired to backend'); setConfirmDelete({ open: false, messageId: null }); }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

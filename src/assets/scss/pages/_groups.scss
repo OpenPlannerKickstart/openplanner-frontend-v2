@@ -101,6 +101,12 @@
 .right-timeline-scroll::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
 }
+/* Hover toolbar for message rows (mine) */
+.groups-message-row:hover .message-actions,
+.groups-message-row:focus-within .message-actions {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
 /* --- Mobile: hide inner scrollbars (keep scroll), avoid double bars --- */
 @media (max-width: 991.98px) {
   .groups-page {
