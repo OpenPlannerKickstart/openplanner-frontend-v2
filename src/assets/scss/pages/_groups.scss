@@ -141,3 +141,11 @@
     }
   }
 }
+
+/* Shared scroll behavior for group info bodies on all breakpoints */
+.groups-page .group-info-scroll {
+  flex: 1 1 auto;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}

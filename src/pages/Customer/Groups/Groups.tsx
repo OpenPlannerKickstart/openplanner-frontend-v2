@@ -75,7 +75,7 @@ const Groups: React.FC = () => {
   const composerWrapRef = useRef<HTMLDivElement | null>(null);
   const [composerHeight, setComposerHeight] = useState<number>(72);
   const chatFrameRef = useRef<HTMLDivElement | null>(null);
-  const [frameRect, setFrameRect] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
+  const [frameRect, setFrameRect] = useState<{ left: number; width: number; top: number }>({ left: 0, width: 0, top: 0 });
   useEffect(() => {
     if (!isMobile || mobileView !== 'chat') return;
     const el = composerWrapRef.current;
@@ -98,7 +98,7 @@ const Groups: React.FC = () => {
     if (!fr) return;
     const update = () => {
       const r = fr.getBoundingClientRect();
-      if (r) setFrameRect({ left: Math.round(r.left), width: Math.round(r.width) });
+      if (r) setFrameRect({ left: Math.round(r.left), width: Math.round(r.width), top: Math.round(r.top) });
     };
     update();
     const ro = new ResizeObserver(() => update());
@@ -106,6 +106,27 @@ const Groups: React.FC = () => {
     window.addEventListener('resize', update);
     return () => { ro.disconnect(); window.removeEventListener('resize', update); };
   }, [isMobile, mobileView]);
+
+  // Lock background scroll on mobile when Group Info is open
+  const bodyOverflowRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!isMobile) return;
+    if (showGroupInfo) {
+      if (bodyOverflowRef.current === null) bodyOverflowRef.current = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+    } else {
+      if (bodyOverflowRef.current !== null) {
+        document.body.style.overflow = bodyOverflowRef.current;
+        bodyOverflowRef.current = null;
+      }
+    }
+    return () => {
+      if (bodyOverflowRef.current !== null) {
+        document.body.style.overflow = bodyOverflowRef.current;
+        bodyOverflowRef.current = null;
+      }
+    };
+  }, [isMobile, showGroupInfo]);
 
   // Keep timeline scrolled to bottom when entering chat and when new messages append
   useEffect(() => {
@@ -808,21 +829,22 @@ const Groups: React.FC = () => {
                       <div
                         onClick={() => setShowGroupInfo(false)}
                         style={{
-                          position: 'absolute', left: 0, right: 0, top: 56, bottom: composerHeight,
-                          background: 'rgba(0,0,0,0.06)', zIndex: 2,
-                          opacity: showGroupInfo ? 1 : 0,
+                          position: 'fixed', left: frameRect.left, width: frameRect.width, top: Math.max(64, frameRect.top), bottom: composerHeight,
+                          background: 'rgba(0,0,0,0.06)', zIndex: 3,
+                          opacity: showGroupInfo && isMobile ? 1 : 0,
                           transition: 'opacity 220ms ease',
-                          pointerEvents: showGroupInfo ? 'auto' : 'none'
+                          pointerEvents: showGroupInfo && isMobile ? 'auto' : 'none',
+                          display: (showGroupInfo && isMobile && frameRect.width > 0) ? 'block' : 'none'
                         }}
                       />
                       <div
                         style={{
-                          position: 'absolute', top: 56, right: 0, bottom: composerHeight, width: 340,
-                          background: '#fff', borderLeft: '1px solid #E5E7EB', boxShadow: '0 0 24px rgba(0,0,0,0.08)', zIndex: 3,
-                          display: 'flex', flexDirection: 'column',
-                          transform: showGroupInfo ? 'translateX(0)' : 'translateX(100%)',
-                          transition: 'transform 240ms ease',
-                          pointerEvents: showGroupInfo ? 'auto' : 'none'
+                          position: 'fixed', top: Math.max(64, frameRect.top), left: frameRect.left, width: Math.max(300, frameRect.width), bottom: composerHeight,
+                          background: '#fff', borderLeft: '1px solid #E5E7EB', boxShadow: '0 0 24px rgba(0,0,0,0.08)', zIndex: 4,
+                          display: (showGroupInfo && isMobile && frameRect.width > 0) ? 'flex' : 'none', flexDirection: 'column',
+                          transform: showGroupInfo && isMobile ? 'translateX(0)' : 'translateX(100%)',
+                          transition: showGroupInfo && isMobile ? 'transform 240ms ease' : 'none',
+                          pointerEvents: showGroupInfo && isMobile ? 'auto' : 'none'
                         }}
                       >
                         <div
@@ -851,54 +873,60 @@ const Groups: React.FC = () => {
                             })()}
                           </div>
                         </div>
-                        <div style={{ padding: '16px' }}>
-                          {(() => {
-                            const hex = selectedGroup?.avatarColor || '#E5F3FF';
-                            const toRGBA = (h: string, alpha: number) => {
-                              const m = h.replace('#','');
-                              const r = parseInt(m.substring(0,2), 16);
-                              const g = parseInt(m.substring(2,4), 16);
-                              const b = parseInt(m.substring(4,6), 16);
-                              return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-                            };
-                            const bg = toRGBA(hex, 0.10);
-                            const border = toRGBA(hex, 0.25);
-                            const description = selectedGroup?.description || 'No description provided.';
-                            const creatorName = (selectedGroup?.createdBy && (selectedGroup?.createdBy.displayName || selectedGroup?.createdBy.name))
-                              || (selectedGroup?.owner && (selectedGroup?.owner.displayName || selectedGroup?.owner.name))
-                              || selectedGroup?.creatorName
-                              || 'Unknown';
-                            const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
-                            const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
-                            return (
-                              <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
-                                <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
-                                <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
-                                  Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                        <div className="group-info-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                          <div style={{ padding: '16px' }}>
+                            {(() => {
+                              const hex = selectedGroup?.avatarColor || '#E5F3FF';
+                              const toRGBA = (h: string, alpha: number) => {
+                                const m = h.replace('#','');
+                                const r = parseInt(m.substring(0,2), 16);
+                                const g = parseInt(m.substring(2,4), 16);
+                                const b = parseInt(m.substring(4,6), 16);
+                                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                              };
+                              const bg = toRGBA(hex, 0.10);
+                              const border = toRGBA(hex, 0.25);
+                              const description = selectedGroup?.description || 'No description provided.';
+                              const creatorName = (selectedGroup?.createdBy && (selectedGroup?.createdBy.displayName || selectedGroup?.createdBy.name))
+                                || (selectedGroup?.owner && (selectedGroup?.owner.displayName || selectedGroup?.owner.name))
+                                || selectedGroup?.creatorName
+                                || 'Unknown';
+                              const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
+                              const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
+                              return (
+                                <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                                  <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                                  <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                                    Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                          {selectedGroup ? (
+                            <>
+                              <div style={{ borderTop: '1px solid #E5E7EB' }} />
+                              <div style={{ padding: '16px' }}>
+                                <div className="d-flex flex-column gap-3">
+                                  <button type="button" className="btn btn-outline-white text-start" onClick={() => { setInviteLink(''); setInviteLoading(false); setShowInvite(true); }} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                    <i className="material-symbols-outlined">person_add</i>
+                                    <span>Invite Members</span>
+                                  </button>
+                                  <button type="button" className="btn btn-outline-white text-start" onClick={handleLeaveGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                    <i className="material-symbols-outlined">logout</i>
+                                    <span>Exit Group</span>
+                                  </button>
+                                  {selectedGroup?.type !== 'canonical' ? (
+                                    <button type="button" className="btn btn-outline-white text-start" onClick={handleDeleteGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                      <i className="material-symbols-outlined">delete</i>
+                                      <span>Delete Group</span>
+                                    </button>
+                                  ) : null}
                                 </div>
                               </div>
-                            );
-                          })()}
+                            </>
+                          ) : null}
                         </div>
-                        {selectedGroup ? (
-                          <>
-                            <div style={{ borderTop: '1px solid #E5E7EB' }} />
-                            <div style={{ padding: '16px' }}>
-                              <div className="d-flex flex-column gap-3">
-                                <button type="button" className="btn btn-outline-white text-start" onClick={handleLeaveGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-                                  <i className="material-symbols-outlined">logout</i>
-                                  <span>Exit Group</span>
-                                </button>
-                                {selectedGroup?.type !== 'canonical' ? (
-                                  <button type="button" className="btn btn-outline-white text-start" onClick={handleDeleteGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-                                    <i className="material-symbols-outlined">delete</i>
-                                    <span>Delete Group</span>
-                                  </button>
-                                ) : null}
-                              </div>
-                            </div>
-                          </>
-                        ) : null}
                       </div>
                     </div>
                   )}
@@ -1123,101 +1151,101 @@ const Groups: React.FC = () => {
                     })()}
                   </div>
                 </div>
-                {/* Description card with 10% avatar tint */}
-                <div style={{ padding: '16px' }}>
-                  {(() => {
-                    const hex = selectedGroup?.avatarColor || '#E5F3FF';
-                    const toRGBA = (h: string, alpha: number) => {
-                      const m = h.replace('#','');
-                      const r = parseInt(m.substring(0,2), 16);
-                      const g = parseInt(m.substring(2,4), 16);
-                      const b = parseInt(m.substring(4,6), 16);
-                      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-                    };
-                    const bg = toRGBA(hex, 0.10);
-                    const border = toRGBA(hex, 0.25);
-                    const description = selectedGroup?.description || 'No description provided.';
-                    const creatorName = (selectedGroup?.createdBy && (selectedGroup?.createdBy.displayName || selectedGroup?.createdBy.name))
-                      || (selectedGroup?.owner && (selectedGroup?.owner.displayName || selectedGroup?.owner.name))
-                      || selectedGroup?.creatorName
-                      || 'Unknown';
-                    const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
-                    const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
-                    return (
-                      <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
-                        <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
-                        <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
-                          Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                {/* Scrollable body for desktop (description + actions) */}
+                <div className="group-info-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                  <div style={{ padding: '16px' }}>
+                    {(() => {
+                      const hex = selectedGroup?.avatarColor || '#E5F3FF';
+                      const toRGBA = (h: string, alpha: number) => {
+                        const m = h.replace('#','');
+                        const r = parseInt(m.substring(0,2), 16);
+                        const g = parseInt(m.substring(2,4), 16);
+                        const b = parseInt(m.substring(4,6), 16);
+                        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                      };
+                      const bg = toRGBA(hex, 0.10);
+                      const border = toRGBA(hex, 0.25);
+                      const description = selectedGroup?.description || 'No description provided.';
+                      const creatorName = (selectedGroup?.createdBy && (selectedGroup?.createdBy.displayName || selectedGroup?.createdBy.name))
+                        || (selectedGroup?.owner && (selectedGroup?.owner.displayName || selectedGroup?.owner.name))
+                        || selectedGroup?.creatorName
+                        || 'Unknown';
+                      const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
+                      const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
+                      return (
+                        <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                          <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                          <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                            Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                  {selectedGroup ? (
+                    <>
+                      <div style={{ borderTop: '1px solid #E5E7EB' }} />
+                      <div style={{ padding: '16px' }}>
+                        <div className="d-flex flex-column gap-3">
+                          <button
+                            type="button"
+                            className="btn btn-outline-white text-start"
+                            onClick={() => { setInviteLink(''); setInviteLoading(false); setShowInvite(true); }}
+                            style={{
+                              border: '1px solid #E5E7EB',
+                              borderRadius: 12,
+                              padding: '14px 16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 12,
+                              width: '100%'
+                            }}
+                          >
+                            <i className="material-symbols-outlined">person_add</i>
+                            <span>Invite Members</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline-white text-start"
+                            onClick={handleLeaveGroup}
+                            style={{
+                              border: '1px solid #E5E7EB',
+                              borderRadius: 12,
+                              padding: '14px 16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 12,
+                              width: '100%'
+                            }}
+                          >
+                            <i className="material-symbols-outlined">logout</i>
+                            <span>Exit Group</span>
+                          </button>
+
+                          {selectedGroup?.type !== 'canonical' ? (
+                            <button
+                              type="button"
+                              className="btn btn-outline-white text-start"
+                              onClick={handleDeleteGroup}
+                              style={{
+                                border: '1px solid #E5E7EB',
+                                borderRadius: 12,
+                                padding: '14px 16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 12,
+                                width: '100%'
+                              }}
+                            >
+                              <i className="material-symbols-outlined">delete</i>
+                              <span>Delete Group</span>
+                            </button>
+                          ) : null}
                         </div>
                       </div>
-                    );
-                  })()}
+                    </>
+                  ) : null}
                 </div>
-
-                {/* Actions: Only show when this is one of myGroups (i.e., joined) */}
-                {selectedGroup ? (
-                  <>
-                    <div style={{ borderTop: '1px solid #E5E7EB' }} />
-                    <div style={{ padding: '16px' }}>
-                      <div className="d-flex flex-column gap-3">
-                        <button
-                          type="button"
-                          className="btn btn-outline-white text-start"
-                          onClick={() => { setInviteLink(''); setInviteLoading(false); setShowInvite(true); }}
-                          style={{
-                            border: '1px solid #E5E7EB',
-                            borderRadius: 12,
-                            padding: '14px 16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 12,
-                            width: '100%'
-                          }}
-                        >
-                          <i className="material-symbols-outlined">person_add</i>
-                          <span>Invite Members</span>
-                        </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline-white text-start"
-                        onClick={handleLeaveGroup}
-                        style={{
-                          border: '1px solid #E5E7EB',
-                          borderRadius: 12,
-                          padding: '14px 16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 12,
-                          width: '100%'
-                        }}
-                      >
-                        <i className="material-symbols-outlined">logout</i>
-                        <span>Exit Group</span>
-                      </button>
-
-                      {selectedGroup?.type !== 'canonical' ? (
-                        <button
-                          type="button"
-                          className="btn btn-outline-white text-start"
-                          onClick={handleDeleteGroup}
-                          style={{
-                            border: '1px solid #E5E7EB',
-                            borderRadius: 12,
-                            padding: '14px 16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 12,
-                            width: '100%'
-                          }}
-                        >
-                          <i className="material-symbols-outlined">delete</i>
-                          <span>Delete Group</span>
-                        </button>
-                      ) : null}
-                      </div>
-                    </div>
-                  </>
-                ) : null}
               </div>
             </div>
           </div>
@@ -1341,6 +1369,9 @@ const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean;
     const targetContentHeight = Math.max(baseHeight, Math.min(el.scrollHeight, max));
     el.style.height = targetContentHeight + 'px';
     setIsMultiline(targetContentHeight > baseHeight + 1);
+    // Sync row height CSS variable so sibling buttons match the textarea exactly
+    const ig = igRef.current;
+    if (ig) ig.style.setProperty('--composer-row-height', Math.round(el.getBoundingClientRect().height) + 'px');
   };
   useEffect(() => { resize(); }, [text]);
   // Reset height to single-line when composer mounts or when the chat frame re-measures
@@ -1363,6 +1394,8 @@ const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean;
     setBaseHeight(contentHeightForButton);
     el.style.height = contentHeightForButton + 'px';
     setIsMultiline(false);
+    // Seed CSS variable for exact sibling button height
+    ig.style.setProperty('--composer-row-height', Math.round(el.getBoundingClientRect().height) + 'px');
   }, [resizeSignal]);
 
   return (
@@ -1377,13 +1410,13 @@ const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean;
           onChange={(e) => setText(e.target.value)}
           onInput={resize}
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-          style={{ outline: 'none', boxShadow: 'none', resize: 'none', overflowY: 'auto' }}
+          style={{ outline: 'none', boxShadow: 'none', resize: 'none', overflowY: 'auto', boxSizing: 'border-box' }}
           disabled={disabled}
         />
-        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled}>
+        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled} style={{ height: 'var(--composer-row-height)' }}>
           <i className="material-symbols-outlined">attach_file</i>
         </button>
-        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled}>
+        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled} style={{ height: 'var(--composer-row-height)' }}>
           {disabled && (countdownSeconds ?? 0) > 0 ? `Send (${Math.max(0, countdownSeconds || 0)}s)` : 'Send'}
         </button>
       </div>
