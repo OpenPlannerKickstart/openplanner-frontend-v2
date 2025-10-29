@@ -49,10 +49,18 @@ const Groups: React.FC = () => {
   const { subscribeToPath, unsubscribeFromPath, sendNotification } = useNotifications();
   // Invite modal state
   const [showInvite, setShowInvite] = useState<boolean>(false);
-  const [inviteLink, setInviteLink] = useState<string>('');
   const [inviteLoading, setInviteLoading] = useState<boolean>(false);
   const [inviteExpiresIn, setInviteExpiresIn] = useState<number>(7 * 24 * 3600); // 7 days default
   const [inviteSingleUse, setInviteSingleUse] = useState<boolean>(false);
+  // Direct invite modal state
+  const [inviteQuery, setInviteQuery] = useState<string>('');
+  const [inviteResults, setInviteResults] = useState<Array<{ id: string; username: string; displayName: string; picture?: string | null }>>([]);
+  const [inviteSelected, setInviteSelected] = useState<string[]>([]);
+  const [inviteSearching, setInviteSearching] = useState<boolean>(false);
+  const [inviteSending, setInviteSending] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
+  // Invites inbox
+  const [invites, setInvites] = useState<Array<{ id: string; groupId: string; message?: string; fromUserId?: string; groupName?: string; fromName?: string }>>([]);
 
   // chat timeline state
   const [messages, setMessages] = useState<Record<string, any[]>>({}); // keyed by groupId
@@ -62,6 +70,27 @@ const Groups: React.FC = () => {
   const currentUserSub = React.useMemo(() => {
     try { return getDecodeIDToken()?.sub || null; } catch { return null; }
   }, []);
+
+  // Debounced user search for direct invites
+  useEffect(() => {
+    const t = setTimeout(async () => {
+      const q = inviteQuery.trim();
+      if (!q) { setInviteResults([]); return; }
+      try {
+        setInviteSearching(true);
+        const res: any = await get(`users/search?q=${encodeURIComponent(q)}`);
+        const list = res?.data ?? res ?? [];
+        setInviteResults(Array.isArray(list) ? list.slice(0, 20) : []);
+      } catch {
+        setInviteResults([]);
+      } finally { setInviteSearching(false); }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [inviteQuery]);
+
+  const toggleInviteSelect = (id: string) => {
+    setInviteSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
   // Rate-limit state: timestamp (ms) until which sending is disabled
   const [rateLimitUntil, setRateLimitUntil] = useState<number | null>(null);
   // Tick to refresh countdown text while rate-limited
@@ -158,6 +187,26 @@ const Groups: React.FC = () => {
   React.useEffect(() => {
     fetchMyGroups();
   }, []);
+
+  // Load inbox invites
+  const fetchInvites = async () => {
+    try {
+      const res: any = await get('invites');
+      const data = res?.data ?? res;
+      const list: any[] = data?.invites ?? [];
+      setInvites(list);
+      // optional: enrich group names lazily
+      list.forEach(async (inv) => {
+        if (!inv?.groupId) return;
+        try {
+          const gres: any = await get(`groups/${inv.groupId}`);
+          const g = gres?.data ?? gres;
+          if (g?.name) setInvites(prev => prev.map(x => x.id === inv.id ? { ...x, groupName: g.name } : x));
+        } catch {}
+      });
+    } catch {}
+  };
+  useEffect(() => { fetchInvites(); }, []);
 
   // Sync selection with URL param and localStorage
   useEffect(() => {
@@ -350,6 +399,25 @@ const Groups: React.FC = () => {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedGroupId]);
+
+  // Subscribe to direct invite notifications for current user
+  useEffect(() => {
+    if (!currentUserSub) return;
+    const eventName = `user:${currentUserSub}:invite`;
+    const onInvite = (payload: any) => {
+      if (!payload || !payload.id) return;
+      setInvites(prev => [{
+        id: payload.id,
+        groupId: payload.groupId,
+        message: payload.message,
+        fromUserId: payload.from?.id,
+        groupName: payload.groupName,
+        fromName: payload.from?.displayName
+      }, ...prev]);
+    };
+    subscribeToPath(eventName, onInvite);
+    return () => { unsubscribeFromPath(eventName, onInvite); };
+  }, [currentUserSub, subscribeToPath, unsubscribeFromPath]);
 
   // If a group is already selected and we move to mobile, auto-open chat view
   useEffect(() => {
@@ -908,7 +976,7 @@ const Groups: React.FC = () => {
                               <div style={{ borderTop: '1px solid #E5E7EB' }} />
                               <div style={{ padding: '16px' }}>
                                 <div className="d-flex flex-column gap-3">
-                                  <button type="button" className="btn btn-outline-white text-start" onClick={() => { setInviteLink(''); setInviteLoading(false); setShowInvite(true); }} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                  <button type="button" className="btn btn-outline-white text-start" onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
                                     <i className="material-symbols-outlined">person_add</i>
                                     <span>Invite Members</span>
                                   </button>
@@ -1190,7 +1258,7 @@ const Groups: React.FC = () => {
                           <button
                             type="button"
                             className="btn btn-outline-white text-start"
-                            onClick={() => { setInviteLink(''); setInviteLoading(false); setShowInvite(true); }}
+                            onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }}
                             style={{
                               border: '1px solid #E5E7EB',
                               borderRadius: 12,
@@ -1292,58 +1360,128 @@ const Groups: React.FC = () => {
         </div>
       )}
 
-      {/* Invite Members Modal */}
+      {/* Invite Members Modal - simplified */}
       {showInvite && (
         <div role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowInvite(false)}>
-          <div className="bg-white" style={{ width: 460, borderRadius: 12, boxShadow: '0 10px 24px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ padding: 16, borderBottom: '1px solid #E5E7EB' }}>
+          <div className="bg-white" style={{ width: 520, maxWidth: '95vw', borderRadius: 12, boxShadow: '0 10px 24px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }} onClick={(e) => e.stopPropagation()}>
+            <div className="d-flex align-items-center justify-content-between" style={{ padding: 16, borderBottom: '1px solid #E5E7EB' }}>
               <h6 className="mb-0" style={{ color: '#111827' }}>Invite to group</h6>
+              <button type="button" className="btn-close" onClick={() => setShowInvite(false)}>
+                <i className='material-symbols-outlined'>close</i>
+              </button>
             </div>
-            <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div>
-                <label className="form-label" style={{ fontWeight: 600 }}>Expiration (days)</label>
-                <input type="number" min={1} max={30} className="form-control" value={Math.round(inviteExpiresIn / 86400)} onChange={(e) => setInviteExpiresIn(Math.min(30, Math.max(1, parseInt(e.target.value || '7', 10))) * 86400)} />
-                <div className="text-muted" style={{ fontSize: 12 }}>1–30 days (default 7)</div>
-              </div>
-              <div className="form-check" style={{ userSelect: 'none' }}>
-                <input className="form-check-input" type="checkbox" id="inviteSingleUse" checked={inviteSingleUse} onChange={(e) => setInviteSingleUse(e.target.checked)} />
-                <label className="form-check-label" htmlFor="inviteSingleUse">Single-use link</label>
-              </div>
-              <div className="d-flex gap-2">
-                <button className="btn btn-primary" disabled={inviteLoading || !selectedGroupId} onClick={async () => {
-                  if (!selectedGroupId) return;
-                  try {
-                    setInviteLoading(true);
-                    const res: any = await post(`groups/${selectedGroupId}/invites`, { expiresIn: inviteExpiresIn, singleUse: inviteSingleUse });
-                    const data = res?.data ?? res;
-                    setInviteLink(data?.url || '');
-                    ts('Invite created');
-                  } catch (e: any) {
-                    te('Failed to create invite');
-                  } finally {
-                    setInviteLoading(false);
-                  }
-                }}>Create link</button>
-                {inviteLink && (
-                  <button className="btn btn-outline-white" onClick={async () => {
+            <div style={{ padding: 16 }}>
+              {/* One-row create/copy link button */}
+              <div className="d-flex align-items-center justify-content-between" style={{ gap: 12 }}>
+                <div className="text-muted" style={{ fontSize: 13 }}>Create a 24-hour link that anyone can use.</div>
+                <button
+                  className="btn btn-primary"
+                  disabled={inviteLoading || !selectedGroupId}
+                  onClick={async () => {
+                    if (!selectedGroupId) return;
                     try {
-                      await navigator.clipboard.writeText(inviteLink);
-                      ts('Copied');
+                      setInviteLoading(true);
+                      const res: any = await post(`groups/${selectedGroupId}/invites`, {});
+                      const data = res?.data ?? res;
+                      if (data?.url) {
+                        await navigator.clipboard.writeText(data.url);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 4000);
+                        ts('Link copied to clipboard');
+                      } else {
+                        te('No link returned');
+                      }
                     } catch {
-                      te('Copy failed');
-                    }
-                  }}>Copy</button>
-                )}
+                      te('Failed to create invite link');
+                    } finally { setInviteLoading(false); }
+                  }}
+                >
+                  {inviteLoading ? 'Creating…' : (copied ? 'Link copied to clipboard' : 'Create invite link')}
+                </button>
               </div>
-              {inviteLink ? (
-                <div className="text-break" style={{ border: '1px solid #E5E7EB', borderRadius: 10, padding: 12, background: '#F9FAFB' }}>{inviteLink}</div>
-              ) : (
-                <div className="text-muted" style={{ fontSize: 13 }}>Create an invite link to share with others.</div>
+
+              <hr className="my-3" />
+
+              {/* Inbox preview (latest invites) */}
+              {invites.length > 0 && (
+                <div className="mb-3" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
+                  <div style={{ padding: '10px 12px', borderBottom: '1px solid #E5E7EB', fontWeight: 600 }}>Your pending invites</div>
+                  <div style={{ maxHeight: 180, overflowY: 'auto' }}>
+                    {invites.map((it) => (
+                      <div key={it.id} className="d-flex align-items-center justify-content-between" style={{ padding: '10px 12px', borderBottom: '1px solid #F3F4F6' }}>
+                        <div className="text-truncate" style={{ maxWidth: '60%' }}>
+                          Invite to join {it.groupName || it.groupId}
+                        </div>
+                        <div className="d-flex gap-2">
+                          <button className="btn btn-outline-white" onClick={async () => {
+                            try { await post(`invites/${it.id}/accept`, {}); ts('Joined'); fetchInvites(); }
+                            catch { te('Failed to accept'); }
+                          }}>Join</button>
+                          <button className="btn btn-outline-white" onClick={async () => {
+                            try { await post(`invites/${it.id}/decline`, {}); ts('Dismissed'); fetchInvites(); }
+                            catch { te('Failed to dismiss'); }
+                          }}>Dismiss</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
+
+              {/* Direct invite by username */}
+              <div>
+                <label className="form-label" style={{ fontWeight: 600 }}>Invite by username</label>
+                <input
+                  className="form-control"
+                  placeholder="Search username"
+                  value={inviteQuery}
+                  onChange={(e) => setInviteQuery(e.target.value)}
+                />
+                <div className="text-muted" style={{ fontSize: 12, marginTop: 6 }}>
+                  {inviteSearching ? 'Searching…' : 'Select users to invite'}
+                </div>
+                <div style={{ maxHeight: 260, overflowY: 'auto', marginTop: 8 }}>
+                  {inviteResults.map(u => (
+                    <div key={u.id} className="d-flex align-items-center gap-2 py-2" style={{ cursor: 'pointer', borderBottom: '1px solid #F3F4F6' }} onClick={() => toggleInviteSelect(u.id)}>
+                      <img src={u.picture || '/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 28, height: 28, borderRadius: 14 }} />
+                      <div className="flex-grow-1">
+                        <div style={{ color: '#111827', fontWeight: 600 }}>{u.displayName}</div>
+                        <div className="text-muted" style={{ fontSize: 12 }}>@{u.username}</div>
+                      </div>
+                      <input type="checkbox" checked={inviteSelected.includes(u.id)} readOnly />
+                    </div>
+                  ))}
+                  {!inviteSearching && inviteQuery.trim() && inviteResults.length === 0 && (
+                    <div className="text-muted" style={{ fontSize: 13, padding: '8px 0' }}>No users found.</div>
+                  )}
+                </div>
+                <div className="d-flex justify-content-end gap-2 mt-3">
+                  <button
+                    className="btn btn-primary"
+                    disabled={!selectedGroupId || inviteSelected.length === 0 || inviteSending}
+                    onClick={async () => {
+                      if (!selectedGroupId || inviteSelected.length === 0) return;
+                      try {
+                        setInviteSending(true);
+                        const res: any = await post(`groups/${selectedGroupId}/invites/direct`, { userIds: inviteSelected });
+                        const data = res?.data ?? res;
+                        ts('Invites sent');
+                        // reset selection
+                        setInviteSelected([]);
+                        setInviteQuery('');
+                        setInviteResults([]);
+                      } catch {
+                        te('Failed to send invites');
+                      } finally { setInviteSending(false); }
+                    }}
+                  >
+                    {inviteSending ? 'Sending…' : `Send invite${inviteSelected.length > 1 ? 's' : ''}`}
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="d-flex justify-content-end" style={{ padding: 16, borderTop: '1px solid #E5E7EB' }}>
-              <button className="btn btn-outline-white" onClick={() => setShowInvite(false)}>Close</button>
-            </div>
+
+            {/* Footer removed; close handled by header X */}
           </div>
         </div>
       )}
@@ -1373,6 +1511,17 @@ const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean;
     const ig = igRef.current;
     if (ig) ig.style.setProperty('--composer-row-height', Math.round(el.getBoundingClientRect().height) + 'px');
   };
+  const resetToSingleLine = () => {
+    const el = textRef.current;
+    if (!el) return;
+    if ((text || '').trim().length === 0) {
+      el.style.height = baseHeight + 'px';
+      setIsMultiline(false);
+      const ig = igRef.current; if (ig) ig.style.setProperty('--composer-row-height', Math.round(el.getBoundingClientRect().height) + 'px');
+    } else {
+      resize();
+    }
+  };
   useEffect(() => { resize(); }, [text]);
   // Reset height to single-line when composer mounts or when the chat frame re-measures
   useEffect(() => {
@@ -1397,6 +1546,21 @@ const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean;
     // Seed CSS variable for exact sibling button height
     ig.style.setProperty('--composer-row-height', Math.round(el.getBoundingClientRect().height) + 'px');
   }, [resizeSignal]);
+
+  // Ensure correct initial height on mount and after refresh/orientation changes
+  useEffect(() => { resetToSingleLine(); /* after first paint */ setTimeout(resetToSingleLine, 0); }, []);
+  useEffect(() => { resetToSingleLine(); }, [baseHeight]);
+  useEffect(() => {
+    const handler = () => resetToSingleLine();
+    window.addEventListener('resize', handler);
+    window.addEventListener('orientationchange', handler as any);
+    document.addEventListener('visibilitychange', handler);
+    return () => {
+      window.removeEventListener('resize', handler);
+      window.removeEventListener('orientationchange', handler as any);
+      document.removeEventListener('visibilitychange', handler);
+    };
+  }, []);
 
   return (
     <div className="d-flex align-items-end" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}>

@@ -111,18 +111,9 @@ export const groupsHandlers = [
   }),
 
   // GET /groups/:id
-  http.get(new RegExp(`/groups/([0-9a-fA-F-]+)$`), async ({ params }) => {
-    const id = (params as any)[0];
-    const groupRaw = ((seed as any).groups as GroupDetail[]).find(g => g.id === id);
-    if (!groupRaw) return HttpResponse.json({ code: 'FORBIDDEN', message: 'Not found' }, { status: 404 });
-    // Sanitize string fields to minimize XSS risk in dev
-    const group: GroupDetail = {
-      ...groupRaw,
-      name: escapeHtml((groupRaw as any).name),
-      description: escapeHtml((groupRaw as any).description),
-    } as any;
-    await delay(50);
-    return HttpResponse.json(group);
+  // Passthrough to backend for dynamic groups
+  http.get(new RegExp(`/groups/([0-9a-fA-F-]+)$`), () => {
+    return passthrough();
   }),
 
   // POST /groups/:id/invites → passthrough to real backend (so FE sees real URL and headers)
@@ -151,6 +142,32 @@ export const groupsHandlers = [
   http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/request-archive`), async () => {
     await delay(30);
     return HttpResponse.json({ ok: true });
+  }),
+
+  // --- New passthroughs for user search and direct invites/inbox ---
+  // GET /users/search?q=
+  http.get(new RegExp(`/users/search`), () => {
+    return passthrough();
+  }),
+
+  // POST /groups/:groupId/invites/direct
+  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/invites/direct`), () => {
+    return passthrough();
+  }),
+
+  // GET /invites (inbox)
+  http.get(`${API_BASE}/invites`, () => {
+    return passthrough();
+  }),
+
+  // POST /invites/:id/accept
+  http.post(new RegExp(`/invites/([0-9a-fA-F-]+)/accept`), () => {
+    return passthrough();
+  }),
+
+  // POST /invites/:id/decline
+  http.post(new RegExp(`/invites/([0-9a-fA-F-]+)/decline`), () => {
+    return passthrough();
   }),
 ];
 
