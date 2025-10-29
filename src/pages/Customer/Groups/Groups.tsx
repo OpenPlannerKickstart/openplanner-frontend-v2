@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 // Image assets must be bundled; do not rely on absolute "/assets" paths in production
 import bookIcon from '../../../assets/images/book.svg';
 import defaultAvatar from '../../../assets/images/avatar-default.svg';
+import emptyStateImg from '../../../assets/images/not-voucher-found.svg';
 
 // Simple responsive hook for mobile breakpoint detection (align with Bootstrap lg)
 const useIsMobile = (maxWidthPx: number = 991.98) => {
@@ -684,7 +685,7 @@ const Groups: React.FC = () => {
                   <div className="flex-grow-1 overflow-auto left-list-scroll" style={{ minHeight: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', paddingBottom: 16, WebkitOverflowScrolling: 'touch', overflowY: 'auto' }}>
                   {activeTab === 'chats' ? (
                     <div className="text-center p-4">
-                      <img src={'/assets/images/not-voucher-found.svg'} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
+                      <img src={emptyStateImg} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
                       <h5 className="mt-3 mb-1">No recent chats</h5>
                       <p className="text-muted mb-0" style={{ fontSize: 14 }}>
                         Start a conversation from a group or create a private study group.
