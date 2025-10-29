@@ -8,6 +8,9 @@ import GroupListItem from '../../..//components/Groups/GroupListItem';
 import { useNotifications } from '../../../context/SocketContext';
 import { getDecodeIDToken } from '../../../Utility/Helper';
 import { v4 as uuidv4 } from 'uuid';
+// Image assets must be bundled; do not rely on absolute "/assets" paths in production
+import bookIcon from '../../../assets/images/book.svg';
+import defaultAvatar from '../../../assets/images/avatar-default.svg';
 
 // Simple responsive hook for mobile breakpoint detection (align with Bootstrap lg)
 const useIsMobile = (maxWidthPx: number = 991.98) => {
@@ -759,7 +762,7 @@ const Groups: React.FC = () => {
                           </button>
                           <div className="d-flex align-items-center gap-2">
                             <div style={{ width: 36, height: 36, borderRadius: 18, background: (myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 22, height: 'auto' }} />
+                              <img src={bookIcon} alt="avatar" style={{ width: 22, height: 'auto' }} />
                             </div>
                             <h6 className="mb-0" style={{ color: '#111827' }}>{myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h6>
                           </div>
@@ -849,7 +852,7 @@ const Groups: React.FC = () => {
                                       }
                               // Precompute sender display for branches below
                               const senderName = m?.sender?.displayName || 'User';
-                              const avatar = m?.sender?.picture || '/assets/images/avatar-default.svg';
+                              const avatar = m?.sender?.picture || defaultAvatar;
                               if (m?.deleted) {
                                         return (
                                           <div key={key} className="d-flex align-items-start gap-2 mb-2">
@@ -925,7 +928,7 @@ const Groups: React.FC = () => {
                             justifyContent: 'space-between'
                           }}
                         >
-                          <img src={'/assets/images/book.svg'} alt="group" style={{ width: 28, height: 'auto' }} />
+                          <img src={bookIcon} alt="group" style={{ width: 28, height: 'auto' }} />
                           <button className="btn btn-outline-white" onClick={() => setShowGroupInfo(false)} aria-label="Close">
                             <i className="material-symbols-outlined">close</i>
                           </button>
@@ -1010,14 +1013,14 @@ const Groups: React.FC = () => {
                     <>
                       <div className="d-flex align-items-center gap-2">
                         <div style={{ width: 44, height: 44, borderRadius: 22, background: (myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 26, height: 'auto' }} />
+                          <img src={bookIcon} alt="avatar" style={{ width: 26, height: 'auto' }} />
                         </div>
                         <h5 className="mb-0" style={{ color: '#111827' }}>{myGroups.find(g => g.id === selectedGroupId)?.name}</h5>
                       </div>
                     </>
                   ) : (
                     <>
-                      <img src={'/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+                      <img src={defaultAvatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%' }} />
                       <h5 className="mb-0" style={{ color: '#6B7280' }}>{activeTab === 'groups' ? 'Select a group' : 'Select a conversation'}</h5>
                     </>
                   )}
@@ -1127,7 +1130,7 @@ const Groups: React.FC = () => {
                                 );
                               }
                               const senderName = m?.sender?.displayName || 'User';
-                              const avatar = m?.sender?.picture || '/assets/images/avatar-default.svg';
+                              const avatar = m?.sender?.picture || defaultAvatar;
                               if (m?.deleted) {
                                 return (
                                   <div key={key} className="d-flex align-items-start gap-2 mb-2">
@@ -1202,7 +1205,7 @@ const Groups: React.FC = () => {
                     justifyContent: 'space-between'
                   }}
                 >
-                  <img src={'/assets/images/book.svg'} alt="group" style={{ width: 32, height: 'auto' }} />
+                  <img src={bookIcon} alt="group" style={{ width: 32, height: 'auto' }} />
                   <button className="btn btn-outline-white" onClick={() => setShowGroupInfo(false)}>
                     <i className="material-symbols-outlined">close</i>
                   </button>
@@ -1444,7 +1447,7 @@ const Groups: React.FC = () => {
                 <div style={{ maxHeight: 260, overflowY: 'auto', marginTop: 8, scrollbarWidth: 'none' as any }} className="invite-results-scroll">
                   {inviteResults.map(u => (
                     <div key={u.id} className="d-flex align-items-center gap-2 py-2" style={{ cursor: 'pointer', borderBottom: '1px solid #F3F4F6' }} onClick={() => toggleInviteSelect(u.id)}>
-                      <img src={u.picture || '/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 28, height: 28, borderRadius: 14 }} />
+                      <img src={u.picture || defaultAvatar} alt="avatar" style={{ width: 28, height: 28, borderRadius: 14 }} />
                       <div className="flex-grow-1">
                         <div style={{ color: '#111827', fontWeight: 600 }}>{u.displayName}</div>
                         <div className="text-muted" style={{ fontSize: 12 }}>@{u.username}</div>
