@@ -149,3 +149,11 @@
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
 }
+
+/* Hide scrollbar for invite results list in modal */
+.invite-results-scroll {
+  scrollbar-width: none; /* Firefox */
+}
+.invite-results-scroll::-webkit-scrollbar {
+  width: 0; height: 0; display: none; /* WebKit */
+}

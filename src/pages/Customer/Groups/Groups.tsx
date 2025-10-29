@@ -1400,33 +1400,8 @@ const Groups: React.FC = () => {
                 </button>
               </div>
 
+              {/* Divider between create-link row and search row */}
               <hr className="my-3" />
-
-              {/* Inbox preview (latest invites) */}
-              {invites.length > 0 && (
-                <div className="mb-3" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
-                  <div style={{ padding: '10px 12px', borderBottom: '1px solid #E5E7EB', fontWeight: 600 }}>Your pending invites</div>
-                  <div style={{ maxHeight: 180, overflowY: 'auto' }}>
-                    {invites.map((it) => (
-                      <div key={it.id} className="d-flex align-items-center justify-content-between" style={{ padding: '10px 12px', borderBottom: '1px solid #F3F4F6' }}>
-                        <div className="text-truncate" style={{ maxWidth: '60%' }}>
-                          Invite to join {it.groupName || it.groupId}
-                        </div>
-                        <div className="d-flex gap-2">
-                          <button className="btn btn-outline-white" onClick={async () => {
-                            try { await post(`invites/${it.id}/accept`, {}); ts('Joined'); fetchInvites(); }
-                            catch { te('Failed to accept'); }
-                          }}>Join</button>
-                          <button className="btn btn-outline-white" onClick={async () => {
-                            try { await post(`invites/${it.id}/decline`, {}); ts('Dismissed'); fetchInvites(); }
-                            catch { te('Failed to dismiss'); }
-                          }}>Dismiss</button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {/* Direct invite by username */}
               <div>
@@ -1436,26 +1411,13 @@ const Groups: React.FC = () => {
                   placeholder="Search username"
                   value={inviteQuery}
                   onChange={(e) => setInviteQuery(e.target.value)}
+                  style={{ outline: 'none', boxShadow: 'none' }}
                 />
-                <div className="text-muted" style={{ fontSize: 12, marginTop: 6 }}>
-                  {inviteSearching ? 'Searching…' : 'Select users to invite'}
-                </div>
-                <div style={{ maxHeight: 260, overflowY: 'auto', marginTop: 8 }}>
-                  {inviteResults.map(u => (
-                    <div key={u.id} className="d-flex align-items-center gap-2 py-2" style={{ cursor: 'pointer', borderBottom: '1px solid #F3F4F6' }} onClick={() => toggleInviteSelect(u.id)}>
-                      <img src={u.picture || '/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 28, height: 28, borderRadius: 14 }} />
-                      <div className="flex-grow-1">
-                        <div style={{ color: '#111827', fontWeight: 600 }}>{u.displayName}</div>
-                        <div className="text-muted" style={{ fontSize: 12 }}>@{u.username}</div>
-                      </div>
-                      <input type="checkbox" checked={inviteSelected.includes(u.id)} readOnly />
-                    </div>
-                  ))}
-                  {!inviteSearching && inviteQuery.trim() && inviteResults.length === 0 && (
-                    <div className="text-muted" style={{ fontSize: 13, padding: '8px 0' }}>No users found.</div>
-                  )}
-                </div>
-                <div className="d-flex justify-content-end gap-2 mt-3">
+                {/* Row with helper text + send button */}
+                <div className="d-flex align-items-center justify-content-between" style={{ marginTop: 13 }}>
+                  <div className="text-muted" style={{ fontSize: 12 }}>
+                    {inviteSearching ? 'Searching…' : 'Select users to invite'}
+                  </div>
                   <button
                     className="btn btn-primary"
                     disabled={!selectedGroupId || inviteSelected.length === 0 || inviteSending}
@@ -1477,6 +1439,22 @@ const Groups: React.FC = () => {
                   >
                     {inviteSending ? 'Sending…' : `Send invite${inviteSelected.length > 1 ? 's' : ''}`}
                   </button>
+                </div>
+                {/* Results list */}
+                <div style={{ maxHeight: 260, overflowY: 'auto', marginTop: 8, scrollbarWidth: 'none' as any }} className="invite-results-scroll">
+                  {inviteResults.map(u => (
+                    <div key={u.id} className="d-flex align-items-center gap-2 py-2" style={{ cursor: 'pointer', borderBottom: '1px solid #F3F4F6' }} onClick={() => toggleInviteSelect(u.id)}>
+                      <img src={u.picture || '/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 28, height: 28, borderRadius: 14 }} />
+                      <div className="flex-grow-1">
+                        <div style={{ color: '#111827', fontWeight: 600 }}>{u.displayName}</div>
+                        <div className="text-muted" style={{ fontSize: 12 }}>@{u.username}</div>
+                      </div>
+                      <input type="checkbox" checked={inviteSelected.includes(u.id)} readOnly />
+                    </div>
+                  ))}
+                  {!inviteSearching && inviteQuery.trim() && inviteResults.length === 0 && (
+                    <div className="text-muted" style={{ fontSize: 13, padding: '8px 0' }}>No users found.</div>
+                  )}
                 </div>
               </div>
             </div>

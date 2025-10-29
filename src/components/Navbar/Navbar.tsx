@@ -264,19 +264,23 @@ const Navbar = (props) => {
       const data = res?.data ?? res;
       const list: any[] = data?.invites ?? [];
       const readSet = getInviteReadSet();
-      setInvites(list.map(x => ({
-        ...x,
-        fromName: x?.from?.displayName || x?.fromUsername || x?.from?.username,
-        read: readSet.has(x.id)
-      })));
-      list.forEach(async (inv) => {
-        if (!inv?.groupId) return;
-        try {
-          const gres: any = await get(`groups/${inv.groupId}`);
-          const g = gres?.data ?? gres;
-          if (g?.name) setInvites(prev => prev.map(x => x.id === inv.id ? { ...x, groupName: g.name } : x));
-        } catch {}
-      });
+      const enriched = await Promise.all(list.map(async (inv) => {
+        let groupName = inv?.groupName;
+        if (!groupName && inv?.groupId) {
+          try {
+            const gres: any = await get(`groups/${inv.groupId}`);
+            const g = gres?.data ?? gres;
+            if (g?.name) groupName = g.name;
+          } catch {}
+        }
+        return {
+          ...inv,
+          groupName,
+          fromName: inv?.from?.displayName || inv?.fromUsername || inv?.from?.username,
+          read: readSet.has(inv.id)
+        } as InviteItem;
+      }));
+      setInvites(enriched);
     } catch {}
   };
 
