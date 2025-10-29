@@ -62,7 +62,9 @@ const VerifySignupOtp = (props) => {
             //     props?.handleLoginData();
             //     dispatch(setLoading(false));
             // }, 2000);
-            navigate(ENUMFORROUTES.PLAN_DETAILS, { state: verifyResponse?.payload })
+            //Redeem code on pricing page do not work, if auth token is not set.
+            navigate(ENUMFORROUTES.LOGIN)
+            //navigate(ENUMFORROUTES.PLAN_DETAILS, { state: verifyResponse?.payload })
             return;
             // }
             // } else {

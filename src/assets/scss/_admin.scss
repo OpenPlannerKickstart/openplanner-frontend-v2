@@ -2085,11 +2085,16 @@ $sm_sidebar_home_link_width: 170px;
     border-bottom: none;
     padding: 0;
 
-    .trial-label {
-        font-size: 18px;
-        line-height: 28px;
-        font-weight: 600;
-    }
+   .trial-label {
+    font-size: 18px;
+    line-height: 28px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 12px;
+    left: 24px;
+    display: inline-block;
+    position: absolute;
+}
 
     .popular-tag {
         background: #f4ebff;
@@ -2099,6 +2104,8 @@ $sm_sidebar_home_link_width: 170px;
         line-height: 20px;
         padding: 4px 12px;
         border-radius: 16px;
+        right: 36px;
+        position: absolute;
     }
   }
   .card-body{
@@ -2106,12 +2113,18 @@ $sm_sidebar_home_link_width: 170px;
   }
 
   .price-section {
+    padding-top: 10px;
     .price {
         font-weight: 600;
         font-size: 42px;
         line-height: 72px;
     }
-
+    .original-price {
+        font-weight: 400;
+        font-size: 18px;
+        text-decoration: line-through;
+        color: #535862;
+    }
     .duration {
         font-size: 16px;
         color: #535862;
@@ -2169,6 +2182,11 @@ $sm_sidebar_home_link_width: 170px;
             margin-right: 8px;
             font-size: 20px;
         }
+        .free-check-icon {
+            color: green;
+            margin-right: 8px;
+            font-size: 20px;
+        }
       }
     }
   }
@@ -2176,9 +2194,7 @@ $sm_sidebar_home_link_width: 170px;
 // Responsive
 @media (max-width: 768px) {
   .pricing-wrapper {
-    flex-direction: column;
-    align-items: center;
-    margin-top: 800px;
+    margin-top: 0; /* remove excessive offset that hid cards on small screens */
   }
 }
 

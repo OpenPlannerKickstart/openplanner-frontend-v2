@@ -505,7 +505,7 @@ const AddSyllabusEvents = (props) => {
                                 <p>Drag and Drop file here or <span className='text-primary'>Choose file</span></p>
                               </div>
                               <input className=' ' type="file"
-                                accept="application/pdf"
+                                accept=".pdf,.doc,.docx"
 
                                 onChange={(e: any) => {
                                   if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {

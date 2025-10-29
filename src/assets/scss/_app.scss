@@ -13,9 +13,7 @@
             @media screen and (max-width:1024px) {
                 flex-wrap: wrap;                
             }
-            .admin-auth-col {
-                height: 100%;
-            }
+            .admin-auth-col { height: 100%; }
 
 
             .admin-auth-left {
@@ -662,6 +660,9 @@
 
 .payment-plans-container{
     .auth-plans{
+        width: 100%;
+        max-width: 1320px;
+        margin: 0 auto;
         .plans-header{
             text-align: center;
             margin-bottom: 35px;
@@ -678,4 +679,63 @@
             }
         }
     }
+    &.parents-plans{
+        .admin-auth-inner-wrapper{ height: 100%; }
+        .admin-auth-row{ height: 100%; }
+        .admin-auth-col{ height: 100%; }
+        .admin-auth-left{ 
+            align-items: center; 
+            justify-content: flex-start; 
+            padding: 64px 20px 24px; /* compact to avoid scroll */
+        }
+        .subscription-box{ margin-bottom: 0; }
+    }
+}
+
+.btn-manage-billing {
+  background-color: #F4C430 !important; /* darker yellow */
+  border-color: #F4C430 !important;
+
+  &:hover,
+  &:focus {
+    background-color: #FCE588 !important; /* lighter on hover */
+    border-color: #FCE588 !important;
+  }
+}
+
+/* Parents page mobile-ish fixes (treat widths <=1030px as mobile for layout) */
+@media (max-width: 1030px) {
+  .payment-plans-container.parents-plans {
+    .admin-auth-inner-wrapper, .admin-auth-row, .admin-auth-col { height: auto; }
+    .admin-auth-left {
+      padding-top: 88px;    /* ensure first card is not clipped under header */
+      padding-bottom: 64px; /* add space after checkout button */
+      min-height: auto;     /* allow gradient to grow with content; no forced viewport height */
+    }
+    .subscription-box { margin-bottom: 16px; }
+
+    /* Force single-column cards up to 1030px regardless of Bootstrap md breakpoint */
+    .row.row-cols-md-3 > * {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+  }
+
+  /* Student plans page: match parents mobile breakpoint behavior */
+  .payment-plans-container:not(.parents-plans) {
+    .admin-auth-inner-wrapper, .admin-auth-row, .admin-auth-col { height: auto; }
+    .admin-auth-left {
+      padding-top: 88px;
+      padding-bottom: 64px;
+      min-height: auto;
+    }
+    .subscription-box { margin-bottom: 16px; }
+    /* Force single column for pricing cards on narrow screens */
+    .pricing-wrapper {
+      .row > * {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+      }
+    }
+  }
 }
