@@ -77,21 +77,6 @@ const root = ReactDOM.createRoot(
 // Socket.IO Client Instance
 // const socket = io("http://192.168.1.109:4003");
 
-// function NotificationProvider({ children }: { children: React.ReactNode }) {
-//   useEffect(() => {
-//     socket.on('receiveNotification', (data) => {
-//       console.log('📩 Notification received:', data);
-//       // Handle notification display logic
-//       alert(`Notification: ${data.message}`);
-//     });
-
-//     return () => {
-//       socket.off('receiveNotification');
-//     };
-//   }, []);
-// return <>{children}</>;
-// }
-
 root.render(
   <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
     <Provider store={store}>
