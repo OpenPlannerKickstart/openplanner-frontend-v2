@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import AddEditGroup from '../../../common/Groups/AddEditGroup';
-import { get, post } from '../../../Utility/httpInterceptor';
+import { get, post, deleteAPI } from '../../../Utility/httpInterceptor';
 import { ts, te } from '../../../Utility/Toaster';
 import GroupListItem from '../../..//components/Groups/GroupListItem';
+import { useNotifications } from '../../../context/SocketContext';
+import { getDecodeIDToken } from '../../../Utility/Helper';
+import { v4 as uuidv4 } from 'uuid';
+
+// Simple responsive hook for mobile breakpoint detection (align with Bootstrap lg)
+const useIsMobile = (maxWidthPx: number = 991.98) => {
+  const [isMobile, setIsMobile] = useState<boolean>(
+    typeof window !== 'undefined' ? window.matchMedia(`(max-width: ${maxWidthPx}px)`).matches : false
+  );
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mql = window.matchMedia(`(max-width: ${maxWidthPx}px)`);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    // Older Safari uses addListener/removeListener
+    if (mql.addEventListener) mql.addEventListener('change', handler);
+    else if ((mql as any).addListener) (mql as any).addListener(handler);
+    return () => {
+      if (mql.removeEventListener) mql.removeEventListener('change', handler);
+      else if ((mql as any).removeListener) (mql as any).removeListener(handler);
+    };
+  }, [maxWidthPx]);
+  return isMobile;
+};
 
 const Groups: React.FC = () => {
+  const navigate = useNavigate();
+  const params = useParams();
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
   const [activeTab, setActiveTab] = useState<'chats' | 'groups'>('chats');
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,6 +46,133 @@ const Groups: React.FC = () => {
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
+  const { subscribeToPath, unsubscribeFromPath, sendNotification } = useNotifications();
+  // Invite modal state
+  const [showInvite, setShowInvite] = useState<boolean>(false);
+  const [inviteLoading, setInviteLoading] = useState<boolean>(false);
+  const [inviteExpiresIn, setInviteExpiresIn] = useState<number>(7 * 24 * 3600); // 7 days default
+  const [inviteSingleUse, setInviteSingleUse] = useState<boolean>(false);
+  // Direct invite modal state
+  const [inviteQuery, setInviteQuery] = useState<string>('');
+  const [inviteResults, setInviteResults] = useState<Array<{ id: string; username: string; displayName: string; picture?: string | null }>>([]);
+  const [inviteSelected, setInviteSelected] = useState<string[]>([]);
+  const [inviteSearching, setInviteSearching] = useState<boolean>(false);
+  const [inviteSending, setInviteSending] = useState<boolean>(false);
+  const [copied, setCopied] = useState<boolean>(false);
+  // Invites inbox
+  const [invites, setInvites] = useState<Array<{ id: string; groupId: string; message?: string; fromUserId?: string; groupName?: string; fromName?: string }>>([]);
+
+  // chat timeline state
+  const [messages, setMessages] = useState<Record<string, any[]>>({}); // keyed by groupId
+  const [nextCursorByGroup, setNextCursorByGroup] = useState<Record<string, string | null>>({});
+  const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
+  const timelineRef = useRef<HTMLDivElement | null>(null);
+  const currentUserSub = React.useMemo(() => {
+    try { return getDecodeIDToken()?.sub || null; } catch { return null; }
+  }, []);
+
+  // Debounced user search for direct invites
+  useEffect(() => {
+    const t = setTimeout(async () => {
+      const q = inviteQuery.trim();
+      if (!q) { setInviteResults([]); return; }
+      try {
+        setInviteSearching(true);
+        const res: any = await get(`users/search?q=${encodeURIComponent(q)}`);
+        const list = res?.data ?? res ?? [];
+        setInviteResults(Array.isArray(list) ? list.slice(0, 20) : []);
+      } catch {
+        setInviteResults([]);
+      } finally { setInviteSearching(false); }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [inviteQuery]);
+
+  const toggleInviteSelect = (id: string) => {
+    setInviteSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+  // Rate-limit state: timestamp (ms) until which sending is disabled
+  const [rateLimitUntil, setRateLimitUntil] = useState<number | null>(null);
+  // Tick to refresh countdown text while rate-limited
+  const [rateTick, setRateTick] = useState<number>(0);
+  useEffect(() => {
+    if (!rateLimitUntil) return;
+    const id = setInterval(() => setRateTick((x) => x + 1), 1000);
+    return () => clearInterval(id);
+  }, [rateLimitUntil]);
+  // Track composer height so the timeline bottom offset always clears it
+  const composerWrapRef = useRef<HTMLDivElement | null>(null);
+  const [composerHeight, setComposerHeight] = useState<number>(72);
+  const chatFrameRef = useRef<HTMLDivElement | null>(null);
+  const [frameRect, setFrameRect] = useState<{ left: number; width: number; top: number }>({ left: 0, width: 0, top: 0 });
+  useEffect(() => {
+    if (!isMobile || mobileView !== 'chat') return;
+    const el = composerWrapRef.current;
+    if (!el) return;
+    const update = () => {
+      const h = el.getBoundingClientRect().height;
+      if (h && Math.abs(h - composerHeight) > 1) setComposerHeight(Math.ceil(h));
+    };
+    update();
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => { ro.disconnect(); window.removeEventListener('resize', update); };
+  }, [isMobile, mobileView, composerHeight]);
+
+  // Track chat frame position so the composer can be truly viewport-fixed within the frame bounds
+  useEffect(() => {
+    if (!isMobile || mobileView !== 'chat') return;
+    const fr = chatFrameRef.current;
+    if (!fr) return;
+    const update = () => {
+      const r = fr.getBoundingClientRect();
+      if (r) setFrameRect({ left: Math.round(r.left), width: Math.round(r.width), top: Math.round(r.top) });
+    };
+    update();
+    const ro = new ResizeObserver(() => update());
+    ro.observe(document.body);
+    window.addEventListener('resize', update);
+    return () => { ro.disconnect(); window.removeEventListener('resize', update); };
+  }, [isMobile, mobileView]);
+
+  // Lock background scroll on mobile when Group Info is open
+  const bodyOverflowRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!isMobile) return;
+    if (showGroupInfo) {
+      if (bodyOverflowRef.current === null) bodyOverflowRef.current = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+    } else {
+      if (bodyOverflowRef.current !== null) {
+        document.body.style.overflow = bodyOverflowRef.current;
+        bodyOverflowRef.current = null;
+      }
+    }
+    return () => {
+      if (bodyOverflowRef.current !== null) {
+        document.body.style.overflow = bodyOverflowRef.current;
+        bodyOverflowRef.current = null;
+      }
+    };
+  }, [isMobile, showGroupInfo]);
+
+  // Keep timeline scrolled to bottom when entering chat and when new messages append
+  useEffect(() => {
+    if (!isMobile || mobileView !== 'chat') return;
+    const el = timelineRef.current;
+    if (!el) return;
+    // slight delay to allow layout to apply new heights
+    requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+  }, [isMobile, mobileView, selectedGroupId, messages[selectedGroupId || '']?.length, composerHeight]);
+
+  // Desktop: keep timeline scrolled to bottom on select and when new messages arrive
+  useEffect(() => {
+    if (isMobile) return;
+    const el = timelineRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+  }, [isMobile, selectedGroupId, messages[selectedGroupId || '']?.length]);
 
   const fetchMyGroups = async () => {
     try {
@@ -32,7 +188,314 @@ const Groups: React.FC = () => {
     fetchMyGroups();
   }, []);
 
+  // Load inbox invites
+  const fetchInvites = async () => {
+    try {
+      const res: any = await get('invites');
+      const data = res?.data ?? res;
+      const list: any[] = data?.invites ?? [];
+      setInvites(list);
+      // optional: enrich group names lazily
+      list.forEach(async (inv) => {
+        if (!inv?.groupId) return;
+        try {
+          const gres: any = await get(`groups/${inv.groupId}`);
+          const g = gres?.data ?? gres;
+          if (g?.name) setInvites(prev => prev.map(x => x.id === inv.id ? { ...x, groupName: g.name } : x));
+        } catch {}
+      });
+    } catch {}
+  };
+  useEffect(() => { fetchInvites(); }, []);
+
+  // Sync selection with URL param and localStorage
+  useEffect(() => {
+    const gid = (params as any)?.groupId as string | undefined;
+    if (gid) {
+      // If URL has a groupId, prefer it
+      if (selectedGroupId !== gid) setSelectedGroupId(gid);
+      try { localStorage.setItem('groups.selected', gid); } catch {}
+      if (isMobile) setMobileView('chat');
+    } else {
+      // No group in URL → fallback to last selection from storage (one-time)
+      if (!selectedGroupId) {
+        try {
+          const saved = localStorage.getItem('groups.selected');
+          if (saved) {
+            setSelectedGroupId(saved);
+            const params = new URLSearchParams(location.search);
+            if (!params.get('tab')) {
+              const savedTab = (localStorage.getItem('groups.tab') as any) as ('chats'|'groups') | null;
+              if (savedTab === 'chats' || savedTab === 'groups') params.set('tab', savedTab);
+            }
+            const search = params.toString() ? `?${params.toString()}` : '';
+            if (!location.pathname.endsWith(`/groups/${saved}`) || location.search !== search) {
+              navigate({ pathname: `/groups/${saved}`, search }, { replace: true });
+            }
+          }
+        } catch {}
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.groupId]);
+
+  // If the selected group no longer exists (left/deleted), clear selection and URL
+  useEffect(() => {
+    if (!selectedGroupId) return;
+    if (myGroups && myGroups.length > 0 && !myGroups.some(g => g.id === selectedGroupId)) {
+      try { localStorage.removeItem('groups.selected'); } catch {}
+      if (location.pathname.startsWith('/groups/')) navigate('/groups', { replace: true });
+      setSelectedGroupId(null);
+    }
+  }, [myGroups, selectedGroupId, location.pathname, navigate]);
+
+  const applySelection = (id: string) => {
+    setSelectedGroupId(id);
+    try { localStorage.setItem('groups.selected', id); } catch {}
+    if (isMobile) setMobileView('chat');
+    const sp = new URLSearchParams(location.search);
+    sp.set('tab', activeTab);
+    const search = sp.toString() ? `?${sp.toString()}` : '';
+    if (!location.pathname.endsWith(`/groups/${id}`) || location.search !== search) {
+      navigate({ pathname: `/groups/${id}`, search });
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedGroupId(null);
+    try { localStorage.removeItem('groups.selected'); } catch {}
+    const sp = new URLSearchParams(location.search);
+    sp.set('tab', activeTab);
+    const search = sp.toString() ? `?${sp.toString()}` : '';
+    if (location.pathname.startsWith('/groups/')) navigate({ pathname: '/groups', search }, { replace: true });
+  };
+
+  // Ensure activeTab reflects the URL (with localStorage fallback) and normalize URL when missing
+  useEffect(() => {
+    const sp = new URLSearchParams(location.search);
+    let tab = sp.get('tab');
+    let nextTab: 'chats' | 'groups' = (tab === 'groups' || tab === 'chats') ? (tab as any) : null as any;
+    if (!nextTab) {
+      const saved = (localStorage.getItem('groups.tab') as any) as ('chats'|'groups') | null;
+      nextTab = (saved === 'groups' || saved === 'chats') ? saved : 'chats';
+      sp.set('tab', nextTab);
+      const search = sp.toString() ? `?${sp.toString()}` : '';
+      if (location.search !== search) navigate({ pathname: location.pathname, search }, { replace: true });
+    }
+    if (nextTab && activeTab !== nextTab) setActiveTab(nextTab);
+    try { if (nextTab) localStorage.setItem('groups.tab', nextTab); } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
+  // Accept invite via URL param or path: ?invite=TOKEN or /invite/TOKEN
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('invite');
+    let pathToken: string | null = null;
+    const path = window.location.pathname || '';
+    const match = path.match(/\/invite\/([^/?#]+)/);
+    if (match && match[1]) pathToken = decodeURIComponent(match[1]);
+    const finalToken = token || pathToken;
+    if (!finalToken) return;
+    (async () => {
+      try {
+        const res: any = await post('invites/accept', { token: finalToken });
+        const data = res?.data ?? res;
+        if (data?.groupId) {
+          ts('Joined group');
+          await fetchMyGroups();
+          setSelectedGroupId(data.groupId);
+          if (isMobile) setMobileView('chat');
+        }
+      } catch (e: any) {
+        te('Failed to accept invite');
+      } finally {
+        // Remove invite token from URL without reload
+        const url = new URL(window.location.href);
+        url.searchParams.delete('invite');
+        if (url.pathname.startsWith('/invite/')) url.pathname = '/';
+        window.history.replaceState({}, '', url.toString());
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const selectedGroup = selectedGroupId ? myGroups.find(g => g.id === selectedGroupId) : null;
+
+  // fetch messages helper
+  const fetchMessages = async (groupId: string, before?: string) => {
+    try {
+      setLoadingMessages(true);
+      const qs = new URLSearchParams();
+      qs.set('limit', '50');
+      if (before) qs.set('before', before);
+      const res: any = await get(`groups/${groupId}/messages?${qs.toString()}`);
+      const payload = res?.data ?? res;
+      const list: any[] = payload?.messages ?? [];
+      const next: string | null = payload?.nextCursor ?? null;
+      setMessages(prev => ({
+        ...prev,
+        [groupId]: before ? [...list, ...(prev[groupId] ?? [])] : list,
+      }));
+      setNextCursorByGroup(prev => ({ ...prev, [groupId]: next }));
+    } catch (e) {
+      te('Failed to load messages');
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  // when a group is selected, fetch its messages and subscribe to socket room
+  useEffect(() => {
+    if (!selectedGroupId) return;
+
+    // initial load if not present
+    if (!messages[selectedGroupId]) {
+      fetchMessages(selectedGroupId);
+    }
+
+    const eventName = `group:${selectedGroupId}:message`;
+    const eventDeletedName = `group:${selectedGroupId}:message:deleted`;
+    const onMessage = (msg: any) => {
+      setMessages(prev => {
+        const current = prev[selectedGroupId] ?? [];
+        // dedupe by id or clientId
+        if (msg?.clientId && current.some(m => m && m.clientId && m.clientId === msg.clientId)) {
+          // replace optimistic item
+          const replaced = current.map(m => (m && m.clientId === msg.clientId ? msg : m));
+          return { ...prev, [selectedGroupId]: replaced };
+        }
+        if (msg?.id && current.some(m => m && m.id === msg.id)) return prev;
+        return { ...prev, [selectedGroupId]: [...current, msg] };
+      });
+      // keep timeline scrolled to bottom on new message if user is near bottom
+      const el = timelineRef.current;
+      if (el) {
+        const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+        if (nearBottom) {
+          requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+        }
+      }
+    };
+
+    // attempt to join server room (no-op if backend ignores)
+    try { sendNotification?.('group:join', { room: `group:${selectedGroupId}` }); } catch {}
+    const onDeleted = (payload: any) => {
+      if (!payload || !payload.id) return;
+      setMessages(prev => {
+        const current = prev[selectedGroupId] ?? [];
+        const updated = current.map(m => (m && (m.id === payload.id || m.clientId === payload.id)
+          ? { ...m, deleted: true, deletedAt: payload.deletedAt, deletedBy: payload.deletedBy, content: null }
+          : m));
+        return { ...prev, [selectedGroupId]: updated };
+      });
+    };
+    subscribeToPath(eventName, onMessage);
+    subscribeToPath(eventDeletedName, onDeleted);
+    return () => {
+      unsubscribeFromPath(eventName, onMessage);
+      unsubscribeFromPath(eventDeletedName, onDeleted);
+      try { sendNotification?.('group:leave', { room: `group:${selectedGroupId}` }); } catch {}
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedGroupId]);
+
+  // Subscribe to direct invite notifications for current user
+  useEffect(() => {
+    if (!currentUserSub) return;
+    const eventName = `user:${currentUserSub}:invite`;
+    const onInvite = (payload: any) => {
+      if (!payload || !payload.id) return;
+      setInvites(prev => [{
+        id: payload.id,
+        groupId: payload.groupId,
+        message: payload.message,
+        fromUserId: payload.from?.id,
+        groupName: payload.groupName,
+        fromName: payload.from?.displayName
+      }, ...prev]);
+    };
+    subscribeToPath(eventName, onInvite);
+    return () => { unsubscribeFromPath(eventName, onInvite); };
+  }, [currentUserSub, subscribeToPath, unsubscribeFromPath]);
+
+  // If a group is already selected and we move to mobile, auto-open chat view
+  useEffect(() => {
+    if (isMobile && selectedGroupId) {
+      setMobileView('chat');
+    }
+  }, [isMobile, selectedGroupId]);
+
+  const handleLoadOlder = async () => {
+    if (!selectedGroupId) return;
+    const cursor = nextCursorByGroup[selectedGroupId];
+    if (!cursor || loadingMessages) return;
+    const el = timelineRef.current;
+    const prevScrollBottom = el ? el.scrollHeight - el.scrollTop : 0;
+    await fetchMessages(selectedGroupId, cursor);
+    // maintain viewport position after prepend
+    if (el) {
+      requestAnimationFrame(() => {
+        el.scrollTop = el.scrollHeight - prevScrollBottom;
+      });
+    }
+  };
+
+  const handleSendMessage = async (text: string): Promise<boolean> => {
+    if (!selectedGroupId) return false;
+    const content = text.trim();
+    if (!content) return false;
+    // Block if currently rate-limited
+    if (rateLimitUntil && Date.now() < rateLimitUntil) {
+      const remaining = Math.max(1, Math.ceil((rateLimitUntil - Date.now()) / 1000));
+      te(`You're sending too fast, try again in ${remaining}s`);
+      return false;
+    }
+    const clientId = uuidv4();
+    const optimistic = {
+      id: `optimistic-${clientId}`,
+      groupId: selectedGroupId,
+      sender: { id: 'me', name: 'You' },
+      content,
+      createdAt: new Date().toISOString(),
+      clientId,
+      optimistic: true,
+    };
+    setMessages(prev => ({
+      ...prev,
+      [selectedGroupId]: [ ...(prev[selectedGroupId] ?? []), optimistic ],
+    }));
+    // scroll to bottom
+    requestAnimationFrame(() => { timelineRef.current && (timelineRef.current.scrollTop = timelineRef.current.scrollHeight); });
+    try {
+      const res: any = await post(`groups/${selectedGroupId}/messages`, { content, clientId }, true, false, false);
+      const msg = res?.data ?? res;
+      setMessages(prev => ({
+        ...prev,
+        [selectedGroupId]: (prev[selectedGroupId] ?? []).map(m => (m && m.clientId === clientId ? msg : m)),
+      }));
+    } catch (e: any) {
+      // remove optimistic item on failure
+      setMessages(prev => ({
+        ...prev,
+        [selectedGroupId]: (prev[selectedGroupId] ?? []).filter(m => m && m.clientId !== clientId),
+      }));
+      const status = e?.response?.status || e?.status;
+      if (status === 429) {
+        // Read Retry-After from headers (seconds)
+        const headers = (e?.response?.headers || {}) as Record<string, any>;
+        const retryRaw = headers['retry-after'] ?? headers['Retry-After'];
+        let retrySeconds = parseInt(String(retryRaw ?? ''), 10);
+        if (!Number.isFinite(retrySeconds) || retrySeconds <= 0) retrySeconds = 5;
+        setRateLimitUntil(Date.now() + retrySeconds * 1000);
+        te(`You're sending too fast, try again in ${retrySeconds}s`);
+      } else {
+        te('Failed to send');
+      }
+      return false;
+    }
+    return true;
+  };
 
   const handleLeaveGroup = async () => {
     if (!selectedGroupId) return;
@@ -40,7 +503,7 @@ const Groups: React.FC = () => {
       await post('groups/leave', { groupId: selectedGroupId });
       ts('Left group');
       setShowGroupInfo(false);
-      setSelectedGroupId(null);
+      clearSelection();
       await fetchMyGroups();
     } catch (err) {
       te('Failed to leave group');
@@ -53,15 +516,50 @@ const Groups: React.FC = () => {
       await post(`groups/${selectedGroupId}/delete`, {});
       ts('Group deleted');
       setShowGroupInfo(false);
-      setSelectedGroupId(null);
+      clearSelection();
       await fetchMyGroups();
     } catch (err) {
       te('Failed to delete group');
     }
   };
 
+  // UI-only delete confirmation (wire to BE later)
+  const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; messageId: string | null; loading?: boolean }>({ open: false, messageId: null, loading: false });
+
+  const handleConfirmDelete = async () => {
+    if (!selectedGroupId || !confirmDelete.messageId) { setConfirmDelete({ open: false, messageId: null }); return; }
+    try {
+      setConfirmDelete(prev => ({ ...prev, loading: true }));
+      const res: any = await deleteAPI(`groups/${selectedGroupId}/messages/${confirmDelete.messageId}`);
+      const data = res?.data ?? res;
+      const targetId = data?.id || confirmDelete.messageId;
+      setMessages(prev => ({
+        ...prev,
+        [selectedGroupId]: (prev[selectedGroupId] ?? []).map(m => (m && (m.id === targetId || m.clientId === targetId)
+          ? { ...m, deleted: true, deletedAt: data?.deletedAt, deletedBy: data?.deletedBy, content: null }
+          : m)),
+      }));
+      ts('Message deleted');
+    } catch (e: any) {
+      const status = e?.response?.status || e?.status;
+      if (status === 429) {
+        const headers = (e?.response?.headers || {}) as Record<string, any>;
+        const retryRaw = headers['retry-after'] ?? headers['Retry-After'];
+        let retrySeconds = parseInt(String(retryRaw ?? ''), 10);
+        if (!Number.isFinite(retrySeconds) || retrySeconds <= 0) retrySeconds = 5;
+        te(`You're deleting too fast, try again in ${retrySeconds}s`);
+      } else if (status === 403) {
+        te('You do not have permission to delete this message');
+      } else {
+        te('Failed to delete message');
+      }
+    } finally {
+      setConfirmDelete({ open: false, messageId: null, loading: false });
+    }
+  };
+
   return (
-    <div className="page-content groups-page">
+    <div className="page-content groups-page" style={isMobile && mobileView === 'chat' ? { height: 'calc(100dvh - 60px)', overflow: 'hidden' } : undefined}>
       <div className="page-title-wrapper" style={{ borderBottom: '1px solid #E5E7EB' }}>
         <div className="page-title-left">
           <div className="page-title">
@@ -77,42 +575,44 @@ const Groups: React.FC = () => {
           </button>
         </div>
       </div>
-      <div className="content-area content-area-title-filter" style={{ overflow: 'hidden' }}>
-        <div className="page-content-wrapper h-100" style={{ overflow: 'hidden' }}>
+      <div className="content-area content-area-title-filter" style={{ overflow: isMobile ? (mobileView === 'chat' ? 'hidden' : 'visible') : 'hidden', height: isMobile && mobileView === 'chat' ? 'calc(100dvh - 60px)' : undefined, minHeight: isMobile && mobileView === 'chat' ? 0 : undefined }}>
+        <div className="page-content-wrapper h-100" style={{ overflow: isMobile ? (mobileView === 'chat' ? 'hidden' : 'visible') : 'hidden' }}>
           <div className="row gx-0 gy-0" style={{ minHeight: 0 }}>
             <div className="col-12 col-lg-4 px-0" >
-              <div className="d-flex flex-column h-100 bg-white" style={{ overflow: 'hidden' }}>
-                {/* Search */}
-                <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff' }}>
-                  <div className="px-2 w-100" style={{ position: 'relative' }}>
-                    <i
-                      className="material-symbols-outlined"
-                      style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }}
-                    >
-                      search
-                    </i>
-                    <input
-                      className="form-control w-100"
-                      placeholder="Search"
-                      aria-label="Search"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onFocus={() => setSearchFocused(true)}
-                      onBlur={() => setSearchFocused(false)}
-                      style={{
-                        height: 44,
-                        paddingLeft: 44,
-                        borderRadius: 10,
-                        border: searchFocused ? '1px solid #0EA5E9' : '1px solid #E5E7EB',
-                        outline: 'none',
-                        boxShadow: 'none'
-                      }}
-                    />
+              <div className="d-flex flex-column h-100 bg-white" style={{ overflow: isMobile ? 'visible' : 'hidden' }}>
+                {/* Search - hide entirely on mobile when in chat view */}
+                {!(isMobile && mobileView === 'chat') && (
+                  <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', position: 'sticky', top: 0, zIndex: 2 }}>
+                    <div className="px-2 w-100" style={{ position: 'relative' }}>
+                      <i
+                        className="material-symbols-outlined"
+                        style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }}
+                      >
+                        search
+                      </i>
+                      <input
+                        className="form-control w-100"
+                        placeholder="Search"
+                        aria-label="Search"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onFocus={() => setSearchFocused(true)}
+                        onBlur={() => setSearchFocused(false)}
+                        style={{
+                          height: 44,
+                          paddingLeft: 44,
+                          borderRadius: 10,
+                          border: searchFocused ? '1px solid #0EA5E9' : '1px solid #E5E7EB',
+                          outline: 'none',
+                          boxShadow: 'none'
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Tabs - site styling with single baseline and aligned indicator */}
-                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', paddingBottom: 0 }}>
+                {/* Tabs - hidden on mobile when in chat; visible otherwise */}
+                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', paddingBottom: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', position: 'sticky', top: 64, zIndex: 1 }}>
                   <nav>
                     <div
                       className="nav nav-tabs page-filters"
@@ -123,7 +623,13 @@ const Groups: React.FC = () => {
                         <button
                           type="button"
                           className={`nav-link ${activeTab === 'chats' ? 'active' : ''}`}
-                          onClick={() => setActiveTab('chats')}
+                          onClick={() => {
+                            setActiveTab('chats');
+                            try { localStorage.setItem('groups.tab', 'chats'); } catch {}
+                            const sp = new URLSearchParams(location.search);
+                            sp.set('tab', 'chats');
+                            navigate({ pathname: location.pathname, search: `?${sp.toString()}` });
+                          }}
                           style={{ borderBottom: 'none', paddingTop: 8, paddingBottom: 8 }}
                         >
                           <div className="d-flex flex-column align-items-center">
@@ -134,7 +640,17 @@ const Groups: React.FC = () => {
                         <button
                           type="button"
                           className={`nav-link ${activeTab === 'groups' ? 'active' : ''}`}
-                          onClick={() => setActiveTab('groups')}
+                          onClick={() => {
+                            if (isMobile && mobileView === 'chat') {
+                              setMobileView('list');
+                              return;
+                            }
+                            setActiveTab('groups');
+                            try { localStorage.setItem('groups.tab', 'groups'); } catch {}
+                            const sp = new URLSearchParams(location.search);
+                            sp.set('tab', 'groups');
+                            navigate({ pathname: location.pathname, search: `?${sp.toString()}` });
+                          }}
                           style={{ borderBottom: 'none', paddingTop: 8, paddingBottom: 8 }}
                         >
                           <div className="d-flex flex-column align-items-center">
@@ -160,9 +676,9 @@ const Groups: React.FC = () => {
                   </nav>
                 </div>
 
-                {/* List area wrapper (mirror right column pattern) */}
-                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0 }}>
-                  <div className="flex-grow-1 overflow-auto left-list-scroll" style={{ minHeight: 0 }}>
+                {/* Left column content: on mobile, toggle between list and chat */}
+                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0, flex: '1 1 auto', overflow: isMobile && mobileView === 'chat' ? 'hidden' : undefined }}>
+                  <div className="flex-grow-1 overflow-auto left-list-scroll" style={{ minHeight: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', paddingBottom: 16, WebkitOverflowScrolling: 'touch', overflowY: 'auto' }}>
                   {activeTab === 'chats' ? (
                     <div className="text-center p-4">
                       <img src={'/assets/images/not-voucher-found.svg'} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
@@ -202,7 +718,7 @@ const Groups: React.FC = () => {
                               avatarColor={g.avatarColor}
                               variant="mine"
                               isSelected={selectedGroupId === g.id}
-                              onClick={() => setSelectedGroupId(g.id)}
+                              onClick={() => applySelection(g.id)}
                             />
                             ))
                         ) : (
@@ -228,26 +744,265 @@ const Groups: React.FC = () => {
                           Upload a syllabus to get tailored group suggestions.
                         </p>
                       </div>
-                      {/* Temporary placeholder rows for Groups tab as well */}
-                      <div className="px-3" aria-hidden="true">
-                        {[...Array(40)].map((_, i) => (
-                          <div key={`grouprow-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
-                            <div style={{ width: 36, height: 36, background: '#E5E7EB', borderRadius: '50%' }} />
-                            <div style={{ flex: 1 }}>
-                              <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 3 === 0 ? '55%' : '45%' }} />
-                              <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 4 === 0 ? '35%' : '25%', marginTop: 6 }} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      {/* Suggested groups list will be rendered here when available (filler removed) */}
                     </div>
                   )}
                   </div>
+                  {/* Mobile chat view embedded in left column when mobileView === 'chat' */}
+                  {isMobile && mobileView === 'chat' && (
+                    <div ref={chatFrameRef} className="d-flex flex-column" style={{ minHeight: 0, position: 'relative', flex: '1 1 auto', height: 'calc(100dvh - 60px)', overflow: 'hidden' }}>
+                      {/* Fixed chat header inside the frame */}
+                      <div className="d-flex align-items-center justify-content-between" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 56, padding: '8px 16px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', zIndex: 2 }}>
+                        <div className="d-flex align-items-center gap-2">
+                          <button className="btn btn-outline-white" onClick={() => setMobileView('list')} aria-label="Back" title="Back">
+                            <i className="material-symbols-outlined">arrow_back</i>
+                          </button>
+                          <div className="d-flex align-items-center gap-2">
+                            <div style={{ width: 36, height: 36, borderRadius: 18, background: (myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 22, height: 'auto' }} />
+                            </div>
+                            <h6 className="mb-0" style={{ color: '#111827' }}>{myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h6>
+                          </div>
+                        </div>
+                        <div className="d-flex align-items-center gap-2">
+                          <button className="btn btn-primary" onClick={() => setShowGroupInfo(prev => !prev)} style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Group Info" title="Group Info">
+                            <i className="material-symbols-outlined" style={{ color: '#fff' }}>info</i>
+                          </button>
+                          <button className="btn btn-outline-white" style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Search" title="Search"><i className="material-symbols-outlined">search</i></button>
+                        </div>
+                      </div>
+                      {/* Timeline: the only scroller, between fixed header (56px) and measured composer height */}
+                      <div ref={timelineRef} style={{ position: 'absolute', top: 56, bottom: composerHeight, left: 0, right: 0, background: '#FAFAFA', padding: '12px 16px', paddingBottom: composerHeight + 70, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                          {/* Reuse the same message rendering block as right column */}
+                          {(() => {
+                            const list = selectedGroupId ? (messages[selectedGroupId] ?? []) : [];
+                            const sorted = [...list].sort((a: any, b: any) => {
+                              const ad = new Date(a?.createdAt || a?.created_on || a?.created_at || 0).getTime();
+                              const bd = new Date(b?.createdAt || b?.created_on || b?.created_at || 0).getTime();
+                              return ad - bd; // oldest first, newest last (bottom)
+                            });
+                            if (!list.length) return null;
+                            const byDay: { label: string; items: any[] }[] = [];
+                            const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+                            let currentLabel = '';
+                            sorted.forEach((m) => {
+                              if (!m) return;
+                              const d = m.createdAt ? new Date(m.createdAt) : new Date();
+                              const today = new Date();
+                              let label = d.toLocaleDateString(undefined, { weekday: 'long' });
+                              if (isSameDay(d, today)) label = 'Today';
+                              if (label !== currentLabel) {
+                                byDay.push({ label, items: [m] });
+                                currentLabel = label;
+                              } else {
+                                byDay[byDay.length - 1].items.push(m);
+                              }
+                            });
+                            return (
+                              <>
+                                {byDay.map((section, sIdx) => (
+                                  <div key={`msec-${sIdx}`}>
+                                    <div className="d-flex align-items-center my-3" aria-hidden="true">
+                                      <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                                      <div style={{ padding: '0 10px', color: '#6B7280', fontSize: 12 }}>{section.label}</div>
+                                      <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                                    </div>
+                                    {section.items.map((m, i) => {
+                                      const key = (m.id as string) || (m.clientId as string) || `${sIdx}-${i}`;
+                                      const created = m.createdAt ? new Date(m.createdAt) : new Date();
+                                      const isMine = Boolean(
+                                        (m?.sender?.id && currentUserSub && m.sender.id === currentUserSub) ||
+                                        m?.sender?.id === 'me' ||
+                                        (m?.sender?.name && m.sender.name.toLowerCase() === 'you')
+                                      );
+                                      if (isMine) {
+                                        if (m?.deleted) {
+                                          return (
+                                            <div key={key} className="d-flex justify-content-end mb-2">
+                                              <div className="groups-message-row mine" style={{ maxWidth: '90%' }}>
+                                                <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
+                                                  <div style={{ textAlign: 'left' }}>You</div>
+                                                  <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                                </div>
+                                                <div style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
+                                              </div>
+                                            </div>
+                                          );
+                                        }
+                                        return (
+                                          <div key={key} className="d-flex justify-content-end mb-2">
+                                            <div className="groups-message-row mine" style={{ maxWidth: '90%', position: 'relative' }}>
+                                              {/* Hover actions (mine → top-left of bubble) */}
+                                              <div className="message-actions" style={{ position: 'absolute', top: -14, right: -6, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', gap: 4, padding: 4, opacity: 0, pointerEvents: 'none', transition: 'opacity 150ms ease', zIndex: 5 }}>
+                                                <button className="btn btn-outline-white" aria-label="Delete message" title="Delete" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ open: true, messageId: m.id || m.clientId }); }} style={{ height: 28, width: 28, borderRadius: 8 }}>
+                                                  <i className="material-symbols-outlined" style={{ color: '#DC2626' }}>delete</i>
+                                                </button>
+                                              </div>
+                                              <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
+                                                <div style={{ textAlign: 'left' }}>You</div>
+                                                <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                              </div>
+                                              <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                            </div>
+                                          </div>
+                                        );
+                                      }
+                              // Precompute sender display for branches below
+                              const senderName = m?.sender?.displayName || 'User';
+                              const avatar = m?.sender?.picture || '/assets/images/avatar-default.svg';
+                              if (m?.deleted) {
+                                        return (
+                                          <div key={key} className="d-flex align-items-start gap-2 mb-2">
+                                    <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />
+                                            <div style={{ maxWidth: '90%' }}>
+                                              <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
+                                                <div>{senderName}</div>
+                                                <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                              </div>
+                                              <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
+                                            </div>
+                                          </div>
+                                        );
+                                      }
+                                      return (
+                                        <div key={key} className="d-flex align-items-start gap-2 mb-2">
+                                          <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />
+                                          <div style={{ maxWidth: '90%' }}>
+                                            <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
+                                              <div>{senderName}</div>
+                                              <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                            </div>
+                                            <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                ))}
+                              </>
+                            );
+                          })()}
+                      </div>
+                      {/* Fixed composer at bottom of frame */}
+                      <div ref={composerWrapRef} style={{ position: 'fixed', left: frameRect.left, width: frameRect.width, bottom: 0, background: '#FAFAFA', zIndex: 3 }}>
+                        <Composer
+                          onSend={handleSendMessage}
+                          disabled={!selectedGroupId || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                          countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                          resizeSignal={frameRect.width}
+                        />
+                      </div>
+
+                      {/* Mobile Group Info overlay (mirrors desktop panel) */}
+                      <div
+                        onClick={() => setShowGroupInfo(false)}
+                        style={{
+                          position: 'fixed', left: frameRect.left, width: frameRect.width, top: Math.max(64, frameRect.top), bottom: composerHeight,
+                          background: 'rgba(0,0,0,0.06)', zIndex: 3,
+                          opacity: showGroupInfo && isMobile ? 1 : 0,
+                          transition: 'opacity 220ms ease',
+                          pointerEvents: showGroupInfo && isMobile ? 'auto' : 'none',
+                          display: (showGroupInfo && isMobile && frameRect.width > 0) ? 'block' : 'none'
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'fixed', top: Math.max(64, frameRect.top), left: frameRect.left, width: Math.max(300, frameRect.width), bottom: composerHeight,
+                          background: '#fff', borderLeft: '1px solid #E5E7EB', boxShadow: '0 0 24px rgba(0,0,0,0.08)', zIndex: 4,
+                          display: (showGroupInfo && isMobile && frameRect.width > 0) ? 'flex' : 'none', flexDirection: 'column',
+                          transform: showGroupInfo && isMobile ? 'translateX(0)' : 'translateX(100%)',
+                          transition: showGroupInfo && isMobile ? 'transform 240ms ease' : 'none',
+                          pointerEvents: showGroupInfo && isMobile ? 'auto' : 'none'
+                        }}
+                      >
+                        <div
+                          style={{
+                            background: (selectedGroup?.avatarColor) || '#E5F3FF',
+                            height: 88,
+                            padding: '12px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                          }}
+                        >
+                          <img src={'/assets/images/book.svg'} alt="group" style={{ width: 28, height: 'auto' }} />
+                          <button className="btn btn-outline-white" onClick={() => setShowGroupInfo(false)} aria-label="Close">
+                            <i className="material-symbols-outlined">close</i>
+                          </button>
+                        </div>
+                        <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
+                          <h6 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h6>
+                          <div className="text-muted" style={{ fontSize: 13 }}>
+                            {(() => {
+                              const typeLabel = selectedGroup?.type === 'canonical' ? 'Class' : 'Group';
+                              const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
+                              const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
+                              return `${typeLabel} - ${countLabel}`;
+                            })()}
+                          </div>
+                        </div>
+                        <div className="group-info-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                          <div style={{ padding: '16px' }}>
+                            {(() => {
+                              const hex = selectedGroup?.avatarColor || '#E5F3FF';
+                              const toRGBA = (h: string, alpha: number) => {
+                                const m = h.replace('#','');
+                                const r = parseInt(m.substring(0,2), 16);
+                                const g = parseInt(m.substring(2,4), 16);
+                                const b = parseInt(m.substring(4,6), 16);
+                                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                              };
+                              const bg = toRGBA(hex, 0.10);
+                              const border = toRGBA(hex, 0.25);
+                              const description = selectedGroup?.description || 'No description provided.';
+                              const creatorName = (selectedGroup?.createdBy && (selectedGroup?.createdBy.displayName || selectedGroup?.createdBy.name))
+                                || (selectedGroup?.owner && (selectedGroup?.owner.displayName || selectedGroup?.owner.name))
+                                || selectedGroup?.creatorName
+                                || 'Unknown';
+                              const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
+                              const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
+                              return (
+                                <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                                  <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                                  <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                                    Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                          {selectedGroup ? (
+                            <>
+                              <div style={{ borderTop: '1px solid #E5E7EB' }} />
+                              <div style={{ padding: '16px' }}>
+                                <div className="d-flex flex-column gap-3">
+                                  <button type="button" className="btn btn-outline-white text-start" onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                    <i className="material-symbols-outlined">person_add</i>
+                                    <span>Invite Members</span>
+                                  </button>
+                                  <button type="button" className="btn btn-outline-white text-start" onClick={handleLeaveGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                    <i className="material-symbols-outlined">logout</i>
+                                    <span>Exit Group</span>
+                                  </button>
+                                  {selectedGroup?.type !== 'canonical' ? (
+                                    <button type="button" className="btn btn-outline-white text-start" onClick={handleDeleteGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                      <i className="material-symbols-outlined">delete</i>
+                                      <span>Delete Group</span>
+                                    </button>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-            {/* Right column (chat area) */}
-            <div className="col-12 col-lg-8 d-flex flex-column" style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}>
+            {/* Right column (chat area) - hide entirely on mobile to avoid duplicate stacked view */}
+            <div className={`col-12 col-lg-8 d-flex flex-column right-pane-scroll ${isMobile ? 'd-none' : ''}`} style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}>
               {/* Header */}
               <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
@@ -273,7 +1028,7 @@ const Groups: React.FC = () => {
                       className="btn btn-primary"
                       style={{ height: 40, minWidth: 120, borderRadius: 8, opacity: selectedGroupId ? 1 : 0.6 }}
                       disabled={!selectedGroupId}
-                      onClick={() => setShowGroupInfo(true)}
+                      onClick={() => setShowGroupInfo(prev => !prev)}
                     >
                       Group Info
                     </button>
@@ -285,27 +1040,133 @@ const Groups: React.FC = () => {
               </div>
               {/* Chat timeline (independent scroll) */}
               <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
-                <div className="flex-grow-1" style={{ background: '#FAFAFA', padding: '16px 24px' }}>
-                  {[...Array(25)].map((_, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
-                      <div style={{ width: 32, height: 32, background: '#E5E7EB', borderRadius: '50%' }} />
-                      <div style={{ flex: 1 }}>
-                        <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 3 === 0 ? '60%' : '40%' }} />
-                        <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 4 === 0 ? '30%' : '20%', marginTop: 6 }} />
-                      </div>
+                <div ref={timelineRef} className="flex-grow-1 right-timeline-scroll" style={{ background: '#FAFAFA', padding: '16px 24px', overflow: selectedGroupId ? 'auto' : 'hidden' }}>
+                  {/* Load older */}
+                  {selectedGroupId && nextCursorByGroup[selectedGroupId] && (
+                    <div className="text-center mb-3">
+                      <button className="btn btn-outline-white" onClick={handleLoadOlder} disabled={loadingMessages}>Load older</button>
                     </div>
-                  ))}
+                  )}
+
+                  {(() => {
+                    const list = selectedGroupId ? (messages[selectedGroupId] ?? []) : [];
+                    const sorted = [...list].sort((a: any, b: any) => {
+                      const ad = new Date(a?.createdAt || a?.created_on || a?.created_at || 0).getTime();
+                      const bd = new Date(b?.createdAt || b?.created_on || b?.created_at || 0).getTime();
+                      return ad - bd; // oldest first, newest last (bottom)
+                    });
+                    if (!list.length) return null;
+
+                    // Group messages by calendar day (local time)
+                    const byDay: { label: string; items: any[] }[] = [];
+                    const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+                    let currentLabel = '';
+                    sorted.forEach((m) => {
+                      if (!m) return;
+                      const d = m.createdAt ? new Date(m.createdAt) : new Date();
+                      const today = new Date();
+                      let label = d.toLocaleDateString(undefined, { weekday: 'long' });
+                      if (isSameDay(d, today)) label = 'Today';
+                      if (label !== currentLabel) {
+                        byDay.push({ label, items: [m] });
+                        currentLabel = label;
+                      } else {
+                        byDay[byDay.length - 1].items.push(m);
+                      }
+                    });
+
+                    return (
+                      <>
+                        {byDay.map((section, sIdx) => (
+                          <div key={`sec-${sIdx}`}>
+                            {/* Day separator */}
+                            <div className="d-flex align-items-center my-3" aria-hidden="true">
+                              <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                              <div style={{ padding: '0 10px', color: '#6B7280', fontSize: 12 }}>{section.label}</div>
+                              <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                            </div>
+
+                            {section.items.map((m, i) => {
+                              const key = (m.id as string) || (m.clientId as string) || `${sIdx}-${i}`;
+                              const created = m.createdAt ? new Date(m.createdAt) : new Date();
+                              const isMine = Boolean(
+                                (m?.sender?.id && currentUserSub && m.sender.id === currentUserSub) ||
+                                m?.sender?.id === 'me' ||
+                                (m?.sender?.name && m.sender.name.toLowerCase() === 'you')
+                              );
+                              if (isMine) {
+                                if (m?.deleted) {
+                                  return (
+                                    <div key={key} className="d-flex justify-content-end mb-2">
+                                      <div className="groups-message-row mine" style={{ maxWidth: '72%' }}>
+                                        <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
+                                          <div style={{ textAlign: 'left' }}>You</div>
+                                          <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                        </div>
+                                        <div style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                                return (
+                                  <div key={key} className="d-flex justify-content-end mb-2">
+                                    <div className="groups-message-row mine" style={{ maxWidth: '72%', position: 'relative' }}>
+                                      {/* Hover actions (mine → top-left of bubble) */}
+                                      <div className="message-actions" style={{ position: 'absolute', top: -14, right: -6, background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', display: 'flex', gap: 4, padding: 4, opacity: 0, pointerEvents: 'none', transition: 'opacity 150ms ease', zIndex: 5 }}>
+                                        <button className="btn btn-outline-white" aria-label="Delete message" title="Delete" onClick={(e) => { e.stopPropagation(); setConfirmDelete({ open: true, messageId: m.id || m.clientId }); }} style={{ height: 28, width: 28, borderRadius: 8 }}>
+                                          <i className="material-symbols-outlined" style={{ color: '#DC2626' }}>delete</i>
+                                        </button>
+                                      </div>
+                                      <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
+                                        <div style={{ textAlign: 'left' }}>You</div>
+                                        <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                      </div>
+                                      <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              const senderName = m?.sender?.displayName || 'User';
+                              const avatar = m?.sender?.picture || '/assets/images/avatar-default.svg';
+                              if (m?.deleted) {
+                                return (
+                                  <div key={key} className="d-flex align-items-start gap-2 mb-2">
+                                  <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                                    <div style={{ maxWidth: '72%' }}>
+                                      <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
+                                        <div>{senderName}</div>
+                                        <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                      </div>
+                                      <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return (
+                                <div key={key} className="d-flex align-items-start gap-2 mb-2">
+                                  <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                                  <div style={{ maxWidth: '72%' }}>
+                                    <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
+                                      <div>{senderName}</div>
+                                      <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                    </div>
+                                    <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </>
+                    );
+                  })()}
                 </div>
                 {/* Composer */}
-                <div className="d-flex align-items-center" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}> 
-                  <div className="input-group">
-                    <input className="form-control" placeholder="Send a message" style={{ outline: 'none', boxShadow: 'none' }} />
-                    <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach">
-                      <i className="material-symbols-outlined">attach_file</i>
-                    </button>
-                    <button className="btn btn-primary" type="button">Send</button>
-                  </div>
-                </div>
+                <Composer
+                  onSend={handleSendMessage}
+                  disabled={!selectedGroupId || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                  countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                />
               </div>
 
               {/* Nested Group Info panel (animated slide) */}
@@ -358,84 +1219,101 @@ const Groups: React.FC = () => {
                     })()}
                   </div>
                 </div>
-                {/* Description card with 10% avatar tint */}
-                <div style={{ padding: '16px' }}>
-                  {(() => {
-                    const hex = selectedGroup?.avatarColor || '#E5F3FF';
-                    const toRGBA = (h: string, alpha: number) => {
-                      const m = h.replace('#','');
-                      const r = parseInt(m.substring(0,2), 16);
-                      const g = parseInt(m.substring(2,4), 16);
-                      const b = parseInt(m.substring(4,6), 16);
-                      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-                    };
-                    const bg = toRGBA(hex, 0.10);
-                    const border = toRGBA(hex, 0.25);
-                    const description = selectedGroup?.description || 'No description provided.';
-                    const creatorName = (selectedGroup?.createdBy && (selectedGroup?.createdBy.displayName || selectedGroup?.createdBy.name))
-                      || (selectedGroup?.owner && (selectedGroup?.owner.displayName || selectedGroup?.owner.name))
-                      || selectedGroup?.creatorName
-                      || 'Unknown';
-                    const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
-                    const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
-                    return (
-                      <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
-                        <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
-                        <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
-                          Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                {/* Scrollable body for desktop (description + actions) */}
+                <div className="group-info-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                  <div style={{ padding: '16px' }}>
+                    {(() => {
+                      const hex = selectedGroup?.avatarColor || '#E5F3FF';
+                      const toRGBA = (h: string, alpha: number) => {
+                        const m = h.replace('#','');
+                        const r = parseInt(m.substring(0,2), 16);
+                        const g = parseInt(m.substring(2,4), 16);
+                        const b = parseInt(m.substring(4,6), 16);
+                        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                      };
+                      const bg = toRGBA(hex, 0.10);
+                      const border = toRGBA(hex, 0.25);
+                      const description = selectedGroup?.description || 'No description provided.';
+                      const creatorName = (selectedGroup?.createdBy && (selectedGroup?.createdBy.displayName || selectedGroup?.createdBy.name))
+                        || (selectedGroup?.owner && (selectedGroup?.owner.displayName || selectedGroup?.owner.name))
+                        || selectedGroup?.creatorName
+                        || 'Unknown';
+                      const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
+                      const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
+                      return (
+                        <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                          <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                          <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                            Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                  {selectedGroup ? (
+                    <>
+                      <div style={{ borderTop: '1px solid #E5E7EB' }} />
+                      <div style={{ padding: '16px' }}>
+                        <div className="d-flex flex-column gap-3">
+                          <button
+                            type="button"
+                            className="btn btn-outline-white text-start"
+                            onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }}
+                            style={{
+                              border: '1px solid #E5E7EB',
+                              borderRadius: 12,
+                              padding: '14px 16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 12,
+                              width: '100%'
+                            }}
+                          >
+                            <i className="material-symbols-outlined">person_add</i>
+                            <span>Invite Members</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline-white text-start"
+                            onClick={handleLeaveGroup}
+                            style={{
+                              border: '1px solid #E5E7EB',
+                              borderRadius: 12,
+                              padding: '14px 16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 12,
+                              width: '100%'
+                            }}
+                          >
+                            <i className="material-symbols-outlined">logout</i>
+                            <span>Exit Group</span>
+                          </button>
+
+                          {selectedGroup?.type !== 'canonical' ? (
+                            <button
+                              type="button"
+                              className="btn btn-outline-white text-start"
+                              onClick={handleDeleteGroup}
+                              style={{
+                                border: '1px solid #E5E7EB',
+                                borderRadius: 12,
+                                padding: '14px 16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 12,
+                                width: '100%'
+                              }}
+                            >
+                              <i className="material-symbols-outlined">delete</i>
+                              <span>Delete Group</span>
+                            </button>
+                          ) : null}
                         </div>
                       </div>
-                    );
-                  })()}
+                    </>
+                  ) : null}
                 </div>
-
-                {/* Actions: Only show when this is one of myGroups (i.e., joined) */}
-                {selectedGroup ? (
-                  <>
-                    <div style={{ borderTop: '1px solid #E5E7EB' }} />
-                    <div style={{ padding: '16px' }}>
-                      <div className="d-flex flex-column gap-3">
-                      <button
-                        type="button"
-                        className="btn btn-outline-white text-start"
-                        onClick={handleLeaveGroup}
-                        style={{
-                          border: '1px solid #E5E7EB',
-                          borderRadius: 12,
-                          padding: '14px 16px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 12,
-                          width: '100%'
-                        }}
-                      >
-                        <i className="material-symbols-outlined">logout</i>
-                        <span>Exit Group</span>
-                      </button>
-
-                      {selectedGroup?.type !== 'canonical' ? (
-                        <button
-                          type="button"
-                          className="btn btn-outline-white text-start"
-                          onClick={handleDeleteGroup}
-                          style={{
-                            border: '1px solid #E5E7EB',
-                            borderRadius: 12,
-                            padding: '14px 16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 12,
-                            width: '100%'
-                          }}
-                        >
-                          <i className="material-symbols-outlined">delete</i>
-                          <span>Delete Group</span>
-                        </button>
-                      ) : null}
-                      </div>
-                    </div>
-                  </>
-                ) : null}
               </div>
             </div>
           </div>
@@ -465,8 +1343,225 @@ const Groups: React.FC = () => {
           }
         }}
       />
+
+      {/* Confirm Delete (UI only for now) */}
+      {confirmDelete.open && (
+        <div role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setConfirmDelete({ open: false, messageId: null })}>
+          <div className="bg-white" style={{ width: 360, borderRadius: 12, boxShadow: '0 10px 24px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '16px 16px 0 16px' }}>
+              <h6 className="mb-1" style={{ color: '#111827' }}>Delete message?</h6>
+              <div className="text-muted" style={{ fontSize: 14 }}>This can’t be undone. We’ll wire this to backend next.</div>
+            </div>
+            <div className="d-flex justify-content-end gap-2" style={{ padding: 16 }}>
+              <button className="btn btn-outline-white" onClick={() => setConfirmDelete({ open: false, messageId: null })}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleConfirmDelete} disabled={!!confirmDelete.loading}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Invite Members Modal - simplified */}
+      {showInvite && (
+        <div role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowInvite(false)}>
+          <div className="bg-white" style={{ width: 520, maxWidth: '95vw', borderRadius: 12, boxShadow: '0 10px 24px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }} onClick={(e) => e.stopPropagation()}>
+            <div className="d-flex align-items-center justify-content-between" style={{ padding: 16, borderBottom: '1px solid #E5E7EB' }}>
+              <h6 className="mb-0" style={{ color: '#111827' }}>Invite to group</h6>
+              <button type="button" className="btn-close" onClick={() => setShowInvite(false)}>
+                <i className='material-symbols-outlined'>close</i>
+              </button>
+            </div>
+            <div style={{ padding: 16 }}>
+              {/* One-row create/copy link button */}
+              <div className="d-flex align-items-center justify-content-between" style={{ gap: 12 }}>
+                <div className="text-muted" style={{ fontSize: 13 }}>Create a 24-hour link that anyone can use.</div>
+                <button
+                  className="btn btn-primary"
+                  disabled={inviteLoading || !selectedGroupId}
+                  onClick={async () => {
+                    if (!selectedGroupId) return;
+                    try {
+                      setInviteLoading(true);
+                      const res: any = await post(`groups/${selectedGroupId}/invites`, {});
+                      const data = res?.data ?? res;
+                      if (data?.url) {
+                        await navigator.clipboard.writeText(data.url);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 4000);
+                        ts('Link copied to clipboard');
+                      } else {
+                        te('No link returned');
+                      }
+                    } catch {
+                      te('Failed to create invite link');
+                    } finally { setInviteLoading(false); }
+                  }}
+                >
+                  {inviteLoading ? 'Creating…' : (copied ? 'Link copied to clipboard' : 'Create invite link')}
+                </button>
+              </div>
+
+              {/* Divider between create-link row and search row */}
+              <hr className="my-3" />
+
+              {/* Direct invite by username */}
+              <div>
+                <label className="form-label" style={{ fontWeight: 600 }}>Invite by username</label>
+                <input
+                  className="form-control"
+                  placeholder="Search username"
+                  value={inviteQuery}
+                  onChange={(e) => setInviteQuery(e.target.value)}
+                  style={{ outline: 'none', boxShadow: 'none' }}
+                />
+                {/* Row with helper text + send button */}
+                <div className="d-flex align-items-center justify-content-between" style={{ marginTop: 13 }}>
+                  <div className="text-muted" style={{ fontSize: 12 }}>
+                    {inviteSearching ? 'Searching…' : 'Select users to invite'}
+                  </div>
+                  <button
+                    className="btn btn-primary"
+                    disabled={!selectedGroupId || inviteSelected.length === 0 || inviteSending}
+                    onClick={async () => {
+                      if (!selectedGroupId || inviteSelected.length === 0) return;
+                      try {
+                        setInviteSending(true);
+                        const res: any = await post(`groups/${selectedGroupId}/invites/direct`, { userIds: inviteSelected });
+                        const data = res?.data ?? res;
+                        ts('Invites sent');
+                        // reset selection
+                        setInviteSelected([]);
+                        setInviteQuery('');
+                        setInviteResults([]);
+                      } catch {
+                        te('Failed to send invites');
+                      } finally { setInviteSending(false); }
+                    }}
+                  >
+                    {inviteSending ? 'Sending…' : `Send invite${inviteSelected.length > 1 ? 's' : ''}`}
+                  </button>
+                </div>
+                {/* Results list */}
+                <div style={{ maxHeight: 260, overflowY: 'auto', marginTop: 8, scrollbarWidth: 'none' as any }} className="invite-results-scroll">
+                  {inviteResults.map(u => (
+                    <div key={u.id} className="d-flex align-items-center gap-2 py-2" style={{ cursor: 'pointer', borderBottom: '1px solid #F3F4F6' }} onClick={() => toggleInviteSelect(u.id)}>
+                      <img src={u.picture || '/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 28, height: 28, borderRadius: 14 }} />
+                      <div className="flex-grow-1">
+                        <div style={{ color: '#111827', fontWeight: 600 }}>{u.displayName}</div>
+                        <div className="text-muted" style={{ fontSize: 12 }}>@{u.username}</div>
+                      </div>
+                      <input type="checkbox" checked={inviteSelected.includes(u.id)} readOnly />
+                    </div>
+                  ))}
+                  {!inviteSearching && inviteQuery.trim() && inviteResults.length === 0 && (
+                    <div className="text-muted" style={{ fontSize: 13, padding: '8px 0' }}>No users found.</div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer removed; close handled by header X */}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Groups;
+
+// Lightweight internal composer component
+const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean; disabled?: boolean; countdownSeconds?: number; resizeSignal?: any }> = ({ onSend, disabled, countdownSeconds, resizeSignal }) => {
+  const [text, setText] = useState('');
+  const textRef = useRef<HTMLTextAreaElement | null>(null);
+  const igRef = useRef<HTMLDivElement | null>(null);
+  const [baseHeight, setBaseHeight] = useState<number>(40);
+  const [isMultiline, setIsMultiline] = useState<boolean>(false);
+  const send = async () => { if (!disabled && text.trim()) { const ok = await onSend(text); if (ok) { setText(''); resize(); } } };
+  const resize = () => {
+    const el = textRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    const max = 160; // ~6 lines
+    const targetContentHeight = Math.max(baseHeight, Math.min(el.scrollHeight, max));
+    el.style.height = targetContentHeight + 'px';
+    setIsMultiline(targetContentHeight > baseHeight + 1);
+    // Sync row height CSS variable so sibling buttons match the textarea exactly
+    const ig = igRef.current;
+    if (ig) ig.style.setProperty('--composer-row-height', Math.round(el.getBoundingClientRect().height) + 'px');
+  };
+  const resetToSingleLine = () => {
+    const el = textRef.current;
+    if (!el) return;
+    if ((text || '').trim().length === 0) {
+      el.style.height = baseHeight + 'px';
+      setIsMultiline(false);
+      const ig = igRef.current; if (ig) ig.style.setProperty('--composer-row-height', Math.round(el.getBoundingClientRect().height) + 'px');
+    } else {
+      resize();
+    }
+  };
+  useEffect(() => { resize(); }, [text]);
+  // Reset height to single-line when composer mounts or when the chat frame re-measures
+  useEffect(() => {
+    const el = textRef.current;
+    const ig = igRef.current;
+    if (!el || !ig) return;
+    // Measure button height to align textarea baseline with controls
+    const btn = ig.querySelector('button.btn-primary') as HTMLElement | null;
+    const h = Math.round(btn?.getBoundingClientRect().height || 40);
+    // Compute textarea content height needed to visually match button height
+    const cs = window.getComputedStyle(el);
+    const box = cs.boxSizing;
+    const paddingTop = parseFloat(cs.paddingTop || '0');
+    const paddingBottom = parseFloat(cs.paddingBottom || '0');
+    const borderTop = parseFloat(cs.borderTopWidth || '0');
+    const borderBottom = parseFloat(cs.borderBottomWidth || '0');
+    const outerDelta = box === 'border-box' ? 0 : (paddingTop + paddingBottom + borderTop + borderBottom);
+    const contentHeightForButton = Math.max(24, h - outerDelta);
+    setBaseHeight(contentHeightForButton);
+    el.style.height = contentHeightForButton + 'px';
+    setIsMultiline(false);
+    // Seed CSS variable for exact sibling button height
+    ig.style.setProperty('--composer-row-height', Math.round(el.getBoundingClientRect().height) + 'px');
+  }, [resizeSignal]);
+
+  // Ensure correct initial height on mount and after refresh/orientation changes
+  useEffect(() => { resetToSingleLine(); /* after first paint */ setTimeout(resetToSingleLine, 0); }, []);
+  useEffect(() => { resetToSingleLine(); }, [baseHeight]);
+  useEffect(() => {
+    const handler = () => resetToSingleLine();
+    window.addEventListener('resize', handler);
+    window.addEventListener('orientationchange', handler as any);
+    document.addEventListener('visibilitychange', handler);
+    return () => {
+      window.removeEventListener('resize', handler);
+      window.removeEventListener('orientationchange', handler as any);
+      document.removeEventListener('visibilitychange', handler);
+    };
+  }, []);
+
+  return (
+    <div className="d-flex align-items-end" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}>
+      <div ref={igRef} className="input-group" style={{ width: '100%', alignItems: 'flex-end' }}>
+        <textarea
+          ref={textRef}
+          className={`form-control composer-textarea ${isMultiline ? 'multiline' : 'one-line'}`}
+          placeholder="Send a message"
+          value={text}
+          rows={1}
+          onChange={(e) => setText(e.target.value)}
+          onInput={resize}
+          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
+          style={{ outline: 'none', boxShadow: 'none', resize: 'none', overflowY: 'auto', boxSizing: 'border-box' }}
+          disabled={disabled}
+        />
+        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled} style={{ height: 'var(--composer-row-height)' }}>
+          <i className="material-symbols-outlined">attach_file</i>
+        </button>
+        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled} style={{ height: 'var(--composer-row-height)' }}>
+          {disabled && (countdownSeconds ?? 0) > 0 ? `Send (${Math.max(0, countdownSeconds || 0)}s)` : 'Send'}
+        </button>
+      </div>
+    </div>
+  );
+};

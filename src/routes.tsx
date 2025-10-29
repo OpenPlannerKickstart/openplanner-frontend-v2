@@ -89,6 +89,13 @@ const privateRoutes: RouterProps[] = [
     caseSensitive: true,
     url: ENUMFORROUTES.GROUPS,
   },
+  // Deep-link to a specific group chat: /groups/:groupId
+  {
+    path: "/groups/:groupId",
+    component: <Groups />,
+    caseSensitive: true,
+    url: "/groups/:groupId",
+  },
   {
     path: ENUMFORROUTES.EDIT_COURSE,
     component: <EditCourse />,
