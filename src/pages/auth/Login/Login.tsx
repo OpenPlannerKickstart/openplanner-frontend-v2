@@ -123,7 +123,9 @@ const Login = (props) => {
 
             if (!response?.payload?.isSubscription) {
                 // Not subscribed → go to plan details (paywall)
-                dispatch(savedLoginDataSuccess(reqBody));
+                if (response?.payload) {
+                    dispatch(savedLoginDataSuccess(response.payload));
+                }
                 navigate(ENUMFORROUTES.PLAN_DETAILS, { state: response?.payload });
                 return;
             } else {
@@ -270,4 +272,3 @@ const mapDispatchToProps = {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login)
-

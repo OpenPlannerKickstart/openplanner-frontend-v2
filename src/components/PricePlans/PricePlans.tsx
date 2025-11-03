@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Card, Col, Modal, Row } from "react-bootstrap";
 import {
   ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT,
@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { AppDispatch } from "../../redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { createCheckOutAPI } from "../../redux/Service/auth/signup";
-import { isNullUndefinedOrBlank } from "../../Utility/Helper";
+import { getDecodeIDToken, isNullUndefinedOrBlank } from "../../Utility/Helper";
 import {
   getAllPlanAPI,
   updatePlanAPI,
@@ -34,21 +34,67 @@ export const PricePlans = (props) => {
   // removed unused local modal states; using explicit confirmation modal already below
   const navigate = useNavigate();
 
+  const tokenClaims = useMemo(() => {
+    try {
+      return getDecodeIDToken();
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const normalizeUserRecord = useCallback(
+    (raw: any) => {
+      if (!raw) return null;
+      const candidateUserId =
+        raw.user_id ??
+        raw.userId ??
+        raw.userID ??
+        raw.id ??
+        raw.ID ??
+        raw.uuid ??
+        raw.uid ??
+        raw.username ??
+        raw.cognito_username ??
+        raw.cognitoUsername ??
+        tokenClaims?.["custom:user_id"] ??
+        tokenClaims?.["custom:userId"] ??
+        tokenClaims?.["cognito:username"] ??
+        tokenClaims?.username ??
+        tokenClaims?.sub;
+
+      const candidateCustomerId =
+        raw.customer_id ??
+        raw.customerId ??
+        raw.customerID ??
+        raw.stripe_customer_id ??
+        raw.stripeCustomerId ??
+        raw.stripe_customerId ??
+        raw.stripeCustomerID ??
+        raw.stripe_cust_id ??
+        raw.stripeCustId;
+
+      const normalized = { ...raw };
+      if (candidateUserId) normalized.user_id = candidateUserId;
+      if (candidateCustomerId) normalized.customer_id = candidateCustomerId;
+      return normalized;
+    },
+    [tokenClaims]
+  );
+
   useEffect(() => {
     if (!isNullUndefinedOrBlank(props?.state)) {
-      setuserData(props?.state);
+      setuserData(normalizeUserRecord(props?.state));
     } else {
       setuserData(null);
     }
-  }, [props?.state]);
+  }, [props?.state, normalizeUserRecord]);
 
   // Fallback: if no state provided (e.g., opened from Settings), use saved login data if available
   useEffect(() => {
     if (!userData && !isNullUndefinedOrBlank(savedLoginData)) {
-      setuserData(savedLoginData);
+      setuserData(normalizeUserRecord(savedLoginData));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [savedLoginData]);
+  }, [savedLoginData, userData, normalizeUserRecord]);
 
   useEffect(() => {
     if (!isNullUndefinedOrBlank(props?.currentProductId)) {
@@ -79,21 +125,35 @@ export const PricePlans = (props) => {
 
     // For upgrades (managed_by_parent), prefer BE inference but include IDs when available
     // to be backward compatible with older deployments that still require them.
-    let ensuredUser = userData;
-    if (!ensuredUser?.user_id || !ensuredUser?.customer_id) {
+    let ensuredUser = normalizeUserRecord(userData);
+    if (ensuredUser) {
+      setuserData(ensuredUser);
+    }
+
+    const hasSubscription = (() => {
+      try {
+        return localStorage.getItem("has_subscription") === "true";
+      } catch {
+        return false;
+      }
+    })();
+
+    if (
+      hasSubscription &&
+      (!ensuredUser?.user_id || !ensuredUser?.customer_id)
+    ) {
       try {
         const resp: any = await dispatch<any>(getUserAPI());
         const payload = resp?.payload || resp;
         if (payload) {
-          ensuredUser = {
-            ...ensuredUser,
-            user_id: payload?.id || payload?.user_id || ensuredUser?.user_id,
-            customer_id:
-              payload?.stripe_customer_id ||
-              payload?.customer_id ||
-              ensuredUser?.customer_id,
-          };
-          setuserData((prev) => ({ ...prev, ...ensuredUser }));
+          const normalized = normalizeUserRecord({
+            ...(ensuredUser || {}),
+            ...payload,
+          });
+          ensuredUser = normalized || ensuredUser;
+          if (normalized) {
+            setuserData(normalized);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
@@ -102,10 +162,9 @@ export const PricePlans = (props) => {
 
     // Validate that we have user_id before proceeding
     if (!ensuredUser?.user_id) {
-      te("Loading your account details... please try again in a moment.");
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      te(
+        "We're still loading your account details. Please log out and back in, then try again."
+      );
       return;
     }
 
@@ -164,7 +223,7 @@ export const PricePlans = (props) => {
 
   /** --------------get plans start------------------------------*/
   const [plans, setPlans] = useState<any>([]);
-  const fallbackPlans: any[] = React.useMemo(
+  const fallbackPlans: any[] = useMemo(
     () => [
       {
         product_id: "one_month",
