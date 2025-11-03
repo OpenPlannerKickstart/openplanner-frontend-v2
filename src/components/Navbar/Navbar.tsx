@@ -21,6 +21,7 @@ import { io } from 'socket.io-client';
 import { NOTIFICATION_ALERT } from '../../Utility/ApiList';
 import { ts } from '../../Utility/Toaster';
 import { API_URL, WEB_SOCKET_CONNECTION_URL } from '../../Utility/Config';
+import { get, post } from '../../Utility/httpInterceptor';
 import { useNotifications } from '../../context/SocketContext';
 const Navbar = (props) => {
   const [SidebarSize, setSidebarSize] = useState('lg');
@@ -88,6 +89,7 @@ const Navbar = (props) => {
       handleNotificationsShow();
       countUnreadNotification();
     }
+    fetchInvites();
 
   }
   const readNotification = async (notificationId) => {
@@ -167,14 +169,7 @@ const Navbar = (props) => {
   }, [notificationData])
 
 
-  useEffect(() => {
-
-    if (!isNullUndefinedOrBlank(countOfUnreadNotificationData)) {
-      setNotificationCount(countOfUnreadNotificationData);
-    } else {
-      setNotificationCount(0)
-    }
-  }, [countOfUnreadNotificationData])
+  
   useEffect(() => {
     if (!isEmptyObjectOrNullUndefiend(notificationList)) {
       const newData = [...notificationList];
@@ -257,6 +252,44 @@ const Navbar = (props) => {
   /** --------------------Notification end------------------------*/
 
   const { subscribeToPath, unsubscribeFromPath } = useNotifications();
+  // --- Invites inbox state (for notifications panel) ---
+  type InviteItem = { id: string; groupId: string; fromUserId?: string; fromUsername?: string; groupName?: string; fromName?: string; message?: string; createdAt?: any; read?: boolean };
+  const [invites, setInvites] = useState<Array<InviteItem>>([]);
+  // Persist read state locally so the blue background can be cleared without removing the invite
+  const getInviteReadSet = () => { try { return new Set<string>(JSON.parse(localStorage.getItem('op_invite_read') || '[]')); } catch { return new Set<string>(); } };
+  const setInviteReadSet = (s: Set<string>) => { try { localStorage.setItem('op_invite_read', JSON.stringify(Array.from(s))); } catch {} };
+  const fetchInvites = async () => {
+    try {
+      const res: any = await get('invites');
+      const data = res?.data ?? res;
+      const list: any[] = data?.invites ?? [];
+      const readSet = getInviteReadSet();
+      const enriched = await Promise.all(list.map(async (inv) => {
+        let groupName = inv?.groupName;
+        if (!groupName && inv?.groupId) {
+          try {
+            const gres: any = await get(`groups/${inv.groupId}`);
+            const g = gres?.data ?? gres;
+            if (g?.name) groupName = g.name;
+          } catch {}
+        }
+        return {
+          ...inv,
+          groupName,
+          fromName: inv?.from?.displayName || inv?.fromUsername || inv?.from?.username,
+          read: readSet.has(inv.id)
+        } as InviteItem;
+      }));
+      setInvites(enriched);
+    } catch {}
+  };
+
+  // Badge = unread notifications (redux) + unread group invites
+  useEffect(() => {
+    const base = !isNullUndefinedOrBlank(countOfUnreadNotificationData) ? countOfUnreadNotificationData : 0;
+    const unreadInvites = (invites || []).filter(it => !it.read).length;
+    setNotificationCount(base + unreadInvites);
+  }, [countOfUnreadNotificationData, invites])
 
   // useCallback ensures the same function reference
   const handleNotification = useCallback((data: any) => {
@@ -290,6 +323,45 @@ const Navbar = (props) => {
       unsubscribeFromPath(path, handleNotification);
     };
   }, [subscribeToPath, unsubscribeFromPath, handleNotification]);
+
+  // Direct invite socket → update invites and badge
+  useEffect(() => {
+    const uid = getUserSubId();
+    if (!uid) return;
+    const path = `user:${uid}:invite`;
+    const onInvite = (payload: any) => {
+      if (!payload || !payload.id) return;
+      (async () => {
+        let name = payload.groupName as string | undefined;
+        if (!name && payload.groupId) {
+          try {
+            const gres: any = await get(`groups/${payload.groupId}`);
+            const g = gres?.data ?? gres; if (g?.name) name = g.name;
+          } catch {}
+        }
+        const readSet = getInviteReadSet();
+        setInvites(prev => [{
+          id: payload.id,
+          groupId: payload.groupId,
+          fromUserId: payload.from?.id,
+          fromUsername: payload.from?.username,
+          groupName: name,
+          fromName: payload.from?.displayName || payload.from?.username,
+          message: payload.message,
+          createdAt: payload.createdAt,
+          read: readSet.has(payload.id) ? true : false
+        }, ...prev]);
+        setNotificationAlert(true);
+        setTimeout(() => setNotificationAlert(false), 5000);
+        // badge updates via invites effect (combined with unread)
+      })();
+    };
+    subscribeToPath(path, onInvite);
+    return () => { unsubscribeFromPath(path, onInvite); };
+  }, [subscribeToPath, unsubscribeFromPath]);
+
+  // Prefetch invites at mount so they render immediately when panel opens
+  useEffect(() => { fetchInvites(); }, []);
   // const handleSendNotification = () => {
   //   const path = 'notifications/send';
   //   const data = {
@@ -379,6 +451,37 @@ const Navbar = (props) => {
         <Offcanvas.Body>
           <div className="Add-new-task-container">
             <div className="op-offcanvas-body-container">
+              {/* Pending group invites */}
+              {invites && invites.length > 0 && (
+                <div className="notification-box mb-3">
+                  <div className="d-flex align-items-center justify-content-between" style={{ padding: '6px 8px', borderBottom: '1px solid #E5E7EB' }}>
+                    <h6 className="mb-0">Group Invites</h6>
+                    <button className="btn btn-sm btn-outline-white" onClick={fetchInvites}>Refresh</button>
+                  </div>
+                  <ul className="list-unstyled mb-0">
+                    {invites.map((it) => {
+                      const created = (it as any).createdAt || (it as any).created_at || Date.now();
+                      return (
+                        <li key={it.id} className={`${!it.read ? 'unread' : ''} d-flex align-items-center justify-content-between`} style={{ padding: '10px 12px', borderBottom: '1px solid #F3F4F6' }}>
+                          <div className="noti-details">
+                            <p className="mb-1">{(it.fromUsername || it.fromName || 'Someone')} invited you to join {it.groupName || 'a group'}</p>
+                            <span>{formatedDate(created, `MMM DD, [at] hh:mm a`)}</span>
+                          </div>
+                          <div className='noti-action d-flex gap-2'>
+                            <button className="btn btn-sm btn-link text-info" onClick={async () => { try { const res: any = await post(`invites/${it.id}/accept`, {}); const data = res?.data ?? res; handleNotificationClose(); if (data?.groupId) { navigate(`/groups/${data.groupId}?tab=groups`); } else { navigate(`/groups?tab=groups`); } } catch {} }}>Join</button>
+                            <div className="vr"></div>
+                            {!it.read ? (
+                              <button className="btn btn-sm btn-link text-danger" onClick={() => { const r = getInviteReadSet(); r.add(it.id); setInviteReadSet(r); setInvites(prev => prev.map(x => x.id === it.id ? { ...x, read: true } : x)); }}>Dismiss</button>
+                            ) : (
+                              <button className="btn btn-sm btn-link text-danger" onClick={async () => { try { await post(`invites/${it.id}/decline`, {}); fetchInvites(); } catch {} }}>Clear</button>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
               {
                 !isEmptyObjectOrNullUndefiend(notificationList) ?
 

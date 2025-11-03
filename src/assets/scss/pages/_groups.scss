@@ -1,0 +1,159 @@
+
+/* --- Groups page: remove bottom band and let inner area reach the bottom --- */
+.groups-page {
+  /* 1) Some themes add a decorative bottom fade via ::after. Disable it here. */
+  .content-area-title-filter::after {
+    display: none !important;
+  }
+
+  /* 2) Make the content frame a fixed-height viewport under the 60px title bar */
+  .content-area {
+    height: calc(100vh - 60px) !important; /* desktop */
+    display: flex;
+    flex-direction: column;
+    min-height: 0 !important; /* critical so children can shrink/grow */
+    overflow: hidden !important; /* desktop default; mobile will override inline to visible */
+    border-radius: 0 !important;
+    padding: 0 !important;
+    /* Hide any nested scrollbars for a single visible scrollbar experience */
+    scrollbar-width: none; /* Firefox */
+  }
+  .content-area::-webkit-scrollbar { display: none; }
+
+  /* 3) Every flex ancestor must allow shrink/grow */
+  .page-content-wrapper,
+  .row {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+  }
+
+  /* 4) Column roots are flex containers; allow their children to size */
+  .col-lg-4 > .d-flex.flex-column,
+  .col-lg-8.d-flex.flex-column {
+    min-height: 0 !important;
+  }
+
+  /* 5) Fixed elements should not consume flexible height */
+  .search-row,
+  .tabs-row {
+    flex: 0 0 auto;
+  }
+
+  /* 6) The scrolling region under the tabs */
+  .left-list-scroll {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0) + 96px); /* extra space so last item isn’t clipped when the page scrolls */
+    scrollbar-gutter: auto; /* do not reserve space for a hidden scrollbar */
+    margin-bottom: 0 !important;
+  }
+
+  /* Hide inner scrollbar so only one scrollbar is visible on the page */
+  .left-list-scroll {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+  .left-list-scroll::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .left-scroll-inner { flex: 1 1 auto; min-height: 0 !important; }
+
+  /* Optional: when the layout stacks on small screens, let the page scroll */
+  @media (max-width: 991.98px) {
+    .content-area {
+      height: auto !important;
+      min-height: 100dvh !important;  /* mobile-friendly viewport */
+      overflow: visible !important; /* mobile: allow sticky to work */
+    }
+  }
+}
+
+
+
+  .search-row { position: sticky; top: 0; z-index: 2; background: #fff; }
+  .tabs-row   { position: sticky; top: 64px; z-index: 1; background: #fff; }
+
+/* Composer UI niceties */
+.composer-textarea {
+  scrollbar-width: none; /* Firefox */
+}
+.composer-textarea::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+/* Round the top-right corner when textarea grows to multiple lines */
+.composer-textarea.one-line {
+  border-top-right-radius: 0 !important;
+}
+.composer-textarea.multiline {
+  border-top-right-radius: 10px !important;
+}
+
+/* Hide right column scrollbars so only the main page scrollbar is visible */
+.right-pane-scroll,
+.right-timeline-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.right-pane-scroll::-webkit-scrollbar,
+.right-timeline-scroll::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+/* Hover toolbar for message rows (mine) */
+.groups-message-row:hover .message-actions,
+.groups-message-row:focus-within .message-actions {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+/* --- Mobile: hide inner scrollbars (keep scroll), avoid double bars --- */
+@media (max-width: 991.98px) {
+  .groups-page {
+    /* Clip any inner overlay bars */
+    .left-scroll-inner,
+    .right-pane-scroll {
+      overflow: hidden !important;
+    }
+
+    /* Keep the inner areas scrollable, but hide the visual scrollbar */
+    .left-list-scroll,
+    .right-timeline-scroll {
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;        /* Firefox */
+      -ms-overflow-style: none;     /* IE/Edge */
+    }
+    .left-list-scroll::-webkit-scrollbar,
+    .right-timeline-scroll::-webkit-scrollbar {
+      width: 0 !important;
+      height: 0 !important;
+      background: transparent !important;
+    }
+
+    /* Cover trick: push the (now width:0/overlay) bar out of view across engines */
+    .left-list-scroll {
+      padding-right: 14px;  /* space for the hidden bar */
+      margin-right: -14px;  /* pull it under the clip */
+    }
+    .right-timeline-scroll {
+      padding-right: 14px;
+      margin-right: -14px;
+    }
+  }
+}
+
+/* Shared scroll behavior for group info bodies on all breakpoints */
+.groups-page .group-info-scroll {
+  flex: 1 1 auto;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar for invite results list in modal */
+.invite-results-scroll {
+  scrollbar-width: none; /* Firefox */
+}
+.invite-results-scroll::-webkit-scrollbar {
+  width: 0; height: 0; display: none; /* WebKit */
+}

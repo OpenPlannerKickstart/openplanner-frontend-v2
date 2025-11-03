@@ -191,9 +191,11 @@ export const post = (
   if (!isExcludedUrl(url)) {
     header = {
       Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
+      "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     };
   }
+  // Remove dev-only CSRF header now that BE endpoints are live
   // if (url === GET_LOGIN_DATA_API) {
   //     header = {
   //         'Content-Type': "application/json"
@@ -337,7 +339,7 @@ const handleError = (error: any): any => {
   else if (parsedError && parsedError.status === 503) {
     errorMsg = parsedError.error;
     te(errorMsg);
-    return;
+    return Promise.reject(error);
   }
   // Check if the response status indicates unauthorized (401)
   else if (
@@ -386,6 +388,8 @@ const handleError = (error: any): any => {
   else {
     te("Sorry, something went wrong. Please try again.");
   }
+  // Always reject so callers can handle status/headers (e.g., 429 rate limit)
+  return Promise.reject(error);
 };
 /**
  * Signal a synchronous logout by throwing an error.
@@ -628,7 +632,7 @@ export const deleteAPI = (
   let header: any = {};
   if (excludeTokenAPIList.indexOf(url) < 0) {
     header = {
-      Authorization: getToken() ? getToken() : "",
+      Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
       "Access-Control-Allow-Origin": "*",
     };
   }

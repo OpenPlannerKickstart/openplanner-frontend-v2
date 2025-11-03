@@ -1,12 +1,9 @@
 import { http, HttpResponse, delay, passthrough } from 'msw';
 import seed from '../groups/seed.json';
 import type {
-  MessagesResponse,
   SuggestionCandidate,
   GroupDetail,
-  GroupSummary,
   Invite,
-  Message,
 } from '../../interfaces/groups';
 
 const API_BASE = '';
@@ -23,7 +20,7 @@ const escapeHtml = (value: unknown): string => {
 };
 
 const suggestionsPath = `${API_BASE}/groups/suggestions`;
-const messagesPath = (id: string) => `${API_BASE}/groups/${id}/messages`;
+// const messagesPath = (id: string) => `${API_BASE}/groups/${id}/messages`;
 
 export const groupsHandlers = [
   // POST /groups/suggestions
@@ -65,60 +62,19 @@ export const groupsHandlers = [
     }
   }),
 
-  // GET /groups/:id/messages
-  http.get(new RegExp(`/groups/([0-9a-fA-F-]+)/messages`), async ({ params, request }) => {
-    const id = (params as any)[0];
-    const url = new URL(request.url);
-    const limit = Math.min(Number(url.searchParams.get('limit') || '50'), 100);
-
-    const messages = ((seed as any).messages as Message[])
-      .filter(m => m.groupId === id)
-      .slice(0, limit)
-      .map((m) => ({
-        ...m,
-        content: escapeHtml(m.content),
-        sender: m.sender ? { ...m.sender, name: escapeHtml((m.sender as any).name) } : m.sender,
-      }));
-    const res: MessagesResponse = { messages, nextCursor: null };
-    await delay(120);
-    return HttpResponse.json(res);
+  // GET /groups/:id/messages → passthrough to real backend
+  http.get(new RegExp(`/groups/([0-9a-fA-F-]+)/messages`), () => {
+    return passthrough();
   }),
 
-  // POST /groups/:id/messages
-  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/messages`), async ({ params, request }) => {
-    const id = (params as any)[0];
-    const body = (await request.json()) as Record<string, any>;
-    // Minimal CSRF check for development mocks. Backend must enforce proper protection.
-    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
-    if (!csrf) {
-      return HttpResponse.json(
-        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
-        { status: 403 }
-      );
-    }
-    const content = String((body as any)?.content || '');
-    if (content.length > 4000) {
-      return HttpResponse.json({ code: 'RATE_LIMITED', message: 'Content too long' }, {
-        status: 429,
-        headers: {
-          'Retry-After': '2',
-          'X-RateLimit-Limit': '60',
-          'X-RateLimit-Remaining': '59',
-          'X-RateLimit-Reset': String(Math.floor(Date.now() / 1000) + 2),
-        }
-      });
-    }
+  // POST /groups/:id/messages → passthrough to real backend
+  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/messages`), () => {
+    return passthrough();
+  }),
 
-    const msg: Message = {
-      id: crypto.randomUUID(),
-      groupId: id as string,
-      sender: { id: 'me', name: 'You' },
-      content: escapeHtml(content),
-      createdAt: new Date().toISOString(),
-      clientId: (body as any)?.clientId ?? undefined,
-    };
-    await delay(80);
-    return HttpResponse.json(msg);
+  // DELETE /groups/:groupId/messages/:messageId → passthrough
+  http.delete(new RegExp(`/groups/([0-9a-fA-F-]+)/messages/([0-9a-fA-F-]+)`), () => {
+    return passthrough();
   }),
 
   // POST /groups/join (with simple CSRF header validation in mocks)
@@ -155,55 +111,19 @@ export const groupsHandlers = [
   }),
 
   // GET /groups/:id
-  http.get(new RegExp(`/groups/([0-9a-fA-F-]+)$`), async ({ params }) => {
-    const id = (params as any)[0];
-    const groupRaw = ((seed as any).groups as GroupDetail[]).find(g => g.id === id);
-    if (!groupRaw) return HttpResponse.json({ code: 'FORBIDDEN', message: 'Not found' }, { status: 404 });
-    // Sanitize string fields to minimize XSS risk in dev
-    const group: GroupDetail = {
-      ...groupRaw,
-      name: escapeHtml((groupRaw as any).name),
-      description: escapeHtml((groupRaw as any).description),
-    } as any;
-    await delay(50);
-    return HttpResponse.json(group);
+  // Passthrough to backend for dynamic groups
+  http.get(new RegExp(`/groups/([0-9a-fA-F-]+)$`), () => {
+    return passthrough();
   }),
 
-  // POST /groups/:id/invites
-  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/invites`), async ({ params, request }) => {
-    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
-    if (!csrf) {
-      return HttpResponse.json(
-        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
-        { status: 403 }
-      );
-    }
-    const id = (params as any)[0];
-    const token = crypto.randomUUID();
-    const invite: Invite = {
-      url: escapeHtml(`${location.origin}/invite/${token}`),
-      token: escapeHtml(token),
-      expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
-      singleUse: true,
-    };
-    await delay(50);
-    return HttpResponse.json(invite);
+  // POST /groups/:id/invites → passthrough to real backend (so FE sees real URL and headers)
+  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/invites`), () => {
+    return passthrough();
   }),
 
-  // POST /invites/accept (with simple CSRF header validation in mocks)
-  http.post(`${API_BASE}/invites/accept`, async ({ request }) => {
-    // Minimal CSRF check for development mocks. The real backend should
-    // implement robust CSRF/session protection. Here we require a header key.
-    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
-    if (!csrf) {
-      return HttpResponse.json(
-        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
-        { status: 403 }
-      );
-    }
-    await delay(50);
-    const gid = escapeHtml(String((seed as any).groups?.[0]?.id ?? ''));
-    return HttpResponse.json({ ok: true, groupId: gid });
+  // POST /invites/accept → passthrough to real backend
+  http.post(`${API_BASE}/invites/accept`, () => {
+    return passthrough();
   }),
 
   // POST /groups/:id/report
@@ -222,6 +142,32 @@ export const groupsHandlers = [
   http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/request-archive`), async () => {
     await delay(30);
     return HttpResponse.json({ ok: true });
+  }),
+
+  // --- New passthroughs for user search and direct invites/inbox ---
+  // GET /users/search?q=
+  http.get(new RegExp(`/users/search`), () => {
+    return passthrough();
+  }),
+
+  // POST /groups/:groupId/invites/direct
+  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/invites/direct`), () => {
+    return passthrough();
+  }),
+
+  // GET /invites (inbox)
+  http.get(`${API_BASE}/invites`, () => {
+    return passthrough();
+  }),
+
+  // POST /invites/:id/accept
+  http.post(new RegExp(`/invites/([0-9a-fA-F-]+)/accept`), () => {
+    return passthrough();
+  }),
+
+  // POST /invites/:id/decline
+  http.post(new RegExp(`/invites/([0-9a-fA-F-]+)/decline`), () => {
+    return passthrough();
   }),
 ];
 
