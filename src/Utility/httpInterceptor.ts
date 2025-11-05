@@ -186,14 +186,16 @@ export const post = (
   // }
 
   /**  Define the headers for the request, including the Authorization token if required */
+  const isFormDataPayload =
+    typeof FormData !== "undefined" && bodyObj instanceof FormData;
 
-  let header: any = { "Content-Type": "application/json" };
+  let header: any = {};
   if (!isExcludedUrl(url)) {
-    header = {
-      Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    };
+    header.Authorization = getToken() ? `${"Bearer " + getToken()}` : "";
+    header["Access-Control-Allow-Origin"] = "*";
+  }
+  if (!isFormDataPayload) {
+    header["Content-Type"] = "application/json";
   }
   // Remove dev-only CSRF header now that BE endpoints are live
   // if (url === GET_LOGIN_DATA_API) {
