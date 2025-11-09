@@ -8,6 +8,9 @@ import GroupListItem from '../../..//components/Groups/GroupListItem';
 import { useNotifications } from '../../../context/SocketContext';
 import { getDecodeIDToken } from '../../../Utility/Helper';
 import { v4 as uuidv4 } from 'uuid';
+import { ATTACH_ACCEPT_INPUT, ATTACH_MAX_PER_MESSAGE, ATTACH_MAX_MB, isMimeAllowed, isSizeAllowed } from '../../../Utility/attachments';
+import { initiateUpload, uploadToS3, toAttachmentDescriptor, computeCrc32Base64 } from '../../../Utility/uploads';
+import type { AttachmentDescriptor } from '../../../interfaces/groups';
 
 // Simple responsive hook for mobile breakpoint detection (align with Bootstrap lg)
 const useIsMobile = (maxWidthPx: number = 991.98) => {
@@ -61,6 +64,11 @@ const Groups: React.FC = () => {
   const [copied, setCopied] = useState<boolean>(false);
   // Invites inbox
   const [invites, setInvites] = useState<Array<{ id: string; groupId: string; message?: string; fromUserId?: string; groupName?: string; fromName?: string }>>([]);
+
+  // Upload queue + prepared descriptors for attachments
+  const [uploading, setUploading] = useState<Array<{ id: string; file: File; status: 'initiating' | 'uploading' | 'done' | 'error'; error?: string }>>([]);
+  const [readyAttachments, setReadyAttachments] = useState<AttachmentDescriptor[]>([]);
+  const [uploadRateLimitUntil, setUploadRateLimitUntil] = useState<number | null>(null);
 
   // chat timeline state
   const [messages, setMessages] = useState<Record<string, any[]>>({}); // keyed by groupId
@@ -419,6 +427,83 @@ const Groups: React.FC = () => {
     return () => { unsubscribeFromPath(eventName, onInvite); };
   }, [currentUserSub, subscribeToPath, unsubscribeFromPath]);
 
+  // Helper: add files to queue and perform initiate + S3 PUT
+  const addFiles = async (files: File[]) => {
+    const spaceRemaining = Math.max(0, ATTACH_MAX_PER_MESSAGE - (readyAttachments.length + uploading.filter(u => u.status === 'initiating' || u.status === 'uploading').length));
+    if (spaceRemaining <= 0) {
+      te(`You can attach up to ${ATTACH_MAX_PER_MESSAGE} files`);
+      return;
+    }
+    const toProcess = files.slice(0, spaceRemaining);
+    const items = toProcess.map((file) => ({ id: uuidv4(), file, status: 'initiating' as const }));
+    setUploading(prev => [...prev, ...items]);
+    for (const item of items) {
+      try {
+        // Respect active rate limit
+        if (uploadRateLimitUntil && Date.now() < uploadRateLimitUntil) {
+          const remaining = Math.max(1, Math.ceil((uploadRateLimitUntil - Date.now()) / 1000));
+          te(`Too many uploads, try again in ${remaining}s`);
+          setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'error', error: 'rate_limited' }) : u));
+          continue;
+        }
+        // 1) Compute checksum (base64 CRC32) and initiate
+        const checksum = await computeCrc32Base64(item.file);
+        const init = await initiateUpload(item.file, selectedGroupId || undefined, checksum);
+        let signedHeadersStr: string | null = null;
+        if (init?.signedHeaders) {
+          // Log the exact signed headers for quick verification with BE
+          // Expect: includes x-amz-checksum-crc32 (order may vary)
+          // eslint-disable-next-line no-console
+          console.info('[uploads] X-Amz-SignedHeaders:', init.signedHeaders);
+          signedHeadersStr = init.signedHeaders;
+        } else {
+          // Fallback: parse from URL for debugging
+          try {
+            const u = new URL(init.putUrl);
+            const sh = u.searchParams.get('X-Amz-SignedHeaders');
+            // eslint-disable-next-line no-console
+            console.info('[uploads] X-Amz-SignedHeaders (parsed):', sh);
+            signedHeadersStr = sh;
+          } catch {}
+        }
+        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'uploading' }) : u));
+        // 2) PUT to S3
+        const hdrs: Record<string, string> = { ...(init.headers || {}) };
+        // If the presign did NOT sign the checksum header (X-Amz-SignedHeaders lacks it),
+        // do NOT send the header or S3 will reject with HeadersNotSigned.
+        if (signedHeadersStr && !signedHeadersStr.toLowerCase().includes('x-amz-checksum-crc32')) {
+          delete hdrs['x-amz-checksum-crc32'];
+          delete (hdrs as any)['X-Amz-Checksum-Crc32'];
+        }
+        await uploadToS3(init.putUrl, hdrs, item.file);
+        // 3) Build descriptor
+        const desc = toAttachmentDescriptor(item.file, init.fileId);
+        setReadyAttachments(prev => [...prev, desc]);
+        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'done' }) : u));
+      } catch (e: any) {
+        const status = e?.response?.status || e?.status;
+        if (status === 429) {
+          const headers = (e?.response?.headers || {}) as Record<string, any>;
+          const retryRaw = headers['retry-after'] ?? headers['Retry-After'];
+          let retrySeconds = parseInt(String(retryRaw ?? ''), 10);
+          if (!Number.isFinite(retrySeconds) || retrySeconds <= 0) retrySeconds = 5;
+          setUploadRateLimitUntil(Date.now() + retrySeconds * 1000);
+          te(`Too many uploads, try again in ${retrySeconds}s`);
+        } else if (status === 415) {
+          te('Unsupported file type');
+        } else if (status === 413) {
+          te(`File too large (max ${ATTACH_MAX_MB} MB)`);
+        } else {
+          te('Failed to upload file');
+        }
+        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'error', error: String(status || 'error') }) : u));
+      }
+    }
+  };
+
+  const uploadingCount = uploading.filter(u => u.status === 'initiating' || u.status === 'uploading').length;
+  const selectedFilesCount = readyAttachments.length + uploadingCount;
+
   // If a group is already selected and we move to mobile, auto-open chat view
   useEffect(() => {
     if (isMobile && selectedGroupId) {
@@ -444,7 +529,8 @@ const Groups: React.FC = () => {
   const handleSendMessage = async (text: string): Promise<boolean> => {
     if (!selectedGroupId) return false;
     const content = text.trim();
-    if (!content) return false;
+    const hasAttachments = readyAttachments.length > 0;
+    if (!content && !hasAttachments) return false;
     // Block if currently rate-limited
     if (rateLimitUntil && Date.now() < rateLimitUntil) {
       const remaining = Math.max(1, Math.ceil((rateLimitUntil - Date.now()) / 1000));
@@ -456,7 +542,7 @@ const Groups: React.FC = () => {
       id: `optimistic-${clientId}`,
       groupId: selectedGroupId,
       sender: { id: 'me', name: 'You' },
-      content,
+      content: content || (hasAttachments ? '' : content),
       createdAt: new Date().toISOString(),
       clientId,
       optimistic: true,
@@ -468,12 +554,20 @@ const Groups: React.FC = () => {
     // scroll to bottom
     requestAnimationFrame(() => { timelineRef.current && (timelineRef.current.scrollTop = timelineRef.current.scrollHeight); });
     try {
-      const res: any = await post(`groups/${selectedGroupId}/messages`, { content, clientId }, true, false, false);
+      const payload: any = { clientId } as any;
+      if (content) (payload as any).content = content;
+      if (hasAttachments) (payload as any).attachments = readyAttachments;
+      const res: any = await post(`groups/${selectedGroupId}/messages`, payload, true, false, false);
       const msg = res?.data ?? res;
       setMessages(prev => ({
         ...prev,
         [selectedGroupId]: (prev[selectedGroupId] ?? []).map(m => (m && m.clientId === clientId ? msg : m)),
       }));
+      // Clear attachments after successful send
+      if (hasAttachments) {
+        setReadyAttachments([]);
+        setUploading([]);
+      }
     } catch (e: any) {
       // remove optimistic item on failure
       setMessages(prev => ({
@@ -842,7 +936,22 @@ const Groups: React.FC = () => {
                                                 <div style={{ textAlign: 'left' }}>You</div>
                                                 <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                               </div>
-                                              <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                              <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                                {m.content}
+                                                {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                                  <div className="mt-2 d-flex flex-wrap gap-2">
+                                                    {m.attachments.map((att: any) => (
+                                                      att?.mimeType?.startsWith('image/') ? (
+                                                        <img key={att.id} src={att.url} alt={att.fileName} style={{ maxWidth: 240, height: 'auto', borderRadius: 8, border: '1px solid #E5E7EB' }} />
+                                                      ) : (
+                                                        <a key={att.id} href={att.url} target="_blank" rel="noreferrer" className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
+                                                          <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                                        </a>
+                                                      )
+                                                    ))}
+                                                  </div>
+                                                ) : null}
+                                              </div>
                                             </div>
                                           </div>
                                         );
@@ -872,7 +981,22 @@ const Groups: React.FC = () => {
                                               <div>{senderName}</div>
                                               <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
-                                            <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                            <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                              {m.content}
+                                              {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                                <div className="mt-2 d-flex flex-wrap gap-2">
+                                                  {m.attachments.map((att: any) => (
+                                                    att?.mimeType?.startsWith('image/') ? (
+                                                      <img key={att.id} src={att.url} alt={att.fileName} style={{ maxWidth: 240, height: 'auto', borderRadius: 8, border: '1px solid #E5E7EB' }} />
+                                                    ) : (
+                                                      <a key={att.id} href={att.url} target="_blank" rel="noreferrer" className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
+                                                        <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                                      </a>
+                                                    )
+                                                  ))}
+                                                </div>
+                                              ) : null}
+                                            </div>
                                           </div>
                                         </div>
                                       );
@@ -890,6 +1014,10 @@ const Groups: React.FC = () => {
                           disabled={!selectedGroupId || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
                           countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
                           resizeSignal={frameRect.width}
+                          onFilesAdded={addFiles}
+                          selectedFilesCount={selectedFilesCount}
+                          uploadingCount={uploadingCount}
+                          allowEmptySend={readyAttachments.length > 0}
                         />
                       </div>
 
@@ -1166,6 +1294,10 @@ const Groups: React.FC = () => {
                   onSend={handleSendMessage}
                   disabled={!selectedGroupId || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
                   countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                  onFilesAdded={addFiles}
+                  selectedFilesCount={selectedFilesCount}
+                  uploadingCount={uploadingCount}
+                  allowEmptySend={readyAttachments.length > 0}
                 />
               </div>
 
@@ -1470,13 +1602,56 @@ const Groups: React.FC = () => {
 export default Groups;
 
 // Lightweight internal composer component
-const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean; disabled?: boolean; countdownSeconds?: number; resizeSignal?: any }> = ({ onSend, disabled, countdownSeconds, resizeSignal }) => {
+const Composer: React.FC<{
+  onSend: (text: string) => Promise<boolean> | boolean;
+  disabled?: boolean;
+  countdownSeconds?: number;
+  resizeSignal?: any;
+  onFilesAdded?: (files: File[]) => void;
+  selectedFilesCount?: number;
+  uploadingCount?: number;
+  allowEmptySend?: boolean;
+}> = ({ onSend, disabled, countdownSeconds, resizeSignal, onFilesAdded, selectedFilesCount = 0, uploadingCount = 0, allowEmptySend = false }) => {
   const [text, setText] = useState('');
   const textRef = useRef<HTMLTextAreaElement | null>(null);
   const igRef = useRef<HTMLDivElement | null>(null);
   const [baseHeight, setBaseHeight] = useState<number>(40);
   const [isMultiline, setIsMultiline] = useState<boolean>(false);
-  const send = async () => { if (!disabled && text.trim()) { const ok = await onSend(text); if (ok) { setText(''); resize(); } } };
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const send = async () => { if (!disabled && (text.trim() || allowEmptySend)) { const ok = await onSend(text); if (ok) { setText(''); resize(); } } };
+  const handleFileClick = () => {
+    if (disabled) return;
+    fileInputRef.current?.click();
+  };
+  const handleFilesSelected = (filesList: FileList | null) => {
+    if (!filesList || !onFilesAdded) return;
+    const incoming = Array.from(filesList);
+    const valid: File[] = [];
+    for (const f of incoming) {
+      if (!isMimeAllowed(f.type)) {
+        te('Unsupported file type');
+        continue;
+      }
+      if (!isSizeAllowed(f.size)) {
+        te(`File too large (max ${ATTACH_MAX_MB} MB)`);
+        continue;
+      }
+      valid.push(f);
+    }
+    const remaining = Math.max(0, ATTACH_MAX_PER_MESSAGE - selectedFilesCount);
+    if (remaining <= 0) {
+      te(`You can attach up to ${ATTACH_MAX_PER_MESSAGE} files`);
+      return;
+    }
+    const toAdd = valid.slice(0, remaining);
+    if (toAdd.length === 0 && valid.length > 0) {
+      te(`You can attach up to ${ATTACH_MAX_PER_MESSAGE} files`);
+      return;
+    }
+    if (toAdd.length > 0) onFilesAdded(toAdd);
+    // reset input so selecting the same file again re-triggers change
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
   const resize = () => {
     const el = textRef.current;
     if (!el) return;
@@ -1543,6 +1718,14 @@ const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean;
   return (
     <div className="d-flex align-items-end" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}>
       <div ref={igRef} className="input-group" style={{ width: '100%', alignItems: 'flex-end' }}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ATTACH_ACCEPT_INPUT}
+          multiple
+          hidden
+          onChange={(e) => handleFilesSelected(e.currentTarget.files)}
+        />
         <textarea
           ref={textRef}
           className={`form-control composer-textarea ${isMultiline ? 'multiline' : 'one-line'}`}
@@ -1555,8 +1738,13 @@ const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean;
           style={{ outline: 'none', boxShadow: 'none', resize: 'none', overflowY: 'auto', boxSizing: 'border-box' }}
           disabled={disabled}
         />
-        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled} style={{ height: 'var(--composer-row-height)' }}>
+        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled} style={{ height: 'var(--composer-row-height)', position: 'relative' }} onClick={handleFileClick}>
           <i className="material-symbols-outlined">attach_file</i>
+          {(selectedFilesCount > 0) && (
+            <span style={{ position: 'absolute', top: -6, right: -2, background: '#0EA5E9', color: '#fff', fontSize: 11, lineHeight: '14px', height: 16, minWidth: 16, borderRadius: 8, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+              {selectedFilesCount}
+            </span>
+          )}
         </button>
         <button className="btn btn-primary" type="button" onClick={send} disabled={disabled} style={{ height: 'var(--composer-row-height)' }}>
           {disabled && (countdownSeconds ?? 0) > 0 ? `Send (${Math.max(0, countdownSeconds || 0)}s)` : 'Send'}

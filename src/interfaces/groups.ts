@@ -72,7 +72,8 @@ export interface Message {
   createdAt: string;              // ISO 8601 Z
   clientId?: string | null;       // for optimistic dedupe
   deletedAt?: string | null;
-  metadata?: Record<string, any> | null; // reserved (attachments later)
+  metadata?: Record<string, any> | null; // reserved (legacy/extra metadata)
+  attachments?: Attachment[] | null;     // optional short-lived URLs for download/render
 }
 
 export interface Invite {
@@ -85,6 +86,30 @@ export interface Invite {
 export interface MessagesResponse {
   messages: Message[];
   nextCursor?: string | null;     // base64(createdAt|id), opaque
+}
+
+/* Attachments */
+export interface AttachmentDescriptor {
+  fileId: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  width?: number;
+  height?: number;
+  duration?: number;
+  checksum?: string;
+}
+
+export interface Attachment {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  width?: number;
+  height?: number;
+  duration?: number;
+  url: string;          // short-lived signed GET url
+  expiresAt: string;    // ISO 8601 Z
 }
 
 /* Requests (for thunks/clients and MSW mocks) */
@@ -119,7 +144,8 @@ export interface GetMessagesRequest {
 
 export interface PostMessageRequest {
   id: UUID;                      // group id
-  content: string;               // <= 4000
+  content?: string;              // <= 4000, optional when only attachments
+  attachments?: AttachmentDescriptor[];
   clientId?: string;
 }
 
@@ -157,6 +183,7 @@ export interface SocketMessageEvent {
   content: string;
   createdAt: string;    // ISO
   clientId?: string;
+  attachments?: Attachment[];
 }
 
 export interface SocketTypingEvent {
