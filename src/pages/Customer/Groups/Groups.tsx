@@ -69,6 +69,52 @@ const Groups: React.FC = () => {
   const [uploading, setUploading] = useState<Array<{ id: string; file: File; status: 'initiating' | 'uploading' | 'done' | 'error'; error?: string }>>([]);
   const [readyAttachments, setReadyAttachments] = useState<AttachmentDescriptor[]>([]);
   const [uploadRateLimitUntil, setUploadRateLimitUntil] = useState<number | null>(null);
+  // Local object-URL previews for optimistic rendering (fileId -> blob URL)
+  const [attachmentPreviews, setAttachmentPreviews] = useState<Record<string, string>>({});
+  // Open attachment in a new tab, refreshing message URLs first if the signed URL is expired/near-expiry
+  const parseAmzDate = (str: string) => {
+    // format: YYYYMMDDThhmmssZ
+    if (!str || str.length < 16) return 0;
+    const y = Number(str.slice(0, 4));
+    const m = Number(str.slice(4, 6)) - 1;
+    const d = Number(str.slice(6, 8));
+    const hh = Number(str.slice(9, 11));
+    const mm = Number(str.slice(11, 13));
+    const ss = Number(str.slice(13, 15));
+    return Date.UTC(y, m, d, hh, mm, ss);
+  };
+  const isS3UrlExpiringSoon = (url: string, thresholdMs = 5000) => {
+    try {
+      const u = new URL(url);
+      const amzDate = u.searchParams.get('X-Amz-Date');
+      const amzExpires = Number(u.searchParams.get('X-Amz-Expires') || '0');
+      if (!amzDate || !amzExpires) return false;
+      const issued = parseAmzDate(amzDate);
+      if (!issued) return false;
+      const expiry = issued + amzExpires * 1000;
+      return Date.now() >= (expiry - thresholdMs);
+    } catch {
+      return false;
+    }
+  };
+  const handleAttachmentOpen = async (att: any, messageId?: string | null) => {
+    try {
+      let targetUrl = att?.url;
+      if (!targetUrl) return;
+      // If link is expired or near expiry, refresh messages to get a fresh URL
+      if (isS3UrlExpiringSoon(targetUrl, 5000) && selectedGroupId) {
+        try {
+          await fetchMessages(selectedGroupId);
+          // Try to find a fresher URL for this attachment
+          const list = messages[selectedGroupId] ?? [];
+          const msg = list.find((m: any) => (m?.id && m.id === messageId) || (m?.clientId && m.clientId === messageId));
+          const updated = msg?.attachments?.find((a: any) => (a?.id && a.id === att.id) || (a?.fileId && a.fileId === att.id));
+          if (updated?.url) targetUrl = updated.url;
+        } catch {}
+      }
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+    } catch {}
+  };
 
   // chat timeline state
   const [messages, setMessages] = useState<Record<string, any[]>>({}); // keyed by groupId
@@ -479,6 +525,11 @@ const Groups: React.FC = () => {
         // 3) Build descriptor
         const desc = toAttachmentDescriptor(item.file, init.fileId);
         setReadyAttachments(prev => [...prev, desc]);
+        // 4) Prepare local preview URL for optimistic render
+        try {
+          const blobUrl = URL.createObjectURL(item.file);
+          setAttachmentPreviews(prev => ({ ...prev, [init.fileId]: blobUrl }));
+        } catch {}
         setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'done' }) : u));
       } catch (e: any) {
         const status = e?.response?.status || e?.status;
@@ -531,6 +582,16 @@ const Groups: React.FC = () => {
     const content = text.trim();
     const hasAttachments = readyAttachments.length > 0;
     if (!content && !hasAttachments) return false;
+    const usedIds = hasAttachments ? readyAttachments.map(d => d.fileId) : [];
+    const optimisticAttachments = hasAttachments
+      ? readyAttachments.map(d => ({
+          id: d.fileId,
+          fileName: d.fileName,
+          mimeType: d.mimeType,
+          sizeBytes: d.sizeBytes,
+          url: attachmentPreviews[d.fileId] || undefined,
+        }))
+      : [];
     // Block if currently rate-limited
     if (rateLimitUntil && Date.now() < rateLimitUntil) {
       const remaining = Math.max(1, Math.ceil((rateLimitUntil - Date.now()) / 1000));
@@ -546,6 +607,7 @@ const Groups: React.FC = () => {
       createdAt: new Date().toISOString(),
       clientId,
       optimistic: true,
+      attachments: optimisticAttachments,
     };
     setMessages(prev => ({
       ...prev,
@@ -565,8 +627,19 @@ const Groups: React.FC = () => {
       }));
       // Clear attachments after successful send
       if (hasAttachments) {
+        try {
+          usedIds.forEach(fid => {
+            const url = attachmentPreviews[fid];
+            if (url) URL.revokeObjectURL(url);
+          });
+        } catch {}
         setReadyAttachments([]);
         setUploading([]);
+        setAttachmentPreviews(prev => {
+          const next = { ...prev };
+          usedIds.forEach(fid => { delete next[fid]; });
+          return next;
+        });
       }
     } catch (e: any) {
       // remove optimistic item on failure
@@ -574,6 +647,19 @@ const Groups: React.FC = () => {
         ...prev,
         [selectedGroupId]: (prev[selectedGroupId] ?? []).filter(m => m && m.clientId !== clientId),
       }));
+      if (hasAttachments) {
+        try {
+          usedIds.forEach(fid => {
+            const url = attachmentPreviews[fid];
+            if (url) URL.revokeObjectURL(url);
+          });
+        } catch {}
+        setAttachmentPreviews(prev => {
+          const next = { ...prev };
+          usedIds.forEach(fid => { delete next[fid]; });
+          return next;
+        });
+      }
       const status = e?.response?.status || e?.status;
       if (status === 429) {
         // Read Retry-After from headers (seconds)
@@ -936,22 +1022,26 @@ const Groups: React.FC = () => {
                                                 <div style={{ textAlign: 'left' }}>You</div>
                                                 <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                               </div>
-                                              <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
-                                                {m.content}
-                                                {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                                  <div className="mt-2 d-flex flex-wrap gap-2">
-                                                    {m.attachments.map((att: any) => (
-                                                      att?.mimeType?.startsWith('image/') ? (
-                                                        <img key={att.id} src={att.url} alt={att.fileName} style={{ maxWidth: 240, height: 'auto', borderRadius: 8, border: '1px solid #E5E7EB' }} />
-                                                      ) : (
-                                                        <a key={att.id} href={att.url} target="_blank" rel="noreferrer" className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
-                                                          <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
-                                                        </a>
-                                                      )
-                                                    ))}
-                                                  </div>
-                                                ) : null}
-                                              </div>
+                                              {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                                <div className="d-flex flex-wrap gap-2" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                                  {m.attachments.map((att: any) => (
+                                                    att?.mimeType?.startsWith('image/') ? (
+                                                      <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
+                                                        <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block' }} />
+                                                      </a>
+                                                    ) : (
+                                                      <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
+                                                        <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                                      </a>
+                                                    )
+                                                  ))}
+                                                </div>
+                                              ) : null}
+                                              {m.content ? (
+                                                <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                                  {m.content}
+                                                </div>
+                                              ) : null}
                                             </div>
                                           </div>
                                         );
@@ -981,22 +1071,26 @@ const Groups: React.FC = () => {
                                               <div>{senderName}</div>
                                               <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
-                                            <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
-                                              {m.content}
-                                              {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                                <div className="mt-2 d-flex flex-wrap gap-2">
-                                                  {m.attachments.map((att: any) => (
-                                                    att?.mimeType?.startsWith('image/') ? (
-                                                      <img key={att.id} src={att.url} alt={att.fileName} style={{ maxWidth: 240, height: 'auto', borderRadius: 8, border: '1px solid #E5E7EB' }} />
-                                                    ) : (
-                                                      <a key={att.id} href={att.url} target="_blank" rel="noreferrer" className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
-                                                        <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
-                                                      </a>
-                                                    )
-                                                  ))}
-                                                </div>
-                                              ) : null}
-                                            </div>
+                                            {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                              <div className="d-flex flex-wrap gap-2" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                                {m.attachments.map((att: any) => (
+                                                  att?.mimeType?.startsWith('image/') ? (
+                                                <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
+                                                  <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block' }} />
+                                                    </a>
+                                                  ) : (
+                                                    <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
+                                                      <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                                    </a>
+                                                  )
+                                                ))}
+                                              </div>
+                                            ) : null}
+                                            {m.content ? (
+                                              <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                                {m.content}
+                                              </div>
+                                            ) : null}
                                           </div>
                                         </div>
                                       );
@@ -1249,7 +1343,26 @@ const Groups: React.FC = () => {
                                         <div style={{ textAlign: 'left' }}>You</div>
                                         <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                       </div>
-                                      <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                      {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                        <div className="d-flex flex-wrap gap-2" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                          {m.attachments.map((att: any) => (
+                                            att?.mimeType?.startsWith('image/') ? (
+                                              <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName}>
+                                                <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block' }} />
+                                              </a>
+                                            ) : (
+                                              <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
+                                                <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                              </a>
+                                            )
+                                          ))}
+                                        </div>
+                                      ) : null}
+                                      {m.content ? (
+                                        <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                          {m.content}
+                                        </div>
+                                      ) : null}
                                     </div>
                                   </div>
                                 );
@@ -1278,7 +1391,26 @@ const Groups: React.FC = () => {
                                       <div>{senderName}</div>
                                       <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                     </div>
-                                    <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+                                    {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                      <div className="d-flex flex-wrap gap-2" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                        {m.attachments.map((att: any) => (
+                                          att?.mimeType?.startsWith('image/') ? (
+                                            <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName}>
+                                              <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block' }} />
+                                            </a>
+                                          ) : (
+                                            <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
+                                              <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                            </a>
+                                          )
+                                        ))}
+                                      </div>
+                                    ) : null}
+                                    {m.content ? (
+                                      <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                        {m.content}
+                                      </div>
+                                    ) : null}
                                   </div>
                                 </div>
                               );
