@@ -71,6 +71,69 @@ const Groups: React.FC = () => {
   const [uploadRateLimitUntil, setUploadRateLimitUntil] = useState<number | null>(null);
   // Local object-URL previews for optimistic rendering (fileId -> blob URL)
   const [attachmentPreviews, setAttachmentPreviews] = useState<Record<string, string>>({});
+  const [previewLightbox, setPreviewLightbox] = useState<{ open: boolean; url: string | null; name?: string | null }>({ open: false, url: null, name: null });
+  const removeReadyAttachment = (fileId: string) => {
+    try {
+      const url = attachmentPreviews[fileId];
+      if (url) URL.revokeObjectURL(url);
+    } catch {}
+    setAttachmentPreviews(prev => {
+      const next = { ...prev };
+      delete next[fileId];
+      return next;
+    });
+    setReadyAttachments(prev => prev.filter(d => d.fileId !== fileId));
+  };
+  const renderAttachmentPreviews = () => {
+    if (!readyAttachments || readyAttachments.length === 0) return null;
+    return (
+      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 8 }}>
+        {readyAttachments.map(att => {
+          const isImage = (att?.mimeType || '').startsWith('image/');
+          const url = attachmentPreviews[att.fileId];
+          return (
+            <div
+              key={att.fileId}
+              title={att.fileName}
+              style={{ position: 'relative', width: 64, height: 64, borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flex: '0 0 auto', cursor: (isImage && url) ? 'pointer' : 'default' }}
+              onClick={() => { if (isImage && url) setPreviewLightbox({ open: true, url, name: att.fileName }); }}
+            >
+              {isImage && url ? (
+                <img src={url} alt={att.fileName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <span role="img" aria-label="document" style={{ fontSize: 28 }}>📄</span>
+              )}
+              <button
+                aria-label="Remove attachment"
+                title="Remove"
+                onClick={(e) => { e.stopPropagation(); removeReadyAttachment(att.fileId); }}
+                style={{
+                  position: 'absolute',
+                  top: 4,
+                  right: 4,
+                  width: 20,
+                  height: 20,
+                  borderRadius: 6,
+                  padding: 0,
+                  lineHeight: '18px',
+                  fontSize: 14,
+                  background: '#FFFFFF',
+                  border: '1px solid #E5E7EB',
+                  color: '#6B7280',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+              >
+                ×
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
   // Open attachment in a new tab, refreshing message URLs first if the signed URL is expired/near-expiry
   const parseAmzDate = (str: string) => {
     // format: YYYYMMDDThhmmssZ
@@ -903,7 +966,7 @@ const Groups: React.FC = () => {
                             ))
                         ) : (
                           <div className="text-center p-4">
-                            <h5 className="mt-3 mb-1">You’re not in any groups yet</h5>
+                            <h5 className="mt-3 mb-1">You're not in any groups yet</h5>
                             <p className="text-muted mb-0" style={{ fontSize: 14 }}>
                               When you join or create a group, it will appear here.
                             </p>
@@ -911,7 +974,7 @@ const Groups: React.FC = () => {
                         )}
                         {myGroups && myGroups.length > 0 && searchQuery.trim() &&
                           myGroups.filter((g: any) => g?.name?.toLowerCase().includes(searchQuery.trim().toLowerCase())).length === 0 && (
-                            <div className="text-center p-3 text-muted" style={{ fontSize: 14 }}>No groups match “{searchQuery.trim()}”.</div>
+                            <div className="text-center p-3 text-muted" style={{ fontSize: 14 }}>No groups match "{searchQuery.trim()}".</div>
                           )}
                       </div>
                       <hr className="my-0" />
@@ -1023,7 +1086,7 @@ const Groups: React.FC = () => {
                                                 <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                               </div>
                                               {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                                <div className="d-flex flex-wrap gap-2" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                                <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
                                                   {m.attachments.map((att: any) => (
                                                     att?.mimeType?.startsWith('image/') ? (
                                                       <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
@@ -1072,7 +1135,7 @@ const Groups: React.FC = () => {
                                               <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
                                             {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                              <div className="d-flex flex-wrap gap-2" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                              <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
                                                 {m.attachments.map((att: any) => (
                                                   att?.mimeType?.startsWith('image/') ? (
                                                 <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
@@ -1112,6 +1175,7 @@ const Groups: React.FC = () => {
                           selectedFilesCount={selectedFilesCount}
                           uploadingCount={uploadingCount}
                           allowEmptySend={readyAttachments.length > 0}
+                          previews={renderAttachmentPreviews()}
                         />
                       </div>
 
@@ -1344,10 +1408,10 @@ const Groups: React.FC = () => {
                                         <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                       </div>
                                       {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                        <div className="d-flex flex-wrap gap-2" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                        <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
                                           {m.attachments.map((att: any) => (
                                             att?.mimeType?.startsWith('image/') ? (
-                                              <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName}>
+                                              <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
                                                 <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block' }} />
                                               </a>
                                             ) : (
@@ -1392,10 +1456,10 @@ const Groups: React.FC = () => {
                                       <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                     </div>
                                     {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                      <div className="d-flex flex-wrap gap-2" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                      <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
                                         {m.attachments.map((att: any) => (
                                           att?.mimeType?.startsWith('image/') ? (
-                                            <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName}>
+                                            <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
                                               <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block' }} />
                                             </a>
                                           ) : (
@@ -1430,6 +1494,7 @@ const Groups: React.FC = () => {
                   selectedFilesCount={selectedFilesCount}
                   uploadingCount={uploadingCount}
                   allowEmptySend={readyAttachments.length > 0}
+                  previews={renderAttachmentPreviews()}
                 />
               </div>
 
@@ -1614,7 +1679,7 @@ const Groups: React.FC = () => {
           <div className="bg-white" style={{ width: 360, borderRadius: 12, boxShadow: '0 10px 24px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '16px 16px 0 16px' }}>
               <h6 className="mb-1" style={{ color: '#111827' }}>Delete message?</h6>
-              <div className="text-muted" style={{ fontSize: 14 }}>This can’t be undone. We’ll wire this to backend next.</div>
+              <div className="text-muted" style={{ fontSize: 14 }}>This can't be undone. We'll wire this to backend next.</div>
             </div>
             <div className="d-flex justify-content-end gap-2" style={{ padding: 16 }}>
               <button className="btn btn-outline-white" onClick={() => setConfirmDelete({ open: false, messageId: null })}>Cancel</button>
@@ -1727,6 +1792,15 @@ const Groups: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Image preview lightbox */}
+      {previewLightbox.open && previewLightbox.url ? (
+        <div onClick={() => setPreviewLightbox({ open: false, url: null, name: null })} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 4000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', maxWidth: '95vw', maxHeight: '95vh' }}>
+            <img src={previewLightbox.url} alt={previewLightbox.name || 'preview'} style={{ maxWidth: '95vw', maxHeight: '95vh', borderRadius: 12, display: 'block' }} />
+            <button aria-label="Close preview" title="Close" onClick={() => setPreviewLightbox({ open: false, url: null, name: null })} style={{ position: 'absolute', top: 12, right: 12, width: 28, height: 28, borderRadius: 8, padding: 0, lineHeight: '26px', fontSize: 18, background: '#FFFFFF', border: '1px solid #E5E7EB', color: '#111827', cursor: 'pointer' }}>×</button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -1743,7 +1817,8 @@ const Composer: React.FC<{
   selectedFilesCount?: number;
   uploadingCount?: number;
   allowEmptySend?: boolean;
-}> = ({ onSend, disabled, countdownSeconds, resizeSignal, onFilesAdded, selectedFilesCount = 0, uploadingCount = 0, allowEmptySend = false }) => {
+  previews?: React.ReactNode;
+}> = ({ onSend, disabled, countdownSeconds, resizeSignal, onFilesAdded, selectedFilesCount = 0, uploadingCount = 0, allowEmptySend = false, previews }) => {
   const [text, setText] = useState('');
   const textRef = useRef<HTMLTextAreaElement | null>(null);
   const igRef = useRef<HTMLDivElement | null>(null);
@@ -1848,8 +1923,9 @@ const Composer: React.FC<{
   }, []);
 
   return (
-    <div className="d-flex align-items-end" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}>
-      <div ref={igRef} className="input-group" style={{ width: '100%', alignItems: 'flex-end' }}>
+    <div className="d-flex flex-column" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1, gap: 8 }}>
+      {previews || null}
+      <div ref={igRef} className="input-group d-flex align-items-end" style={{ width: '100%', alignItems: 'flex-end' }}>
         <input
           ref={fileInputRef}
           type="file"
@@ -1870,7 +1946,7 @@ const Composer: React.FC<{
           style={{ outline: 'none', boxShadow: 'none', resize: 'none', overflowY: 'auto', boxSizing: 'border-box' }}
           disabled={disabled}
         />
-        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled} style={{ height: 'var(--composer-row-height)', position: 'relative' }} onClick={handleFileClick}>
+        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled} style={{ height: 40, position: 'relative' }} onClick={handleFileClick}>
           <i className="material-symbols-outlined">attach_file</i>
           {(selectedFilesCount > 0) && (
             <span style={{ position: 'absolute', top: -6, right: -2, background: '#0EA5E9', color: '#fff', fontSize: 11, lineHeight: '14px', height: 16, minWidth: 16, borderRadius: 8, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1878,7 +1954,7 @@ const Composer: React.FC<{
             </span>
           )}
         </button>
-        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled} style={{ height: 'var(--composer-row-height)' }}>
+        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled} style={{ height: 40 }}>
           {disabled && (countdownSeconds ?? 0) > 0 ? `Send (${Math.max(0, countdownSeconds || 0)}s)` : 'Send'}
         </button>
       </div>
