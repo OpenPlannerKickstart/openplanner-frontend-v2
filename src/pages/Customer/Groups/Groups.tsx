@@ -66,7 +66,7 @@ const Groups: React.FC = () => {
   const [invites, setInvites] = useState<Array<{ id: string; groupId: string; message?: string; fromUserId?: string; groupName?: string; fromName?: string }>>([]);
 
   // Upload queue + prepared descriptors for attachments
-  const [uploading, setUploading] = useState<Array<{ id: string; file: File; status: 'initiating' | 'uploading' | 'done' | 'error'; error?: string }>>([]);
+  const [uploading, setUploading] = useState<Array<{ id: string; file: File; fileId?: string; status: 'initiating' | 'uploading' | 'done' | 'error'; error?: string; progress?: number }>>([]);
   const [readyAttachments, setReadyAttachments] = useState<AttachmentDescriptor[]>([]);
   const [uploadRateLimitUntil, setUploadRateLimitUntil] = useState<number | null>(null);
   // Local object-URL previews for optimistic rendering (fileId -> blob URL)
@@ -85,12 +85,26 @@ const Groups: React.FC = () => {
     setReadyAttachments(prev => prev.filter(d => d.fileId !== fileId));
   };
   const renderAttachmentPreviews = () => {
-    if (!readyAttachments || readyAttachments.length === 0) return null;
+    const inflight = uploading.filter(u => (u.status === 'initiating' || u.status === 'uploading') && u.fileId).map(u => ({
+      fileId: u.fileId as string,
+      fileName: u.file.name,
+      mimeType: u.file.type,
+      sizeBytes: u.file.size,
+      progress: typeof u.progress === 'number' ? u.progress : 0
+    }));
+    if ((!readyAttachments || readyAttachments.length === 0) && inflight.length === 0) return null;
+    const included = new Set<string>();
+    const tiles: Array<any> = [];
+    // Show in-flight first
+    inflight.forEach(a => { if (!included.has(a.fileId)) { tiles.push(a); included.add(a.fileId); } });
+    // Then ready (done)
+    readyAttachments.forEach(a => { if (!included.has(a.fileId)) { tiles.push({ ...a, progress: 1 }); included.add(a.fileId); } });
     return (
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 8 }}>
-        {readyAttachments.map(att => {
+        {tiles.map(att => {
           const isImage = (att?.mimeType || '').startsWith('image/');
           const url = attachmentPreviews[att.fileId];
+          const progress: number | undefined = typeof att.progress === 'number' ? att.progress : undefined;
           return (
             <div
               key={att.fileId}
@@ -103,6 +117,11 @@ const Groups: React.FC = () => {
               ) : (
                 <span role="img" aria-label="document" style={{ fontSize: 28 }}>📄</span>
               )}
+              {typeof progress === 'number' && progress < 1 ? (
+                <div style={{ position: 'absolute', right: 4, bottom: 4, width: 18, height: 18, borderRadius: '50%', background: `conic-gradient(#0EA5E9 ${Math.max(6, Math.round(progress * 360))}deg, #E5E7EB 0deg)` }}>
+                  <div style={{ position: 'absolute', inset: 3, background: '#fff', borderRadius: '50%' }} />
+                </div>
+              ) : null}
               <button
                 aria-label="Remove attachment"
                 title="Remove"
@@ -544,7 +563,7 @@ const Groups: React.FC = () => {
       return;
     }
     const toProcess = files.slice(0, spaceRemaining);
-    const items = toProcess.map((file) => ({ id: uuidv4(), file, status: 'initiating' as const }));
+    const items = toProcess.map((file) => ({ id: uuidv4(), file, status: 'initiating' as const, progress: 0 }));
     setUploading(prev => [...prev, ...items]);
     for (const item of items) {
       try {
@@ -575,7 +594,7 @@ const Groups: React.FC = () => {
             signedHeadersStr = sh;
           } catch {}
         }
-        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'uploading' }) : u));
+        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'uploading', fileId: init.fileId, progress: 0 }) : u));
         // 2) PUT to S3
         const hdrs: Record<string, string> = { ...(init.headers || {}) };
         // If the presign did NOT sign the checksum header (X-Amz-SignedHeaders lacks it),
@@ -584,7 +603,9 @@ const Groups: React.FC = () => {
           delete hdrs['x-amz-checksum-crc32'];
           delete (hdrs as any)['X-Amz-Checksum-Crc32'];
         }
-        await uploadToS3(init.putUrl, hdrs, item.file);
+        await uploadToS3(init.putUrl, hdrs, item.file, (p) => {
+          setUploading(prev => prev.map(u => (u.fileId === init.fileId ? ({ ...u, progress: p }) : u)));
+        });
         // 3) Build descriptor
         const desc = toAttachmentDescriptor(item.file, init.fileId);
         setReadyAttachments(prev => [...prev, desc]);
@@ -593,7 +614,7 @@ const Groups: React.FC = () => {
           const blobUrl = URL.createObjectURL(item.file);
           setAttachmentPreviews(prev => ({ ...prev, [init.fileId]: blobUrl }));
         } catch {}
-        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'done' }) : u));
+        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'done', progress: 1 }) : u));
       } catch (e: any) {
         const status = e?.response?.status || e?.status;
         if (status === 429) {

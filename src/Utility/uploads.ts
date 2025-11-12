@@ -71,17 +71,38 @@ export async function initiateUpload(file: File, groupId?: string, checksumCrc32
  * Upload a file to S3 using the provided signed PUT URL. Must include Content-Type.
  * Throws on non-2xx responses.
  */
-export async function uploadToS3(putUrl: string, headers: Record<string, string>, file: File): Promise<void> {
-  const response = await fetch(putUrl, {
-    method: 'PUT',
-    headers,
-    body: file,
-    // Note: Do not send auth headers to S3 signed URLs
+export async function uploadToS3(
+  putUrl: string,
+  headers: Record<string, string>,
+  file: File,
+  onProgress?: (progress01: number) => void
+): Promise<void> {
+  // Use XHR to report progress reliably
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', putUrl, true);
+    // Set headers returned from initiate (e.g., Content-Type, x-amz-checksum-crc32)
+    Object.entries(headers || {}).forEach(([k, v]) => {
+      try { xhr.setRequestHeader(k, v as any); } catch {}
+    });
+    if (onProgress) {
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) onProgress(Math.max(0, Math.min(1, e.loaded / e.total)));
+      };
+    }
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState === 4) {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          if (onProgress) onProgress(1);
+          resolve();
+        } else {
+          reject(new Error(`S3 PUT failed with status ${xhr.status}`));
+        }
+      }
+    };
+    xhr.onerror = () => reject(new Error('S3 PUT network error'));
+    xhr.send(file);
   });
-  if (!response.ok) {
-    // Surface the status for upper layers to map to UX when needed
-    throw new Error(`S3 PUT failed with status ${response.status}`);
-  }
 }
 
 /**
