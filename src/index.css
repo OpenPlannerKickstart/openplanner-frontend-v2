@@ -11,3 +11,37 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* --- Uiverse-style spinner (scoped) --- */
+.op-uiverse-spinner svg {
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  animation: op-rotate4 2s linear infinite;
+  display: block;
+}
+.op-uiverse-spinner circle {
+  fill: none;
+  stroke: hsl(214, 97%, 59%);
+  stroke-width: 2;
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: op-dash4 1.5s ease-in-out infinite;
+}
+@keyframes op-rotate4 {
+  100% { transform: rotate(360deg); }
+}
+@keyframes op-dash4 {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dashoffset: -125px;
+  }
+}

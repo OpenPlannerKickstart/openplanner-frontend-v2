@@ -109,19 +109,26 @@ const Groups: React.FC = () => {
             <div
               key={att.fileId}
               title={att.fileName}
-              style={{ position: 'relative', width: 64, height: 64, borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flex: '0 0 auto', cursor: (isImage && url) ? 'pointer' : 'default' }}
-              onClick={() => { if (isImage && url) setPreviewLightbox({ open: true, url, name: att.fileName }); }}
+              style={{ position: 'relative', width: 64, height: 64, borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flex: '0 0 auto', cursor: ((typeof progress !== 'number' || progress >= 1) && isImage && url) ? 'pointer' : 'default' }}
+              onClick={() => { if ((typeof progress !== 'number' || progress >= 1) && isImage && url) setPreviewLightbox({ open: true, url, name: att.fileName }); }}
             >
-              {isImage && url ? (
-                <img src={url} alt={att.fileName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <span role="img" aria-label="document" style={{ fontSize: 28 }}>📄</span>
-              )}
               {typeof progress === 'number' && progress < 1 ? (
-                <div style={{ position: 'absolute', right: 4, bottom: 4, width: 18, height: 18, borderRadius: '50%', background: `conic-gradient(#0EA5E9 ${Math.max(6, Math.round(progress * 360))}deg, #E5E7EB 0deg)` }}>
-                  <div style={{ position: 'absolute', inset: 3, background: '#fff', borderRadius: '50%' }} />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                  <span className="op-uiverse-spinner" style={{ width: 22, height: 22 }}>
+                    <svg viewBox="25 25 50 50">
+                      <circle r="20" cy="50" cx="50"></circle>
+                    </svg>
+                  </span>
                 </div>
-              ) : null}
+              ) : (
+                <>
+                  {isImage && url ? (
+                    <img src={url} alt={att.fileName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <span role="img" aria-label="document" style={{ fontSize: 28 }}>📄</span>
+                  )}
+                </>
+              )}
               <button
                 aria-label="Remove attachment"
                 title="Remove"
@@ -195,6 +202,22 @@ const Groups: React.FC = () => {
         } catch {}
       }
       window.open(targetUrl, '_blank', 'noopener,noreferrer');
+    } catch {}
+  };
+  const openAttachmentLightbox = async (att: any, messageId?: string | null) => {
+    try {
+      let targetUrl = att?.url;
+      if (!targetUrl) return;
+      if (isS3UrlExpiringSoon(targetUrl, 5000) && selectedGroupId) {
+        try {
+          await fetchMessages(selectedGroupId);
+          const list = messages[selectedGroupId] ?? [];
+          const msg = list.find((m: any) => (m?.id && m.id === messageId) || (m?.clientId && m.clientId === messageId));
+          const updated = msg?.attachments?.find((a: any) => (a?.id && a.id === att.id) || (a?.fileId && a.fileId === att.id));
+          if (updated?.url) targetUrl = updated.url;
+        } catch {}
+      }
+      setPreviewLightbox({ open: true, url: targetUrl, name: att.fileName });
     } catch {}
   };
 
@@ -1053,8 +1076,16 @@ const Groups: React.FC = () => {
                               if (!m) return;
                               const d = m.createdAt ? new Date(m.createdAt) : new Date();
                               const today = new Date();
-                              let label = d.toLocaleDateString(undefined, { weekday: 'long' });
-                              if (isSameDay(d, today)) label = 'Today';
+                              const startOf = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+                              const diffDays = Math.floor((startOf(today).getTime() - startOf(d).getTime()) / (24 * 60 * 60 * 1000));
+                              let label = '';
+                              if (isSameDay(d, today)) {
+                                label = 'Today';
+                              } else if (diffDays >= 0 && diffDays <= 6) {
+                                label = d.toLocaleDateString(undefined, { weekday: 'long' });
+                              } else {
+                                label = d.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
+                              }
                               if (label !== currentLabel) {
                                 byDay.push({ label, items: [m] });
                                 currentLabel = label;
@@ -1110,9 +1141,9 @@ const Groups: React.FC = () => {
                                                 <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
                                                   {m.attachments.map((att: any) => (
                                                     att?.mimeType?.startsWith('image/') ? (
-                                                      <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
-                                                        <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block' }} />
-                                                      </a>
+                                                      <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}>
+                                                        <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block', cursor: 'zoom-in' }} />
+                                                      </span>
                                                     ) : (
                                                       <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
                                                         <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
@@ -1159,9 +1190,9 @@ const Groups: React.FC = () => {
                                               <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
                                                 {m.attachments.map((att: any) => (
                                                   att?.mimeType?.startsWith('image/') ? (
-                                                <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
-                                                  <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block' }} />
-                                                    </a>
+                                                <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}>
+                                                  <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block', cursor: 'zoom-in' }} />
+                                                    </span>
                                                   ) : (
                                                     <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
                                                       <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
@@ -1372,8 +1403,16 @@ const Groups: React.FC = () => {
                       if (!m) return;
                       const d = m.createdAt ? new Date(m.createdAt) : new Date();
                       const today = new Date();
-                      let label = d.toLocaleDateString(undefined, { weekday: 'long' });
-                      if (isSameDay(d, today)) label = 'Today';
+                      const startOf = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+                      const diffDays = Math.floor((startOf(today).getTime() - startOf(d).getTime()) / (24 * 60 * 60 * 1000));
+                      let label = '';
+                      if (isSameDay(d, today)) {
+                        label = 'Today';
+                      } else if (diffDays >= 0 && diffDays <= 6) {
+                        label = d.toLocaleDateString(undefined, { weekday: 'long' });
+                      } else {
+                        label = d.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
+                      }
                       if (label !== currentLabel) {
                         byDay.push({ label, items: [m] });
                         currentLabel = label;
@@ -1432,9 +1471,9 @@ const Groups: React.FC = () => {
                                         <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
                                           {m.attachments.map((att: any) => (
                                             att?.mimeType?.startsWith('image/') ? (
-                                              <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
-                                                <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block' }} />
-                                              </a>
+                                              <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}>
+                                                <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block', cursor: 'zoom-in' }} />
+                                              </span>
                                             ) : (
                                               <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
                                                 <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
@@ -1480,9 +1519,9 @@ const Groups: React.FC = () => {
                                       <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
                                         {m.attachments.map((att: any) => (
                                           att?.mimeType?.startsWith('image/') ? (
-                                            <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} title={att.fileName} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
-                                              <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block' }} />
-                                            </a>
+                                            <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}>
+                                              <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block', cursor: 'zoom-in' }} />
+                                            </span>
                                           ) : (
                                             <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
                                               <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
