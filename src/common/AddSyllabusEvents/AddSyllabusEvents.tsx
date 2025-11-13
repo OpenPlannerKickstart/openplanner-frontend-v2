@@ -20,8 +20,25 @@ import { ENUM_FOR_EVENT_PRIORITY, ENUM_FOR_SYLLABUS_TAB } from '../../interfaces
 import GetImageIcon from '../GetImageIcon';
 import { eventPriorityDropDownData, reminderUnitDropDownData } from '../../Utility/staticDropDown';
 import { isUpdatedEvent, isUpdatedSyllabus } from '../../redux/User/Courses/coursesSlice';
+import { useNavigate } from 'react-router-dom';
+import { useSyllabusGroupSuggest } from '../../hooks/useSyllabusGroupSuggest';
+import SyllabusGroupSuggestModal from '../../components/SyllabusGroupSuggestModal/SyllabusGroupSuggestModal';
 const AddSyllabusEvents = (props) => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const {
+    syllabusId: hookSyllabusId,
+    setSyllabusId,
+    loadingSuggestions,
+    suggestion,
+    hasCandidate,
+    fetchSuggestions,
+    resolvingCanonical,
+    canonical,
+    createAndJoin,
+    reset: resetSuggest,
+  } = useSyllabusGroupSuggest();
 
   const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
 
@@ -136,11 +153,27 @@ const AddSyllabusEvents = (props) => {
     customJsonInclude(reqBody);
     formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
     setloading(true);
-    const response = await dispatch(addEditSyllabusDataAPI(formData));
+    const response: any = await dispatch(addEditSyllabusDataAPI(formData));
     if (response) {
+      const payload = response?.payload ?? null;
+      const sid =
+        payload?.syllabusId ||
+        payload?.syllabus_id ||
+        payload?.id ||
+        payload?.syllabus?.id ||
+        payload?.data?.id ||
+        payload?.result?.id ||
+        payload?.doc_id ||
+        null;
       handleCloseAddSyllabusEvents();
       dispatch(isUpdatedSyllabus(true));
-
+      if (sid) {
+        setSyllabusId(String(sid));
+        await fetchSuggestions(String(sid));
+        setShowSuggestModal(true);
+      } else {
+        try { console.log('Syllabus save payload (no syllabusId found):', payload); } catch {}
+      }
     }
     setloading(false);
 
@@ -1145,6 +1178,23 @@ const AddSyllabusEvents = (props) => {
           </svg>
         </div>
       )}
+
+      <SyllabusGroupSuggestModal
+        open={showSuggestModal}
+        loading={loadingSuggestions || resolvingCanonical}
+        candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+        canonicalPreview={canonical}
+        onJoin={async () => {
+          const sid = hookSyllabusId;
+          const result = await createAndJoin(sid);
+          if (result && result.id) {
+            setShowSuggestModal(false);
+            resetSuggest();
+            navigate(`/groups/${result.id}`);
+          }
+        }}
+        onClose={() => { setShowSuggestModal(false); resetSuggest(); }}
+      />
 
     </>
   )

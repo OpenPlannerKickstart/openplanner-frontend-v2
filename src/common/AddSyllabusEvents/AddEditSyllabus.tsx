@@ -13,9 +13,26 @@ import GetImageIcon from '../GetImageIcon';
 import DatePicker from "react-datepicker";
 import InputColor from 'react-input-color';
 import { isUpdatedSyllabus } from '../../redux/User/Courses/coursesSlice';
+import { useNavigate } from 'react-router-dom';
+import { useSyllabusGroupSuggest } from '../../hooks/useSyllabusGroupSuggest';
+import SyllabusGroupSuggestModal from '../../components/SyllabusGroupSuggestModal/SyllabusGroupSuggestModal';
 
 export const AddEditSyllabus = (props) => {
     const dispatch: AppDispatch = useDispatch();
+    const navigate = useNavigate();
+    const [showSuggestModal, setShowSuggestModal] = useState(false);
+    const {
+        syllabusId: hookSyllabusId,
+        setSyllabusId,
+        loadingSuggestions,
+        suggestion,
+        hasCandidate,
+        fetchSuggestions,
+        resolvingCanonical,
+        canonical,
+        createAndJoin,
+        reset: resetSuggest,
+    } = useSyllabusGroupSuggest();
     const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
 
     const handleCloseAddSyllabusEvents = () => {
@@ -118,12 +135,28 @@ export const AddEditSyllabus = (props) => {
         customJsonInclude(reqBody);
         formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
         setloading(true);
-        const response = await dispatch(addEditSyllabusDataAPI(formData));
+        const response: any = await dispatch(addEditSyllabusDataAPI(formData));
         if (response) {
+            const payload = response?.payload ?? null;
+            const sid =
+                payload?.syllabusId ||
+                payload?.syllabus_id ||
+                payload?.id ||
+                payload?.syllabus?.id ||
+                payload?.data?.id ||
+                payload?.result?.id ||
+                payload?.doc_id ||
+                null;
             handleCloseAddSyllabusEvents();
             props?.handleGetData();
             dispatch(isUpdatedSyllabus(true));
-
+            if (sid) {
+                setSyllabusId(String(sid));
+                await fetchSuggestions(String(sid));
+                setShowSuggestModal(true);
+            } else {
+                try { console.log('Syllabus save payload (no syllabusId found):', payload); } catch {}
+            }
         }
         setloading(false);
 
@@ -188,6 +221,16 @@ export const AddEditSyllabus = (props) => {
     const [showColorPopover, setShowColorPopover] = useState(false);
     const [popoverTarget, setPopoverTarget] = useState<any>(null);
     const colorInputRef = useRef(null);
+    const closeSuggest = () => { setShowSuggestModal(false); resetSuggest(); };
+    const handleJoinClick = async () => {
+        const sid = hookSyllabusId;
+        const result = await createAndJoin(sid);
+        if (result && result.id) {
+            closeSuggest();
+            navigate(`/groups/${result.id}`);
+        }
+    };
+
     return (
         <>
             {/***** Offcanvas start *****/}
@@ -564,6 +607,15 @@ export const AddEditSyllabus = (props) => {
                     </svg>
                 </div>
             )}
+
+            <SyllabusGroupSuggestModal
+                open={showSuggestModal}
+                loading={loadingSuggestions || resolvingCanonical}
+                candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+                canonicalPreview={canonical}
+                onJoin={handleJoinClick}
+                onClose={closeSuggest}
+            />
 
         </>
     )

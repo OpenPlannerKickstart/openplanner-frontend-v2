@@ -194,6 +194,10 @@ export const post = (
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     };
+    // Dev-only: provide a CSRF header so MSW (if enabled) allows POSTs
+    if (process.env.NODE_ENV === 'development') {
+      header['X-CSRF-Token'] = 'dev';
+    }
   }
   // Remove dev-only CSRF header now that BE endpoints are live
   // if (url === GET_LOGIN_DATA_API) {

@@ -42,8 +42,25 @@ import {
 } from "../../../redux/Service/User/Courses/courses";
 import GetImageIcon from "../../../common/GetImageIcon";
 import { DELETE_DOCUMENT_TYPE } from "../../../interfaces/enum";
+import { useNavigate } from "react-router-dom";
+import SyllabusGroupSuggestModal from "../../../components/SyllabusGroupSuggestModal/SyllabusGroupSuggestModal";
+import { useSyllabusGroupSuggest } from "../../../hooks/useSyllabusGroupSuggest";
 const SyllabusDetails = (props) => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
+  const [showSuggestModal, setShowSuggestModal] = useState<boolean>(false);
+  const {
+    syllabusId: hookSyllabusId,
+    setSyllabusId,
+    loadingSuggestions,
+    suggestion,
+    hasCandidate,
+    fetchSuggestions,
+    resolvingCanonical,
+    canonical,
+    createAndJoin,
+    reset: resetSuggest,
+  } = useSyllabusGroupSuggest();
 
   useEffect(() => {
     if (!isEmptyObjectOrNullUndefiend(props?.selectedSyllabusObj)) {
@@ -139,10 +156,36 @@ const SyllabusDetails = (props) => {
     customJsonInclude(reqBody);
     formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
     setloading(true);
-    const response = await dispatch(addEditSyllabusDataAPI(formData));
+    const response: any = await dispatch(addEditSyllabusDataAPI(formData));
     if (response) {
+      const payload = response?.payload ?? null;
+      const sid =
+        payload?.syllabusId ||
+        payload?.syllabus_id ||
+        payload?.id ||
+        payload?.syllabus?.id ||
+        payload?.data?.id ||
+        payload?.result?.id ||
+        payload?.doc_id || // fallback if BE returns doc id
+        null;
+      // If BE returned a persisted doc URL, show it immediately in the preview
+      const returnedUrl =
+        payload?.syllabus_doc?.url ||
+        payload?.data?.syllabus_doc?.url ||
+        payload?.result?.syllabus_doc?.url ||
+        null;
       props.handleCloseSyllabusDetails();
       props.handleGetCourseList();
+      if (returnedUrl) {
+        try { props?.setPdfPreviewLink(returnedUrl); } catch {}
+      }
+      if (sid) {
+        setSyllabusId(String(sid));
+        await fetchSuggestions(String(sid));
+        setShowSuggestModal(true);
+      } else {
+        try { console.log('Syllabus save payload (no syllabusId found):', payload); } catch {}
+      }
     }
     setloading(false);
   };
@@ -186,6 +229,20 @@ const SyllabusDetails = (props) => {
   };
 
   /** -------------------Delete Syllabus end-------------------------*/
+
+  const closeSuggest = () => {
+    setShowSuggestModal(false);
+    resetSuggest();
+  };
+
+  const handleJoinClick = async () => {
+    const sid = hookSyllabusId;
+    const result = await createAndJoin(sid);
+    if (result && result.id) {
+      closeSuggest();
+      navigate(`/groups/${result.id}`);
+    }
+  };
 
   /** -----------------edit document alert start---------------------------*/
   const [show, setShow] = useState(false);
@@ -732,6 +789,15 @@ const SyllabusDetails = (props) => {
           </svg>
         </div>
       )}
+
+      <SyllabusGroupSuggestModal
+        open={showSuggestModal}
+        loading={loadingSuggestions || resolvingCanonical}
+        candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+        canonicalPreview={canonical}
+        onJoin={handleJoinClick}
+        onClose={closeSuggest}
+      />
 
     </>
   );

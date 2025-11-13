@@ -49,6 +49,9 @@ const Groups: React.FC = () => {
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
+  // Group info panel data and UI state
+  const [groupDetail, setGroupDetail] = useState<any | null>(null);
+  const [membersExpanded, setMembersExpanded] = useState<boolean>(false);
   const { subscribeToPath, unsubscribeFromPath, sendNotification } = useNotifications();
   // Invite modal state
   const [showInvite, setShowInvite] = useState<boolean>(false);
@@ -64,6 +67,41 @@ const Groups: React.FC = () => {
   const [copied, setCopied] = useState<boolean>(false);
   // Invites inbox
   const [invites, setInvites] = useState<Array<{ id: string; groupId: string; message?: string; fromUserId?: string; groupName?: string; fromName?: string }>>([]);
+
+  // Suggestions (Find groups to join)
+  const [suggestionsLoading, setSuggestionsLoading] = useState<boolean>(false);
+  const [suggestions, setSuggestions] = useState<Array<{ id: string; name: string; course?: { code?: string; term?: string; year?: number }, memberPreviews?: Array<{ id: string; displayName?: string | null; picture?: string | null }> }>>([]);
+  const fetchSuggestedGroups = async () => {
+    try {
+      setSuggestionsLoading(true);
+      // Call BE suggestions without a specific syllabus; BE will infer from user courses or return empty
+      const res: any = await post('groups/suggestions', { forUser: true, limit: 10 });
+      const data = res?.data ?? res;
+      const list = Array.isArray(data?.candidates) ? data.candidates : [];
+      setSuggestions(list);
+    } catch (e) {
+      setSuggestions([]);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
+  useEffect(() => { fetchSuggestedGroups(); }, []);
+
+  // Fetch group detail when the info panel opens
+  useEffect(() => {
+    if (!showGroupInfo || !selectedGroupId) return;
+    (async () => {
+      try {
+        const res: any = await get(`groups/${selectedGroupId}`);
+        const data = res?.data ?? res;
+        setGroupDetail(data || null);
+      } catch {
+        setGroupDetail(null);
+      }
+    })();
+  }, [showGroupInfo, selectedGroupId]);
+
+  // No random banner color; BE provides avatarColor for canonical groups
 
   // Upload queue + prepared descriptors for attachments
   const [uploading, setUploading] = useState<Array<{ id: string; file: File; fileId?: string; status: 'initiating' | 'uploading' | 'done' | 'error'; error?: string; progress?: number }>>([]);
@@ -792,6 +830,8 @@ const Groups: React.FC = () => {
       setShowGroupInfo(false);
       clearSelection();
       await fetchMyGroups();
+      // Refresh suggestions after leaving a group
+      fetchSuggestedGroups();
     } catch (err) {
       te('Failed to leave group');
     }
@@ -990,8 +1030,17 @@ const Groups: React.FC = () => {
                     </div>
                   ) : (
                     <div>
-                      <div className="px-3 pt-3">
-                        <h6 className="mb-2" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>My Groups</h6>
+                      <div className="px-3 pt-3 d-flex align-items-center justify-content-between">
+                        <h6 className="mb-0" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>My Groups</h6>
+                        <button
+                          className="btn btn-outline-white"
+                          style={{ height: 32, width: 32, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          aria-label="Collapse My Groups"
+                          title="Collapse"
+                          onClick={() => { /* future: toggle collapse */ }}
+                        >
+                          <i className="material-symbols-outlined" style={{ lineHeight: 1 }}>expand_more</i>
+                        </button>
                       </div>
                       <div>
                         {myGroups && myGroups.length > 0 ? (
@@ -1022,16 +1071,86 @@ const Groups: React.FC = () => {
                           )}
                       </div>
                       <hr className="my-0" />
-                      <div className="px-3 pt-3">
-                        <h6 className="mb-2" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>Find groups to join</h6>
+                      <div className="px-3 pt-3 d-flex align-items-center justify-content-between">
+                        <h6 className="mb-0" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>Find groups to join</h6>
+                        <button
+                          className="btn btn-outline-white"
+                          style={{ height: 32, width: 32, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          aria-label="Refresh suggestions"
+                          title="Refresh"
+                          onClick={fetchSuggestedGroups}
+                        >
+                          <i className="material-symbols-outlined" style={{ lineHeight: 1 }}>refresh</i>
+                        </button>
                       </div>
-                      <div className="text-center p-4">
-                        <h5 className="mt-3 mb-1">No suggestions available</h5>
-                        <p className="text-muted mb-0" style={{ fontSize: 14 }}>
-                          Upload a syllabus to get tailored group suggestions.
-                        </p>
-                      </div>
-                      {/* Suggested groups list will be rendered here when available (filler removed) */}
+                      {suggestionsLoading ? (
+                        <div className="px-3" aria-hidden="true">
+                          {[...Array(4)].map((_, i) => (
+                            <div key={`sugskel-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
+                              <div style={{ width: 36, height: 36, background: '#E5E7EB', borderRadius: '50%' }} />
+                              <div style={{ flex: 1 }}>
+                                <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 2 ? '60%' : '40%' }} />
+                                <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 3 ? '30%' : '20%', marginTop: 6 }} />
+                              </div>
+                              <div style={{ width: 88, height: 30, background: '#E5E7EB', borderRadius: 8 }} />
+                            </div>
+                          ))}
+                        </div>
+                      ) : suggestions && suggestions.length > 0 ? (
+                        <div className="px-2">
+                          {suggestions.map((sg: any) => (
+                            <div key={sg.id} className="d-flex align-items-center justify-content-between" style={{ padding: '8px 10px', borderBottom: '1px solid #F3F4F6' }}>
+                              <div className="d-flex align-items-center gap-2">
+                                <div style={{ width: 36, height: 36, borderRadius: 18, background: sg.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 22, height: 'auto' }} />
+                                </div>
+                                <div>
+                                  <div style={{ fontWeight: 600, color: '#111827', lineHeight: 1.2 }}>{sg.name}</div>
+                                  <div style={{ fontSize: 12, color: '#6B7280' }}>
+                                    {sg?.course?.code ? `${sg.course.code} — ` : ''}{sg?.course?.term ? `${sg.course.term} ` : ''}{sg?.course?.year ?? ''}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="d-flex align-items-center gap-2">
+                                {((sg?.members || sg?.memberPreviews || [])).slice(0, 3).map((m: any) => (
+                                  <div key={m.id} title={m.displayName || ''} style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: '1px solid #E5E7EB', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {m.picture ? (
+                                      <img src={m.picture} alt={m.displayName || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                      <span style={{ fontSize: 10, color: '#374151' }}>
+                                        {(m.displayName || '').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase() || 'U'}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                                <button
+                                  className="btn btn-primary"
+                                  style={{ height: 32, borderRadius: 8 }}
+                                  onClick={async () => {
+                                    try {
+                                      await post('groups/join', { groupId: sg.id });
+                                      ts('Joined group');
+                                      await fetchMyGroups();
+                                      applySelection(sg.id);
+                                    } catch (e) {
+                                      te('Failed to join group');
+                                    }
+                                  }}
+                                >
+                                  Join
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center p-4">
+                          <h5 className="mt-3 mb-1">No suggestions available</h5>
+                          <p className="text-muted mb-0" style={{ fontSize: 14 }}>
+                            Upload a syllabus to get tailored group suggestions.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                   </div>
@@ -1601,17 +1720,56 @@ const Groups: React.FC = () => {
                   <h5 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h5>
                   <div className="text-muted" style={{ fontSize: 14 }}>
                     {(() => {
-                      const typeLabel = selectedGroup?.type === 'canonical' ? 'Class' : 'Group';
+                      if (selectedGroup?.type === 'canonical') {
+                        const prof =
+                          groupDetail?.course?.instructor ||
+                          groupDetail?.instructor ||
+                          groupDetail?.professorName ||
+                          selectedGroup?.professorName ||
+                          'Unassigned';
+                        return prof;
+                      }
                       const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
                       const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
-                      return `${typeLabel} - ${countLabel}`;
+                      return `Group - ${countLabel}`;
                     })()}
                   </div>
                 </div>
                 {/* Scrollable body for desktop (description + actions) */}
                 <div className="group-info-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
                   <div style={{ padding: '16px' }}>
-                    {(() => {
+                    {selectedGroup?.type === 'canonical' ? (
+                      (() => {
+                        const count = (Array.isArray(groupDetail?.members) ? groupDetail.members.length : (typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : 0));
+                        const members: Array<any> = Array.isArray(groupDetail?.members) ? groupDetail.members : [];
+                        const visible = membersExpanded ? members : members.slice(0, 3);
+                        return (
+                          <>
+                            <div style={{ fontWeight: 600, color: '#111827', marginBottom: 8 }}>
+                              {`Class - ${count} Student${count === 1 ? '' : 's'}`}
+                            </div>
+                            <div style={{ maxHeight: membersExpanded ? 260 : undefined, overflowY: membersExpanded ? 'auto' : 'visible' }}>
+                              {visible.map((m: any) => (
+                                <div key={m.id || m.userId} className="d-flex align-items-center gap-2 py-2" style={{ borderBottom: '1px solid #F3F4F6' }}>
+                                  <img src={m.picture || '/assets/images/avatar-default.svg'} alt={m.displayName || m.name || 'student'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                  <div style={{ color: '#111827' }}>
+                                    {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Student'))}
+                                  </div>
+                                </div>
+                              ))}
+                              {members.length > 3 && (
+                                <div className="text-center" style={{ paddingTop: 6 }}>
+                                  <button className="btn btn-outline-white" style={{ height: 32, borderRadius: 8 }} onClick={() => setMembersExpanded(v => !v)}>
+                                    {membersExpanded ? 'Collapse' : 'Show all'}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        );
+                      })()
+                    ) : (
+                    (() => {
                       const hex = selectedGroup?.avatarColor || '#E5F3FF';
                       const toRGBA = (h: string, alpha: number) => {
                         const m = h.replace('#','');
@@ -1637,7 +1795,7 @@ const Groups: React.FC = () => {
                           </div>
                         </div>
                       );
-                    })()}
+                    })())}
                   </div>
                   {selectedGroup ? (
                     <>
