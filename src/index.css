@@ -12,20 +12,6 @@ code {
     monospace;
 }
 
-/* Modal close button micro-interactions */
-.op-close-btn {
-  border: none;
-  outline: none;
-  background: #fff;
-  transition: transform 120ms ease;
-}
-.op-close-btn:hover {
-  transform: scale(1.08);
-}
-.op-close-btn:active {
-  transform: scale(0.98);
-}
-
 /* --- Uiverse-style spinner (scoped) --- */
 .op-uiverse-spinner svg {
   width: 100%;

@@ -67,6 +67,8 @@ const Groups: React.FC = () => {
   const [copied, setCopied] = useState<boolean>(false);
   // Invites inbox
   const [invites, setInvites] = useState<Array<{ id: string; groupId: string; message?: string; fromUserId?: string; groupName?: string; fromName?: string }>>([]);
+  const [isDragOverChat, setIsDragOverChat] = useState<boolean>(false);
+  const chatDragCounter = useRef(0);
 
   // Suggestions (Find groups to join)
   const [suggestionsLoading, setSuggestionsLoading] = useState<boolean>(false);
@@ -87,18 +89,27 @@ const Groups: React.FC = () => {
   };
   useEffect(() => { fetchSuggestedGroups(); }, []);
 
+  useEffect(() => {
+    chatDragCounter.current = 0;
+    setIsDragOverChat(false);
+  }, [selectedGroupId]);
+
   // Fetch group detail when the info panel opens
   useEffect(() => {
     if (!showGroupInfo || !selectedGroupId) return;
+    setGroupDetail(null);
+    setMembersExpanded(false);
+    let isMounted = true;
     (async () => {
       try {
         const res: any = await get(`groups/${selectedGroupId}`);
         const data = res?.data ?? res;
-        setGroupDetail(data || null);
+        if (isMounted) setGroupDetail(data || null);
       } catch {
-        setGroupDetail(null);
+        if (isMounted) setGroupDetail(null);
       }
     })();
+    return () => { isMounted = false; };
   }, [showGroupInfo, selectedGroupId]);
 
   // No random banner color; BE provides avatarColor for canonical groups
@@ -616,14 +627,43 @@ const Groups: React.FC = () => {
     return () => { unsubscribeFromPath(eventName, onInvite); };
   }, [currentUserSub, subscribeToPath, unsubscribeFromPath]);
 
+  const filterValidFiles = (incoming: File[]): File[] => {
+    const accepted: File[] = [];
+    let typeWarned = false;
+    let sizeWarned = false;
+    incoming.forEach((file) => {
+      if (!isMimeAllowed(file.type)) {
+        if (!typeWarned) {
+          te('Unsupported file type');
+          typeWarned = true;
+        }
+        return;
+      }
+      if (!isSizeAllowed(file.size)) {
+        if (!sizeWarned) {
+          te(`File too large (max ${ATTACH_MAX_MB} MB)`);
+          sizeWarned = true;
+        }
+        return;
+      }
+      accepted.push(file);
+    });
+    return accepted;
+  };
+
   // Helper: add files to queue and perform initiate + S3 PUT
   const addFiles = async (files: File[]) => {
+    const validFiles = filterValidFiles(files);
+    if (validFiles.length === 0) return;
     const spaceRemaining = Math.max(0, ATTACH_MAX_PER_MESSAGE - (readyAttachments.length + uploading.filter(u => u.status === 'initiating' || u.status === 'uploading').length));
     if (spaceRemaining <= 0) {
       te(`You can attach up to ${ATTACH_MAX_PER_MESSAGE} files`);
       return;
     }
-    const toProcess = files.slice(0, spaceRemaining);
+    const toProcess = validFiles.slice(0, spaceRemaining);
+    if (validFiles.length > spaceRemaining) {
+      te(`You can attach up to ${ATTACH_MAX_PER_MESSAGE} files`);
+    }
     const items = toProcess.map((file) => ({ id: uuidv4(), file, status: 'initiating' as const, progress: 0 }));
     setUploading(prev => [...prev, ...items]);
     for (const item of items) {
@@ -695,6 +735,54 @@ const Groups: React.FC = () => {
         setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'error', error: String(status || 'error') }) : u));
       }
     }
+  };
+
+  const dragEventHasFiles = (event: React.DragEvent) => {
+    const types = event.dataTransfer?.types;
+    if (!types) return false;
+    for (let i = 0; i < types.length; i += 1) {
+      if (types[i] === 'Files') return true;
+    }
+    return false;
+  };
+
+  const handleChatDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!dragEventHasFiles(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    chatDragCounter.current += 1;
+    if (!isDragOverChat) setIsDragOverChat(true);
+  };
+
+  const handleChatDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!dragEventHasFiles(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    chatDragCounter.current = Math.max(0, chatDragCounter.current - 1);
+    if (chatDragCounter.current === 0) setIsDragOverChat(false);
+  };
+
+  const handleChatDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!dragEventHasFiles(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleChatDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!dragEventHasFiles(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer?.files;
+    chatDragCounter.current = 0;
+    setIsDragOverChat(false);
+    if (!files || files.length === 0) return;
+    if (!selectedGroupId) {
+      te('Select a group to attach files');
+      return;
+    }
+    addFiles(Array.from(files));
+    event.dataTransfer?.clearData();
   };
 
   const uploadingCount = uploading.filter(u => u.status === 'initiating' || u.status === 'uploading').length;
@@ -1459,7 +1547,37 @@ const Groups: React.FC = () => {
               </div>
             </div>
             {/* Right column (chat area) - hide entirely on mobile to avoid duplicate stacked view */}
-            <div className={`col-12 col-lg-8 d-flex flex-column right-pane-scroll ${isMobile ? 'd-none' : ''}`} style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}>
+            <div
+              className={`col-12 col-lg-8 d-flex flex-column right-pane-scroll ${isMobile ? 'd-none' : ''}`}
+              style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}
+              onDragEnter={handleChatDragEnter}
+              onDragOver={handleChatDragOver}
+              onDragLeave={handleChatDragLeave}
+              onDrop={handleChatDrop}
+            >
+              {isDragOverChat && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(14,165,233,0.08)',
+                    border: '2px dashed #0EA5E9',
+                    borderRadius: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 5,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <div style={{ background: '#FFFFFF', padding: '20px 28px', borderRadius: 16, boxShadow: '0 10px 30px rgba(15,23,42,0.15)', color: '#0F172A', fontWeight: 600, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 64, height: 64, borderRadius: 16, background: '#E0F2FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <i className="material-symbols-outlined" style={{ fontSize: 36, color: '#0EA5E9' }}>cloud_upload</i>
+                    </div>
+                    <div>Drop files to attach</div>
+                  </div>
+                </div>
+              )}
               {/* Header */}
               <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
@@ -1750,7 +1868,7 @@ const Groups: React.FC = () => {
                             </div>
                             <div style={{ maxHeight: membersExpanded ? 260 : undefined, overflowY: membersExpanded ? 'auto' : 'visible' }}>
                               {visible.map((m: any) => (
-                                <div key={m.id || m.userId} className="d-flex align-items-center gap-2 py-2" style={{ borderBottom: '1px solid #F3F4F6' }}>
+                                <div key={m.id || m.userId} className="d-flex align-items-center gap-2 py-2">
                                   <img src={m.picture || '/assets/images/avatar-default.svg'} alt={m.displayName || m.name || 'student'} style={{ width: 28, height: 28, borderRadius: 14 }} />
                                   <div style={{ color: '#111827' }}>
                                     {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Student'))}
@@ -2051,30 +2169,7 @@ const Composer: React.FC<{
   const handleFilesSelected = (filesList: FileList | null) => {
     if (!filesList || !onFilesAdded) return;
     const incoming = Array.from(filesList);
-    const valid: File[] = [];
-    for (const f of incoming) {
-      if (!isMimeAllowed(f.type)) {
-        te('Unsupported file type');
-        continue;
-      }
-      if (!isSizeAllowed(f.size)) {
-        te(`File too large (max ${ATTACH_MAX_MB} MB)`);
-        continue;
-      }
-      valid.push(f);
-    }
-    const remaining = Math.max(0, ATTACH_MAX_PER_MESSAGE - selectedFilesCount);
-    if (remaining <= 0) {
-      te(`You can attach up to ${ATTACH_MAX_PER_MESSAGE} files`);
-      return;
-    }
-    const toAdd = valid.slice(0, remaining);
-    if (toAdd.length === 0 && valid.length > 0) {
-      te(`You can attach up to ${ATTACH_MAX_PER_MESSAGE} files`);
-      return;
-    }
-    if (toAdd.length > 0) onFilesAdded(toAdd);
-    // reset input so selecting the same file again re-triggers change
+    if (incoming.length > 0) onFilesAdded(incoming);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
   const resize = () => {

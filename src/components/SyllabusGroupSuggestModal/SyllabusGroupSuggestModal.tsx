@@ -68,24 +68,13 @@ export default function SyllabusGroupSuggestModal({
         <div style={{ padding: 18, borderBottom: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>{title}</div>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Close"
             title="Close"
-            className="op-close-btn"
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              padding: 0,
-              lineHeight: '30px',
-              fontSize: 22,
-              background: '#FFFFFF',
-              border: 'none',
-              color: '#DC2626',
-              cursor: 'pointer',
-            }}
+            className="btn-close"
           >
-            ×
+            <i className="material-symbols-outlined">close</i>
           </button>
         </div>
         <div style={{ padding: 18 }}>
