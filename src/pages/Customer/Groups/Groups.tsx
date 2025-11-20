@@ -1394,7 +1394,7 @@ const Groups: React.FC = () => {
                                               <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
                                             {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                              <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                              <div className="d-flex flex-column gap-2 align-items-start" style={{ marginBottom: m.content ? 8 : 0 }}>
                                                 {m.attachments.map((att: any) => (
                                                   att?.mimeType?.startsWith('image/') ? (
                                                 <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}>
@@ -1560,7 +1560,7 @@ const Groups: React.FC = () => {
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'rgba(14,165,233,0.08)',
+                    background: 'rgba(15,23,42,0.18)',
                     border: '2px dashed #0EA5E9',
                     borderRadius: 0,
                     display: 'flex',
@@ -1570,8 +1570,8 @@ const Groups: React.FC = () => {
                     pointerEvents: 'none',
                   }}
                 >
-                  <div style={{ background: '#FFFFFF', padding: '20px 28px', borderRadius: 16, boxShadow: '0 10px 30px rgba(15,23,42,0.15)', color: '#0F172A', fontWeight: 600, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 64, height: 64, borderRadius: 16, background: '#E0F2FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ background: '#FFFFFF', padding: '20px 28px', borderRadius: 16, boxShadow: '0 10px 30px rgba(15,23,42,0.25)', color: '#0F172A', fontWeight: 600, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 64, height: 64, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <i className="material-symbols-outlined" style={{ fontSize: 36, color: '#0EA5E9' }}>cloud_upload</i>
                     </div>
                     <div>Drop files to attach</div>
@@ -1704,8 +1704,8 @@ const Groups: React.FC = () => {
                                         <div style={{ textAlign: 'left' }}>You</div>
                                         <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                       </div>
-                                      {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                        <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                            {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                              <div className="d-flex flex-column gap-2 align-items-start" style={{ marginBottom: m.content ? 8 : 0 }}>
                                           {m.attachments.map((att: any) => (
                                             att?.mimeType?.startsWith('image/') ? (
                                               <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}>
@@ -2161,7 +2161,21 @@ const Composer: React.FC<{
   const [baseHeight, setBaseHeight] = useState<number>(40);
   const [isMultiline, setIsMultiline] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const send = async () => { if (!disabled && (text.trim() || allowEmptySend)) { const ok = await onSend(text); if (ok) { setText(''); resize(); } } };
+  const send = async () => {
+    if (disabled) return;
+    const trimmed = (text || '').trim();
+    if (!trimmed && !allowEmptySend) return;
+    const payload = text;
+    // Optimistically clear composer immediately for snappier UX
+    setText('');
+    resize();
+    const ok = await onSend(payload);
+    if (!ok) {
+      // Restore text if send failed
+      setText(payload);
+      resize();
+    }
+  };
   const handleFileClick = () => {
     if (disabled) return;
     fileInputRef.current?.click();
