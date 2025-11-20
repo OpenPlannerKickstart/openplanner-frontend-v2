@@ -47,6 +47,7 @@ const Groups: React.FC = () => {
   const handleSyllabusShow = () => setShowSyllabus(true);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [myGroups, setMyGroups] = useState<any[]>([]);
+  const [myGroupsCollapsed, setMyGroupsCollapsed] = useState<boolean>(false);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
   // Group info panel data and UI state
@@ -830,15 +831,23 @@ const Groups: React.FC = () => {
     if (!selectedGroupId) return false;
     const content = text.trim();
     const hasAttachments = readyAttachments.length > 0;
+    const attachmentsToSend = hasAttachments ? [...readyAttachments] : [];
+    const usedIds = hasAttachments ? attachmentsToSend.map(d => d.fileId) : [];
+    const previewSnapshot = hasAttachments
+      ? usedIds.reduce<Record<string, string>>((acc, fid) => {
+          const url = attachmentPreviews[fid];
+          if (url) acc[fid] = url;
+          return acc;
+        }, {})
+      : {};
     if (!content && !hasAttachments) return false;
-    const usedIds = hasAttachments ? readyAttachments.map(d => d.fileId) : [];
     const optimisticAttachments = hasAttachments
-      ? readyAttachments.map(d => ({
+      ? attachmentsToSend.map(d => ({
           id: d.fileId,
           fileName: d.fileName,
           mimeType: d.mimeType,
           sizeBytes: d.sizeBytes,
-          url: attachmentPreviews[d.fileId] || undefined,
+          url: previewSnapshot[d.fileId] || attachmentPreviews[d.fileId] || undefined,
         }))
       : [];
     // Block if currently rate-limited
@@ -864,32 +873,27 @@ const Groups: React.FC = () => {
     }));
     // scroll to bottom
     requestAnimationFrame(() => { timelineRef.current && (timelineRef.current.scrollTop = timelineRef.current.scrollHeight); });
+
+    if (hasAttachments) {
+      setReadyAttachments(prev => prev.filter(d => !usedIds.includes(d.fileId)));
+      setAttachmentPreviews(prev => {
+        const next = { ...prev };
+        usedIds.forEach(fid => { delete next[fid]; });
+        return next;
+      });
+      setUploading(prev => prev.filter(u => !usedIds.includes(u.fileId || '')));
+    }
+
     try {
       const payload: any = { clientId } as any;
       if (content) (payload as any).content = content;
-      if (hasAttachments) (payload as any).attachments = readyAttachments;
+      if (hasAttachments) (payload as any).attachments = attachmentsToSend;
       const res: any = await post(`groups/${selectedGroupId}/messages`, payload, true, false, false);
       const msg = res?.data ?? res;
       setMessages(prev => ({
         ...prev,
         [selectedGroupId]: (prev[selectedGroupId] ?? []).map(m => (m && m.clientId === clientId ? msg : m)),
       }));
-      // Clear attachments after successful send
-      if (hasAttachments) {
-        try {
-          usedIds.forEach(fid => {
-            const url = attachmentPreviews[fid];
-            if (url) URL.revokeObjectURL(url);
-          });
-        } catch {}
-        setReadyAttachments([]);
-        setUploading([]);
-        setAttachmentPreviews(prev => {
-          const next = { ...prev };
-          usedIds.forEach(fid => { delete next[fid]; });
-          return next;
-        });
-      }
     } catch (e: any) {
       // remove optimistic item on failure
       setMessages(prev => ({
@@ -897,17 +901,11 @@ const Groups: React.FC = () => {
         [selectedGroupId]: (prev[selectedGroupId] ?? []).filter(m => m && m.clientId !== clientId),
       }));
       if (hasAttachments) {
-        try {
-          usedIds.forEach(fid => {
-            const url = attachmentPreviews[fid];
-            if (url) URL.revokeObjectURL(url);
-          });
-        } catch {}
-        setAttachmentPreviews(prev => {
-          const next = { ...prev };
-          usedIds.forEach(fid => { delete next[fid]; });
-          return next;
+        setReadyAttachments(prev => {
+          const filtered = attachmentsToSend.filter(d => !prev.some(existing => existing.fileId === d.fileId));
+          return [...prev, ...filtered];
         });
+        setAttachmentPreviews(prev => ({ ...prev, ...previewSnapshot }));
       }
       const status = e?.response?.status || e?.status;
       if (status === 429) {
@@ -1139,13 +1137,23 @@ const Groups: React.FC = () => {
                         <button
                           className="btn btn-outline-white"
                           style={{ height: 32, width: 32, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                          aria-label="Collapse My Groups"
-                          title="Collapse"
-                          onClick={() => { /* future: toggle collapse */ }}
+                          aria-label={myGroupsCollapsed ? 'Expand My Groups' : 'Collapse My Groups'}
+                          title={myGroupsCollapsed ? 'Expand' : 'Collapse'}
+                          onClick={() => setMyGroupsCollapsed(prev => !prev)}
                         >
-                          <i className="material-symbols-outlined" style={{ lineHeight: 1 }}>expand_more</i>
+                          <i
+                            className="material-symbols-outlined"
+                            style={{
+                              lineHeight: 1,
+                              transition: 'transform 160ms ease',
+                              transform: myGroupsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)'
+                            }}
+                          >
+                            expand_more
+                          </i>
                         </button>
                       </div>
+                      {!myGroupsCollapsed && (
                       <div>
                         {myGroups && myGroups.length > 0 ? (
                           myGroups
@@ -1174,6 +1182,7 @@ const Groups: React.FC = () => {
                             <div className="text-center p-3 text-muted" style={{ fontSize: 14 }}>No groups match "{searchQuery.trim()}".</div>
                           )}
                       </div>
+                      )}
                       <hr className="my-0" />
                       <div className="px-3 pt-3 d-flex align-items-center justify-content-between">
                         <h6 className="mb-0" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>Find groups to join</h6>
@@ -1383,7 +1392,7 @@ const Groups: React.FC = () => {
                                                           width: '100%'
                                                         }}
                                                       >
-                                                        {images.map((att: any) => (
+                                                        {images.map((att: any, idx: number) => (
                                                           <span
                                                             key={att.id}
                                                             role="button"
@@ -1396,7 +1405,8 @@ const Groups: React.FC = () => {
                                                               borderRadius: 12,
                                                               overflow: 'hidden',
                                                               border: '1px solid #E5E7EB',
-                                                              cursor: 'zoom-in'
+                                                              cursor: 'zoom-in',
+                                                              gridColumn: (imageCount === 3 && idx === 2) ? '2 / 3' : 'auto'
                                                             }}
                                                           >
                                                             <img
@@ -1456,26 +1466,68 @@ const Groups: React.FC = () => {
                                               <div>{senderName}</div>
                                               <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
-                                            {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                              <div className="d-flex flex-column gap-2" style={{ marginBottom: m.content ? 8 : 0, alignItems: 'flex-start' }}>
-                                                {m.attachments.map((att: any) => (
-                                                  att?.mimeType?.startsWith('image/') ? (
-                                                    <span
-                                                      key={att.id}
-                                                      role="button"
-                                                      title={att.fileName}
-                                                      onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}
-                                                      style={{ display: 'block', width: '100%', maxWidth: 360 }}
-                                                    >
-                                                      <img src={att.url} alt={att.fileName} style={{ width: '100%', height: 'auto', maxHeight: 300, borderRadius: 12, border: '1px solid #E5E7EB', display: 'block', cursor: 'zoom-in' }} />
-                                                    </span>
-                                                  ) : (
-                                                    <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
-                                                      <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
-                                                    </a>
-                                                  )
-                                                ))}
-                                              </div>
+{Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                              (() => {
+                                                const images = m.attachments.filter((att: any) => att?.mimeType?.startsWith('image/'));
+                                                const docs = m.attachments.filter((att: any) => !att?.mimeType?.startsWith('image/'));
+                                                const imageCount = images.length;
+                                                
+                                                const singleMaxWidth = 360;
+                                                const multiMaxWidth = 280;
+                                                const singleHeight = 300;
+                                                const multiHeight = 180;
+                                                
+                                                return (
+                                                  <div style={{ marginBottom: m.content ? 8 : 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
+                                                    {imageCount > 0 && (
+                                                      <div
+                                                        style={{
+                                                          display: imageCount === 1 ? 'block' : 'grid',
+                                                          gridTemplateColumns: imageCount === 1 ? 'none' : 'repeat(2, 1fr)',
+                                                          gap: 4,
+                                                          maxWidth: imageCount === 1 ? singleMaxWidth : multiMaxWidth,
+                                                          width: '100%'
+                                                        }}
+                                                      >
+                                                        {images.map((att: any, idx: number) => (
+                                                          <span
+                                                            key={att.id}
+                                                            role="button"
+                                                            title={att.fileName}
+                                                            onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}
+                                                            style={{
+                                                              display: 'block',
+                                                              width: '100%',
+                                                              height: imageCount === 1 ? singleHeight : multiHeight,
+                                                              borderRadius: 12,
+                                                              overflow: 'hidden',
+                                                              border: '1px solid #E5E7EB',
+                                                              cursor: 'zoom-in',
+                                                              gridColumn: (imageCount === 3 && idx === 2) ? '2 / 3' : 'auto'
+                                                            }}
+                                                          >
+                                                            <img
+                                                              src={att.url}
+                                                              alt={att.fileName}
+                                                              style={{
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'cover',
+                                                                display: 'block'
+                                                              }}
+                                                            />
+                                                          </span>
+                                                        ))}
+                                                      </div>
+                                                    )}
+                                                    {docs.map((att: any) => (
+                                                      <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
+                                                        <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                                      </a>
+                                                    ))}
+                                                  </div>
+                                                );
+                                              })()
                                             ) : null}
                                             {m.content ? (
                                               <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
@@ -1797,7 +1849,7 @@ const Groups: React.FC = () => {
                                                     width: '100%'
                                                   }}
                                                 >
-                                                  {images.map((att: any) => (
+                                                  {images.map((att: any, idx: number) => (
                                                     <span
                                                       key={att.id}
                                                       role="button"
@@ -1810,7 +1862,8 @@ const Groups: React.FC = () => {
                                                         borderRadius: 12,
                                                         overflow: 'hidden',
                                                         border: '1px solid #E5E7EB',
-                                                        cursor: 'zoom-in'
+                                                        cursor: 'zoom-in',
+                                                        gridColumn: (imageCount === 3 && idx === 2) ? '2 / 3' : 'auto'
                                                       }}
                                                     >
                                                       <img
@@ -1892,7 +1945,7 @@ const Groups: React.FC = () => {
                                                   width: '100%'
                                                 }}
                                               >
-                                                {images.map((att: any) => (
+                                                {images.map((att: any, idx: number) => (
                                                   <span
                                                     key={att.id}
                                                     role="button"
@@ -1905,7 +1958,8 @@ const Groups: React.FC = () => {
                                                       borderRadius: 12,
                                                       overflow: 'hidden',
                                                       border: '1px solid #E5E7EB',
-                                                      cursor: 'zoom-in'
+                                                      cursor: 'zoom-in',
+                                                      gridColumn: (imageCount === 3 && idx === 2) ? '2 / 3' : 'auto'
                                                     }}
                                                   >
                                                     <img
