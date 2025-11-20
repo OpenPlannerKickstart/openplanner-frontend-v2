@@ -102,7 +102,7 @@ export function useSyllabusGroupSuggest(initialSyllabusId?: string) {
     setSuggestion(null);
     setCanonical(null);
     setError(null);
-    setLoading(false);
+      setLoading(false);
     setResolving(false);
   }, []);
 

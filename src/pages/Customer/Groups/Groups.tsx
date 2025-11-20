@@ -666,14 +666,27 @@ const Groups: React.FC = () => {
     }
     const items = toProcess.map((file) => ({ id: uuidv4(), file, status: 'initiating' as const, progress: 0 }));
     setUploading(prev => [...prev, ...items]);
-    for (const item of items) {
+
+    const revokePreview = (fileId?: string) => {
+      if (!fileId) return;
+      setAttachmentPreviews(prev => {
+        if (!prev[fileId]) return prev;
+        try { URL.revokeObjectURL(prev[fileId]); } catch {}
+        const next = { ...prev };
+        delete next[fileId];
+        return next;
+      });
+    };
+
+    const processUpload = async (item: typeof items[number]) => {
+      let assignedFileId: string | undefined;
       try {
         // Respect active rate limit
         if (uploadRateLimitUntil && Date.now() < uploadRateLimitUntil) {
           const remaining = Math.max(1, Math.ceil((uploadRateLimitUntil - Date.now()) / 1000));
           te(`Too many uploads, try again in ${remaining}s`);
           setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'error', error: 'rate_limited' }) : u));
-          continue;
+          return;
         }
         // 1) Compute checksum (base64 CRC32) and initiate
         const checksum = await computeCrc32Base64(item.file);
@@ -695,7 +708,12 @@ const Groups: React.FC = () => {
             signedHeadersStr = sh;
           } catch {}
         }
+        assignedFileId = init.fileId;
         setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'uploading', fileId: init.fileId, progress: 0 }) : u));
+        try {
+          const blobUrl = URL.createObjectURL(item.file);
+          setAttachmentPreviews(prev => ({ ...prev, [init.fileId]: blobUrl }));
+        } catch {}
         // 2) PUT to S3
         const hdrs: Record<string, string> = { ...(init.headers || {}) };
         // If the presign did NOT sign the checksum header (X-Amz-SignedHeaders lacks it),
@@ -710,11 +728,6 @@ const Groups: React.FC = () => {
         // 3) Build descriptor
         const desc = toAttachmentDescriptor(item.file, init.fileId);
         setReadyAttachments(prev => [...prev, desc]);
-        // 4) Prepare local preview URL for optimistic render
-        try {
-          const blobUrl = URL.createObjectURL(item.file);
-          setAttachmentPreviews(prev => ({ ...prev, [init.fileId]: blobUrl }));
-        } catch {}
         setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'done', progress: 1 }) : u));
       } catch (e: any) {
         const status = e?.response?.status || e?.status;
@@ -732,9 +745,12 @@ const Groups: React.FC = () => {
         } else {
           te('Failed to upload file');
         }
-        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'error', error: String(status || 'error') }) : u));
+        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'error', error: String(status || 'error'), fileId: assignedFileId ?? u.fileId }) : u));
+        revokePreview(assignedFileId);
       }
-    }
+    };
+
+    await Promise.all(items.map(item => processUpload(item)));
   };
 
   const dragEventHasFiles = (event: React.DragEvent) => {
