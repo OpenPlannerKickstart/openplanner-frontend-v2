@@ -1344,21 +1344,68 @@ const Groups: React.FC = () => {
                                                 <div style={{ textAlign: 'left' }}>You</div>
                                                 <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                               </div>
-                                              {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                                <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
-                                                  {m.attachments.map((att: any) => (
-                                                    att?.mimeType?.startsWith('image/') ? (
-                                                      <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}>
-                                                        <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block', cursor: 'zoom-in' }} />
-                                                      </span>
-                                                    ) : (
+{Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                              (() => {
+                                                const images = m.attachments.filter((att: any) => att?.mimeType?.startsWith('image/'));
+                                                const docs = m.attachments.filter((att: any) => !att?.mimeType?.startsWith('image/'));
+                                                const imageCount = images.length;
+                                                
+                                                const singleMaxWidth = 360;
+                                                const multiMaxWidth = 280;
+                                                const singleHeight = 300;
+                                                const multiHeight = 180;
+                                                
+                                                return (
+                                                  <div style={{ marginBottom: m.content ? 8 : 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
+                                                    {imageCount > 0 && (
+                                                      <div
+                                                        style={{
+                                                          display: imageCount === 1 ? 'block' : 'grid',
+                                                          gridTemplateColumns: imageCount === 1 ? 'none' : 'repeat(2, 1fr)',
+                                                          gap: 4,
+                                                          maxWidth: imageCount === 1 ? singleMaxWidth : multiMaxWidth,
+                                                          width: '100%'
+                                                        }}
+                                                      >
+                                                        {images.map((att: any) => (
+                                                          <span
+                                                            key={att.id}
+                                                            role="button"
+                                                            title={att.fileName}
+                                                            onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}
+                                                            style={{
+                                                              display: 'block',
+                                                              width: '100%',
+                                                              height: imageCount === 1 ? singleHeight : multiHeight,
+                                                              borderRadius: 12,
+                                                              overflow: 'hidden',
+                                                              border: '1px solid #E5E7EB',
+                                                              cursor: 'zoom-in'
+                                                            }}
+                                                          >
+                                                            <img
+                                                              src={att.url}
+                                                              alt={att.fileName}
+                                                              style={{
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'cover',
+                                                                display: 'block'
+                                                              }}
+                                                            />
+                                                          </span>
+                                                        ))}
+                                                      </div>
+                                                    )}
+                                                    {docs.map((att: any) => (
                                                       <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
                                                         <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
                                                       </a>
-                                                    )
-                                                  ))}
-                                                </div>
-                                              ) : null}
+                                                    ))}
+                                                  </div>
+                                                );
+                                              })()
+                                            ) : null}
                                               {m.content ? (
                                                 <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
                                                   {m.content}
@@ -1394,11 +1441,17 @@ const Groups: React.FC = () => {
                                               <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
                                             {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                              <div className="d-flex flex-column gap-2 align-items-start" style={{ marginBottom: m.content ? 8 : 0 }}>
+                                              <div className="d-flex flex-column gap-2" style={{ marginBottom: m.content ? 8 : 0, alignItems: 'flex-start' }}>
                                                 {m.attachments.map((att: any) => (
                                                   att?.mimeType?.startsWith('image/') ? (
-                                                <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}>
-                                                  <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block', cursor: 'zoom-in' }} />
+                                                    <span
+                                                      key={att.id}
+                                                      role="button"
+                                                      title={att.fileName}
+                                                      onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}
+                                                      style={{ display: 'block', width: '100%', maxWidth: 360 }}
+                                                    >
+                                                      <img src={att.url} alt={att.fileName} style={{ width: '100%', height: 'auto', maxHeight: 300, borderRadius: 12, border: '1px solid #E5E7EB', display: 'block', cursor: 'zoom-in' }} />
                                                     </span>
                                                   ) : (
                                                     <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
@@ -1704,20 +1757,68 @@ const Groups: React.FC = () => {
                                         <div style={{ textAlign: 'left' }}>You</div>
                                         <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                       </div>
-                                            {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                              <div className="d-flex flex-column gap-2 align-items-start" style={{ marginBottom: m.content ? 8 : 0 }}>
-                                          {m.attachments.map((att: any) => (
-                                            att?.mimeType?.startsWith('image/') ? (
-                                              <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}>
-                                                <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block', cursor: 'zoom-in' }} />
-                                              </span>
-                                            ) : (
-                                              <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
-                                                <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
-                                              </a>
-                                            )
-                                          ))}
-                                        </div>
+{Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                        (() => {
+                                          const images = m.attachments.filter((att: any) => att?.mimeType?.startsWith('image/'));
+                                          const docs = m.attachments.filter((att: any) => !att?.mimeType?.startsWith('image/'));
+                                          const imageCount = images.length;
+                                          
+                                          // Determine layout based on count
+                                          const singleMaxWidth = 360;
+                                          const multiMaxWidth = 280;
+                                          const singleHeight = 300;
+                                          const multiHeight = 180;
+                                          
+                                          return (
+                                            <div style={{ marginBottom: m.content ? 8 : 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
+                                              {imageCount > 0 && (
+                                                <div
+                                                  style={{
+                                                    display: imageCount === 1 ? 'block' : 'grid',
+                                                    gridTemplateColumns: imageCount === 1 ? 'none' : 'repeat(2, 1fr)',
+                                                    gap: 4,
+                                                    maxWidth: imageCount === 1 ? singleMaxWidth : multiMaxWidth,
+                                                    width: '100%'
+                                                  }}
+                                                >
+                                                  {images.map((att: any) => (
+                                                    <span
+                                                      key={att.id}
+                                                      role="button"
+                                                      title={att.fileName}
+                                                      onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}
+                                                      style={{
+                                                        display: 'block',
+                                                        width: '100%',
+                                                        height: imageCount === 1 ? singleHeight : multiHeight,
+                                                        borderRadius: 12,
+                                                        overflow: 'hidden',
+                                                        border: '1px solid #E5E7EB',
+                                                        cursor: 'zoom-in'
+                                                      }}
+                                                    >
+                                                      <img
+                                                        src={att.url}
+                                                        alt={att.fileName}
+                                                        style={{
+                                                          width: '100%',
+                                                          height: '100%',
+                                                          objectFit: 'cover',
+                                                          display: 'block'
+                                                        }}
+                                                      />
+                                                    </span>
+                                                  ))}
+                                                </div>
+                                              )}
+                                              {docs.map((att: any) => (
+                                                <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
+                                                  <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                                </a>
+                                              ))}
+                                            </div>
+                                          );
+                                        })()
                                       ) : null}
                                       {m.content ? (
                                         <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
@@ -1752,20 +1853,67 @@ const Groups: React.FC = () => {
                                       <div>{senderName}</div>
                                       <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                     </div>
-                                    {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
-                                      <div className="d-flex flex-column gap-2 align-items-end" style={{ marginBottom: m.content ? 8 : 0 }}>
-                                        {m.attachments.map((att: any) => (
-                                          att?.mimeType?.startsWith('image/') ? (
-                                            <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}>
-                                              <img src={att.url} alt={att.fileName} style={{ maxWidth: '100%', maxHeight: 300, height: 'auto', borderRadius: 12, border: '1px solid #E5E7EB', display: 'block', cursor: 'zoom-in' }} />
-                                            </span>
-                                          ) : (
-                                            <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
-                                              <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
-                                            </a>
-                                          )
-                                        ))}
-                                      </div>
+{Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                      (() => {
+                                        const images = m.attachments.filter((att: any) => att?.mimeType?.startsWith('image/'));
+                                        const docs = m.attachments.filter((att: any) => !att?.mimeType?.startsWith('image/'));
+                                        const imageCount = images.length;
+                                        
+                                        const singleMaxWidth = 360;
+                                        const multiMaxWidth = 280;
+                                        const singleHeight = 300;
+                                        const multiHeight = 180;
+                                        
+                                        return (
+                                          <div style={{ marginBottom: m.content ? 8 : 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
+                                            {imageCount > 0 && (
+                                              <div
+                                                style={{
+                                                  display: imageCount === 1 ? 'block' : 'grid',
+                                                  gridTemplateColumns: imageCount === 1 ? 'none' : 'repeat(2, 1fr)',
+                                                  gap: 4,
+                                                  maxWidth: imageCount === 1 ? singleMaxWidth : multiMaxWidth,
+                                                  width: '100%'
+                                                }}
+                                              >
+                                                {images.map((att: any) => (
+                                                  <span
+                                                    key={att.id}
+                                                    role="button"
+                                                    title={att.fileName}
+                                                    onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}
+                                                    style={{
+                                                      display: 'block',
+                                                      width: '100%',
+                                                      height: imageCount === 1 ? singleHeight : multiHeight,
+                                                      borderRadius: 12,
+                                                      overflow: 'hidden',
+                                                      border: '1px solid #E5E7EB',
+                                                      cursor: 'zoom-in'
+                                                    }}
+                                                  >
+                                                    <img
+                                                      src={att.url}
+                                                      alt={att.fileName}
+                                                      style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        objectFit: 'cover',
+                                                        display: 'block'
+                                                      }}
+                                                    />
+                                                  </span>
+                                                ))}
+                                              </div>
+                                            )}
+                                            {docs.map((att: any) => (
+                                              <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
+                                                <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                              </a>
+                                            ))}
+                                          </div>
+                                        );
+                                      })()
                                     ) : null}
                                     {m.content ? (
                                       <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
