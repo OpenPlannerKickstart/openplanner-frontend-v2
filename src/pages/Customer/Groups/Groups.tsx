@@ -2233,7 +2233,7 @@ const Groups: React.FC = () => {
           <div className="bg-white" style={{ width: 360, borderRadius: 12, boxShadow: '0 10px 24px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '16px 16px 0 16px' }}>
               <h6 className="mb-1" style={{ color: '#111827' }}>Delete message?</h6>
-              <div className="text-muted" style={{ fontSize: 14 }}>This can't be undone. We'll wire this to backend next.</div>
+              <div className="text-muted" style={{ fontSize: 14 }}>This can't be undone. This will remove the message for everyone in the group.</div>
             </div>
             <div className="d-flex justify-content-end gap-2" style={{ padding: 16 }}>
               <button className="btn btn-outline-white" onClick={() => setConfirmDelete({ open: false, messageId: null })}>Cancel</button>
