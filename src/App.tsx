@@ -12,6 +12,7 @@ import { connect, useDispatch } from 'react-redux';
 import AppRouter from './routes';
 import { useSelector } from "react-redux";
 import InstagramBrowserPrompt from './components/InstagramBrowserPrompt/InstagramBrowserPrompt';
+import { SyllabusUploadProvider } from './context/SyllabusUploadContext';
 
 /**
  * App Component
@@ -27,16 +28,18 @@ function App(props) {
 
 
   return (
-    <div>
-      {/* Instagram browser prompt */}
-      <InstagramBrowserPrompt />
-      {/* Toaster component for displaying notifications */}
-      <Toaster position="top-right" reverseOrder={flg} />
-      {/* Loader component to show loading indicator */}
-      <Loader loading={loading} />
-      {/* AppRouter component for routing */}
-      <AppRouter />
-    </div>
+    <SyllabusUploadProvider>
+      <div>
+        {/* Instagram browser prompt */}
+        <InstagramBrowserPrompt />
+        {/* Toaster component for displaying notifications */}
+        <Toaster position="top-right" reverseOrder={flg} />
+        {/* Loader component to show loading indicator */}
+        <Loader loading={loading} />
+        {/* AppRouter component for routing */}
+        <AppRouter />
+      </div>
+    </SyllabusUploadProvider>
   );
 }
 

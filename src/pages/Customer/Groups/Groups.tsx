@@ -691,7 +691,10 @@ const Groups: React.FC = () => {
         }
         // 1) Compute checksum (base64 CRC32) and initiate
         const checksum = await computeCrc32Base64(item.file);
-        const init = await initiateUpload(item.file, selectedGroupId || undefined, checksum);
+        const init = await initiateUpload(item.file, {
+          groupId: selectedGroupId || undefined,
+          checksumCrc32: checksum,
+        });
         let signedHeadersStr: string | null = null;
         if (init?.signedHeaders) {
           // Log the exact signed headers for quick verification with BE

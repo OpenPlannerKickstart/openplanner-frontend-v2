@@ -1,12 +1,15 @@
 import { post } from './httpInterceptor';
 import type { AttachmentDescriptor } from '../interfaces/groups';
 
+export type UploadContext = 'syllabus' | 'attachment';
+
 export type UploadInitResponse = {
   fileId: string;
   putUrl: string;
   headers: Record<string, string>; // e.g., { 'Content-Type': mimeType, 'x-amz-checksum-crc32': '...' }
   expiresIn: number;
   signedHeaders?: string; // optional debug info from BE: value of X-Amz-SignedHeaders
+  context?: UploadContext; // echoed back from BE
 };
 
 /**
@@ -50,17 +53,31 @@ export async function computeCrc32Base64(file: File): Promise<string> {
   return btoa(binary);
 }
 
+export interface InitiateUploadOptions {
+  groupId?: string;
+  checksumCrc32?: string;
+  context?: UploadContext;
+}
+
 /**
  * Initiate an upload session for a file. Returns a short-lived signed PUT URL and headers.
  * Relies on auth handled by httpInterceptor.
+ * 
+ * @param file - The file to upload
+ * @param options - Optional parameters:
+ *   - groupId: for group attachments
+ *   - checksumCrc32: base64-encoded CRC32 checksum
+ *   - context: 'syllabus' or 'attachment' (controls allowed MIME types on BE)
  */
-export async function initiateUpload(file: File, groupId?: string, checksumCrc32?: string): Promise<UploadInitResponse> {
+export async function initiateUpload(file: File, options?: InitiateUploadOptions): Promise<UploadInitResponse> {
+  const { groupId, checksumCrc32, context } = options || {};
   const body = {
     mimeType: file.type,
     sizeBytes: file.size,
     fileName: file.name,
     ...(groupId ? { groupId } : {}),
     ...(checksumCrc32 ? { checksumCrc32 } : {}),
+    ...(context ? { context } : {}),
   };
   const res: any = await post('uploads/initiate', body);
   const data = res?.data ?? res;
