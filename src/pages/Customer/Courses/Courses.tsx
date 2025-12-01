@@ -523,6 +523,7 @@ const Courses = (props) => {
               freemiumLimitReached={freemiumLimitReached}
               hasSubscription={hasSubscription}
               onUpgradeClick={handleUpgradeClick}
+              existingSyllabusCount={syllabusList.length}
             />
 
 

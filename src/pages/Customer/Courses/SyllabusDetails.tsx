@@ -41,9 +41,11 @@ import {
   deleteSyllabusDataAPI,
 } from "../../../redux/Service/User/Courses/courses";
 import GetImageIcon from "../../../common/GetImageIcon";
-import { DELETE_DOCUMENT_TYPE } from "../../../interfaces/enum";
+import { DELETE_DOCUMENT_TYPE, ENUMFORROUTES } from "../../../interfaces/enum";
+import { useNavigate } from "react-router-dom";
 const SyllabusDetails = (props) => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isEmptyObjectOrNullUndefiend(props?.selectedSyllabusObj)) {
@@ -76,6 +78,24 @@ const SyllabusDetails = (props) => {
     useState<addSyllabusData>(initSyllabusData);
   const [loading, setloading] = useState(false)
   const onSubmit = (values) => { };
+  const hasSubscription = props?.hasSubscription ?? (() => {
+    try {
+      return localStorage.getItem("has_subscription") === "true";
+    } catch {
+      return false;
+    }
+  })();
+  const isNewSyllabus = isNullUndefinedOrBlank(props?.selectedSyllabusObj?.id);
+  const freemiumUploadLocked =
+    isNewSyllabus && !hasSubscription && !!props?.freemiumLimitReached;
+
+  const handleUpgrade = () => {
+    if (props?.onUpgradeClick) {
+      props.onUpgradeClick();
+      return;
+    }
+    navigate(ENUMFORROUTES.PLAN_DETAILS);
+  };
   const validationSchema = yup.object({
     title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
     class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
@@ -106,6 +126,11 @@ const SyllabusDetails = (props) => {
     enableReinitialize: true,
   });
   const handleSyllabusSubmit = async () => {
+    if (freemiumUploadLocked) {
+      handleUpgrade();
+      return;
+    }
+
     syllabusFormData.handleSubmit();
     const syllabusFormDataErrors = await syllabusFormData.validateForm();
     if (Object.keys(syllabusFormDataErrors).length > 0) {
@@ -251,6 +276,16 @@ const SyllabusDetails = (props) => {
           </Form.Group>
           <Form.Group className="form-group">
             <Form.Label>Syllabus</Form.Label>
+            {freemiumUploadLocked && (
+              <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
+                <div>
+                  <strong>Free plan limit reached.</strong> Upload one syllabus for free, then upgrade for unlimited uploads.
+                </div>
+                <Button size="sm" variant="primary" onClick={handleUpgrade}>
+                  View plans
+                </Button>
+              </div>
+            )}
             {
               isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) &&
 
@@ -268,6 +303,7 @@ const SyllabusDetails = (props) => {
                   className=" "
                   type="file"
                   accept=".pdf,.doc,.docx"
+                  disabled={freemiumUploadLocked}
                   onChange={(e: any) => {
                     if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
                       syllabusFormData.setFieldValue(
@@ -593,6 +629,7 @@ const SyllabusDetails = (props) => {
         <Button
           type="button"
           className="btn btn-primary"
+          disabled={freemiumUploadLocked}
           onClick={() => {
             handleSyllabusSubmit();
           }}

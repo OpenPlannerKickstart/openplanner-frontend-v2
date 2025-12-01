@@ -13,9 +13,12 @@ import GetImageIcon from '../GetImageIcon';
 import DatePicker from "react-datepicker";
 import InputColor from 'react-input-color';
 import { isUpdatedSyllabus } from '../../redux/User/Courses/coursesSlice';
+import { useNavigate } from 'react-router-dom';
+import { ENUMFORROUTES } from '../../interfaces/enum';
 
 export const AddEditSyllabus = (props) => {
     const dispatch: AppDispatch = useDispatch();
+    const navigate = useNavigate();
     const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
 
     const handleCloseAddSyllabusEvents = () => {
@@ -60,6 +63,26 @@ export const AddEditSyllabus = (props) => {
     const [savedSyllabusFormData, setSavedSyllabusFormData] = useState<addSyllabusData>(initSyllabusData);
     const onSubmitForSyllabus = (values) => {
     }
+    const hasSubscription = props?.hasSubscription ?? (() => {
+        try {
+            return localStorage.getItem("has_subscription") === "true";
+        } catch {
+            return false;
+        }
+    })();
+    const freemiumUploadLocked =
+        !hasSubscription &&
+        (!!props?.freemiumLimitReached ||
+            (typeof props?.existingSyllabusCount === "number" &&
+                props.existingSyllabusCount >= 1));
+
+    const handleUpgrade = () => {
+        if (props?.onUpgradeClick) {
+            props.onUpgradeClick();
+            return;
+        }
+        navigate(ENUMFORROUTES.PLAN_DETAILS);
+    };
     const validationSchemaForSyllabus = yup.object({
         title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
         class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
@@ -87,6 +110,11 @@ export const AddEditSyllabus = (props) => {
         enableReinitialize: true,
     })
     const handleSyllabusSubmit = async () => {
+        if (freemiumUploadLocked) {
+            handleUpgrade();
+            return;
+        }
+
         syllabusFormData.handleSubmit();
         if (isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc)) {
 
@@ -237,6 +265,16 @@ export const AddEditSyllabus = (props) => {
                                                 </Form.Group>
                                                 <Form.Group className="form-group">
                                                     <Form.Label>Upload Syllabus Here</Form.Label>
+                                                    {freemiumUploadLocked && (
+                                                        <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
+                                                            <div>
+                                                                <strong>Free plan limit reached.</strong> Upload one syllabus for free, then upgrade for unlimited uploads.
+                                                            </div>
+                                                            <Button size="sm" variant="primary" onClick={handleUpgrade}>
+                                                                View plans
+                                                            </Button>
+                                                        </div>
+                                                    )}
                                                     <div className='attachments-container'>
                                                         <div className='attachments-content'>
                                                             <button className='btn btn-attachments'><i className="bi bi-upload"></i></button>
@@ -244,6 +282,7 @@ export const AddEditSyllabus = (props) => {
                                                         </div>
                                                         <input className=' ' type="file"
                                                             accept=".pdf,.doc,.docx"
+                                                            disabled={freemiumUploadLocked}
 
                                                             onChange={(e: any) => {
                                                                 if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
@@ -525,6 +564,7 @@ export const AddEditSyllabus = (props) => {
                                             Clear
                                         </Button>
                                         <Button type="button" className="btn btn-primary"
+                                            disabled={freemiumUploadLocked}
                                             onClick={() => { handleSyllabusSubmit() }}
                                         >
                                             Save

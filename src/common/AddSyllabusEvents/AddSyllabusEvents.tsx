@@ -88,7 +88,11 @@ const AddSyllabusEvents = (props) => {
       return false;
     }
   })();
-  const freemiumUploadLocked = !hasSubscription && !!props?.freemiumLimitReached;
+  const freemiumUploadLocked =
+    !hasSubscription &&
+    (!!props?.freemiumLimitReached ||
+      (typeof props?.existingSyllabusCount === "number" &&
+        props.existingSyllabusCount >= 1));
 
   const handleUpgrade = () => {
     if (props?.onUpgradeClick) {
