@@ -189,6 +189,26 @@ const Courses = (props) => {
     navigate(ENUMFORROUTES.EDIT_COURSE, { state: { syllabusObj } });
   };
 
+  const hasSubscription = (() => {
+    try {
+      return localStorage.getItem("has_subscription") === "true";
+    } catch {
+      return false;
+    }
+  })();
+  const freemiumLimitReached = !hasSubscription && syllabusList.length >= 1;
+
+  const handleUpgradeClick = () => {
+    navigate(ENUMFORROUTES.PLAN_DETAILS);
+  };
+
+  const handleAddSyllabusClick = () => {
+    if (freemiumLimitReached) {
+      handleUpgradeClick();
+      return;
+    }
+    setShowEvent(true);
+  };
 
   return (
     <>
@@ -200,11 +220,21 @@ const Courses = (props) => {
             </div>
           </div>
           <div className="page-title-right">
-            <button type="button" className="btn btn-primary" onClick={() => { setShowEvent(true) }}>
+            <button type="button" className="btn btn-primary" onClick={handleAddSyllabusClick}>
               Add Syllabus{" "}
             </button>
           </div>
         </div>
+        {freemiumLimitReached && (
+          <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
+            <div>
+              <strong>Free plan limit reached.</strong> You can upload one syllabus on the free plan. Upgrade to keep adding courses.
+            </div>
+            <Button variant="primary" size="sm" onClick={handleUpgradeClick}>
+              View plans
+            </Button>
+          </div>
+        )}
         <div className="page-filters p-3 mb-0">
           <div className="page-filters-left">
             {/* <Form.Group className="form-group form-group-sm form-group-inline-control">
@@ -490,6 +520,9 @@ const Courses = (props) => {
 
             <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent}
               setIsAddNewData={setIsAddNewData} isAddNewData={isAddNewData}
+              freemiumLimitReached={freemiumLimitReached}
+              hasSubscription={hasSubscription}
+              onUpgradeClick={handleUpgradeClick}
             />
 
 

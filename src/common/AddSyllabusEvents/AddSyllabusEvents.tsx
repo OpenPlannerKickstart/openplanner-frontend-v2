@@ -16,12 +16,14 @@ import * as yup from 'yup';
 import { addEditEventDataAPI, addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
 import { MAX_1000, MAX_3, MAX_300, MAX_50, ONLY_ALPHABETS_AND_DOT, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import InputColor from 'react-input-color';
-import { ENUM_FOR_EVENT_PRIORITY, ENUM_FOR_SYLLABUS_TAB } from '../../interfaces/enum';
+import { ENUM_FOR_EVENT_PRIORITY, ENUM_FOR_SYLLABUS_TAB, ENUMFORROUTES } from '../../interfaces/enum';
 import GetImageIcon from '../GetImageIcon';
 import { eventPriorityDropDownData, reminderUnitDropDownData } from '../../Utility/staticDropDown';
 import { isUpdatedEvent, isUpdatedSyllabus } from '../../redux/User/Courses/coursesSlice';
+import { useNavigate } from 'react-router-dom';
 const AddSyllabusEvents = (props) => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
 
@@ -79,6 +81,22 @@ const AddSyllabusEvents = (props) => {
   const [loading, setloading] = useState(false)
   const onSubmitForSyllabus = (values) => {
   }
+  const hasSubscription = props?.hasSubscription ?? (() => {
+    try {
+      return localStorage.getItem("has_subscription") === "true";
+    } catch {
+      return false;
+    }
+  })();
+  const freemiumUploadLocked = !hasSubscription && !!props?.freemiumLimitReached;
+
+  const handleUpgrade = () => {
+    if (props?.onUpgradeClick) {
+      props.onUpgradeClick();
+      return;
+    }
+    navigate(ENUMFORROUTES.PLAN_DETAILS);
+  };
   const validationSchemaForSyllabus = yup.object({
     title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
     class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
@@ -105,6 +123,11 @@ const AddSyllabusEvents = (props) => {
     enableReinitialize: true,
   })
   const handleSyllabusSubmit = async () => {
+    if (freemiumUploadLocked) {
+      handleUpgrade();
+      return;
+    }
+
     syllabusFormData.handleSubmit();
     if (isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc)) {
 
@@ -499,6 +522,16 @@ const AddSyllabusEvents = (props) => {
                           </Form.Group>
                           <Form.Group className="form-group">
                             <Form.Label>Upload Syllabus Here</Form.Label>
+                            {freemiumUploadLocked && (
+                              <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
+                                <div>
+                                  <strong>Free plan limit reached.</strong> Upload one syllabus for free, then upgrade for unlimited uploads.
+                                </div>
+                                <Button size="sm" variant="primary" onClick={handleUpgrade}>
+                                  View plans
+                                </Button>
+                              </div>
+                            )}
                             <div className='attachments-container'>
                               <div className='attachments-content'>
                                 <button className='btn btn-attachments'><i className="bi bi-upload"></i></button>
@@ -506,6 +539,7 @@ const AddSyllabusEvents = (props) => {
                               </div>
                               <input className=' ' type="file"
                                 accept=".pdf,.doc,.docx"
+                                disabled={freemiumUploadLocked}
 
                                 onChange={(e: any) => {
                                   if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
@@ -1106,6 +1140,7 @@ const AddSyllabusEvents = (props) => {
                       Clear
                     </Button>
                     <Button type="button" className="btn btn-primary"
+                      disabled={selectedTab === ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS && freemiumUploadLocked}
                       onClick={() => { handleSubmitData() }}
                     >
                       Save
