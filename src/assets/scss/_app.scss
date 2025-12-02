@@ -748,7 +748,7 @@
 }
 
 .plans-shell {
-  max-width: 1400px;
+  max-width: 1500px;
   margin: 0 auto;
 }
 
@@ -811,14 +811,20 @@
 }
 
 .plans-grid .pricing-card {
-  max-width: 280px; /* allow four-up on medium screens comfortably */
+  max-width: 260px; /* allow four-up on medium screens comfortably */
   margin: 0 auto;
 }
 
 @media (min-width: 768px) {
+  .plans-grid .pricing-wrapper .row {
+    margin-left: 0;
+    margin-right: 0;
+  }
   .plans-grid .pricing-wrapper .row > * {
-    flex: 0 0 25%;
-    max-width: 25%;
+    flex: 0 0 25% !important;
+    max-width: 25% !important;
+    padding-left: 8px;
+    padding-right: 8px;
   }
   .plans-grid .pricing-card {
     width: 100%;
