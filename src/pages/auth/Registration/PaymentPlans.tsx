@@ -54,7 +54,10 @@ export const PaymentPlans = () => {
             const resp: any = await dispatch<any>(getSubscriptionStatusAPI());
             const payload = resp?.payload || resp;
             if (payload && payload.isSubscription === true) {
-              try { localStorage.setItem('has_subscription', 'true'); } catch {}
+              try {
+                localStorage.setItem('has_subscription', 'true');
+                localStorage.removeItem('plan_tier');
+              } catch {}
               setShowRedeem(false);
               setRedeemCode('');
               navigate(ENUMFORROUTES.DASHBOARD);
@@ -68,7 +71,10 @@ export const PaymentPlans = () => {
             setTimeout(check, d);
           } else {
             // Fallback: keep user on plans, but mark as subscribed to avoid loop
-            try { localStorage.setItem('has_subscription', 'true'); } catch {}
+            try {
+              localStorage.setItem('has_subscription', 'true');
+              localStorage.removeItem('plan_tier');
+            } catch {}
             navigate(ENUMFORROUTES.DASHBOARD);
           }
         };

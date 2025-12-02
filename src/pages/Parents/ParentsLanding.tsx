@@ -17,12 +17,17 @@ type Plan = {
   price: number;
   duration: string;
   features: string[];
+  is_freemium?: boolean;
 };
 const undiscountedMap = {
   "for 1 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_MONTH,
   "for 6 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.SIX_MONTH,
   "for 1 year": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_YEAR,
 };
+const isFreemiumPlan = (plan: Plan) =>
+  plan?.is_freemium === true ||
+  plan?.product_id === "freemium" ||
+  (typeof plan?.price === "number" && plan.price <= 0);
 const fallbackPlans: any[] = [
   {
     product_id: "one_month",
@@ -84,6 +89,7 @@ const ParentsLanding = () => {
       if (response?.payload) {
         const list = (response.payload as Plan[])
           .slice()
+          .filter((p) => !isFreemiumPlan(p))
           .sort((a: any, b: any) => Number(a.price) - Number(b.price));
         // Use ONLY backend plans to avoid sending unknown IDs to BE during testing
         setPlans(list);

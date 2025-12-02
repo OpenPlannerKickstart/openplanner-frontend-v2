@@ -23,7 +23,14 @@ const GuestRoute = ({ children }: { children: JSX.Element }) => {
       return false;
     }
   })();
-  if (isAuthenticated && hasSubscription) {
+  const isFreemium = ((): boolean => {
+    try {
+      return localStorage.getItem('plan_tier') === 'freemium';
+    } catch {
+      return false;
+    }
+  })();
+  if (isAuthenticated && (hasSubscription || isFreemium)) {
     console.log("going to dashboard")
     return <Navigate to={ENUMFORROUTES.DASHBOARD} state={{ from: location }} />
   };

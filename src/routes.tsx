@@ -178,15 +178,24 @@ const Layout = ({ isAuthenticated, children }: { isAuthenticated: boolean, child
       return false;
     }
   })();
+  const isFreemium = ((): boolean => {
+    try {
+      return localStorage.getItem('plan_tier') === 'freemium';
+    } catch {
+      return false;
+    }
+  })();
+  const showChrome =
+    isAuthenticated && (hasSubscription || isFreemium) && !isParentsRoute && !isPaywallRoute;
   return (
-    <div className={isAuthenticated && !isParentsRoute && !isPaywallRoute ? 'layout-wrapper' : ''} id={isAuthenticated && !isParentsRoute && !isPaywallRoute ? "layout-wrapper" : ''}>
-      {isAuthenticated && hasSubscription && !isParentsRoute && !isPaywallRoute && (
+    <div className={showChrome ? 'layout-wrapper' : ''} id={showChrome ? "layout-wrapper" : ''}>
+      {showChrome && (
         <Navbar />
       )}
-      {isAuthenticated && hasSubscription && !isParentsRoute && !isPaywallRoute && (
+      {showChrome && (
         <Sidebar />
       )}
-      <div className={isAuthenticated && hasSubscription && !isParentsRoute && !isPaywallRoute ? 'main-content' : ''}>
+      <div className={showChrome ? 'main-content' : ''}>
         {children}
         {!isParentsRoute && !isPaywallRoute && <NavigationConfirm />}
       </div>
@@ -406,4 +415,3 @@ const AppRouter = (): JSX.Element => {
 
 
 export default AppRouter;
-
