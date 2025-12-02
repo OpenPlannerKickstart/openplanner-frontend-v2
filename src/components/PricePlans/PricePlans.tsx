@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Card, Col, Modal, Row } from "react-bootstrap";
+import { Button, Card, Modal } from "react-bootstrap";
 import {
   ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT,
   ENUMFORROUTES,
@@ -348,7 +348,7 @@ export const PricePlans = (props) => {
 
   return (
     <div className="pricing-wrapper">
-      <Row className="g-2 g-lg-3 row-cols-1 row-cols-md-4 row-cols-lg-4 row-cols-xl-4 align-items-stretch">
+      <div className="plans-grid__cards">
         {plans.map((plan, index) => {
           const freemium = isFreemiumPlan(plan);
           const originalPrice = undiscountedMap[plan.duration];
@@ -370,7 +370,7 @@ export const PricePlans = (props) => {
                 : "Get Started";
 
           return (
-            <Col key={index}>
+            <div key={index} className="plans-grid__item">
               <Card
                 className={`pricing-card ${
                   selectedPlan === plan?.product_id ? "active" : ""
@@ -438,10 +438,10 @@ export const PricePlans = (props) => {
                   </div>
                 </Card.Body>
               </Card>
-            </Col>
+            </div>
           );
         })}
-      </Row>
+      </div>
 
       <Modal
         className="modal-theme modal-confirmation modal-approve"
