@@ -743,8 +743,10 @@
 /* New plans page layout */
 .plans-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f7f4df 0%, #eef6ff 100%);
-  padding: 48px 16px 72px;
+  background: radial-gradient(circle at 20% 20%, #f7f4df 0, #f7f4df 25%, transparent 40%),
+    radial-gradient(circle at 80% 0%, #e3edff 0, #e3edff 22%, transparent 40%),
+    linear-gradient(135deg, #f8f7f2 0%, #eef6ff 100%);
+  padding: 64px 16px 96px;
 }
 
 .plans-shell {
@@ -753,12 +755,11 @@
 }
 
 .plans-hero {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 32px;
 }
 
 .plans-hero__brand {
@@ -781,30 +782,31 @@
 
 .plans-hero h1 {
   margin: 4px 0;
-  font-size: 28px;
-  line-height: 1.3;
-  color: #101828;
+  font-size: 32px;
+  line-height: 1.25;
+  color: #0f172a;
 }
 
 .plans-hero__sub {
   margin: 0;
   color: #475467;
-  max-width: 520px;
+  max-width: 560px;
 }
 
 .plans-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: flex-end;
 }
 
 .plans-grid {
-  margin-top: 8px;
+  margin-top: 12px;
 }
 
 .plans-grid__cards {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   grid-template-columns: 1fr;
 }
 
@@ -815,6 +817,52 @@
 .plans-grid .pricing-card {
   max-width: none;
   margin: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  box-shadow: 0px 18px 60px rgba(0,0,0,0.06);
+  background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  padding: 24px;
+}
+
+.plans-grid .pricing-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 26px 70px rgba(0,0,0,0.08);
+  border-color: #d0d8ff;
+}
+
+.pricing-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pill-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.pill-free {
+  background: #e0f2ff;
+  color: #0b5cab;
+  border-color: #b9ddff;
+}
+
+.pill-popular {
+  background: #f4ebff;
+  color: #7a32e0;
+  border-color: #e0d2ff;
 }
 
 @media (min-width: 768px) {

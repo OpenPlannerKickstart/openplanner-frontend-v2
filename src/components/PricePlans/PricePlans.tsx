@@ -352,6 +352,7 @@ export const PricePlans = (props) => {
         {plans.map((plan, index) => {
           const freemium = isFreemiumPlan(plan);
           const originalPrice = undiscountedMap[plan.duration];
+          const isPopular = !freemium && plan.duration === "for 1 year";
           const displayDuration =
             freemium ||
             !fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
@@ -376,24 +377,27 @@ export const PricePlans = (props) => {
                   selectedPlan === plan?.product_id ? "active" : ""
                 }`}
               >
-                <Card.Header>
-                  {!freemium && plan.duration === "for 1 year" && (
-                    <span className="popular-tag">Popular</span>
-                  )}
-                </Card.Header>
                 <Card.Body>
-                  <div className="price-section">
-                    {!freemium && originalPrice && (
-                      <div>
-                        <span className="original-price">
-                          ${originalPrice}
+                  <div className="pricing-card__header">
+                    <div className="pill-row">
+                      {freemium && <span className="pill pill-free">Free forever</span>}
+                      {isPopular && <span className="pill pill-popular">Popular</span>}
+                    </div>
+                    <div className="price-section">
+                      {!freemium && originalPrice && (
+                        <div>
+                          <span className="original-price">
+                            ${originalPrice}
+                          </span>
+                        </div>
+                      )}
+                      <div className="price-row">
+                        <span className="price">
+                          {freemium ? "Free" : `$${plan.price}`}
                         </span>
+                        <span className="duration">{displayDuration}</span>
                       </div>
-                    )}
-                    <span className="price">
-                      {freemium ? "Free" : `$${plan.price}`}
-                    </span>
-                    <span className="duration">{displayDuration}</span>
+                    </div>
                   </div>
 
                   <Button
