@@ -359,14 +359,10 @@ export const PricePlans = (props) => {
               : fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
                   ?.duration || plan.duration;
           const isActivePlan = selectedPlan === plan?.product_id;
-          const disableFreemiumChange =
-            (props?.updatePlan || props?.upgradeNoTrial) && freemium;
           const buttonText = freemium
             ? isActivePlan
               ? "Active"
-              : disableFreemiumChange
-                ? "Unavailable"
-                : "Start for Free"
+              : "Start for Free"
             : isActivePlan
               ? "Active"
               : props?.updatePlan
@@ -402,10 +398,10 @@ export const PricePlans = (props) => {
 
                   <Button
                     variant="primary"
-                    disabled={isActivePlan || disableFreemiumChange}
+                    disabled={isActivePlan}
                     className="btn-text w-100 mb-4"
                     onClick={() => {
-                      if (isActivePlan || disableFreemiumChange) return;
+                      if (isActivePlan) return;
                       if (props?.updatePlan && !props?.upgradeNoTrial) {
                         handleConfirmationShow(plan);
                       } else {
