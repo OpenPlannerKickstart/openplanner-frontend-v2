@@ -44,7 +44,6 @@ const AddSyllabusEvents = (props) => {
   
   // Syllabus upload context for background upload
   const syllabusUploadContext = useSyllabusUpload();
-  const [showSuggestModal, setShowSuggestModal] = useState(false);
 
   const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
 
