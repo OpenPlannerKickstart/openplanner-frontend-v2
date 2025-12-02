@@ -2057,7 +2057,7 @@ $sm_sidebar_home_link_width: 170px;
 
 // Pricing plans css
 .pricing-wrapper {  
-  padding: 32px 0 16px;
+  padding: 96px 0 32px; /* push cards down so they don't overlap the hero/logo */
 }
 
 .pricing-card {
@@ -2195,6 +2195,7 @@ $sm_sidebar_home_link_width: 170px;
 @media (max-width: 768px) {
   .pricing-wrapper {
     margin-top: 0; /* remove excessive offset that hid cards on small screens */
+    padding: 32px 0 16px; /* keep mobile spacing modest */
   }
 }
 
