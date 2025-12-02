@@ -15,10 +15,30 @@ import InputColor from 'react-input-color';
 import { isUpdatedSyllabus } from '../../redux/User/Courses/coursesSlice';
 import { useNavigate } from 'react-router-dom';
 import { ENUMFORROUTES } from '../../interfaces/enum';
+import { useSyllabusGroupSuggest } from '../../hooks/useSyllabusGroupSuggest';
+import SyllabusGroupSuggestModal from '../../components/SyllabusGroupSuggestModal/SyllabusGroupSuggestModal';
+import { useSyllabusUpload } from '../../context/SyllabusUploadContext';
+import { startSyllabusUpload } from '../../Utility/syllabusUpload';
 
 export const AddEditSyllabus = (props) => {
     const dispatch: AppDispatch = useDispatch();
     const navigate = useNavigate();
+    const [showSuggestModal, setShowSuggestModal] = useState(false);
+    const {
+        syllabusId: hookSyllabusId,
+        setSyllabusId,
+        loadingSuggestions,
+        suggestion,
+        hasCandidate,
+        fetchSuggestions,
+        resolvingCanonical,
+        canonical,
+        createAndJoin,
+        reset: resetSuggest,
+    } = useSyllabusGroupSuggest();
+    
+    // Syllabus upload context for background upload
+    const syllabusUploadContext = useSyllabusUpload();
     const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
 
     const handleCloseAddSyllabusEvents = () => {
@@ -116,9 +136,6 @@ export const AddEditSyllabus = (props) => {
         }
 
         syllabusFormData.handleSubmit();
-        if (isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc)) {
-
-        }
         const syllabusFormDataErrors = await syllabusFormData.validateForm();
         if (Object.keys(syllabusFormDataErrors).length > 0) {
             syllabusFormData.setTouched(
@@ -128,6 +145,47 @@ export const AddEditSyllabus = (props) => {
             return;
         }
 
+        const hasNewFile = !isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) && 
+            typeof syllabusFormData?.values?.syllabus_doc === "object";
+
+        // Use async background upload flow when there's a new file
+        if (hasNewFile) {
+            const file = syllabusFormData?.values?.syllabus_doc[0] as File;
+            const metadata = {
+                title: syllabusFormData.values.title,
+                class_time: formatedDate(syllabusFormData.values.class_time, "HH:mm:ssZ"),
+                course_color: syllabusFormData.values.course_color,
+                professor_name: syllabusFormData.values.professor_name || undefined,
+            };
+
+            // Close the offcanvas immediately - upload will continue in background
+            handleCloseAddSyllabusEvents();
+            props?.handleGetData();
+            dispatch(isUpdatedSyllabus(true));
+
+            try {
+                // Start background upload - this opens the floating modal
+                const result = await startSyllabusUpload(file, metadata, {
+                    startUpload: syllabusUploadContext.startUpload,
+                    setProgress: syllabusUploadContext.setProgress,
+                    setStatus: syllabusUploadContext.setStatus,
+                    setSyllabusId: syllabusUploadContext.setSyllabusId,
+                });
+
+                // Upload complete - show group suggestions
+                if (result.syllabusId) {
+                    setSyllabusId(String(result.syllabusId));
+                    await fetchSuggestions(String(result.syllabusId));
+                    setShowSuggestModal(true);
+                }
+            } catch (error) {
+                // Error is already handled in startSyllabusUpload (toast + modal state)
+                console.error('Syllabus upload failed:', error);
+            }
+            return;
+        }
+
+        // Legacy flow for metadata-only updates (no new file)
         const formData = new FormData();
         const reqBody = {
             title: syllabusFormData.values.title,
@@ -136,22 +194,31 @@ export const AddEditSyllabus = (props) => {
             professor_name: syllabusFormData.values.professor_name,
         }
 
-        // console.log(reqBody, "reqBody");
-
-        if (!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) && typeof syllabusFormData?.values?.syllabus_doc === "object") {
-
-            formData.append("syllabus_doc", syllabusFormData?.values?.syllabus_doc[0]);
-        }
-
         customJsonInclude(reqBody);
         formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
         setloading(true);
-        const response = await dispatch(addEditSyllabusDataAPI(formData));
+        const response: any = await dispatch(addEditSyllabusDataAPI(formData));
         if (response) {
+            const payload = response?.payload ?? null;
+            const sid =
+                payload?.syllabusId ||
+                payload?.syllabus_id ||
+                payload?.id ||
+                payload?.syllabus?.id ||
+                payload?.data?.id ||
+                payload?.result?.id ||
+                payload?.doc_id ||
+                null;
             handleCloseAddSyllabusEvents();
             props?.handleGetData();
             dispatch(isUpdatedSyllabus(true));
-
+            if (sid) {
+                setSyllabusId(String(sid));
+                await fetchSuggestions(String(sid));
+                setShowSuggestModal(true);
+            } else {
+                try { console.log('Syllabus save payload (no syllabusId found):', payload); } catch {}
+            }
         }
         setloading(false);
 
@@ -216,6 +283,16 @@ export const AddEditSyllabus = (props) => {
     const [showColorPopover, setShowColorPopover] = useState(false);
     const [popoverTarget, setPopoverTarget] = useState<any>(null);
     const colorInputRef = useRef(null);
+    const closeSuggest = () => { setShowSuggestModal(false); resetSuggest(); };
+    const handleJoinClick = async () => {
+        const sid = hookSyllabusId;
+        const result = await createAndJoin(sid);
+        if (result && result.id) {
+            closeSuggest();
+            navigate(`/groups/${result.id}`);
+        }
+    };
+
     return (
         <>
             {/***** Offcanvas start *****/}
@@ -604,6 +681,15 @@ export const AddEditSyllabus = (props) => {
                     </svg>
                 </div>
             )}
+
+            <SyllabusGroupSuggestModal
+                open={showSuggestModal}
+                loading={loadingSuggestions || resolvingCanonical}
+                candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+                canonicalPreview={canonical}
+                onJoin={handleJoinClick}
+                onClose={closeSuggest}
+            />
 
         </>
     )

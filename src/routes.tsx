@@ -34,6 +34,7 @@ import { PaymentSuccessfull } from './pages/auth/Registration/PaymentSuccessfull
 import { PaymentFailed } from './pages/auth/Registration/PaymentFailed';
 import { PaymentPlans } from './pages/auth/Registration/PaymentPlans';
 import Groups from './pages/Customer/Groups/Groups';
+import GlobalSyllabusUploadModal from './components/GlobalSyllabusUploadModal/GlobalSyllabusUploadModal';
 const ParentsLanding = React.lazy(() => import('./pages/Parents/ParentsLanding'));
 // @ts-ignore - TS resolver can misreport on lazy dynamic imports in some configs
 const ParentsSuccess = React.lazy(() => import('./pages/Parents/ParentsSuccess'));
@@ -409,6 +410,8 @@ const AppRouter = (): JSX.Element => {
           </Routes>
         </React.Suspense>
       </Layout>
+      {/* Global syllabus upload modal - floats above everything, inside Router for navigation */}
+      <GlobalSyllabusUploadModal />
     </Router>
   )
 }

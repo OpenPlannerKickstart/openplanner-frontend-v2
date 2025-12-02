@@ -12,6 +12,9 @@ import { v4 as uuidv4 } from 'uuid';
 import bookIcon from '../../../assets/images/book.svg';
 import defaultAvatar from '../../../assets/images/avatar-default.svg';
 import emptyStateImg from '../../../assets/images/not-voucher-found.svg';
+import { ATTACH_ACCEPT_INPUT, ATTACH_MAX_PER_MESSAGE, ATTACH_MAX_MB, isMimeAllowed, isSizeAllowed } from '../../../Utility/attachments';
+import { initiateUpload, uploadToS3, toAttachmentDescriptor, computeCrc32Base64 } from '../../../Utility/uploads';
+import type { AttachmentDescriptor } from '../../../interfaces/groups';
 
 // Simple responsive hook for mobile breakpoint detection (align with Bootstrap lg)
 const useIsMobile = (maxWidthPx: number = 991.98) => {
@@ -48,8 +51,12 @@ const Groups: React.FC = () => {
   const handleSyllabusShow = () => setShowSyllabus(true);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [myGroups, setMyGroups] = useState<any[]>([]);
+  const [myGroupsCollapsed, setMyGroupsCollapsed] = useState<boolean>(false);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
+  // Group info panel data and UI state
+  const [groupDetail, setGroupDetail] = useState<any | null>(null);
+  const [membersExpanded, setMembersExpanded] = useState<boolean>(false);
   const { subscribeToPath, unsubscribeFromPath, sendNotification } = useNotifications();
   // Invite modal state
   const [showInvite, setShowInvite] = useState<boolean>(false);
@@ -65,6 +72,208 @@ const Groups: React.FC = () => {
   const [copied, setCopied] = useState<boolean>(false);
   // Invites inbox
   const [invites, setInvites] = useState<Array<{ id: string; groupId: string; message?: string; fromUserId?: string; groupName?: string; fromName?: string }>>([]);
+  const [isDragOverChat, setIsDragOverChat] = useState<boolean>(false);
+  const chatDragCounter = useRef(0);
+
+  // Suggestions (Find groups to join)
+  const [suggestionsLoading, setSuggestionsLoading] = useState<boolean>(false);
+  const [suggestions, setSuggestions] = useState<Array<{ id: string; name: string; course?: { code?: string; term?: string; year?: number }, memberPreviews?: Array<{ id: string; displayName?: string | null; picture?: string | null }> }>>([]);
+  const fetchSuggestedGroups = async () => {
+    try {
+      setSuggestionsLoading(true);
+      // Call BE suggestions without a specific syllabus; BE will infer from user courses or return empty
+      const res: any = await post('groups/suggestions', { forUser: true, limit: 10 });
+      const data = res?.data ?? res;
+      const list = Array.isArray(data?.candidates) ? data.candidates : [];
+      setSuggestions(list);
+    } catch (e) {
+      setSuggestions([]);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
+  useEffect(() => { fetchSuggestedGroups(); }, []);
+
+  useEffect(() => {
+    chatDragCounter.current = 0;
+    setIsDragOverChat(false);
+  }, [selectedGroupId]);
+
+  // Fetch group detail when the info panel opens
+  useEffect(() => {
+    if (!showGroupInfo || !selectedGroupId) return;
+    setGroupDetail(null);
+    setMembersExpanded(false);
+    let isMounted = true;
+    (async () => {
+      try {
+        const res: any = await get(`groups/${selectedGroupId}`);
+        const data = res?.data ?? res;
+        if (isMounted) setGroupDetail(data || null);
+      } catch {
+        if (isMounted) setGroupDetail(null);
+      }
+    })();
+    return () => { isMounted = false; };
+  }, [showGroupInfo, selectedGroupId]);
+
+  // No random banner color; BE provides avatarColor for canonical groups
+
+  // Upload queue + prepared descriptors for attachments
+  const [uploading, setUploading] = useState<Array<{ id: string; file: File; fileId?: string; status: 'initiating' | 'uploading' | 'done' | 'error'; error?: string; progress?: number }>>([]);
+  const [readyAttachments, setReadyAttachments] = useState<AttachmentDescriptor[]>([]);
+  const [uploadRateLimitUntil, setUploadRateLimitUntil] = useState<number | null>(null);
+  // Local object-URL previews for optimistic rendering (fileId -> blob URL)
+  const [attachmentPreviews, setAttachmentPreviews] = useState<Record<string, string>>({});
+  const [previewLightbox, setPreviewLightbox] = useState<{ open: boolean; url: string | null; name?: string | null }>({ open: false, url: null, name: null });
+  const removeReadyAttachment = (fileId: string) => {
+    try {
+      const url = attachmentPreviews[fileId];
+      if (url) URL.revokeObjectURL(url);
+    } catch {}
+    setAttachmentPreviews(prev => {
+      const next = { ...prev };
+      delete next[fileId];
+      return next;
+    });
+    setReadyAttachments(prev => prev.filter(d => d.fileId !== fileId));
+  };
+  const renderAttachmentPreviews = () => {
+    const inflight = uploading.filter(u => (u.status === 'initiating' || u.status === 'uploading') && u.fileId).map(u => ({
+      fileId: u.fileId as string,
+      fileName: u.file.name,
+      mimeType: u.file.type,
+      sizeBytes: u.file.size,
+      progress: typeof u.progress === 'number' ? u.progress : 0
+    }));
+    if ((!readyAttachments || readyAttachments.length === 0) && inflight.length === 0) return null;
+    const included = new Set<string>();
+    const tiles: Array<any> = [];
+    // Show in-flight first
+    inflight.forEach(a => { if (!included.has(a.fileId)) { tiles.push(a); included.add(a.fileId); } });
+    // Then ready (done)
+    readyAttachments.forEach(a => { if (!included.has(a.fileId)) { tiles.push({ ...a, progress: 1 }); included.add(a.fileId); } });
+    return (
+      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 8 }}>
+        {tiles.map(att => {
+          const isImage = (att?.mimeType || '').startsWith('image/');
+          const url = attachmentPreviews[att.fileId];
+          const progress: number | undefined = typeof att.progress === 'number' ? att.progress : undefined;
+          return (
+            <div
+              key={att.fileId}
+              title={att.fileName}
+              style={{ position: 'relative', width: 64, height: 64, borderRadius: 10, border: '1px solid #E5E7EB', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flex: '0 0 auto', cursor: ((typeof progress !== 'number' || progress >= 1) && isImage && url) ? 'pointer' : 'default' }}
+              onClick={() => { if ((typeof progress !== 'number' || progress >= 1) && isImage && url) setPreviewLightbox({ open: true, url, name: att.fileName }); }}
+            >
+              {typeof progress === 'number' && progress < 1 ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+                  <span className="op-uiverse-spinner" style={{ width: 22, height: 22 }}>
+                    <svg viewBox="25 25 50 50">
+                      <circle r="20" cy="50" cx="50"></circle>
+                    </svg>
+                  </span>
+                </div>
+              ) : (
+                <>
+                  {isImage && url ? (
+                    <img src={url} alt={att.fileName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <span role="img" aria-label="document" style={{ fontSize: 28 }}>📄</span>
+                  )}
+                </>
+              )}
+              <button
+                aria-label="Remove attachment"
+                title="Remove"
+                onClick={(e) => { e.stopPropagation(); removeReadyAttachment(att.fileId); }}
+                style={{
+                  position: 'absolute',
+                  top: 4,
+                  right: 4,
+                  width: 20,
+                  height: 20,
+                  borderRadius: 6,
+                  padding: 0,
+                  lineHeight: '18px',
+                  fontSize: 14,
+                  background: '#FFFFFF',
+                  border: '1px solid #E5E7EB',
+                  color: '#6B7280',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+              >
+                ×
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+  // Open attachment in a new tab, refreshing message URLs first if the signed URL is expired/near-expiry
+  const parseAmzDate = (str: string) => {
+    // format: YYYYMMDDThhmmssZ
+    if (!str || str.length < 16) return 0;
+    const y = Number(str.slice(0, 4));
+    const m = Number(str.slice(4, 6)) - 1;
+    const d = Number(str.slice(6, 8));
+    const hh = Number(str.slice(9, 11));
+    const mm = Number(str.slice(11, 13));
+    const ss = Number(str.slice(13, 15));
+    return Date.UTC(y, m, d, hh, mm, ss);
+  };
+  const isS3UrlExpiringSoon = (url: string, thresholdMs = 5000) => {
+    try {
+      const u = new URL(url);
+      const amzDate = u.searchParams.get('X-Amz-Date');
+      const amzExpires = Number(u.searchParams.get('X-Amz-Expires') || '0');
+      if (!amzDate || !amzExpires) return false;
+      const issued = parseAmzDate(amzDate);
+      if (!issued) return false;
+      const expiry = issued + amzExpires * 1000;
+      return Date.now() >= (expiry - thresholdMs);
+    } catch {
+      return false;
+    }
+  };
+  const handleAttachmentOpen = async (att: any, messageId?: string | null) => {
+    try {
+      let targetUrl = att?.url;
+      if (!targetUrl) return;
+      // If link is expired or near expiry, refresh messages to get a fresh URL
+      if (isS3UrlExpiringSoon(targetUrl, 5000) && selectedGroupId) {
+        try {
+          await fetchMessages(selectedGroupId);
+          // Try to find a fresher URL for this attachment
+          const list = messages[selectedGroupId] ?? [];
+          const msg = list.find((m: any) => (m?.id && m.id === messageId) || (m?.clientId && m.clientId === messageId));
+          const updated = msg?.attachments?.find((a: any) => (a?.id && a.id === att.id) || (a?.fileId && a.fileId === att.id));
+          if (updated?.url) targetUrl = updated.url;
+        } catch {}
+      }
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+    } catch {}
+  };
+  const openAttachmentLightbox = async (att: any, messageId?: string | null) => {
+    try {
+      let targetUrl = att?.url;
+      if (!targetUrl) return;
+      if (isS3UrlExpiringSoon(targetUrl, 5000) && selectedGroupId) {
+        try {
+          await fetchMessages(selectedGroupId);
+          const list = messages[selectedGroupId] ?? [];
+          const msg = list.find((m: any) => (m?.id && m.id === messageId) || (m?.clientId && m.clientId === messageId));
+          const updated = msg?.attachments?.find((a: any) => (a?.id && a.id === att.id) || (a?.fileId && a.fileId === att.id));
+          if (updated?.url) targetUrl = updated.url;
+        } catch {}
+      }
+      setPreviewLightbox({ open: true, url: targetUrl, name: att.fileName });
+    } catch {}
+  };
 
   // chat timeline state
   const [messages, setMessages] = useState<Record<string, any[]>>({}); // keyed by groupId
@@ -423,6 +632,186 @@ const Groups: React.FC = () => {
     return () => { unsubscribeFromPath(eventName, onInvite); };
   }, [currentUserSub, subscribeToPath, unsubscribeFromPath]);
 
+  const filterValidFiles = (incoming: File[]): File[] => {
+    const accepted: File[] = [];
+    let typeWarned = false;
+    let sizeWarned = false;
+    incoming.forEach((file) => {
+      if (!isMimeAllowed(file.type)) {
+        if (!typeWarned) {
+          te('Unsupported file type');
+          typeWarned = true;
+        }
+        return;
+      }
+      if (!isSizeAllowed(file.size)) {
+        if (!sizeWarned) {
+          te(`File too large (max ${ATTACH_MAX_MB} MB)`);
+          sizeWarned = true;
+        }
+        return;
+      }
+      accepted.push(file);
+    });
+    return accepted;
+  };
+
+  // Helper: add files to queue and perform initiate + S3 PUT
+  const addFiles = async (files: File[]) => {
+    const validFiles = filterValidFiles(files);
+    if (validFiles.length === 0) return;
+    const spaceRemaining = Math.max(0, ATTACH_MAX_PER_MESSAGE - (readyAttachments.length + uploading.filter(u => u.status === 'initiating' || u.status === 'uploading').length));
+    if (spaceRemaining <= 0) {
+      te(`You can attach up to ${ATTACH_MAX_PER_MESSAGE} files`);
+      return;
+    }
+    const toProcess = validFiles.slice(0, spaceRemaining);
+    if (validFiles.length > spaceRemaining) {
+      te(`You can attach up to ${ATTACH_MAX_PER_MESSAGE} files`);
+    }
+    const items = toProcess.map((file) => ({ id: uuidv4(), file, status: 'initiating' as const, progress: 0 }));
+    setUploading(prev => [...prev, ...items]);
+
+    const revokePreview = (fileId?: string) => {
+      if (!fileId) return;
+      setAttachmentPreviews(prev => {
+        if (!prev[fileId]) return prev;
+        try { URL.revokeObjectURL(prev[fileId]); } catch {}
+        const next = { ...prev };
+        delete next[fileId];
+        return next;
+      });
+    };
+
+    const processUpload = async (item: typeof items[number]) => {
+      let assignedFileId: string | undefined;
+      try {
+        // Respect active rate limit
+        if (uploadRateLimitUntil && Date.now() < uploadRateLimitUntil) {
+          const remaining = Math.max(1, Math.ceil((uploadRateLimitUntil - Date.now()) / 1000));
+          te(`Too many uploads, try again in ${remaining}s`);
+          setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'error', error: 'rate_limited' }) : u));
+          return;
+        }
+        // 1) Compute checksum (base64 CRC32) and initiate
+        const checksum = await computeCrc32Base64(item.file);
+        const init = await initiateUpload(item.file, {
+          groupId: selectedGroupId || undefined,
+          checksumCrc32: checksum,
+        });
+        let signedHeadersStr: string | null = null;
+        if (init?.signedHeaders) {
+          // Log the exact signed headers for quick verification with BE
+          // Expect: includes x-amz-checksum-crc32 (order may vary)
+          // eslint-disable-next-line no-console
+          console.info('[uploads] X-Amz-SignedHeaders:', init.signedHeaders);
+          signedHeadersStr = init.signedHeaders;
+        } else {
+          // Fallback: parse from URL for debugging
+          try {
+            const u = new URL(init.putUrl);
+            const sh = u.searchParams.get('X-Amz-SignedHeaders');
+            // eslint-disable-next-line no-console
+            console.info('[uploads] X-Amz-SignedHeaders (parsed):', sh);
+            signedHeadersStr = sh;
+          } catch {}
+        }
+        assignedFileId = init.fileId;
+        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'uploading', fileId: init.fileId, progress: 0 }) : u));
+        try {
+          const blobUrl = URL.createObjectURL(item.file);
+          setAttachmentPreviews(prev => ({ ...prev, [init.fileId]: blobUrl }));
+        } catch {}
+        // 2) PUT to S3
+        const hdrs: Record<string, string> = { ...(init.headers || {}) };
+        // If the presign did NOT sign the checksum header (X-Amz-SignedHeaders lacks it),
+        // do NOT send the header or S3 will reject with HeadersNotSigned.
+        if (signedHeadersStr && !signedHeadersStr.toLowerCase().includes('x-amz-checksum-crc32')) {
+          delete hdrs['x-amz-checksum-crc32'];
+          delete (hdrs as any)['X-Amz-Checksum-Crc32'];
+        }
+        await uploadToS3(init.putUrl, hdrs, item.file, (p) => {
+          setUploading(prev => prev.map(u => (u.fileId === init.fileId ? ({ ...u, progress: p }) : u)));
+        });
+        // 3) Build descriptor
+        const desc = toAttachmentDescriptor(item.file, init.fileId);
+        setReadyAttachments(prev => [...prev, desc]);
+        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'done', progress: 1 }) : u));
+      } catch (e: any) {
+        const status = e?.response?.status || e?.status;
+        if (status === 429) {
+          const headers = (e?.response?.headers || {}) as Record<string, any>;
+          const retryRaw = headers['retry-after'] ?? headers['Retry-After'];
+          let retrySeconds = parseInt(String(retryRaw ?? ''), 10);
+          if (!Number.isFinite(retrySeconds) || retrySeconds <= 0) retrySeconds = 5;
+          setUploadRateLimitUntil(Date.now() + retrySeconds * 1000);
+          te(`Too many uploads, try again in ${retrySeconds}s`);
+        } else if (status === 415) {
+          te('Unsupported file type');
+        } else if (status === 413) {
+          te(`File too large (max ${ATTACH_MAX_MB} MB)`);
+        } else {
+          te('Failed to upload file');
+        }
+        setUploading(prev => prev.map(u => u.id === item.id ? ({ ...u, status: 'error', error: String(status || 'error'), fileId: assignedFileId ?? u.fileId }) : u));
+        revokePreview(assignedFileId);
+      }
+    };
+
+    await Promise.all(items.map(item => processUpload(item)));
+  };
+
+  const dragEventHasFiles = (event: React.DragEvent) => {
+    const types = event.dataTransfer?.types;
+    if (!types) return false;
+    for (let i = 0; i < types.length; i += 1) {
+      if (types[i] === 'Files') return true;
+    }
+    return false;
+  };
+
+  const handleChatDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!dragEventHasFiles(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    chatDragCounter.current += 1;
+    if (!isDragOverChat) setIsDragOverChat(true);
+  };
+
+  const handleChatDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!dragEventHasFiles(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    chatDragCounter.current = Math.max(0, chatDragCounter.current - 1);
+    if (chatDragCounter.current === 0) setIsDragOverChat(false);
+  };
+
+  const handleChatDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!dragEventHasFiles(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleChatDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!dragEventHasFiles(event)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer?.files;
+    chatDragCounter.current = 0;
+    setIsDragOverChat(false);
+    if (!files || files.length === 0) return;
+    if (!selectedGroupId) {
+      te('Select a group to attach files');
+      return;
+    }
+    addFiles(Array.from(files));
+    event.dataTransfer?.clearData();
+  };
+
+  const uploadingCount = uploading.filter(u => u.status === 'initiating' || u.status === 'uploading').length;
+  const selectedFilesCount = readyAttachments.length + uploadingCount;
+
   // If a group is already selected and we move to mobile, auto-open chat view
   useEffect(() => {
     if (isMobile && selectedGroupId) {
@@ -448,7 +837,26 @@ const Groups: React.FC = () => {
   const handleSendMessage = async (text: string): Promise<boolean> => {
     if (!selectedGroupId) return false;
     const content = text.trim();
-    if (!content) return false;
+    const hasAttachments = readyAttachments.length > 0;
+    const attachmentsToSend = hasAttachments ? [...readyAttachments] : [];
+    const usedIds = hasAttachments ? attachmentsToSend.map(d => d.fileId) : [];
+    const previewSnapshot = hasAttachments
+      ? usedIds.reduce<Record<string, string>>((acc, fid) => {
+          const url = attachmentPreviews[fid];
+          if (url) acc[fid] = url;
+          return acc;
+        }, {})
+      : {};
+    if (!content && !hasAttachments) return false;
+    const optimisticAttachments = hasAttachments
+      ? attachmentsToSend.map(d => ({
+          id: d.fileId,
+          fileName: d.fileName,
+          mimeType: d.mimeType,
+          sizeBytes: d.sizeBytes,
+          url: previewSnapshot[d.fileId] || attachmentPreviews[d.fileId] || undefined,
+        }))
+      : [];
     // Block if currently rate-limited
     if (rateLimitUntil && Date.now() < rateLimitUntil) {
       const remaining = Math.max(1, Math.ceil((rateLimitUntil - Date.now()) / 1000));
@@ -460,10 +868,11 @@ const Groups: React.FC = () => {
       id: `optimistic-${clientId}`,
       groupId: selectedGroupId,
       sender: { id: 'me', name: 'You' },
-      content,
+      content: content || (hasAttachments ? '' : content),
       createdAt: new Date().toISOString(),
       clientId,
       optimistic: true,
+      attachments: optimisticAttachments,
     };
     setMessages(prev => ({
       ...prev,
@@ -471,8 +880,22 @@ const Groups: React.FC = () => {
     }));
     // scroll to bottom
     requestAnimationFrame(() => { timelineRef.current && (timelineRef.current.scrollTop = timelineRef.current.scrollHeight); });
+
+    if (hasAttachments) {
+      setReadyAttachments(prev => prev.filter(d => !usedIds.includes(d.fileId)));
+      setAttachmentPreviews(prev => {
+        const next = { ...prev };
+        usedIds.forEach(fid => { delete next[fid]; });
+        return next;
+      });
+      setUploading(prev => prev.filter(u => !usedIds.includes(u.fileId || '')));
+    }
+
     try {
-      const res: any = await post(`groups/${selectedGroupId}/messages`, { content, clientId }, true, false, false);
+      const payload: any = { clientId } as any;
+      if (content) (payload as any).content = content;
+      if (hasAttachments) (payload as any).attachments = attachmentsToSend;
+      const res: any = await post(`groups/${selectedGroupId}/messages`, payload, true, false, false);
       const msg = res?.data ?? res;
       setMessages(prev => ({
         ...prev,
@@ -484,6 +907,13 @@ const Groups: React.FC = () => {
         ...prev,
         [selectedGroupId]: (prev[selectedGroupId] ?? []).filter(m => m && m.clientId !== clientId),
       }));
+      if (hasAttachments) {
+        setReadyAttachments(prev => {
+          const filtered = attachmentsToSend.filter(d => !prev.some(existing => existing.fileId === d.fileId));
+          return [...prev, ...filtered];
+        });
+        setAttachmentPreviews(prev => ({ ...prev, ...previewSnapshot }));
+      }
       const status = e?.response?.status || e?.status;
       if (status === 429) {
         // Read Retry-After from headers (seconds)
@@ -509,6 +939,8 @@ const Groups: React.FC = () => {
       setShowGroupInfo(false);
       clearSelection();
       await fetchMyGroups();
+      // Refresh suggestions after leaving a group
+      fetchSuggestedGroups();
     } catch (err) {
       te('Failed to leave group');
     }
@@ -707,9 +1139,28 @@ const Groups: React.FC = () => {
                     </div>
                   ) : (
                     <div>
-                      <div className="px-3 pt-3">
-                        <h6 className="mb-2" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>My Groups</h6>
+                      <div className="px-3 pt-3 d-flex align-items-center justify-content-between">
+                        <h6 className="mb-0" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>My Groups</h6>
+                        <button
+                          className="btn btn-outline-white"
+                          style={{ height: 32, width: 32, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          aria-label={myGroupsCollapsed ? 'Expand My Groups' : 'Collapse My Groups'}
+                          title={myGroupsCollapsed ? 'Expand' : 'Collapse'}
+                          onClick={() => setMyGroupsCollapsed(prev => !prev)}
+                        >
+                          <i
+                            className="material-symbols-outlined"
+                            style={{
+                              lineHeight: 1,
+                              transition: 'transform 160ms ease',
+                              transform: myGroupsCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)'
+                            }}
+                          >
+                            expand_more
+                          </i>
+                        </button>
                       </div>
+                      {!myGroupsCollapsed && (
                       <div>
                         {myGroups && myGroups.length > 0 ? (
                           myGroups
@@ -727,7 +1178,7 @@ const Groups: React.FC = () => {
                             ))
                         ) : (
                           <div className="text-center p-4">
-                            <h5 className="mt-3 mb-1">You’re not in any groups yet</h5>
+                            <h5 className="mt-3 mb-1">You're not in any groups yet</h5>
                             <p className="text-muted mb-0" style={{ fontSize: 14 }}>
                               When you join or create a group, it will appear here.
                             </p>
@@ -735,20 +1186,91 @@ const Groups: React.FC = () => {
                         )}
                         {myGroups && myGroups.length > 0 && searchQuery.trim() &&
                           myGroups.filter((g: any) => g?.name?.toLowerCase().includes(searchQuery.trim().toLowerCase())).length === 0 && (
-                            <div className="text-center p-3 text-muted" style={{ fontSize: 14 }}>No groups match “{searchQuery.trim()}”.</div>
+                            <div className="text-center p-3 text-muted" style={{ fontSize: 14 }}>No groups match "{searchQuery.trim()}".</div>
                           )}
                       </div>
+                      )}
                       <hr className="my-0" />
-                      <div className="px-3 pt-3">
-                        <h6 className="mb-2" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>Find groups to join</h6>
+                      <div className="px-3 pt-3 d-flex align-items-center justify-content-between">
+                        <h6 className="mb-0" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>Find groups to join</h6>
+                        <button
+                          className="btn btn-outline-white"
+                          style={{ height: 32, width: 32, borderRadius: 8, border: 'none', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          aria-label="Refresh suggestions"
+                          title="Refresh"
+                          onClick={fetchSuggestedGroups}
+                        >
+                          <i className="material-symbols-outlined" style={{ lineHeight: 1 }}>refresh</i>
+                        </button>
                       </div>
-                      <div className="text-center p-4">
-                        <h5 className="mt-3 mb-1">No suggestions available</h5>
-                        <p className="text-muted mb-0" style={{ fontSize: 14 }}>
-                          Upload a syllabus to get tailored group suggestions.
-                        </p>
-                      </div>
-                      {/* Suggested groups list will be rendered here when available (filler removed) */}
+                      {suggestionsLoading ? (
+                        <div className="px-3" aria-hidden="true">
+                          {[...Array(4)].map((_, i) => (
+                            <div key={`sugskel-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
+                              <div style={{ width: 36, height: 36, background: '#E5E7EB', borderRadius: '50%' }} />
+                              <div style={{ flex: 1 }}>
+                                <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 2 ? '60%' : '40%' }} />
+                                <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 3 ? '30%' : '20%', marginTop: 6 }} />
+                              </div>
+                              <div style={{ width: 88, height: 30, background: '#E5E7EB', borderRadius: 8 }} />
+                            </div>
+                          ))}
+                        </div>
+                      ) : suggestions && suggestions.length > 0 ? (
+                        <div className="px-2">
+                          {suggestions.map((sg: any) => (
+                            <div key={sg.id} className="d-flex align-items-center justify-content-between" style={{ padding: '8px 10px', borderBottom: '1px solid #F3F4F6' }}>
+                              <div className="d-flex align-items-center gap-2">
+                                <div style={{ width: 36, height: 36, borderRadius: 18, background: sg.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 22, height: 'auto' }} />
+                                </div>
+                                <div>
+                                  <div style={{ fontWeight: 600, color: '#111827', lineHeight: 1.2 }}>{sg.name}</div>
+                                  <div style={{ fontSize: 12, color: '#6B7280' }}>
+                                    {sg?.course?.code ? `${sg.course.code} — ` : ''}{sg?.course?.term ? `${sg.course.term} ` : ''}{sg?.course?.year ?? ''}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="d-flex align-items-center gap-2">
+                                {((sg?.members || sg?.memberPreviews || [])).slice(0, 3).map((m: any) => (
+                                  <div key={m.id} title={m.displayName || ''} style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: '1px solid #E5E7EB', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {m.picture ? (
+                                      <img src={m.picture} alt={m.displayName || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                      <span style={{ fontSize: 10, color: '#374151' }}>
+                                        {(m.displayName || '').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase() || 'U'}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                                <button
+                                  className="btn btn-primary"
+                                  style={{ height: 32, borderRadius: 8 }}
+                                  onClick={async () => {
+                                    try {
+                                      await post('groups/join', { groupId: sg.id });
+                                      ts('Joined group');
+                                      await fetchMyGroups();
+                                      applySelection(sg.id);
+                                    } catch (e) {
+                                      te('Failed to join group');
+                                    }
+                                  }}
+                                >
+                                  Join
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center p-4">
+                          <h5 className="mt-3 mb-1">No suggestions available</h5>
+                          <p className="text-muted mb-0" style={{ fontSize: 14 }}>
+                            Upload a syllabus to get tailored group suggestions.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                   </div>
@@ -793,8 +1315,16 @@ const Groups: React.FC = () => {
                               if (!m) return;
                               const d = m.createdAt ? new Date(m.createdAt) : new Date();
                               const today = new Date();
-                              let label = d.toLocaleDateString(undefined, { weekday: 'long' });
-                              if (isSameDay(d, today)) label = 'Today';
+                              const startOf = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+                              const diffDays = Math.floor((startOf(today).getTime() - startOf(d).getTime()) / (24 * 60 * 60 * 1000));
+                              let label = '';
+                              if (isSameDay(d, today)) {
+                                label = 'Today';
+                              } else if (diffDays >= 0 && diffDays <= 6) {
+                                label = d.toLocaleDateString(undefined, { weekday: 'long' });
+                              } else {
+                                label = d.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
+                              }
                               if (label !== currentLabel) {
                                 byDay.push({ label, items: [m] });
                                 currentLabel = label;
@@ -846,7 +1376,74 @@ const Groups: React.FC = () => {
                                                 <div style={{ textAlign: 'left' }}>You</div>
                                                 <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                               </div>
-                                              <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+{Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                              (() => {
+                                                const images = m.attachments.filter((att: any) => att?.mimeType?.startsWith('image/'));
+                                                const docs = m.attachments.filter((att: any) => !att?.mimeType?.startsWith('image/'));
+                                                const imageCount = images.length;
+                                                
+                                                const singleMaxWidth = 360;
+                                                const multiMaxWidth = 280;
+                                                const singleHeight = 300;
+                                                const multiHeight = 180;
+                                                
+                                                return (
+                                                  <div style={{ marginBottom: m.content ? 8 : 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
+                                                    {imageCount > 0 && (
+                                                      <div
+                                                        style={{
+                                                          display: imageCount === 1 ? 'block' : 'grid',
+                                                          gridTemplateColumns: imageCount === 1 ? 'none' : 'repeat(2, 1fr)',
+                                                          gap: 4,
+                                                          maxWidth: imageCount === 1 ? singleMaxWidth : multiMaxWidth,
+                                                          width: '100%'
+                                                        }}
+                                                      >
+                                                        {images.map((att: any, idx: number) => (
+                                                          <span
+                                                            key={att.id}
+                                                            role="button"
+                                                            title={att.fileName}
+                                                            onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}
+                                                            style={{
+                                                              display: 'block',
+                                                              width: '100%',
+                                                              height: imageCount === 1 ? singleHeight : multiHeight,
+                                                              borderRadius: 12,
+                                                              overflow: 'hidden',
+                                                              border: '1px solid #E5E7EB',
+                                                              cursor: 'zoom-in',
+                                                              gridColumn: (imageCount === 3 && idx === 2) ? '2 / 3' : 'auto'
+                                                            }}
+                                                          >
+                                                            <img
+                                                              src={att.url}
+                                                              alt={att.fileName}
+                                                              style={{
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'cover',
+                                                                display: 'block'
+                                                              }}
+                                                            />
+                                                          </span>
+                                                        ))}
+                                                      </div>
+                                                    )}
+                                                    {docs.map((att: any) => (
+                                                      <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
+                                                        <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                                      </a>
+                                                    ))}
+                                                  </div>
+                                                );
+                                              })()
+                                            ) : null}
+                                              {m.content ? (
+                                                <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                                  {m.content}
+                                                </div>
+                                              ) : null}
                                             </div>
                                           </div>
                                         );
@@ -876,7 +1473,74 @@ const Groups: React.FC = () => {
                                               <div>{senderName}</div>
                                               <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
-                                            <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+{Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                              (() => {
+                                                const images = m.attachments.filter((att: any) => att?.mimeType?.startsWith('image/'));
+                                                const docs = m.attachments.filter((att: any) => !att?.mimeType?.startsWith('image/'));
+                                                const imageCount = images.length;
+                                                
+                                                const singleMaxWidth = 360;
+                                                const multiMaxWidth = 280;
+                                                const singleHeight = 300;
+                                                const multiHeight = 180;
+                                                
+                                                return (
+                                                  <div style={{ marginBottom: m.content ? 8 : 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
+                                                    {imageCount > 0 && (
+                                                      <div
+                                                        style={{
+                                                          display: imageCount === 1 ? 'block' : 'grid',
+                                                          gridTemplateColumns: imageCount === 1 ? 'none' : 'repeat(2, 1fr)',
+                                                          gap: 4,
+                                                          maxWidth: imageCount === 1 ? singleMaxWidth : multiMaxWidth,
+                                                          width: '100%'
+                                                        }}
+                                                      >
+                                                        {images.map((att: any, idx: number) => (
+                                                          <span
+                                                            key={att.id}
+                                                            role="button"
+                                                            title={att.fileName}
+                                                            onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}
+                                                            style={{
+                                                              display: 'block',
+                                                              width: '100%',
+                                                              height: imageCount === 1 ? singleHeight : multiHeight,
+                                                              borderRadius: 12,
+                                                              overflow: 'hidden',
+                                                              border: '1px solid #E5E7EB',
+                                                              cursor: 'zoom-in',
+                                                              gridColumn: (imageCount === 3 && idx === 2) ? '2 / 3' : 'auto'
+                                                            }}
+                                                          >
+                                                            <img
+                                                              src={att.url}
+                                                              alt={att.fileName}
+                                                              style={{
+                                                                width: '100%',
+                                                                height: '100%',
+                                                                objectFit: 'cover',
+                                                                display: 'block'
+                                                              }}
+                                                            />
+                                                          </span>
+                                                        ))}
+                                                      </div>
+                                                    )}
+                                                    {docs.map((att: any) => (
+                                                      <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
+                                                        <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                                      </a>
+                                                    ))}
+                                                  </div>
+                                                );
+                                              })()
+                                            ) : null}
+                                            {m.content ? (
+                                              <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                                {m.content}
+                                              </div>
+                                            ) : null}
                                           </div>
                                         </div>
                                       );
@@ -894,6 +1558,11 @@ const Groups: React.FC = () => {
                           disabled={!selectedGroupId || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
                           countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
                           resizeSignal={frameRect.width}
+                          onFilesAdded={addFiles}
+                          selectedFilesCount={selectedFilesCount}
+                          uploadingCount={uploadingCount}
+                          allowEmptySend={readyAttachments.length > 0}
+                          previews={renderAttachmentPreviews()}
                         />
                       </div>
 
@@ -1006,7 +1675,37 @@ const Groups: React.FC = () => {
               </div>
             </div>
             {/* Right column (chat area) - hide entirely on mobile to avoid duplicate stacked view */}
-            <div className={`col-12 col-lg-8 d-flex flex-column right-pane-scroll ${isMobile ? 'd-none' : ''}`} style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}>
+            <div
+              className={`col-12 col-lg-8 d-flex flex-column right-pane-scroll ${isMobile ? 'd-none' : ''}`}
+              style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}
+              onDragEnter={handleChatDragEnter}
+              onDragOver={handleChatDragOver}
+              onDragLeave={handleChatDragLeave}
+              onDrop={handleChatDrop}
+            >
+              {isDragOverChat && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(15,23,42,0.18)',
+                    border: '2px dashed #0EA5E9',
+                    borderRadius: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 5,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <div style={{ background: '#FFFFFF', padding: '20px 28px', borderRadius: 16, boxShadow: '0 10px 30px rgba(15,23,42,0.25)', color: '#0F172A', fontWeight: 600, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 64, height: 64, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <i className="material-symbols-outlined" style={{ fontSize: 36, color: '#0EA5E9' }}>cloud_upload</i>
+                    </div>
+                    <div>Drop files to attach</div>
+                  </div>
+                </div>
+              )}
               {/* Header */}
               <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
@@ -1069,8 +1768,16 @@ const Groups: React.FC = () => {
                       if (!m) return;
                       const d = m.createdAt ? new Date(m.createdAt) : new Date();
                       const today = new Date();
-                      let label = d.toLocaleDateString(undefined, { weekday: 'long' });
-                      if (isSameDay(d, today)) label = 'Today';
+                      const startOf = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+                      const diffDays = Math.floor((startOf(today).getTime() - startOf(d).getTime()) / (24 * 60 * 60 * 1000));
+                      let label = '';
+                      if (isSameDay(d, today)) {
+                        label = 'Today';
+                      } else if (diffDays >= 0 && diffDays <= 6) {
+                        label = d.toLocaleDateString(undefined, { weekday: 'long' });
+                      } else {
+                        label = d.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
+                      }
                       if (label !== currentLabel) {
                         byDay.push({ label, items: [m] });
                         currentLabel = label;
@@ -1125,7 +1832,75 @@ const Groups: React.FC = () => {
                                         <div style={{ textAlign: 'left' }}>You</div>
                                         <div style={{ textAlign: 'right' }}>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                       </div>
-                                      <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+{Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                        (() => {
+                                          const images = m.attachments.filter((att: any) => att?.mimeType?.startsWith('image/'));
+                                          const docs = m.attachments.filter((att: any) => !att?.mimeType?.startsWith('image/'));
+                                          const imageCount = images.length;
+                                          
+                                          // Determine layout based on count
+                                          const singleMaxWidth = 360;
+                                          const multiMaxWidth = 280;
+                                          const singleHeight = 300;
+                                          const multiHeight = 180;
+                                          
+                                          return (
+                                            <div style={{ marginBottom: m.content ? 8 : 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
+                                              {imageCount > 0 && (
+                                                <div
+                                                  style={{
+                                                    display: imageCount === 1 ? 'block' : 'grid',
+                                                    gridTemplateColumns: imageCount === 1 ? 'none' : 'repeat(2, 1fr)',
+                                                    gap: 4,
+                                                    maxWidth: imageCount === 1 ? singleMaxWidth : multiMaxWidth,
+                                                    width: '100%'
+                                                  }}
+                                                >
+                                                  {images.map((att: any, idx: number) => (
+                                                    <span
+                                                      key={att.id}
+                                                      role="button"
+                                                      title={att.fileName}
+                                                      onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}
+                                                      style={{
+                                                        display: 'block',
+                                                        width: '100%',
+                                                        height: imageCount === 1 ? singleHeight : multiHeight,
+                                                        borderRadius: 12,
+                                                        overflow: 'hidden',
+                                                        border: '1px solid #E5E7EB',
+                                                        cursor: 'zoom-in',
+                                                        gridColumn: (imageCount === 3 && idx === 2) ? '2 / 3' : 'auto'
+                                                      }}
+                                                    >
+                                                      <img
+                                                        src={att.url}
+                                                        alt={att.fileName}
+                                                        style={{
+                                                          width: '100%',
+                                                          height: '100%',
+                                                          objectFit: 'cover',
+                                                          display: 'block'
+                                                        }}
+                                                      />
+                                                    </span>
+                                                  ))}
+                                                </div>
+                                              )}
+                                              {docs.map((att: any) => (
+                                                <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
+                                                  <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                                </a>
+                                              ))}
+                                            </div>
+                                          );
+                                        })()
+                                      ) : null}
+                                      {m.content ? (
+                                        <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                          {m.content}
+                                        </div>
+                                      ) : null}
                                     </div>
                                   </div>
                                 );
@@ -1154,7 +1929,74 @@ const Groups: React.FC = () => {
                                       <div>{senderName}</div>
                                       <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                     </div>
-                                    <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>
+{Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
+                                      (() => {
+                                        const images = m.attachments.filter((att: any) => att?.mimeType?.startsWith('image/'));
+                                        const docs = m.attachments.filter((att: any) => !att?.mimeType?.startsWith('image/'));
+                                        const imageCount = images.length;
+                                        
+                                        const singleMaxWidth = 360;
+                                        const multiMaxWidth = 280;
+                                        const singleHeight = 300;
+                                        const multiHeight = 180;
+                                        
+                                        return (
+                                          <div style={{ marginBottom: m.content ? 8 : 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
+                                            {imageCount > 0 && (
+                                              <div
+                                                style={{
+                                                  display: imageCount === 1 ? 'block' : 'grid',
+                                                  gridTemplateColumns: imageCount === 1 ? 'none' : 'repeat(2, 1fr)',
+                                                  gap: 4,
+                                                  maxWidth: imageCount === 1 ? singleMaxWidth : multiMaxWidth,
+                                                  width: '100%'
+                                                }}
+                                              >
+                                                {images.map((att: any, idx: number) => (
+                                                  <span
+                                                    key={att.id}
+                                                    role="button"
+                                                    title={att.fileName}
+                                                    onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }}
+                                                    style={{
+                                                      display: 'block',
+                                                      width: '100%',
+                                                      height: imageCount === 1 ? singleHeight : multiHeight,
+                                                      borderRadius: 12,
+                                                      overflow: 'hidden',
+                                                      border: '1px solid #E5E7EB',
+                                                      cursor: 'zoom-in',
+                                                      gridColumn: (imageCount === 3 && idx === 2) ? '2 / 3' : 'auto'
+                                                    }}
+                                                  >
+                                                    <img
+                                                      src={att.url}
+                                                      alt={att.fileName}
+                                                      style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        objectFit: 'cover',
+                                                        display: 'block'
+                                                      }}
+                                                    />
+                                                  </span>
+                                                ))}
+                                              </div>
+                                            )}
+                                            {docs.map((att: any) => (
+                                              <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}>
+                                                <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                              </a>
+                                            ))}
+                                          </div>
+                                        );
+                                      })()
+                                    ) : null}
+                                    {m.content ? (
+                                      <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                        {m.content}
+                                      </div>
+                                    ) : null}
                                   </div>
                                 </div>
                               );
@@ -1170,6 +2012,11 @@ const Groups: React.FC = () => {
                   onSend={handleSendMessage}
                   disabled={!selectedGroupId || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
                   countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                  onFilesAdded={addFiles}
+                  selectedFilesCount={selectedFilesCount}
+                  uploadingCount={uploadingCount}
+                  allowEmptySend={readyAttachments.length > 0}
+                  previews={renderAttachmentPreviews()}
                 />
               </div>
 
@@ -1216,17 +2063,56 @@ const Groups: React.FC = () => {
                   <h5 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h5>
                   <div className="text-muted" style={{ fontSize: 14 }}>
                     {(() => {
-                      const typeLabel = selectedGroup?.type === 'canonical' ? 'Class' : 'Group';
+                      if (selectedGroup?.type === 'canonical') {
+                        const prof =
+                          groupDetail?.course?.instructor ||
+                          groupDetail?.instructor ||
+                          groupDetail?.professorName ||
+                          selectedGroup?.professorName ||
+                          'Unassigned';
+                        return prof;
+                      }
                       const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
                       const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
-                      return `${typeLabel} - ${countLabel}`;
+                      return `Group - ${countLabel}`;
                     })()}
                   </div>
                 </div>
                 {/* Scrollable body for desktop (description + actions) */}
                 <div className="group-info-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
                   <div style={{ padding: '16px' }}>
-                    {(() => {
+                    {selectedGroup?.type === 'canonical' ? (
+                      (() => {
+                        const count = (Array.isArray(groupDetail?.members) ? groupDetail.members.length : (typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : 0));
+                        const members: Array<any> = Array.isArray(groupDetail?.members) ? groupDetail.members : [];
+                        const visible = membersExpanded ? members : members.slice(0, 3);
+                        return (
+                          <>
+                            <div style={{ fontWeight: 600, color: '#111827', marginBottom: 8 }}>
+                              {`Class - ${count} Student${count === 1 ? '' : 's'}`}
+                            </div>
+                            <div style={{ maxHeight: membersExpanded ? 260 : undefined, overflowY: membersExpanded ? 'auto' : 'visible' }}>
+                              {visible.map((m: any) => (
+                                <div key={m.id || m.userId} className="d-flex align-items-center gap-2 py-2">
+                                  <img src={m.picture || '/assets/images/avatar-default.svg'} alt={m.displayName || m.name || 'student'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                  <div style={{ color: '#111827' }}>
+                                    {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Student'))}
+                                  </div>
+                                </div>
+                              ))}
+                              {members.length > 3 && (
+                                <div className="text-center" style={{ paddingTop: 6 }}>
+                                  <button className="btn btn-outline-white" style={{ height: 32, borderRadius: 8 }} onClick={() => setMembersExpanded(v => !v)}>
+                                    {membersExpanded ? 'Collapse' : 'Show all'}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        );
+                      })()
+                    ) : (
+                    (() => {
                       const hex = selectedGroup?.avatarColor || '#E5F3FF';
                       const toRGBA = (h: string, alpha: number) => {
                         const m = h.replace('#','');
@@ -1252,7 +2138,7 @@ const Groups: React.FC = () => {
                           </div>
                         </div>
                       );
-                    })()}
+                    })())}
                   </div>
                   {selectedGroup ? (
                     <>
@@ -1354,7 +2240,7 @@ const Groups: React.FC = () => {
           <div className="bg-white" style={{ width: 360, borderRadius: 12, boxShadow: '0 10px 24px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '16px 16px 0 16px' }}>
               <h6 className="mb-1" style={{ color: '#111827' }}>Delete message?</h6>
-              <div className="text-muted" style={{ fontSize: 14 }}>This can’t be undone. We’ll wire this to backend next.</div>
+              <div className="text-muted" style={{ fontSize: 14 }}>This can't be undone. This will remove the message for everyone in the group.</div>
             </div>
             <div className="d-flex justify-content-end gap-2" style={{ padding: 16 }}>
               <button className="btn btn-outline-white" onClick={() => setConfirmDelete({ open: false, messageId: null })}>Cancel</button>
@@ -1467,6 +2353,15 @@ const Groups: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Image preview lightbox */}
+      {previewLightbox.open && previewLightbox.url ? (
+        <div onClick={() => setPreviewLightbox({ open: false, url: null, name: null })} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 4000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', maxWidth: '95vw', maxHeight: '95vh' }}>
+            <img src={previewLightbox.url} alt={previewLightbox.name || 'preview'} style={{ maxWidth: '95vw', maxHeight: '95vh', borderRadius: 12, display: 'block' }} />
+            <button aria-label="Close preview" title="Close" onClick={() => setPreviewLightbox({ open: false, url: null, name: null })} style={{ position: 'absolute', top: 12, right: 12, width: 28, height: 28, borderRadius: 8, padding: 0, lineHeight: '26px', fontSize: 18, background: '#FFFFFF', border: '1px solid #E5E7EB', color: '#111827', cursor: 'pointer' }}>×</button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -1474,13 +2369,48 @@ const Groups: React.FC = () => {
 export default Groups;
 
 // Lightweight internal composer component
-const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean; disabled?: boolean; countdownSeconds?: number; resizeSignal?: any }> = ({ onSend, disabled, countdownSeconds, resizeSignal }) => {
+const Composer: React.FC<{
+  onSend: (text: string) => Promise<boolean> | boolean;
+  disabled?: boolean;
+  countdownSeconds?: number;
+  resizeSignal?: any;
+  onFilesAdded?: (files: File[]) => void;
+  selectedFilesCount?: number;
+  uploadingCount?: number;
+  allowEmptySend?: boolean;
+  previews?: React.ReactNode;
+}> = ({ onSend, disabled, countdownSeconds, resizeSignal, onFilesAdded, selectedFilesCount = 0, uploadingCount = 0, allowEmptySend = false, previews }) => {
   const [text, setText] = useState('');
   const textRef = useRef<HTMLTextAreaElement | null>(null);
   const igRef = useRef<HTMLDivElement | null>(null);
   const [baseHeight, setBaseHeight] = useState<number>(40);
   const [isMultiline, setIsMultiline] = useState<boolean>(false);
-  const send = async () => { if (!disabled && text.trim()) { const ok = await onSend(text); if (ok) { setText(''); resize(); } } };
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const send = async () => {
+    if (disabled) return;
+    const trimmed = (text || '').trim();
+    if (!trimmed && !allowEmptySend) return;
+    const payload = text;
+    // Optimistically clear composer immediately for snappier UX
+    setText('');
+    resize();
+    const ok = await onSend(payload);
+    if (!ok) {
+      // Restore text if send failed
+      setText(payload);
+      resize();
+    }
+  };
+  const handleFileClick = () => {
+    if (disabled) return;
+    fileInputRef.current?.click();
+  };
+  const handleFilesSelected = (filesList: FileList | null) => {
+    if (!filesList || !onFilesAdded) return;
+    const incoming = Array.from(filesList);
+    if (incoming.length > 0) onFilesAdded(incoming);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
   const resize = () => {
     const el = textRef.current;
     if (!el) return;
@@ -1545,8 +2475,17 @@ const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean;
   }, []);
 
   return (
-    <div className="d-flex align-items-end" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1 }}>
-      <div ref={igRef} className="input-group" style={{ width: '100%', alignItems: 'flex-end' }}>
+    <div className="d-flex flex-column" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1, gap: 8 }}>
+      {previews || null}
+      <div ref={igRef} className="input-group d-flex align-items-end" style={{ width: '100%', alignItems: 'flex-end' }}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ATTACH_ACCEPT_INPUT}
+          multiple
+          hidden
+          onChange={(e) => handleFilesSelected(e.currentTarget.files)}
+        />
         <textarea
           ref={textRef}
           className={`form-control composer-textarea ${isMultiline ? 'multiline' : 'one-line'}`}
@@ -1559,10 +2498,15 @@ const Composer: React.FC<{ onSend: (text: string) => Promise<boolean> | boolean;
           style={{ outline: 'none', boxShadow: 'none', resize: 'none', overflowY: 'auto', boxSizing: 'border-box' }}
           disabled={disabled}
         />
-        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled} style={{ height: 'var(--composer-row-height)' }}>
+        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled} style={{ height: 40, position: 'relative' }} onClick={handleFileClick}>
           <i className="material-symbols-outlined">attach_file</i>
+          {(selectedFilesCount > 0) && (
+            <span style={{ position: 'absolute', top: -6, right: -2, background: '#0EA5E9', color: '#fff', fontSize: 11, lineHeight: '14px', height: 16, minWidth: 16, borderRadius: 8, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+              {selectedFilesCount}
+            </span>
+          )}
         </button>
-        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled} style={{ height: 'var(--composer-row-height)' }}>
+        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled} style={{ height: 40 }}>
           {disabled && (countdownSeconds ?? 0) > 0 ? `Send (${Math.max(0, countdownSeconds || 0)}s)` : 'Send'}
         </button>
       </div>

@@ -23,43 +23,9 @@ const suggestionsPath = `${API_BASE}/groups/suggestions`;
 // const messagesPath = (id: string) => `${API_BASE}/groups/${id}/messages`;
 
 export const groupsHandlers = [
-  // POST /groups/suggestions
-  http.post(suggestionsPath, async ({ request }) => {
-    try {
-      // Minimal CSRF check for development mocks. The real backend should enforce CSRF.
-      const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
-      if (!csrf) {
-        return HttpResponse.json(
-          { code: 'FORBIDDEN', message: 'Missing CSRF token' },
-          { status: 403 }
-        );
-      }
-      const body = (await request.json()) as Record<string, any>;
-      const includeArchived = Boolean((body as any)?.includeArchived);
-      const limit = Math.min(Number((body as any)?.limit) || 10, 20);
-
-      const groups = (seed as any).groups as any[];
-      const candidates: SuggestionCandidate[] = groups
-        .filter(g => includeArchived ? true : !g.archived)
-        .slice(0, limit)
-        .map(g => ({
-          id: g.id,
-          type: g.type,
-          name: escapeHtml(g.name),
-          course: g.course ? { ...g.course, title: escapeHtml((g.course as any).title) } : null,
-          privacy: g.privacy,
-          memberCount: g.memberCount,
-          memberAvatars: g.memberAvatars?.slice(0, 4) ?? [],
-          lastActivityAt: g.lastActivityAt,
-          archived: Boolean(g.archived),
-          reasons: ['Exact course match'],
-        }));
-
-      await delay(150);
-      return HttpResponse.json({ candidates, canonicalExists: Boolean(candidates.length) });
-    } catch (e) {
-      return HttpResponse.json({ code: 'FORBIDDEN', message: 'Bad request' }, { status: 403 });
-    }
+  // POST /groups/suggestions → passthrough to real backend so dev sees true suggestions
+  http.post(suggestionsPath, () => {
+    return passthrough();
   }),
 
   // GET /groups/:id/messages → passthrough to real backend

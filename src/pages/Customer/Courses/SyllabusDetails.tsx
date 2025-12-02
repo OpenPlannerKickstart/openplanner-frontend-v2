@@ -43,9 +43,29 @@ import {
 import GetImageIcon from "../../../common/GetImageIcon";
 import { DELETE_DOCUMENT_TYPE, ENUMFORROUTES } from "../../../interfaces/enum";
 import { useNavigate } from "react-router-dom";
+import SyllabusGroupSuggestModal from "../../../components/SyllabusGroupSuggestModal/SyllabusGroupSuggestModal";
+import { useSyllabusGroupSuggest } from "../../../hooks/useSyllabusGroupSuggest";
+import { useSyllabusUpload } from "../../../context/SyllabusUploadContext";
+import { startSyllabusUpload } from "../../../Utility/syllabusUpload";
 const SyllabusDetails = (props) => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
+  const [showSuggestModal, setShowSuggestModal] = useState<boolean>(false);
+  const {
+    syllabusId: hookSyllabusId,
+    setSyllabusId,
+    loadingSuggestions,
+    suggestion,
+    hasCandidate,
+    fetchSuggestions,
+    resolvingCanonical,
+    canonical,
+    createAndJoin,
+    reset: resetSuggest,
+  } = useSyllabusGroupSuggest();
+  
+  // Syllabus upload context for background upload
+  const syllabusUploadContext = useSyllabusUpload();
 
   useEffect(() => {
     if (!isEmptyObjectOrNullUndefiend(props?.selectedSyllabusObj)) {
@@ -143,6 +163,47 @@ const SyllabusDetails = (props) => {
       return;
     }
 
+    const hasNewFile = !isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) &&
+      typeof syllabusFormData?.values?.syllabus_doc === "object";
+
+    // Use async background upload flow when there's a new file
+    if (hasNewFile) {
+      const file = syllabusFormData?.values?.syllabus_doc[0] as File;
+      const metadata = {
+        title: syllabusFormData.values.title,
+        class_time: formatedDate(syllabusFormData.values.class_time, "HH:mm:ssZ"),
+        course_color: syllabusFormData.values.course_color,
+        professor_name: syllabusFormData.values.professor_name || undefined,
+        id: props?.selectedSyllabusObj?.id, // Include ID for updates
+      };
+
+      // Close the details panel immediately - upload will continue in background
+      props.handleCloseSyllabusDetails();
+      props.handleGetCourseList();
+
+      try {
+        // Start background upload - this opens the floating modal
+        const result = await startSyllabusUpload(file, metadata, {
+          startUpload: syllabusUploadContext.startUpload,
+          setProgress: syllabusUploadContext.setProgress,
+          setStatus: syllabusUploadContext.setStatus,
+          setSyllabusId: syllabusUploadContext.setSyllabusId,
+        });
+
+        // Upload complete - show group suggestions
+        if (result.syllabusId) {
+          setSyllabusId(String(result.syllabusId));
+          await fetchSuggestions(String(result.syllabusId));
+          setShowSuggestModal(true);
+        }
+      } catch (error) {
+        // Error is already handled in startSyllabusUpload (toast + modal state)
+        console.error('Syllabus upload failed:', error);
+      }
+      return;
+    }
+
+    // Legacy flow for metadata-only updates (no new file)
     const formData = new FormData();
     const reqBody = {
       title: syllabusFormData.values.title,
@@ -153,21 +214,41 @@ const SyllabusDetails = (props) => {
       id: props?.selectedSyllabusObj?.id,
     };
 
-    if (!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) &&
-      typeof syllabusFormData?.values?.syllabus_doc === "object") {
-      formData.append("syllabus_doc", syllabusFormData?.values?.syllabus_doc[0]);
-    } else {
       reqBody["url"] = syllabusFormData?.values?.syllabus_doc;
-      // reqBody["doc_id"] = null
-    }
 
     customJsonInclude(reqBody);
     formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
     setloading(true);
-    const response = await dispatch(addEditSyllabusDataAPI(formData));
+    const response: any = await dispatch(addEditSyllabusDataAPI(formData));
     if (response) {
+      const payload = response?.payload ?? null;
+      const sid =
+        payload?.syllabusId ||
+        payload?.syllabus_id ||
+        payload?.id ||
+        payload?.syllabus?.id ||
+        payload?.data?.id ||
+        payload?.result?.id ||
+        payload?.doc_id || // fallback if BE returns doc id
+        null;
+      // If BE returned a persisted doc URL, show it immediately in the preview
+      const returnedUrl =
+        payload?.syllabus_doc?.url ||
+        payload?.data?.syllabus_doc?.url ||
+        payload?.result?.syllabus_doc?.url ||
+        null;
       props.handleCloseSyllabusDetails();
       props.handleGetCourseList();
+      if (returnedUrl) {
+        try { props?.setPdfPreviewLink(returnedUrl); } catch {}
+      }
+      if (sid) {
+        setSyllabusId(String(sid));
+        await fetchSuggestions(String(sid));
+        setShowSuggestModal(true);
+      } else {
+        try { console.log('Syllabus save payload (no syllabusId found):', payload); } catch {}
+      }
     }
     setloading(false);
   };
@@ -211,6 +292,20 @@ const SyllabusDetails = (props) => {
   };
 
   /** -------------------Delete Syllabus end-------------------------*/
+
+  const closeSuggest = () => {
+    setShowSuggestModal(false);
+    resetSuggest();
+  };
+
+  const handleJoinClick = async () => {
+    const sid = hookSyllabusId;
+    const result = await createAndJoin(sid);
+    if (result && result.id) {
+      closeSuggest();
+      navigate(`/groups/${result.id}`);
+    }
+  };
 
   /** -----------------edit document alert start---------------------------*/
   const [show, setShow] = useState(false);
@@ -769,6 +864,15 @@ const SyllabusDetails = (props) => {
           </svg>
         </div>
       )}
+
+      <SyllabusGroupSuggestModal
+        open={showSuggestModal}
+        loading={loadingSuggestions || resolvingCanonical}
+        candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+        canonicalPreview={canonical}
+        onJoin={handleJoinClick}
+        onClose={closeSuggest}
+      />
 
     </>
   );
