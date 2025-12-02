@@ -126,34 +126,29 @@ export const PaymentPlans = () => {
   //   }
   // };
   return (
-
     <>
-      <div className='payment-plans-container'>
-        <div className="admin-auth-wrapper admin-auth-side-image">
-          <div className="admin-auth-inner-wrapper">
-            <div className="admin-auth-row">
-              <div className="admin-auth-col admin-auth-left">
-                <div className="admin-auth-logo">
-                  <img src={authLogo} alt="OpenPlanner" />
-                </div>
-
-                <div className="subscription-box subscription-plans auth-plans">
-                  <div className="plans-header">
-                    <h2>Choose Your Plan</h2>
-                    <p>Start with a 7-day FREE trial!</p>
-                  </div>
-                  <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
-                    <Button variant="link" className="p-0" onClick={() => setShowRedeem(true)}>Have a parent code? Redeem it</Button>
-                  </div>
-                  <PricePlans state={state} />
-                  {/* 
-                  Removed for now
-                  <div className="d-flex justify-content-center align-items-center mt-3">
-                    <Button variant="link" className="p-0" onClick={handleCopyParentsLink}>Copy payment link for parents</Button>
-                  </div> */}
-                </div>
+      <div className="plans-page">
+        <div className="plans-shell">
+          <div className="plans-hero">
+            <div className="plans-hero__brand">
+              <img src={authLogo} alt="OpenPlanner" className="plans-hero__logo" />
+              <div>
+                <p className="plans-hero__eyebrow">Subscription Plans</p>
+                <h1>Choose the plan that fits you</h1>
+                <p className="plans-hero__sub">
+                  Start with a 7‑day free trial. Switch or cancel anytime.
+                </p>
               </div>
             </div>
+            <div className="plans-actions">
+              <Button variant="outline-primary" onClick={() => setShowRedeem(true)}>
+                Redeem parent code
+              </Button>
+            </div>
+          </div>
+
+          <div className="plans-grid">
+            <PricePlans state={state} />
           </div>
         </div>
       </div>

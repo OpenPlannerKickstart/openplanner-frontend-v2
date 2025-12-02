@@ -348,7 +348,7 @@ export const PricePlans = (props) => {
 
   return (
     <div className="pricing-wrapper">
-      <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between px-3 px-md-4">
+      <Row className="g-4 row-cols-1 row-cols-md-2 row-cols-lg-3 align-items-stretch">
         {plans.map((plan, index) => {
           const freemium = isFreemiumPlan(plan);
           const originalPrice = undiscountedMap[plan.duration];

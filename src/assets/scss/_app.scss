@@ -662,7 +662,7 @@
     .auth-plans{
         width: 100%;
         max-width: 1320px;
-        margin: 140px auto 0; /* give cards breathing room below the logo/hero */
+        margin: 140px auto 0; /* legacy layout */
         .plans-header{
             text-align: center;
             margin-bottom: 35px;
@@ -737,5 +737,98 @@
         max-width: 100% !important;
       }
     }
+  }
+}
+
+/* New plans page layout */
+.plans-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f7f4df 0%, #eef6ff 100%);
+  padding: 48px 16px 72px;
+}
+
+.plans-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.plans-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.plans-hero__brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.plans-hero__logo {
+  height: 56px;
+  width: auto;
+}
+
+.plans-hero__eyebrow {
+  margin: 0;
+  color: #667085;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.plans-hero h1 {
+  margin: 4px 0;
+  font-size: 28px;
+  line-height: 1.3;
+  color: #101828;
+}
+
+.plans-hero__sub {
+  margin: 0;
+  color: #475467;
+  max-width: 520px;
+}
+
+.plans-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.plans-grid {
+  margin-top: 8px;
+}
+
+.plans-grid .pricing-wrapper {
+  padding: 0;
+}
+
+.plans-grid .pricing-wrapper .row {
+  gap: 24px;
+}
+
+.plans-grid .pricing-card {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .plans-page {
+    padding: 32px 12px 56px;
+  }
+
+  .plans-hero {
+    align-items: flex-start;
+  }
+
+  .plans-hero h1 {
+    font-size: 24px;
+  }
+
+  .plans-grid .pricing-card {
+    max-width: 100%;
   }
 }
