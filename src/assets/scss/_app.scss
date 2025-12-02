@@ -811,7 +811,7 @@
 }
 
 .plans-grid .pricing-card {
-  max-width: 420px;
+  max-width: 360px; /* allow four-up on wide screens */
   margin: 0 auto;
 }
 
