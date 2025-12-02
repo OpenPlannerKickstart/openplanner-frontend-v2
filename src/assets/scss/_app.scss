@@ -815,6 +815,13 @@
   margin: 0 auto;
 }
 
+@media (min-width: 768px) {
+  .plans-grid .pricing-wrapper .row > * {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
 @media (max-width: 768px) {
   .plans-page {
     padding: 32px 12px 56px;
