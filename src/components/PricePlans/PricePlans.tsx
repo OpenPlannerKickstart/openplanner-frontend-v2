@@ -57,6 +57,13 @@ export const PricePlans = (props) => {
   const [userData, setuserData] = useState<any>(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [showPaidPlanNotice, setShowPaidPlanNotice] = useState(false);
+  const hasSubscriptionFlag = useMemo(() => {
+    try {
+      return localStorage.getItem("has_subscription") === "true";
+    } catch {
+      return false;
+    }
+  }, []);
 
   // rely directly on props.updatePlan instead of local state to avoid initial-render race
   const dispatch: AppDispatch = useDispatch();
@@ -75,15 +82,8 @@ export const PricePlans = (props) => {
   }, []);
 
   const handleFreemiumEntry = useCallback(() => {
-    const hasSubscription = (() => {
-      try {
-        return localStorage.getItem("has_subscription") === "true";
-      } catch {
-        return false;
-      }
-    })();
     // If on paid plan, surface notice and avoid sending freemium product_id to BE
-    if (hasSubscription) {
+    if (hasSubscriptionFlag) {
       setShowPaidPlanNotice(true);
       return;
     }
@@ -179,6 +179,11 @@ export const PricePlans = (props) => {
     }
 
     if (isFreemiumPlan(plan)) {
+      // Block freemium selection when on a paid plan or when in update/upgrade modes
+      if (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial) {
+        setShowPaidPlanNotice(true);
+        return;
+      }
       handleFreemiumEntry();
       return;
     }
