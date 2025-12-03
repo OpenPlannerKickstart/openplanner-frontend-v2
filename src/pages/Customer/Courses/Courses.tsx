@@ -191,6 +191,8 @@ const Courses = (props) => {
 
   const hasSubscription = (() => {
     try {
+      const tier = localStorage.getItem("plan_tier");
+      if (tier === "freemium") return false;
       return localStorage.getItem("has_subscription") === "true";
     } catch {
       return false;
