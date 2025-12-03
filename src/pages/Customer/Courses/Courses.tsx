@@ -189,16 +189,24 @@ const Courses = (props) => {
     navigate(ENUMFORROUTES.EDIT_COURSE, { state: { syllabusObj } });
   };
 
-  const hasSubscription = (() => {
+  const { hasSubscription, isFreemiumPlan } = (() => {
     try {
       const tier = localStorage.getItem("plan_tier");
-      if (tier === "freemium") return false;
-      return localStorage.getItem("has_subscription") === "true";
+      const subscriptionFlag = localStorage.getItem("has_subscription") === "true";
+      return {
+        hasSubscription: subscriptionFlag,
+        isFreemiumPlan: tier === "freemium",
+      };
     } catch {
-      return false;
+      return {
+        hasSubscription: false,
+        isFreemiumPlan: false,
+      };
     }
   })();
-  const freemiumLimitReached = !hasSubscription && syllabusList.length >= 1;
+  const FREEMIUM_UPLOAD_LIMIT = 3;
+  const freemiumLimitReached =
+    isFreemiumPlan && !hasSubscription && syllabusList.length >= FREEMIUM_UPLOAD_LIMIT;
 
   const handleUpgradeClick = () => {
     navigate(ENUMFORROUTES.PLAN_DETAILS);
@@ -236,7 +244,7 @@ const Courses = (props) => {
         {freemiumLimitReached && (
           <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
             <div>
-              <strong>Free plan limit reached.</strong> You can upload one syllabus on the free plan. Upgrade to keep adding courses.
+              <strong>Free plan limit reached.</strong> You can upload up to 3 syllabi on the free plan. Upgrade to keep adding courses.
             </div>
             <Button variant="primary" size="sm" onClick={handleUpgradeClick}>
               View plans
@@ -530,6 +538,7 @@ const Courses = (props) => {
               setIsAddNewData={setIsAddNewData} isAddNewData={isAddNewData}
               freemiumLimitReached={freemiumLimitReached}
               hasSubscription={hasSubscription}
+              isFreemiumPlan={isFreemiumPlan}
               onUpgradeClick={handleUpgradeClick}
               existingSyllabusCount={syllabusList.length}
             />

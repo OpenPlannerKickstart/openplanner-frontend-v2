@@ -101,6 +101,16 @@ const AddSyllabusEvents = (props) => {
   const [loading, setloading] = useState(false)
   const onSubmitForSyllabus = (values) => {
   }
+  const localPlanTier = (() => {
+    try {
+      return localStorage.getItem("plan_tier");
+    } catch {
+      return null;
+    }
+  })();
+  const isFreemiumPlan =
+    props?.isFreemiumPlan ??
+    (localPlanTier === "freemium");
   const hasSubscription = props?.hasSubscription ?? (() => {
     try {
       return localStorage.getItem("has_subscription") === "true";
@@ -108,11 +118,15 @@ const AddSyllabusEvents = (props) => {
       return false;
     }
   })();
+  const existingSyllabusCount =
+    typeof props?.existingSyllabusCount === "number"
+      ? props.existingSyllabusCount
+      : 0;
+  const FREEMIUM_UPLOAD_LIMIT = 3;
   const freemiumUploadLocked =
+    isFreemiumPlan &&
     !hasSubscription &&
-    (!!props?.freemiumLimitReached ||
-      (typeof props?.existingSyllabusCount === "number" &&
-        props.existingSyllabusCount >= 1));
+    ((!!props?.freemiumLimitReached) || existingSyllabusCount >= FREEMIUM_UPLOAD_LIMIT);
 
   const handleUpgrade = () => {
     if (props?.onUpgradeClick) {
@@ -595,7 +609,7 @@ const AddSyllabusEvents = (props) => {
                             {freemiumUploadLocked && (
                               <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
                                 <div>
-                                  <strong>Free plan limit reached.</strong> Upload one syllabus for free, then upgrade for unlimited uploads.
+                                  <strong>Free plan limit reached.</strong> Upload up to 3 syllabi for free, then upgrade for unlimited uploads.
                                 </div>
                                 <Button size="sm" variant="primary" onClick={handleUpgrade}>
                                   View plans

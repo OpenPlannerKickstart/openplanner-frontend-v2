@@ -90,11 +90,12 @@ export const AddEditSyllabus = (props) => {
             return false;
         }
     })();
+    const FREEMIUM_UPLOAD_LIMIT = 3;
     const freemiumUploadLocked =
         !hasSubscription &&
         (!!props?.freemiumLimitReached ||
             (typeof props?.existingSyllabusCount === "number" &&
-                props.existingSyllabusCount >= 1));
+                props.existingSyllabusCount >= FREEMIUM_UPLOAD_LIMIT));
 
     const handleUpgrade = () => {
         if (props?.onUpgradeClick) {
@@ -345,7 +346,7 @@ export const AddEditSyllabus = (props) => {
                                                     {freemiumUploadLocked && (
                                                         <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
                                                             <div>
-                                                                <strong>Free plan limit reached.</strong> Upload one syllabus for free, then upgrade for unlimited uploads.
+                                                                <strong>Free plan limit reached.</strong> Upload up to 3 syllabi for free, then upgrade for unlimited uploads.
                                                             </div>
                                                             <Button size="sm" variant="primary" onClick={handleUpgrade}>
                                                                 View plans
