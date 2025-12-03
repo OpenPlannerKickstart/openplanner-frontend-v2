@@ -222,7 +222,13 @@ const Courses = (props) => {
             </div>
           </div>
           <div className="page-title-right">
-            <button type="button" className="btn btn-primary" onClick={handleAddSyllabusClick}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleAddSyllabusClick}
+              disabled={freemiumLimitReached}
+              style={freemiumLimitReached ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
+            >
               Add Syllabus{" "}
             </button>
           </div>
