@@ -371,6 +371,7 @@ export const PricePlans = (props) => {
           const freemium = isFreemiumPlan(plan);
           const originalPrice = undiscountedMap[plan.duration];
           const isPopular = !freemium && plan.duration === "for 1 year";
+          const freemiumBlocked = freemium && (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial);
           const displayDuration =
             freemium ||
             !fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
@@ -424,6 +425,10 @@ export const PricePlans = (props) => {
                     className="btn-text w-100 mb-4"
                     onClick={() => {
                       if (isActivePlan) return;
+                      if (freemiumBlocked) {
+                        setShowPaidPlanNotice(true);
+                        return;
+                      }
                       if (props?.updatePlan && !props?.upgradeNoTrial) {
                         handleConfirmationShow(plan);
                       } else {
