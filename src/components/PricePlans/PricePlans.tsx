@@ -56,6 +56,7 @@ const ensureFreemiumPlan = (list: any[]) => {
 export const PricePlans = (props) => {
   const [userData, setuserData] = useState<any>(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [showPaidPlanNotice, setShowPaidPlanNotice] = useState(false);
 
   // rely directly on props.updatePlan instead of local state to avoid initial-render race
   const dispatch: AppDispatch = useDispatch();
@@ -74,6 +75,18 @@ export const PricePlans = (props) => {
   }, []);
 
   const handleFreemiumEntry = useCallback(() => {
+    const hasSubscription = (() => {
+      try {
+        return localStorage.getItem("has_subscription") === "true";
+      } catch {
+        return false;
+      }
+    })();
+    // If on paid plan, surface notice and avoid sending freemium product_id to BE
+    if (hasSubscription) {
+      setShowPaidPlanNotice(true);
+      return;
+    }
     try {
       localStorage.setItem("has_subscription", "false");
       localStorage.setItem("plan_tier", "freemium");
@@ -446,6 +459,34 @@ export const PricePlans = (props) => {
           );
         })}
       </div>
+
+      <Modal
+        className="modal-theme"
+        show={showPaidPlanNotice}
+        onHide={() => setShowPaidPlanNotice(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Already on a paid plan</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="mb-2">
+            You’re currently on a paid subscription. To move to the free tier, cancel your subscription first. Once it expires, you’ll automatically revert to Free.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="light" onClick={() => setShowPaidPlanNotice(false)}>Close</Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setShowPaidPlanNotice(false);
+              navigate(ENUMFORROUTES.SETTINGS);
+            }}
+          >
+            Go to Billing
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Modal
         className="modal-theme modal-confirmation modal-approve"
