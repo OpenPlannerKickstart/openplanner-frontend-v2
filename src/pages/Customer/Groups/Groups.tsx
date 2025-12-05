@@ -50,6 +50,8 @@ const Groups: React.FC = () => {
   const [myGroupsCollapsed, setMyGroupsCollapsed] = useState<boolean>(false);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
+  // Track if we're previewing a suggested group (not yet joined)
+  const [previewingSuggestion, setPreviewingSuggestion] = useState<any | null>(null);
   // Group info panel data and UI state
   const [groupDetail, setGroupDetail] = useState<any | null>(null);
   const [membersExpanded, setMembersExpanded] = useState<boolean>(false);
@@ -459,6 +461,7 @@ const Groups: React.FC = () => {
   }, [myGroups, selectedGroupId, location.pathname, navigate]);
 
   const applySelection = (id: string) => {
+    setPreviewingSuggestion(null); // Clear any preview state when selecting a joined group
     setSelectedGroupId(id);
     try { localStorage.setItem('groups.selected', id); } catch {}
     if (isMobile) setMobileView('chat');
@@ -529,7 +532,10 @@ const Groups: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selectedGroup = selectedGroupId ? myGroups.find(g => g.id === selectedGroupId) : null;
+  // selectedGroup: either a group from myGroups or the previewing suggestion
+  const selectedGroup = previewingSuggestion
+    ? previewingSuggestion
+    : (selectedGroupId ? myGroups.find(g => g.id === selectedGroupId) : null);
 
   // fetch messages helper
   const fetchMessages = async (groupId: string, before?: string) => {
@@ -555,8 +561,9 @@ const Groups: React.FC = () => {
   };
 
   // when a group is selected, fetch its messages and subscribe to socket room
+  // Skip if we're previewing a suggested group (not yet joined)
   useEffect(() => {
-    if (!selectedGroupId) return;
+    if (!selectedGroupId || previewingSuggestion) return;
 
     // initial load if not present
     if (!messages[selectedGroupId]) {
@@ -607,7 +614,7 @@ const Groups: React.FC = () => {
       try { sendNotification?.('group:leave', { room: `group:${selectedGroupId}` }); } catch {}
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedGroupId]);
+  }, [selectedGroupId, previewingSuggestion]);
 
   // Subscribe to direct invite notifications for current user
   useEffect(() => {
@@ -1213,51 +1220,86 @@ const Groups: React.FC = () => {
                           ))}
                         </div>
                       ) : suggestions && suggestions.length > 0 ? (
-                        <div className="px-2">
-                          {suggestions.map((sg: any) => (
-                            <div key={sg.id} className="d-flex align-items-center justify-content-between" style={{ padding: '8px 10px', borderBottom: '1px solid #F3F4F6' }}>
-                              <div className="d-flex align-items-center gap-2">
-                                <div style={{ width: 36, height: 36, borderRadius: 18, background: sg.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 22, height: 'auto' }} />
-                                </div>
-                                <div>
-                                  <div style={{ fontWeight: 600, color: '#111827', lineHeight: 1.2 }}>{sg.name}</div>
-                                  <div style={{ fontSize: 12, color: '#6B7280' }}>
-                                    {sg?.course?.code ? `${sg.course.code} — ` : ''}{sg?.course?.term ? `${sg.course.term} ` : ''}{sg?.course?.year ?? ''}
+                        <div>
+                          {suggestions.map((sg: any) => {
+                            const isPreviewSelected = previewingSuggestion?.id === sg.id;
+                            return (
+                            <div key={sg.id}>
+                              <div
+                                className="d-flex align-items-center justify-content-between px-3 py-3"
+                                style={{
+                                  cursor: 'pointer',
+                                  background: isPreviewSelected ? '#FFF8EA' : 'transparent',
+                                  position: 'relative'
+                                }}
+                                onClick={() => {
+                                  // Select this suggestion for preview
+                                  setPreviewingSuggestion(sg);
+                                  setSelectedGroupId(sg.id);
+                                  setShowGroupInfo(true);
+                                  if (isMobile) setMobileView('chat');
+                                }}
+                              >
+                                {isPreviewSelected && (
+                                  <div
+                                    style={{
+                                      position: 'absolute',
+                                      left: 0,
+                                      top: 0,
+                                      bottom: 0,
+                                      width: 6,
+                                      background: '#239BC2',
+                                      zIndex: 1,
+                                    }}
+                                  />
+                                )}
+                                <div className="d-flex align-items-center gap-3 flex-grow-1" style={{ minWidth: 0 }}>
+                                  <div style={{ width: 56, height: 56, borderRadius: 28, background: sg.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 32, height: 'auto' }} />
+                                  </div>
+                                  <div style={{ minWidth: 0 }}>
+                                    <div style={{ fontWeight: 600, color: '#111827' }}>{sg.name}</div>
+                                    <div className="text-muted" style={{ fontSize: 14 }}>
+                                      {sg?.course?.code ? `${sg.course.code} — ` : ''}{sg?.course?.term ? `${sg.course.term} ` : ''}{sg?.course?.year ?? ''}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div className="d-flex align-items-center gap-2">
-                                {((sg?.members || sg?.memberPreviews || [])).slice(0, 3).map((m: any) => (
-                                  <div key={m.id} title={m.displayName || ''} style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: '1px solid #E5E7EB', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    {m.picture ? (
-                                      <img src={m.picture} alt={m.displayName || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    ) : (
-                                      <span style={{ fontSize: 10, color: '#374151' }}>
-                                        {(m.displayName || '').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase() || 'U'}
-                                      </span>
-                                    )}
-                                  </div>
-                                ))}
+                                <div className="d-flex align-items-center gap-2">
+                                  {((sg?.members || sg?.memberPreviews || [])).slice(0, 3).map((m: any) => (
+                                    <div key={m.id} title={m.displayName || ''} style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: '1px solid #E5E7EB', background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                      {m.picture ? (
+                                        <img src={m.picture} alt={m.displayName || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                      ) : (
+                                        <span style={{ fontSize: 10, color: '#374151' }}>
+                                          {(m.displayName || '').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase() || 'U'}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
                                 <button
                                   className="btn btn-primary"
-                                  style={{ height: 32, borderRadius: 8 }}
-                                  onClick={async () => {
+                                  style={{ height: 36, borderRadius: 8, minWidth: 64 }}
+                                  onClick={async (e) => {
+                                    e.stopPropagation(); // Prevent row click
                                     try {
-                                      await post('groups/join', { groupId: sg.id });
+                                      await post(`groups/${sg.id}/join`);
                                       ts('Joined group');
+                                      setPreviewingSuggestion(null); // Clear preview state
                                       await fetchMyGroups();
                                       applySelection(sg.id);
-                                    } catch (e) {
+                                      fetchSuggestedGroups(); // Refresh suggestions
+                                    } catch (err) {
                                       te('Failed to join group');
                                     }
                                   }}
                                 >
-                                  Join
-                                </button>
+                                    Join
+                                  </button>
+                                </div>
                               </div>
+                              <hr className="my-0" />
                             </div>
-                          ))}
+                          );})}
                         </div>
                       ) : (
                         <div className="text-center p-4">
@@ -1280,10 +1322,10 @@ const Groups: React.FC = () => {
                             <i className="material-symbols-outlined">arrow_back</i>
                           </button>
                           <div className="d-flex align-items-center gap-2">
-                            <div style={{ width: 36, height: 36, borderRadius: 18, background: (myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 18, background: (previewingSuggestion?.avatarColor || myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                               <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 22, height: 'auto' }} />
                             </div>
-                            <h6 className="mb-0" style={{ color: '#111827' }}>{myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h6>
+                            <h6 className="mb-0" style={{ color: '#111827' }}>{previewingSuggestion?.name || myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h6>
                           </div>
                         </div>
                         <div className="d-flex align-items-center gap-2">
@@ -1295,6 +1337,19 @@ const Groups: React.FC = () => {
                       </div>
                       {/* Timeline: the only scroller, between fixed header (56px) and measured composer height */}
                       <div ref={timelineRef} style={{ position: 'absolute', top: 56, bottom: composerHeight, left: 0, right: 0, background: '#FAFAFA', padding: '12px 16px', paddingBottom: composerHeight + 70, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                          {/* Preview empty state for suggested groups (mobile) */}
+                          {previewingSuggestion ? (
+                            <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
+                              <div style={{ width: 80, height: 80, borderRadius: 40, background: previewingSuggestion.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                                <img src={'/assets/images/book.svg'} alt="group" style={{ width: 48, height: 'auto' }} />
+                              </div>
+                              <h5 style={{ color: '#111827', marginBottom: 8 }}>{previewingSuggestion.name}</h5>
+                              <p className="text-muted text-center" style={{ fontSize: 14, maxWidth: 280 }}>
+                                Join this group to see messages and start chatting with other members.
+                              </p>
+                            </div>
+                          ) : (
+                          <>
                           {/* Reuse the same message rendering block as right column */}
                           {(() => {
                             const list = selectedGroupId ? (messages[selectedGroupId] ?? []) : [];
@@ -1546,12 +1601,14 @@ const Groups: React.FC = () => {
                               </>
                             );
                           })()}
+                          </>
+                          )}
                       </div>
                       {/* Fixed composer at bottom of frame */}
                       <div ref={composerWrapRef} style={{ position: 'fixed', left: frameRect.left, width: frameRect.width, bottom: 0, background: '#FAFAFA', zIndex: 3 }}>
                         <Composer
                           onSend={handleSendMessage}
-                          disabled={!selectedGroupId || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                          disabled={!selectedGroupId || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
                           countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
                           resizeSignal={frameRect.width}
                           onFilesAdded={addFiles}
@@ -1645,20 +1702,48 @@ const Groups: React.FC = () => {
                               <div style={{ borderTop: '1px solid #E5E7EB' }} />
                               <div style={{ padding: '16px' }}>
                                 <div className="d-flex flex-column gap-3">
-                                  <button type="button" className="btn btn-outline-white text-start" onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-                                    <i className="material-symbols-outlined">person_add</i>
-                                    <span>Invite Members</span>
-                                  </button>
-                                  <button type="button" className="btn btn-outline-white text-start" onClick={handleLeaveGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-                                    <i className="material-symbols-outlined">logout</i>
-                                    <span>Exit Group</span>
-                                  </button>
-                                  {selectedGroup?.type !== 'canonical' ? (
-                                    <button type="button" className="btn btn-outline-white text-start" onClick={handleDeleteGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-                                      <i className="material-symbols-outlined">delete</i>
-                                      <span>Delete Group</span>
+                                  {previewingSuggestion ? (
+                                    /* Previewing a suggested group - show Join button only (mobile) */
+                                    <button
+                                      type="button"
+                                      className="btn btn-primary text-start"
+                                      onClick={async () => {
+                                        try {
+                                          await post(`groups/${previewingSuggestion.id}/join`);
+                                          ts('Joined group');
+                                          setPreviewingSuggestion(null);
+                                          setShowGroupInfo(false);
+                                          await fetchMyGroups();
+                                          applySelection(previewingSuggestion.id);
+                                          fetchSuggestedGroups();
+                                        } catch (err) {
+                                          te('Failed to join group');
+                                        }
+                                      }}
+                                      style={{ border: 'none', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}
+                                    >
+                                      <i className="material-symbols-outlined">group_add</i>
+                                      <span>Join Group</span>
                                     </button>
-                                  ) : null}
+                                  ) : (
+                                    /* Already a member - show invite/leave/delete options (mobile) */
+                                    <>
+                                      <button type="button" className="btn btn-outline-white text-start" onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                        <i className="material-symbols-outlined">person_add</i>
+                                        <span>Invite Members</span>
+                                      </button>
+                                      <button type="button" className="btn btn-outline-white text-start" onClick={handleLeaveGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                        <i className="material-symbols-outlined">logout</i>
+                                        <span>Exit Group</span>
+                                      </button>
+                                      {selectedGroup?.type !== 'canonical' ? (
+                                        <button type="button" className="btn btn-outline-white text-start" onClick={handleDeleteGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                          <i className="material-symbols-outlined">delete</i>
+                                          <span>Delete Group</span>
+                                        </button>
+                                      ) : null}
+                                    </>
+                                  )}
                                 </div>
                               </div>
                             </>
@@ -1705,13 +1790,13 @@ const Groups: React.FC = () => {
               {/* Header */}
               <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
-                  {selectedGroupId ? (
+                  {(selectedGroupId || previewingSuggestion) ? (
                     <>
                       <div className="d-flex align-items-center gap-2">
-                        <div style={{ width: 44, height: 44, borderRadius: 22, background: (myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: 44, height: 44, borderRadius: 22, background: (previewingSuggestion?.avatarColor || myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 26, height: 'auto' }} />
                         </div>
-                        <h5 className="mb-0" style={{ color: '#111827' }}>{myGroups.find(g => g.id === selectedGroupId)?.name}</h5>
+                        <h5 className="mb-0" style={{ color: '#111827' }}>{previewingSuggestion?.name || myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h5>
                       </div>
                     </>
                   ) : (
@@ -1721,12 +1806,12 @@ const Groups: React.FC = () => {
                     </>
                   )}
                 </div>
-                {(activeTab === 'groups' || !!selectedGroupId) ? (
+                {(activeTab === 'groups' || selectedGroupId || previewingSuggestion) ? (
                   <div className="d-flex align-items-center gap-2">
                     <button
                       className="btn btn-primary"
-                      style={{ height: 40, minWidth: 120, borderRadius: 8, opacity: selectedGroupId ? 1 : 0.6 }}
-                      disabled={!selectedGroupId}
+                      style={{ height: 40, minWidth: 120, borderRadius: 8, opacity: (selectedGroupId || previewingSuggestion) ? 1 : 0.6 }}
+                      disabled={!selectedGroupId && !previewingSuggestion}
                       onClick={() => setShowGroupInfo(prev => !prev)}
                     >
                       Group Info
@@ -1740,6 +1825,19 @@ const Groups: React.FC = () => {
               {/* Chat timeline (independent scroll) */}
               <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
                 <div ref={timelineRef} className="flex-grow-1 right-timeline-scroll" style={{ background: '#FAFAFA', padding: '16px 24px', overflow: selectedGroupId ? 'auto' : 'hidden' }}>
+                  {/* Preview empty state for suggested groups */}
+                  {previewingSuggestion ? (
+                    <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
+                      <div style={{ width: 80, height: 80, borderRadius: 40, background: previewingSuggestion.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                        <img src={'/assets/images/book.svg'} alt="group" style={{ width: 48, height: 'auto' }} />
+                      </div>
+                      <h5 style={{ color: '#111827', marginBottom: 8 }}>{previewingSuggestion.name}</h5>
+                      <p className="text-muted text-center" style={{ fontSize: 14, maxWidth: 280 }}>
+                        Join this group to see messages and start chatting with other members.
+                      </p>
+                    </div>
+                  ) : (
+                  <>
                   {/* Load older */}
                   {selectedGroupId && nextCursorByGroup[selectedGroupId] && (
                     <div className="text-center mb-3">
@@ -2002,11 +2100,13 @@ const Groups: React.FC = () => {
                       </>
                     );
                   })()}
+                  </>
+                  )}
                 </div>
                 {/* Composer */}
                 <Composer
                   onSend={handleSendMessage}
-                  disabled={!selectedGroupId || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                  disabled={!selectedGroupId || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
                   countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
                   onFilesAdded={addFiles}
                   selectedFilesCount={selectedFilesCount}
@@ -2141,48 +2241,26 @@ const Groups: React.FC = () => {
                       <div style={{ borderTop: '1px solid #E5E7EB' }} />
                       <div style={{ padding: '16px' }}>
                         <div className="d-flex flex-column gap-3">
-                          <button
-                            type="button"
-                            className="btn btn-outline-white text-start"
-                            onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }}
-                            style={{
-                              border: '1px solid #E5E7EB',
-                              borderRadius: 12,
-                              padding: '14px 16px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 12,
-                              width: '100%'
-                            }}
-                          >
-                            <i className="material-symbols-outlined">person_add</i>
-                            <span>Invite Members</span>
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-outline-white text-start"
-                            onClick={handleLeaveGroup}
-                            style={{
-                              border: '1px solid #E5E7EB',
-                              borderRadius: 12,
-                              padding: '14px 16px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 12,
-                              width: '100%'
-                            }}
-                          >
-                            <i className="material-symbols-outlined">logout</i>
-                            <span>Exit Group</span>
-                          </button>
-
-                          {selectedGroup?.type !== 'canonical' ? (
+                          {previewingSuggestion ? (
+                            /* Previewing a suggested group - show Join button only */
                             <button
                               type="button"
-                              className="btn btn-outline-white text-start"
-                              onClick={handleDeleteGroup}
+                              className="btn btn-primary text-start"
+                              onClick={async () => {
+                                try {
+                                  await post(`groups/${previewingSuggestion.id}/join`);
+                                  ts('Joined group');
+                                  setPreviewingSuggestion(null);
+                                  setShowGroupInfo(false);
+                                  await fetchMyGroups();
+                                  applySelection(previewingSuggestion.id);
+                                  fetchSuggestedGroups();
+                                } catch (err) {
+                                  te('Failed to join group');
+                                }
+                              }}
                               style={{
-                                border: '1px solid #E5E7EB',
+                                border: 'none',
                                 borderRadius: 12,
                                 padding: '14px 16px',
                                 display: 'flex',
@@ -2191,10 +2269,68 @@ const Groups: React.FC = () => {
                                 width: '100%'
                               }}
                             >
-                              <i className="material-symbols-outlined">delete</i>
-                              <span>Delete Group</span>
+                              <i className="material-symbols-outlined">group_add</i>
+                              <span>Join Group</span>
                             </button>
-                          ) : null}
+                          ) : (
+                            /* Already a member - show invite/leave/delete options */
+                            <>
+                              <button
+                                type="button"
+                                className="btn btn-outline-white text-start"
+                                onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }}
+                                style={{
+                                  border: '1px solid #E5E7EB',
+                                  borderRadius: 12,
+                                  padding: '14px 16px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 12,
+                                  width: '100%'
+                                }}
+                              >
+                                <i className="material-symbols-outlined">person_add</i>
+                                <span>Invite Members</span>
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-outline-white text-start"
+                                onClick={handleLeaveGroup}
+                                style={{
+                                  border: '1px solid #E5E7EB',
+                                  borderRadius: 12,
+                                  padding: '14px 16px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 12,
+                                  width: '100%'
+                                }}
+                              >
+                                <i className="material-symbols-outlined">logout</i>
+                                <span>Exit Group</span>
+                              </button>
+
+                              {selectedGroup?.type !== 'canonical' ? (
+                                <button
+                                  type="button"
+                                  className="btn btn-outline-white text-start"
+                                  onClick={handleDeleteGroup}
+                                  style={{
+                                    border: '1px solid #E5E7EB',
+                                    borderRadius: 12,
+                                    padding: '14px 16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 12,
+                                    width: '100%'
+                                  }}
+                                >
+                                  <i className="material-symbols-outlined">delete</i>
+                                  <span>Delete Group</span>
+                                </button>
+                              ) : null}
+                            </>
+                          )}
                         </div>
                       </div>
                     </>

@@ -43,17 +43,9 @@ export const groupsHandlers = [
     return passthrough();
   }),
 
-  // POST /groups/join (with simple CSRF header validation in mocks)
-  http.post(`${API_BASE}/groups/join`, async ({ request }) => {
-    const csrf = request.headers.get('x-csrf-token') || request.headers.get('X-CSRF-Token');
-    if (!csrf) {
-      return HttpResponse.json(
-        { code: 'FORBIDDEN', message: 'Missing CSRF token' },
-        { status: 403 }
-      );
-    }
-    await delay(50);
-    return HttpResponse.json({ ok: true });
+  // POST /groups/:id/join → passthrough to real backend
+  http.post(new RegExp(`/groups/([0-9a-fA-F-]+)/join`), () => {
+    return passthrough();
   }),
 
   // POST /groups/leave → passthrough to real backend
