@@ -27,9 +27,9 @@ const FREEMIUM_PLAN = {
   title: "Freemium",
   price: 0,
   Stripe_id: "freemium",
-  duration: "Free forever",
+  duration: "",
   features: [
-    "Upload 1 syllabus",
+    "Upload 3 syllabus",
     "Web and mobile access",
     "Basic reminders and notifications",
   ],
@@ -37,7 +37,8 @@ const FREEMIUM_PLAN = {
 };
 
 const isFreemiumPlan = (plan: any): boolean => {
-  const price = typeof plan?.price === "string" ? parseFloat(plan.price) : plan?.price;
+  const price =
+    typeof plan?.price === "string" ? parseFloat(plan.price) : plan?.price;
   return (
     plan?.is_freemium === true ||
     plan?.product_id === "freemium" ||
@@ -371,7 +372,9 @@ export const PricePlans = (props) => {
           const freemium = isFreemiumPlan(plan);
           const originalPrice = undiscountedMap[plan.duration];
           const isPopular = !freemium && plan.duration === "for 1 year";
-          const freemiumBlocked = freemium && (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial);
+          const freemiumBlocked =
+            freemium &&
+            (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial);
           const displayDuration =
             freemium ||
             !fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
@@ -399,8 +402,12 @@ export const PricePlans = (props) => {
                 <Card.Body>
                   <div className="pricing-card__header">
                     <div className="pill-row">
-                      {freemium && <span className="pill pill-free">Free forever</span>}
-                      {isPopular && <span className="pill pill-popular">Popular</span>}
+                      {freemium && (
+                        <span className="pill pill-free">Free forever</span>
+                      )}
+                      {isPopular && (
+                        <span className="pill pill-popular">Popular</span>
+                      )}
                     </div>
                     <div className="price-section">
                       {!freemium && originalPrice && (
@@ -481,11 +488,15 @@ export const PricePlans = (props) => {
         </Modal.Header>
         <Modal.Body>
           <p className="mb-2">
-            You’re currently on a paid subscription. To move to the free tier, cancel your subscription first. Once it expires, you’ll automatically revert to Free.
+            You’re currently on a paid subscription. To move to the free tier,
+            cancel your subscription first. Once it expires, you’ll
+            automatically revert to Free.
           </p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="light" onClick={() => setShowPaidPlanNotice(false)}>Close</Button>
+          <Button variant="light" onClick={() => setShowPaidPlanNotice(false)}>
+            Close
+          </Button>
           <Button
             variant="primary"
             onClick={() => {
