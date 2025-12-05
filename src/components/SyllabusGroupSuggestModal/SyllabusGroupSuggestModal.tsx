@@ -130,6 +130,15 @@ export default function SyllabusGroupSuggestModal({
         </div>
         <div style={{ padding: 18, borderTop: '1px solid #F3F4F6', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
           <button
+            type="button"
+            onClick={onClose}
+            className="btn btn-outline-danger"
+            style={{ minWidth: 130, height: 40, borderRadius: 10 }}
+            disabled={!!loading}
+          >
+            No Thanks
+          </button>
+          <button
             onClick={() => onJoin()}
             disabled={!!loading}
             className="btn btn-primary"
