@@ -7,7 +7,7 @@ import { CLASS_TIME_IS_REQUIRED, FILE_FORMATE_VALIDATION, PLEASE_ADD_VALID_PROFE
 import { customJsonInclude, formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from '../../Utility/Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import { AppDispatch } from '../../redux/store';
-import { addEditSyllabusDataAPI } from '../../redux/Service/User/Courses/courses';
+import { addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
 import { MAX_50, ONLY_ALPHABETS_AND_DOT } from '../../Utility/Validation_Helper';
 import GetImageIcon from '../GetImageIcon';
 import DatePicker from "react-datepicker";
@@ -83,6 +83,19 @@ export const AddEditSyllabus = (props) => {
     const [savedSyllabusFormData, setSavedSyllabusFormData] = useState<addSyllabusData>(initSyllabusData);
     const onSubmitForSyllabus = (values) => {
     }
+    const [existingSyllabusCount, setExistingSyllabusCount] = useState<number | null>(
+        typeof props?.existingSyllabusCount === "number" ? props.existingSyllabusCount : null
+    );
+    const localPlanTier = (() => {
+        try {
+            return localStorage.getItem("plan_tier");
+        } catch {
+            return null;
+        }
+    })();
+    const isFreemiumPlan =
+        props?.isFreemiumPlan ??
+        (localPlanTier === "freemium");
     const hasSubscription = props?.hasSubscription ?? (() => {
         try {
             return localStorage.getItem("has_subscription") === "true";
@@ -91,11 +104,40 @@ export const AddEditSyllabus = (props) => {
         }
     })();
     const FREEMIUM_UPLOAD_LIMIT = 3;
+    const effectiveSyllabusCount = typeof props?.existingSyllabusCount === "number"
+        ? props.existingSyllabusCount
+        : existingSyllabusCount;
     const freemiumUploadLocked =
+        isFreemiumPlan &&
         !hasSubscription &&
         (!!props?.freemiumLimitReached ||
-            (typeof props?.existingSyllabusCount === "number" &&
-                props.existingSyllabusCount >= FREEMIUM_UPLOAD_LIMIT));
+            (typeof effectiveSyllabusCount === "number" &&
+                effectiveSyllabusCount >= FREEMIUM_UPLOAD_LIMIT));
+
+    const fetchExistingSyllabusCount = async () => {
+        try {
+            const response: any = await dispatch(getSyllabusDropDownDataAPI({}));
+            if (Array.isArray(response?.payload)) {
+                setExistingSyllabusCount(response.payload.length);
+            } else {
+                setExistingSyllabusCount(0);
+            }
+        } catch (error) {
+            setExistingSyllabusCount(0);
+        }
+    };
+
+    useEffect(() => {
+        if (typeof props?.existingSyllabusCount === "number") {
+            setExistingSyllabusCount(props.existingSyllabusCount);
+        }
+    }, [props?.existingSyllabusCount]);
+
+    useEffect(() => {
+        if (showAddSyllabusEvents && typeof props?.existingSyllabusCount !== "number") {
+            fetchExistingSyllabusCount();
+        }
+    }, [showAddSyllabusEvents, props?.existingSyllabusCount]);
 
     const handleUpgrade = () => {
         if (props?.onUpgradeClick) {

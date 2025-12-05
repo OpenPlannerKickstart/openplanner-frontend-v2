@@ -9,11 +9,13 @@ import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 
 import moment from "moment";
-import { ENUMFORSTATUS } from '../../../interfaces/enum';
+import { ENUMFORROUTES, ENUMFORSTATUS } from '../../../interfaces/enum';
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
 import { updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses';
+import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
 
   const coursesData: any = useSelector(
     (state: RootState) => state.CoursesReducer);
@@ -154,6 +156,36 @@ const Dashboard = () => {
   /** -----------------Add/Edit syllabus start---------------------------*/
   const [showSyllabus, setShowSyllabus] = useState(false);
   const handleSyllabusShow = () => setShowSyllabus(true);
+  const { hasSubscription, isFreemiumPlan } = (() => {
+    try {
+      const tier = localStorage.getItem("plan_tier");
+      const subscriptionFlag = localStorage.getItem("has_subscription") === "true";
+      return {
+        hasSubscription: subscriptionFlag,
+        isFreemiumPlan: tier === "freemium",
+      };
+    } catch {
+      return {
+        hasSubscription: false,
+        isFreemiumPlan: false,
+      };
+    }
+  })();
+  const FREEMIUM_UPLOAD_LIMIT = 3;
+  const freemiumLimitReached =
+    isFreemiumPlan && !hasSubscription && syllabusDropDownData.length >= FREEMIUM_UPLOAD_LIMIT;
+
+  const handleUpgradeClick = () => {
+    navigate(ENUMFORROUTES.PLAN_DETAILS);
+  };
+
+  const handleAddSyllabusClick = () => {
+    if (freemiumLimitReached) {
+      handleUpgradeClick();
+      return;
+    }
+    handleSyllabusShow();
+  };
   /** -----------------Add/Edit Syllabus end---------------------------*/
 
   /** --------------------get Priority Class start------------------------*/
@@ -267,13 +299,19 @@ const Dashboard = () => {
                   </div>
 
                   <div className="weekly-page-content-right">
-                    <div className="weekly-page-cta-button-group">
-                      <button type="button" className="btn btn-primary" onClick={() => { handleShow() }}>
-                        Add Event
-                      </button>
-                      <button type="button" className="btn btn-warning" onClick={() => { handleSyllabusShow() }}>
-                        Add Syllabus
-                      </button>
+                      <div className="weekly-page-cta-button-group">
+                        <button type="button" className="btn btn-primary" onClick={() => { handleShow() }}>
+                          Add Event
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-warning"
+                          onClick={handleAddSyllabusClick}
+                          disabled={freemiumLimitReached}
+                          style={freemiumLimitReached ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
+                        >
+                          Add Syllabus
+                        </button>
                       {/* <button type="button" className="btn btn-primary" onClick={toggleShowEditEvent}>
                         Edit Event
                       </button> */}
@@ -442,7 +480,16 @@ const Dashboard = () => {
       <AddEditEvent show={show} setShow={setShow} handleGetData={handleGetUpdatedData} setEditEventFormData={setEditEventFormData} editEventFormData={editEventFormData} />
       {/* Add/Edit event Event */}
       {/* Add/Edit event Start */}
-      <AddEditSyllabus showSyllabus={showSyllabus} setShowSyllabus={setShowSyllabus} handleGetData={handleGetUpdatedData} />
+      <AddEditSyllabus
+        showSyllabus={showSyllabus}
+        setShowSyllabus={setShowSyllabus}
+        handleGetData={handleGetUpdatedData}
+        freemiumLimitReached={freemiumLimitReached}
+        hasSubscription={hasSubscription}
+        isFreemiumPlan={isFreemiumPlan}
+        onUpgradeClick={handleUpgradeClick}
+        existingSyllabusCount={syllabusDropDownData.length}
+      />
       {/* Add/Edit event Event */}
 
       {/* Delete Modal */}
