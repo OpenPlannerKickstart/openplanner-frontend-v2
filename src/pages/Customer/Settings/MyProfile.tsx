@@ -226,12 +226,20 @@ const MyProfile = (props) => {
     const handleGetUniversityData = async () => {
         const data = await dispatch(getUniversityListAPI());
         if (data || data?.payload) {
-            let other = [{
+            const other = [{
                 value: "Other",
                 label: "Other"
-            }]
+            }];
 
-            setUnivercityData([...other, ...data?.payload])
+            const sortedUniversities = Array.isArray(data?.payload)
+                ? [...data.payload].sort((a, b) => {
+                    const labelA = (a?.label || '').toLowerCase();
+                    const labelB = (b?.label || '').toLowerCase();
+                    return labelA.localeCompare(labelB);
+                })
+                : [];
+
+            setUnivercityData([...other, ...sortedUniversities]);
         }
     }
 

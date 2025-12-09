@@ -1501,14 +1501,16 @@ const Groups: React.FC = () => {
                                       }
                               // Precompute sender display for branches below
                               const senderName = m?.sender?.displayName || 'User';
+                              const senderId = m?.sender?.id;
                               const avatar = m?.sender?.picture || '/assets/images/avatar-default.svg';
+                              const goToSenderProfile = () => { if (senderId) navigate(`/students/${senderId}`); };
                               if (m?.deleted) {
                                         return (
                                           <div key={key} className="d-flex align-items-start gap-2 mb-2">
-                                    <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />
+                                    <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%', cursor: 'pointer' }} onClick={goToSenderProfile} />
                                             <div style={{ maxWidth: '90%' }}>
                                               <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
-                                                <div>{senderName}</div>
+                                                <div style={{ cursor: 'pointer' }} onClick={goToSenderProfile}>{senderName}</div>
                                                 <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                               </div>
                                               <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
@@ -1518,10 +1520,10 @@ const Groups: React.FC = () => {
                                       }
                                       return (
                                         <div key={key} className="d-flex align-items-start gap-2 mb-2">
-                                          <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />
+                                          <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%', cursor: 'pointer' }} onClick={goToSenderProfile} />
                                           <div style={{ maxWidth: '90%' }}>
                                             <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
-                                              <div>{senderName}</div>
+                                              <div style={{ cursor: 'pointer' }} onClick={goToSenderProfile}>{senderName}</div>
                                               <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
 {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
@@ -2000,14 +2002,16 @@ const Groups: React.FC = () => {
                                 );
                               }
                               const senderName = m?.sender?.displayName || 'User';
+                              const senderId = m?.sender?.id;
                               const avatar = m?.sender?.picture || '/assets/images/avatar-default.svg';
+                              const goToSenderProfile = () => { if (senderId) navigate(`/students/${senderId}`); };
                               if (m?.deleted) {
                                 return (
                                   <div key={key} className="d-flex align-items-start gap-2 mb-2">
-                                  <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                                  <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%', cursor: 'pointer' }} onClick={goToSenderProfile} />
                                     <div style={{ maxWidth: '72%' }}>
                                       <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
-                                        <div>{senderName}</div>
+                                        <div style={{ cursor: 'pointer' }} onClick={goToSenderProfile}>{senderName}</div>
                                         <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                       </div>
                                       <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
@@ -2017,10 +2021,10 @@ const Groups: React.FC = () => {
                               }
                               return (
                                 <div key={key} className="d-flex align-items-start gap-2 mb-2">
-                                  <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%' }} />
+                                  <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%', cursor: 'pointer' }} onClick={goToSenderProfile} />
                                   <div style={{ maxWidth: '72%' }}>
                                     <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
-                                      <div>{senderName}</div>
+                                      <div style={{ cursor: 'pointer' }} onClick={goToSenderProfile}>{senderName}</div>
                                       <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                     </div>
 {Array.isArray(m.attachments) && m.attachments.length > 0 && !m.deleted ? (
@@ -2189,7 +2193,12 @@ const Groups: React.FC = () => {
                             </div>
                             <div style={{ maxHeight: membersExpanded ? 260 : undefined, overflowY: membersExpanded ? 'auto' : 'visible' }}>
                               {visible.map((m: any) => (
-                                <div key={m.id || m.userId} className="d-flex align-items-center gap-2 py-2">
+                                <div
+                                  key={m.id || m.userId}
+                                  className="d-flex align-items-center gap-2 py-2"
+                                  style={{ cursor: 'pointer' }}
+                                  onClick={() => { if (m.id) navigate(`/students/${m.id}`); }}
+                                >
                                   <img src={m.picture || '/assets/images/avatar-default.svg'} alt={m.displayName || m.name || 'student'} style={{ width: 28, height: 28, borderRadius: 14 }} />
                                   <div style={{ color: '#111827' }}>
                                     {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Student'))}

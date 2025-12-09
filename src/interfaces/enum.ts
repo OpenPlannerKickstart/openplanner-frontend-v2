@@ -51,6 +51,7 @@ export const ENUMFORROUTES = {
   SUCCESS:"/success",
   FAILURE:"/failure",
   GROUPS: "/groups",
+  STUDENT_PROFILE: "/students/:id",
   PARENTS: "/parents",
   PARENTS_SUCCESS: "/parents/success",
   PARENTS_CONTINUE: "/parents/continue",
