@@ -1302,11 +1302,11 @@ const Groups: React.FC = () => {
           </button>
         </div>
       </div>
-      <div className="content-area content-area-title-filter" style={{ overflow: 'hidden', flex: isMobile ? 1 : undefined, minHeight: 0, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
-        <div className="page-content-wrapper" style={{ overflow: 'hidden', flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined, height: isMobile ? '100%' : undefined }}>
-          <div className="row gx-0 gy-0" style={{ minHeight: 0, flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
-            <div className="col-12 col-lg-4 px-0" style={{ flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined, minHeight: 0 }}>
-              <div className="d-flex flex-column bg-white" style={{ overflow: 'hidden', flex: 1, minHeight: 0 }}>
+      <div className="content-area content-area-title-filter" style={{ overflow: isMobile ? 'hidden' : undefined, flex: isMobile ? 1 : undefined, minHeight: 0, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
+        <div className="page-content-wrapper h-100" style={{ overflow: isMobile ? 'hidden' : undefined, flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
+          <div className="row gx-0 gy-0 h-100" style={{ minHeight: 0, flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
+            <div className="col-12 col-lg-4 px-0 h-100" style={{ flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined, minHeight: 0 }}>
+              <div className="d-flex flex-column h-100 bg-white" style={{ overflow: 'hidden', flex: isMobile ? 1 : undefined, minHeight: 0 }}>
                 {/* Search - hide entirely on mobile when in chat view */}
                 {!(isMobile && mobileView === 'chat') && (
                   <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', flexShrink: 0, position: isMobile ? undefined : 'sticky', top: isMobile ? undefined : 0, zIndex: 12 }}>
@@ -1404,7 +1404,7 @@ const Groups: React.FC = () => {
                 </div>
 
                 {/* Left column content: on mobile, toggle between list and chat */}
-                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0, flex: 1, overflow: 'hidden' }}>
+                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0, flex: 1, overflow: isMobile ? 'hidden' : 'auto' }}>
                   <div className="flex-grow-1 left-list-scroll" style={{ minHeight: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', paddingBottom: isMobile ? 200 : 16, WebkitOverflowScrolling: 'touch', overflowY: 'auto', overflowX: 'hidden' }}>
                   {activeTab === 'chats' ? (
                     <>
@@ -2121,8 +2121,8 @@ const Groups: React.FC = () => {
                           </>
                           )}
                       </div>
-                      {/* Fixed composer at bottom of frame */}
-                      <div ref={composerWrapRef} style={{ position: 'fixed', left: frameRect.left, width: frameRect.width, bottom: 0, background: '#FAFAFA', zIndex: 3 }}>
+                      {/* Fixed composer at bottom of frame - hidden when group info panel is open */}
+                      <div ref={composerWrapRef} style={{ position: 'fixed', left: frameRect.left, width: frameRect.width, bottom: 0, background: '#FAFAFA', zIndex: 3, display: showGroupInfo ? 'none' : 'block' }}>
                         <Composer
                           onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
                           disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
@@ -2140,7 +2140,7 @@ const Groups: React.FC = () => {
                       <div
                         onClick={() => setShowGroupInfo(false)}
                         style={{
-                          position: 'fixed', left: frameRect.left, width: frameRect.width, top: Math.max(64, frameRect.top), bottom: composerHeight,
+                          position: 'fixed', left: frameRect.left, width: frameRect.width, top: Math.max(64, frameRect.top), bottom: 0,
                           background: 'rgba(0,0,0,0.06)', zIndex: 3,
                           opacity: showGroupInfo && isMobile ? 1 : 0,
                           transition: 'opacity 220ms ease',
@@ -2150,7 +2150,7 @@ const Groups: React.FC = () => {
                       />
                       <div
                         style={{
-                          position: 'fixed', top: Math.max(64, frameRect.top), left: frameRect.left, width: Math.max(300, frameRect.width), bottom: composerHeight,
+                          position: 'fixed', top: Math.max(64, frameRect.top), left: frameRect.left, width: Math.max(300, frameRect.width), bottom: 0,
                           background: '#fff', borderLeft: '1px solid #E5E7EB', boxShadow: '0 0 24px rgba(0,0,0,0.08)', zIndex: 4,
                           display: (showGroupInfo && isMobile && frameRect.width > 0) ? 'flex' : 'none', flexDirection: 'column',
                           transform: showGroupInfo && isMobile ? 'translateX(0)' : 'translateX(100%)',
