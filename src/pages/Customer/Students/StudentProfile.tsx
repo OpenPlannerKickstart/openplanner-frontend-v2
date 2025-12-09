@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { get, post } from '../../../Utility/httpInterceptor';
 import { getUserSubId } from '../../../Utility/Helper';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
+import { te } from '../../../Utility/Toaster';
 import defaultAvatar from '/assets/images/avatar-default.svg';
 
 interface StudentData {
@@ -60,16 +61,48 @@ export default function StudentProfile() {
 
     setStartingDm(true);
     try {
+      console.log('[DM] Calling POST /dm with recipientId:', id);
       const res: any = await post('dm', { recipientId: id });
-      if (res?.threadId) {
+      console.log('[DM] Raw response:', res);
+      
+      // Handle various response shapes
+      const data = res?.data ?? res;
+      console.log('[DM] Extracted data:', data);
+      
+      const threadId = data?.threadId;
+      console.log('[DM] Extracted threadId:', threadId);
+      
+      if (threadId) {
         // Navigate to groups page with DM thread selected
-        navigate(`${ENUMFORROUTES.GROUPS}?dm=${res.threadId}`);
+        console.log('[DM] Navigating to:', `${ENUMFORROUTES.GROUPS}?dm=${threadId}`);
+        navigate(`${ENUMFORROUTES.GROUPS}?dm=${threadId}`);
       } else {
-        console.error('Failed to create DM thread', res);
+        // Check if there's an error in the response
+        if (data?.error || data?.message) {
+          console.error('[DM] API error:', data.error || data.message);
+          te(data.message || data.error || 'Failed to start conversation');
+        } else if (res?.status && res.status >= 400) {
+          console.error('[DM] HTTP error status:', res.status);
+          te('Failed to start conversation');
+        } else {
+          console.error('[DM] No threadId in response:', res);
+          te('Failed to start conversation - please try again');
+        }
       }
-    } catch (err) {
-      console.error('Error starting DM:', err);
+    } catch (err: any) {
+      console.error('[DM] Caught error:', err);
+      const status = err?.response?.status || err?.status;
+      // Don't show duplicate toast if handleError already showed one
+      if (status === 404) {
+        // te already called by handleError for some statuses
+        console.log('[DM] 404 - User or endpoint not found');
+      } else if (status === 400) {
+        console.log('[DM] 400 - Bad request');
+      } else {
+        console.log('[DM] Other error, status:', status);
+      }
     } finally {
+      console.log('[DM] Finally block - resetting startingDm');
       setStartingDm(false);
     }
   };

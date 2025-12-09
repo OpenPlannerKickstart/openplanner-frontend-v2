@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Modal, Button } from 'react-bootstrap';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import AddEditGroup from '../../../common/Groups/AddEditGroup';
 import { get, post, deleteAPI } from '../../../Utility/httpInterceptor';
@@ -56,6 +57,18 @@ const Groups: React.FC = () => {
   const [groupDetail, setGroupDetail] = useState<any | null>(null);
   const [membersExpanded, setMembersExpanded] = useState<boolean>(false);
   const { subscribeToPath, unsubscribeFromPath, sendNotification } = useNotifications();
+
+  // ============ DM (Direct Message) State ============
+  const [activeDmThreadId, setActiveDmThreadId] = useState<string | null>(null);
+  const [dmThread, setDmThread] = useState<{ threadId: string; participants: any[]; lastMessage?: any; unreadCount?: number; updatedAt?: string } | null>(null);
+  const [dmMessages, setDmMessages] = useState<any[]>([]);
+  const [dmNextCursor, setDmNextCursor] = useState<string | null>(null);
+  const [dmLoading, setDmLoading] = useState<boolean>(false);
+  // All DM threads for the sidebar
+  const [dmThreads, setDmThreads] = useState<Array<{ threadId: string; participants: any[]; lastMessage?: any; unreadCount?: number; updatedAt?: string }>>([]);
+  const [dmThreadsLoading, setDmThreadsLoading] = useState<boolean>(false);
+  // Delete DM confirmation modal
+  const [deleteDmConfirm, setDeleteDmConfirm] = useState<{ open: boolean; threadId: string | null; recipientName: string | null; loading: boolean }>({ open: false, threadId: null, recipientName: null, loading: false });
   // Invite modal state
   const [showInvite, setShowInvite] = useState<boolean>(false);
   const [inviteLoading, setInviteLoading] = useState<boolean>(false);
@@ -375,7 +388,7 @@ const Groups: React.FC = () => {
     if (!el) return;
     // slight delay to allow layout to apply new heights
     requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
-  }, [isMobile, mobileView, selectedGroupId, messages[selectedGroupId || '']?.length, composerHeight]);
+  }, [isMobile, mobileView, selectedGroupId, messages[selectedGroupId || '']?.length, composerHeight, activeDmThreadId, dmMessages.length]);
 
   // Desktop: keep timeline scrolled to bottom on select and when new messages arrive
   useEffect(() => {
@@ -383,7 +396,7 @@ const Groups: React.FC = () => {
     const el = timelineRef.current;
     if (!el) return;
     requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
-  }, [isMobile, selectedGroupId, messages[selectedGroupId || '']?.length]);
+  }, [isMobile, selectedGroupId, messages[selectedGroupId || '']?.length, activeDmThreadId, dmMessages.length]);
 
   const fetchMyGroups = async () => {
     try {
@@ -418,6 +431,268 @@ const Groups: React.FC = () => {
     } catch {}
   };
   useEffect(() => { fetchInvites(); }, []);
+
+  // ============ DM: Fetch all DM threads for sidebar ============
+  const fetchDmThreads = async () => {
+    try {
+      setDmThreadsLoading(true);
+      const res: any = await get('dm');
+      const data = res?.data ?? res;
+      const list = Array.isArray(data) ? data : [];
+      setDmThreads(list);
+    } catch (e) {
+      console.error('[DM] Failed to fetch threads:', e);
+    } finally {
+      setDmThreadsLoading(false);
+    }
+  };
+  useEffect(() => { fetchDmThreads(); }, []);
+
+  // ============ DM: Parse ?dm=<threadId> from URL ============
+  useEffect(() => {
+    const sp = new URLSearchParams(location.search);
+    const dmParam = sp.get('dm');
+    if (dmParam && dmParam !== activeDmThreadId) {
+      // Enter DM mode
+      setActiveDmThreadId(dmParam);
+      setSelectedGroupId(null); // Clear group selection
+      setPreviewingSuggestion(null);
+      setShowGroupInfo(false);
+      // Switch to All Chats tab
+      setActiveTab('chats');
+      try { localStorage.setItem('groups.tab', 'chats'); } catch {}
+      if (isMobile) setMobileView('chat');
+    } else if (!dmParam && activeDmThreadId) {
+      // Exit DM mode
+      setActiveDmThreadId(null);
+      setDmThread(null);
+      setDmMessages([]);
+      setDmNextCursor(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
+
+  // ============ DM: Fetch thread info and messages ============
+  const fetchDmThread = async (threadId: string) => {
+    try {
+      // POST /dm is idempotent and returns thread info if it exists
+      // We need recipientId, but we don't have it from the URL
+      // Instead, fetch all DMs and find the thread, or use a GET endpoint if BE adds it
+      const res: any = await get('dm');
+      const threads = res?.data ?? res ?? [];
+      const found = Array.isArray(threads) ? threads.find((t: any) => t.threadId === threadId) : null;
+      if (found) {
+        setDmThread(found);
+      } else {
+        // Thread not found - could be invalid or user not a participant
+        te('Conversation not found');
+        // Clear ?dm param
+        const sp = new URLSearchParams(location.search);
+        sp.delete('dm');
+        navigate({ pathname: location.pathname, search: sp.toString() ? `?${sp.toString()}` : '' }, { replace: true });
+      }
+    } catch (e) {
+      te('Failed to load conversation');
+    }
+  };
+
+  const fetchDmMessages = async (threadId: string, before?: string) => {
+    try {
+      setDmLoading(true);
+      const qs = new URLSearchParams();
+      qs.set('limit', '50');
+      if (before) qs.set('before', before);
+      const res: any = await get(`dm/${threadId}/messages?${qs.toString()}`);
+      const payload = res?.data ?? res;
+      const list: any[] = payload?.messages ?? [];
+      const next: string | null = payload?.nextCursor ?? null;
+      setDmMessages(prev => before ? [...list, ...prev] : list);
+      setDmNextCursor(next);
+    } catch (e) {
+      te('Failed to load messages');
+    } finally {
+      setDmLoading(false);
+    }
+  };
+
+  // When activeDmThreadId changes, fetch thread info and messages, join socket
+  useEffect(() => {
+    if (!activeDmThreadId) return;
+
+    // Fetch thread info
+    fetchDmThread(activeDmThreadId);
+    // Fetch messages
+    fetchDmMessages(activeDmThreadId);
+
+    // Join DM socket room
+    try { sendNotification?.('dm:join', { threadId: activeDmThreadId }); } catch {}
+
+    // Subscribe to DM events
+    const messageEvent = `dm:${activeDmThreadId}:message`;
+    const deletedEvent = `dm:${activeDmThreadId}:message:deleted`;
+    const typingEvent = `dm:${activeDmThreadId}:typing`;
+
+    const onDmMessage = (msg: any) => {
+      setDmMessages(prev => {
+        // Dedupe by id or clientId
+        if (msg?.clientId && prev.some(m => m && m.clientId && m.clientId === msg.clientId)) {
+          return prev.map(m => (m && m.clientId === msg.clientId ? msg : m));
+        }
+        if (msg?.id && prev.some(m => m && m.id === msg.id)) return prev;
+        return [...prev, msg];
+      });
+      // Scroll to bottom
+      const el = timelineRef.current;
+      if (el) {
+        const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+        if (nearBottom) {
+          requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
+        }
+      }
+    };
+
+    const onDmDeleted = (payload: any) => {
+      if (!payload || !payload.messageId) return;
+      setDmMessages(prev => prev.map(m => 
+        (m && (m.id === payload.messageId || m.clientId === payload.messageId))
+          ? { ...m, deleted: true, deletedAt: payload.deletedAt, deletedBy: payload.deletedBy, content: null }
+          : m
+      ));
+    };
+
+    subscribeToPath(messageEvent, onDmMessage);
+    subscribeToPath(deletedEvent, onDmDeleted);
+
+    return () => {
+      unsubscribeFromPath(messageEvent, onDmMessage);
+      unsubscribeFromPath(deletedEvent, onDmDeleted);
+      try { sendNotification?.('dm:leave', { threadId: activeDmThreadId }); } catch {}
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDmThreadId]);
+
+  // DM: Send message handler
+  const handleSendDmMessage = async (text: string): Promise<boolean> => {
+    if (!activeDmThreadId) return false;
+    const content = text.trim();
+    const hasAttachments = readyAttachments.length > 0;
+    const attachmentsToSend = hasAttachments ? [...readyAttachments] : [];
+    const usedIds = hasAttachments ? attachmentsToSend.map(d => d.fileId) : [];
+    const previewSnapshot = hasAttachments
+      ? usedIds.reduce<Record<string, string>>((acc, fid) => {
+          const url = attachmentPreviews[fid];
+          if (url) acc[fid] = url;
+          return acc;
+        }, {})
+      : {};
+    if (!content && !hasAttachments) return false;
+    
+    const optimisticAttachments = hasAttachments
+      ? attachmentsToSend.map(d => ({
+          id: d.fileId,
+          fileName: d.fileName,
+          mimeType: d.mimeType,
+          sizeBytes: d.sizeBytes,
+          url: previewSnapshot[d.fileId] || attachmentPreviews[d.fileId] || undefined,
+        }))
+      : [];
+
+    // Block if rate-limited
+    if (rateLimitUntil && Date.now() < rateLimitUntil) {
+      const remaining = Math.max(1, Math.ceil((rateLimitUntil - Date.now()) / 1000));
+      te(`You're sending too fast, try again in ${remaining}s`);
+      return false;
+    }
+
+    const clientId = uuidv4();
+    const optimistic = {
+      id: `optimistic-${clientId}`,
+      threadId: activeDmThreadId,
+      sender: { id: currentUserSub || 'me', displayName: 'You' },
+      content: content || '',
+      createdAt: new Date().toISOString(),
+      clientId,
+      optimistic: true,
+      attachments: optimisticAttachments,
+    };
+    setDmMessages(prev => [...prev, optimistic]);
+    requestAnimationFrame(() => { timelineRef.current && (timelineRef.current.scrollTop = timelineRef.current.scrollHeight); });
+
+    if (hasAttachments) {
+      setReadyAttachments(prev => prev.filter(d => !usedIds.includes(d.fileId)));
+      setAttachmentPreviews(prev => {
+        const next = { ...prev };
+        usedIds.forEach(fid => { delete next[fid]; });
+        return next;
+      });
+      setUploading(prev => prev.filter(u => !usedIds.includes(u.fileId || '')));
+    }
+
+    try {
+      const payload: any = { clientId };
+      if (content) payload.content = content;
+      if (hasAttachments) payload.attachments = attachmentsToSend;
+      const res: any = await post(`dm/${activeDmThreadId}/messages`, payload, true, false, false);
+      const msg = res?.data ?? res;
+      setDmMessages(prev => prev.map(m => (m && m.clientId === clientId ? msg : m)));
+      // Refresh DM threads to update sidebar with latest message
+      fetchDmThreads();
+    } catch (e: any) {
+      // Remove optimistic on failure
+      setDmMessages(prev => prev.filter(m => m && m.clientId !== clientId));
+      if (hasAttachments) {
+        setReadyAttachments(prev => {
+          const filtered = attachmentsToSend.filter(d => !prev.some(existing => existing.fileId === d.fileId));
+          return [...prev, ...filtered];
+        });
+        setAttachmentPreviews(prev => ({ ...prev, ...previewSnapshot }));
+      }
+      const status = e?.response?.status || e?.status;
+      if (status === 429) {
+        const headers = (e?.response?.headers || {}) as Record<string, any>;
+        const retryRaw = headers['retry-after'] ?? headers['Retry-After'];
+        let retrySeconds = parseInt(String(retryRaw ?? ''), 10);
+        if (!Number.isFinite(retrySeconds) || retrySeconds <= 0) retrySeconds = 5;
+        setRateLimitUntil(Date.now() + retrySeconds * 1000);
+        te(`You're sending too fast, try again in ${retrySeconds}s`);
+      } else {
+        te('Failed to send');
+      }
+      return false;
+    }
+    return true;
+  };
+
+  // Helper to exit DM mode
+  const exitDmMode = () => {
+    const sp = new URLSearchParams(location.search);
+    sp.delete('dm');
+    navigate({ pathname: location.pathname, search: sp.toString() ? `?${sp.toString()}` : '' }, { replace: true });
+  };
+
+  // Delete DM thread handler
+  const handleDeleteDm = async () => {
+    if (!deleteDmConfirm.threadId) return;
+    setDeleteDmConfirm(prev => ({ ...prev, loading: true }));
+    try {
+      await deleteAPI(`dm/${deleteDmConfirm.threadId}`);
+      ts('Conversation deleted');
+      // Exit DM mode and refresh thread list
+      setActiveDmThreadId(null);
+      setDmThread(null);
+      setDmMessages([]);
+      setDmNextCursor(null);
+      await fetchDmThreads();
+      // Clear URL param
+      const sp = new URLSearchParams(location.search);
+      sp.delete('dm');
+      navigate({ pathname: location.pathname, search: sp.toString() ? `?${sp.toString()}` : '' }, { replace: true });
+    } catch (e: any) {
+      te('Failed to delete conversation');
+    } finally {
+      setDeleteDmConfirm({ open: false, threadId: null, recipientName: null, loading: false });
+    }
+  };
 
   // Sync selection with URL param and localStorage
   useEffect(() => {
@@ -462,10 +737,18 @@ const Groups: React.FC = () => {
 
   const applySelection = (id: string) => {
     setPreviewingSuggestion(null); // Clear any preview state when selecting a joined group
+    // Exit DM mode if active
+    if (activeDmThreadId) {
+      setActiveDmThreadId(null);
+      setDmThread(null);
+      setDmMessages([]);
+      setDmNextCursor(null);
+    }
     setSelectedGroupId(id);
     try { localStorage.setItem('groups.selected', id); } catch {}
     if (isMobile) setMobileView('chat');
     const sp = new URLSearchParams(location.search);
+    sp.delete('dm'); // Remove DM param when selecting a group
     sp.set('tab', activeTab);
     const search = sp.toString() ? `?${sp.toString()}` : '';
     if (!location.pathname.endsWith(`/groups/${id}`) || location.search !== search) {
@@ -997,9 +1280,14 @@ const Groups: React.FC = () => {
     }
   };
 
+  // On mobile list view, calculate height to fill viewport below main navbar
+  const mobileListStyle: React.CSSProperties | undefined = isMobile && mobileView !== 'chat' 
+    ? { height: 'calc(100dvh - 60px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' } 
+    : (isMobile && mobileView === 'chat' ? { height: 'calc(100dvh - 60px)', overflow: 'hidden' } : undefined);
+
   return (
-    <div className="page-content groups-page" style={isMobile && mobileView === 'chat' ? { height: 'calc(100dvh - 60px)', overflow: 'hidden' } : undefined}>
-      <div className="page-title-wrapper" style={{ borderBottom: '1px solid #E5E7EB' }}>
+    <div className="page-content groups-page" style={mobileListStyle}>
+      <div className="page-title-wrapper" style={{ borderBottom: '1px solid #E5E7EB', flexShrink: 0 }}>
         <div className="page-title-left">
           <div className="page-title">
             <h4>Groups</h4>
@@ -1014,14 +1302,14 @@ const Groups: React.FC = () => {
           </button>
         </div>
       </div>
-      <div className="content-area content-area-title-filter" style={{ overflow: isMobile ? (mobileView === 'chat' ? 'hidden' : 'visible') : 'hidden', height: isMobile && mobileView === 'chat' ? 'calc(100dvh - 60px)' : undefined, minHeight: isMobile && mobileView === 'chat' ? 0 : undefined }}>
-        <div className="page-content-wrapper h-100" style={{ overflow: isMobile ? (mobileView === 'chat' ? 'hidden' : 'visible') : 'hidden' }}>
-          <div className="row gx-0 gy-0" style={{ minHeight: 0 }}>
-            <div className="col-12 col-lg-4 px-0" >
-              <div className="d-flex flex-column h-100 bg-white" style={{ overflow: isMobile ? 'visible' : 'hidden' }}>
+      <div className="content-area content-area-title-filter" style={{ overflow: 'hidden', flex: isMobile ? 1 : undefined, minHeight: 0, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
+        <div className="page-content-wrapper" style={{ overflow: 'hidden', flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined, height: isMobile ? '100%' : undefined }}>
+          <div className="row gx-0 gy-0" style={{ minHeight: 0, flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
+            <div className="col-12 col-lg-4 px-0" style={{ flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined, minHeight: 0 }}>
+              <div className="d-flex flex-column bg-white" style={{ overflow: 'hidden', flex: 1, minHeight: 0 }}>
                 {/* Search - hide entirely on mobile when in chat view */}
                 {!(isMobile && mobileView === 'chat') && (
-                  <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', position: 'sticky', top: 0, zIndex: 2 }}>
+                  <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', flexShrink: 0, position: isMobile ? undefined : 'sticky', top: isMobile ? undefined : 0, zIndex: 12 }}>
                     <div className="px-2 w-100" style={{ position: 'relative' }}>
                       <i
                         className="material-symbols-outlined"
@@ -1051,7 +1339,7 @@ const Groups: React.FC = () => {
                 )}
 
                 {/* Tabs - hidden on mobile when in chat; visible otherwise */}
-                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', paddingBottom: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', position: 'sticky', top: 64, zIndex: 1 }}>
+                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', paddingBottom: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', flexShrink: 0, position: isMobile ? undefined : 'sticky', top: isMobile ? undefined : 64, zIndex: 11 }}>
                   <nav>
                     <div
                       className="nav nav-tabs page-filters"
@@ -1116,30 +1404,124 @@ const Groups: React.FC = () => {
                 </div>
 
                 {/* Left column content: on mobile, toggle between list and chat */}
-                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0, flex: '1 1 auto', overflow: isMobile && mobileView === 'chat' ? 'hidden' : undefined }}>
-                  <div className="flex-grow-1 overflow-auto left-list-scroll" style={{ minHeight: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', paddingBottom: 16, WebkitOverflowScrolling: 'touch', overflowY: 'auto' }}>
+                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0, flex: 1, overflow: 'hidden' }}>
+                  <div className="flex-grow-1 left-list-scroll" style={{ minHeight: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', paddingBottom: isMobile ? 200 : 16, WebkitOverflowScrolling: 'touch', overflowY: 'auto', overflowX: 'hidden' }}>
                   {activeTab === 'chats' ? (
-                    <div className="text-center p-4">
-                      <img src={'/assets/images/not-voucher-found.svg'} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
-                      <h5 className="mt-3 mb-1">No recent chats</h5>
-                      <p className="text-muted mb-0" style={{ fontSize: 14 }}>
-                        Start a conversation from a group or create a private study group.
-                      </p>
-                    </div>
-                  ) : null}
-                  {/* Temporary placeholder rows to verify left list scrolling */}
-                  {activeTab === 'chats' ? (
-                    <div className="px-3" aria-hidden="true">
-                      {[...Array(40)].map((_, i) => (
-                        <div key={`chatrow-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
-                          <div style={{ width: 36, height: 36, background: '#E5E7EB', borderRadius: '50%' }} />
-                          <div style={{ flex: 1 }}>
-                            <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 3 === 0 ? '60%' : '40%' }} />
-                            <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 4 === 0 ? '30%' : '20%', marginTop: 6 }} />
+                    <>
+                      <div className="px-3 pt-3 d-flex align-items-center justify-content-between">
+                        <h6 className="mb-0" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>Students</h6>
+                      </div>
+                    {dmThreadsLoading ? (
+                      <div className="px-3 pt-3">
+                        {[...Array(5)].map((_, i) => (
+                          <div key={`dmskel-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 8px', borderBottom: '1px solid #F3F4F6' }}>
+                            <div style={{ width: 48, height: 48, background: '#E5E7EB', borderRadius: '50%' }} />
+                            <div style={{ flex: 1 }}>
+                              <div style={{ height: 12, background: '#E5E7EB', borderRadius: 6, width: '60%' }} />
+                              <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: '40%', marginTop: 8 }} />
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    ) : dmThreads.length > 0 ? (
+                      <div style={{ marginTop: 8 }}>
+                        {dmThreads.map((thread) => {
+                          const recipient = thread.participants?.[0];
+                          const recipientName = recipient?.displayName || recipient?.username || 'User';
+                          const recipientPicture = recipient?.picture;
+                          const initials = (recipientName || 'U').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase();
+                          const isSelected = activeDmThreadId === thread.threadId;
+                          const lastMsg = thread.lastMessage;
+                          const lastMsgText = lastMsg?.content || (lastMsg?.attachments?.length ? '📎 Attachment' : '');
+                          const lastMsgTime = lastMsg?.createdAt ? new Date(lastMsg.createdAt) : null;
+                          // Relative time helper
+                          const getRelativeTime = (date: Date) => {
+                            const now = new Date();
+                            const diffMs = now.getTime() - date.getTime();
+                            const diffMins = Math.floor(diffMs / (1000 * 60));
+                            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                            const diffWeeks = Math.floor(diffDays / 7);
+                            if (diffMins < 1) return 'now';
+                            if (diffMins < 60) return `${diffMins}m`;
+                            if (diffHours < 24) return `${diffHours}h`;
+                            if (diffDays < 7) return `${diffDays}d`;
+                            if (diffWeeks < 4) return `${diffWeeks}w`;
+                            return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                          };
+                          const timeStr = lastMsgTime ? getRelativeTime(lastMsgTime) : '';
+                          const unreadCount = thread.unreadCount || 0;
+                          return (
+                            <div
+                              key={thread.threadId}
+                              onClick={() => {
+                                const sp = new URLSearchParams(location.search);
+                                sp.set('dm', thread.threadId);
+                                sp.set('tab', 'chats');
+                                setActiveTab('chats');
+                                if (isMobile) setMobileView('chat');
+                                navigate({ pathname: location.pathname, search: `?${sp.toString()}` });
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 12,
+                                padding: '16px 16px',
+                                cursor: 'pointer',
+                                background: isSelected ? '#FFF8EA' : 'transparent',
+                                position: 'relative',
+                                borderBottom: '1px solid #F3F4F6',
+                                transition: 'background 150ms ease',
+                                overflow: 'hidden'
+                              }}
+                            >
+                              {isSelected && (
+                                <div
+                                  style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    top: 0,
+                                    bottom: 0,
+                                    width: 6,
+                                    background: '#239BC2',
+                                  }}
+                                />
+                              )}
+                              <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#E5F3FF', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                {recipientPicture ? (
+                                  <img src={recipientPicture} alt={recipientName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                  <span style={{ fontSize: 16, fontWeight: 600, color: '#239BC2' }}>{initials}</span>
+                                )}
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontWeight: 600, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{recipientName}</div>
+                                {lastMsgText && (
+                                  <div style={{ fontSize: 14, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 2 }}>{lastMsgText}</div>
+                                )}
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start', gap: 4, flexShrink: 0, minWidth: 44, alignSelf: 'flex-start', paddingTop: 2 }}>
+                                {timeStr && <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1 }}>{timeStr}</div>}
+                                {unreadCount > 0 && (
+                                  <div style={{ minWidth: 20, height: 20, padding: '0 6px', borderRadius: 10, background: '#0EA5E9', color: '#fff', fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-center p-4">
+                        <img src={'/assets/images/not-voucher-found.svg'} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
+                        <h5 className="mt-3 mb-1">No recent chats</h5>
+                        <p className="text-muted mb-0" style={{ fontSize: 14 }}>
+                          Start a conversation from a group or create a private study group.
+                        </p>
+                      </div>
+                    )}
+                    </>
                   ) : (
                     <div>
                       <div className="px-3 pt-3 d-flex align-items-center justify-content-between">
@@ -1175,7 +1557,7 @@ const Groups: React.FC = () => {
                               name={g.name}
                               avatarColor={g.avatarColor}
                               variant="mine"
-                              isSelected={selectedGroupId === g.id}
+                              isSelected={!activeDmThreadId && selectedGroupId === g.id}
                               onClick={() => applySelection(g.id)}
                             />
                             ))
@@ -1230,7 +1612,8 @@ const Groups: React.FC = () => {
                                 style={{
                                   cursor: 'pointer',
                                   background: isPreviewSelected ? '#FFF8EA' : 'transparent',
-                                  position: 'relative'
+                                  position: 'relative',
+                                  overflow: 'hidden'
                                 }}
                                 onClick={() => {
                                   // Select this suggestion for preview
@@ -1249,7 +1632,6 @@ const Groups: React.FC = () => {
                                       bottom: 0,
                                       width: 6,
                                       background: '#239BC2',
-                                      zIndex: 1,
                                     }}
                                   />
                                 )}
@@ -1302,12 +1684,12 @@ const Groups: React.FC = () => {
                           );})}
                         </div>
                       ) : (
-                        <div className="text-center p-4">
-                          <h5 className="mt-3 mb-1">No suggestions available</h5>
-                          <p className="text-muted mb-0" style={{ fontSize: 14 }}>
-                            Upload a syllabus to get tailored group suggestions.
-                          </p>
-                        </div>
+                      <div className="text-center p-4">
+                        <h5 className="mt-3 mb-1">No suggestions available</h5>
+                        <p className="text-muted mb-0" style={{ fontSize: 14 }}>
+                          Upload a syllabus to get tailored group suggestions.
+                        </p>
+                      </div>
                       )}
                     </div>
                   )}
@@ -1321,24 +1703,157 @@ const Groups: React.FC = () => {
                           <button className="btn btn-outline-white" onClick={() => setMobileView('list')} aria-label="Back" title="Back">
                             <i className="material-symbols-outlined">arrow_back</i>
                           </button>
-                          <div className="d-flex align-items-center gap-2">
-                            <div style={{ width: 36, height: 36, borderRadius: 18, background: (previewingSuggestion?.avatarColor || myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 22, height: 'auto' }} />
+                          {activeDmThreadId && dmThread ? (
+                            /* DM Mode mobile header */
+                            (() => {
+                              const recipient = dmThread.participants?.[0];
+                              const recipientName = recipient?.displayName || recipient?.username || 'User';
+                              const recipientPicture = recipient?.picture;
+                              const initials = (recipientName || 'U').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase();
+                              return (
+                                <div className="d-flex align-items-center gap-2" onClick={() => { if (recipient?.id) navigate(`/students/${recipient.id}`); }} style={{ cursor: 'pointer' }}>
+                                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#E5F3FF', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {recipientPicture ? (
+                                      <img src={recipientPicture} alt={recipientName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                      <span style={{ fontSize: 14, fontWeight: 600, color: '#239BC2' }}>{initials}</span>
+                                    )}
+                                  </div>
+                                  <h6 className="mb-0" style={{ color: '#111827' }}>{recipientName}</h6>
+                                </div>
+                              );
+                            })()
+                          ) : (
+                            <div className="d-flex align-items-center gap-2">
+                              <div style={{ width: 36, height: 36, borderRadius: 18, background: (previewingSuggestion?.avatarColor || myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <img src={'/assets/images/book.svg'} alt="avatar" style={{ width: 22, height: 'auto' }} />
+                              </div>
+                              <h6 className="mb-0" style={{ color: '#111827' }}>{previewingSuggestion?.name || myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h6>
                             </div>
-                            <h6 className="mb-0" style={{ color: '#111827' }}>{previewingSuggestion?.name || myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h6>
+                          )}
+                        </div>
+                        {/* Hide Group Info button in DM mode on mobile */}
+                        {!activeDmThreadId && (
+                          <div className="d-flex align-items-center gap-2">
+                            <button className="btn btn-primary" onClick={() => setShowGroupInfo(prev => !prev)} style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Group Info" title="Group Info">
+                              <i className="material-symbols-outlined" style={{ color: '#fff' }}>info</i>
+                            </button>
+                            <button className="btn btn-outline-white" style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Search" title="Search"><i className="material-symbols-outlined">search</i></button>
                           </div>
-                        </div>
-                        <div className="d-flex align-items-center gap-2">
-                          <button className="btn btn-primary" onClick={() => setShowGroupInfo(prev => !prev)} style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Group Info" title="Group Info">
-                            <i className="material-symbols-outlined" style={{ color: '#fff' }}>info</i>
-                          </button>
-                          <button className="btn btn-outline-white" style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Search" title="Search"><i className="material-symbols-outlined">search</i></button>
-                        </div>
+                        )}
+                        {/* DM mode: show delete button on mobile */}
+                        {activeDmThreadId && dmThread && (
+                          <div className="d-flex align-items-center gap-2">
+                            <button
+                              className="btn btn-outline-white"
+                              style={{ height: 36, width: 48, borderRadius: 8, border: '1px solid #E5E7EB' }}
+                              aria-label="Delete conversation"
+                              title="Delete conversation"
+                              onClick={() => {
+                                const recipient = dmThread.participants?.[0];
+                                const recipientName = recipient?.displayName || recipient?.username || 'this user';
+                                setDeleteDmConfirm({ open: true, threadId: activeDmThreadId, recipientName, loading: false });
+                              }}
+                            >
+                              <i className="material-symbols-outlined" style={{ color: '#DC2626' }}>delete</i>
+                            </button>
+                          </div>
+                        )}
                       </div>
                       {/* Timeline: the only scroller, between fixed header (56px) and measured composer height */}
                       <div ref={timelineRef} style={{ position: 'absolute', top: 56, bottom: composerHeight, left: 0, right: 0, background: '#FAFAFA', padding: '12px 16px', paddingBottom: composerHeight + 70, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                          {/* Preview empty state for suggested groups (mobile) */}
-                          {previewingSuggestion ? (
+                          {/* DM Mode Timeline (mobile) */}
+                          {activeDmThreadId ? (
+                            (() => {
+                              if (dmLoading && dmMessages.length === 0) {
+                                return (
+                                  <div className="d-flex align-items-center justify-content-center h-100" style={{ minHeight: 200 }}>
+                                    <div className="loader-container inline-loader" style={{ position: 'relative', background: 'transparent' }}>
+                                      <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+                                        <rect className="track" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" />
+                                        <rect className="car" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" pathLength="100" />
+                                      </svg>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              const sorted = [...dmMessages].sort((a: any, b: any) => new Date(a?.createdAt || 0).getTime() - new Date(b?.createdAt || 0).getTime());
+                              if (!sorted.length) {
+                                const recipient = dmThread?.participants?.[0];
+                                const recipientName = recipient?.displayName || recipient?.username || 'this user';
+                                return (
+                                  <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
+                                    <i className="material-symbols-outlined" style={{ fontSize: 48, color: '#9CA3AF', marginBottom: 16 }}>chat_bubble_outline</i>
+                                    <h5 style={{ color: '#111827', marginBottom: 8 }}>Start a conversation</h5>
+                                    <p className="text-muted text-center" style={{ fontSize: 14, maxWidth: 280 }}>Send a message to {recipientName} to start chatting.</p>
+                                  </div>
+                                );
+                              }
+                              // Group by day (mobile DM)
+                              const byDay: { label: string; items: any[] }[] = [];
+                              const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+                              let currentLabel = '';
+                              sorted.forEach((m) => {
+                                if (!m) return;
+                                const d = m.createdAt ? new Date(m.createdAt) : new Date();
+                                const today = new Date();
+                                const startOf = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+                                const diffDays = Math.floor((startOf(today).getTime() - startOf(d).getTime()) / (24 * 60 * 60 * 1000));
+                                let label = isSameDay(d, today) ? 'Today' : diffDays <= 6 ? d.toLocaleDateString(undefined, { weekday: 'long' }) : d.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
+                                if (label !== currentLabel) { byDay.push({ label, items: [m] }); currentLabel = label; } else { byDay[byDay.length - 1].items.push(m); }
+                              });
+                              return (
+                                <>
+                                  {dmNextCursor && <div className="text-center mb-3"><button className="btn btn-outline-white" onClick={() => fetchDmMessages(activeDmThreadId, dmNextCursor)} disabled={dmLoading}>Load older</button></div>}
+                                  {byDay.map((section, sIdx) => (
+                                    <div key={`mdmsec-${sIdx}`}>
+                                      <div className="d-flex align-items-center my-3" aria-hidden="true">
+                                        <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} /><div style={{ padding: '0 10px', color: '#6B7280', fontSize: 12 }}>{section.label}</div><div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                                      </div>
+                                      {section.items.map((m, i) => {
+                                        const key = (m.id as string) || (m.clientId as string) || `mdm-${sIdx}-${i}`;
+                                        const created = m.createdAt ? new Date(m.createdAt) : new Date();
+                                        const isMine = Boolean((m?.sender?.id && currentUserSub && m.sender.id === currentUserSub) || m?.sender?.id === 'me');
+                                        const senderName = isMine ? 'You' : (m?.sender?.displayName || 'User');
+                                        const avatar = m?.sender?.picture || '/assets/images/avatar-default.svg';
+                                        if (m?.deleted) {
+                                          return (
+                                            <div key={key} className={`d-flex ${isMine ? 'justify-content-end' : 'align-items-start gap-2'} mb-2`}>
+                                              {!isMine && <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />}
+                                              <div style={{ maxWidth: '90%' }}>
+                                                <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}><div>{senderName}</div><div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div></div>
+                                                <div style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
+                                              </div>
+                                            </div>
+                                          );
+                                        }
+                                        return (
+                                          <div key={key} className={`d-flex ${isMine ? 'justify-content-end' : 'align-items-start gap-2'} mb-2`}>
+                                            {!isMine && <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%', cursor: 'pointer' }} onClick={() => { if (m?.sender?.id) navigate(`/students/${m.sender.id}`); }} />}
+                                            <div style={{ maxWidth: '90%' }}>
+                                              <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}><div style={{ cursor: !isMine ? 'pointer' : 'default' }} onClick={() => { if (!isMine && m?.sender?.id) navigate(`/students/${m.sender.id}`); }}>{senderName}</div><div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div></div>
+                                              {Array.isArray(m.attachments) && m.attachments.length > 0 && (() => {
+                                                const images = m.attachments.filter((att: any) => att?.mimeType?.startsWith('image/'));
+                                                const docs = m.attachments.filter((att: any) => !att?.mimeType?.startsWith('image/'));
+                                                const imageCount = images.length;
+                                                return (
+                                                  <div style={{ marginBottom: m.content ? 8 : 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: isMine ? 'flex-end' : 'flex-start' }}>
+                                                    {imageCount > 0 && <div style={{ display: imageCount === 1 ? 'block' : 'grid', gridTemplateColumns: imageCount === 1 ? 'none' : 'repeat(2, 1fr)', gap: 4, maxWidth: imageCount === 1 ? 300 : 240, width: '100%' }}>{images.map((att: any, idx: number) => (<span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }} style={{ display: 'block', width: '100%', height: imageCount === 1 ? 260 : 140, borderRadius: 12, overflow: 'hidden', border: '1px solid #E5E7EB', cursor: 'zoom-in', gridColumn: (imageCount === 3 && idx === 2) ? '2 / 3' : 'auto' }}><img src={att.url} alt={att.fileName} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /></span>))}</div>}
+                                                    {docs.map((att: any) => (<a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }}><span style={{ marginRight: 6 }}>📄</span>{att.fileName}</a>))}
+                                                  </div>
+                                                );
+                                              })()}
+                                              {m.content && <div style={{ background: isMine ? '#E5F3FF' : '#fff', border: `1px solid ${isMine ? '#CDE7FF' : '#E5E7EB'}`, color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>{m.content}</div>}
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  ))}
+                                </>
+                              );
+                            })()
+                          ) : previewingSuggestion ? (
                             <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
                               <div style={{ width: 80, height: 80, borderRadius: 40, background: previewingSuggestion.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
                                 <img src={'/assets/images/book.svg'} alt="group" style={{ width: 48, height: 'auto' }} />
@@ -1609,8 +2124,8 @@ const Groups: React.FC = () => {
                       {/* Fixed composer at bottom of frame */}
                       <div ref={composerWrapRef} style={{ position: 'fixed', left: frameRect.left, width: frameRect.width, bottom: 0, background: '#FAFAFA', zIndex: 3 }}>
                         <Composer
-                          onSend={handleSendMessage}
-                          disabled={!selectedGroupId || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                          onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
+                          disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
                           countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
                           resizeSignal={frameRect.width}
                           onFilesAdded={addFiles}
@@ -1730,20 +2245,20 @@ const Groups: React.FC = () => {
                                   ) : (
                                     /* Already a member - show invite/leave/delete options (mobile) */
                                     <>
-                                      <button type="button" className="btn btn-outline-white text-start" onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-                                        <i className="material-symbols-outlined">person_add</i>
-                                        <span>Invite Members</span>
-                                      </button>
-                                      <button type="button" className="btn btn-outline-white text-start" onClick={handleLeaveGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-                                        <i className="material-symbols-outlined">logout</i>
-                                        <span>Exit Group</span>
-                                      </button>
-                                      {selectedGroup?.type !== 'canonical' ? (
-                                        <button type="button" className="btn btn-outline-white text-start" onClick={handleDeleteGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-                                          <i className="material-symbols-outlined">delete</i>
-                                          <span>Delete Group</span>
-                                        </button>
-                                      ) : null}
+                                  <button type="button" className="btn btn-outline-white text-start" onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                    <i className="material-symbols-outlined">person_add</i>
+                                    <span>Invite Members</span>
+                                  </button>
+                                  <button type="button" className="btn btn-outline-white text-start" onClick={handleLeaveGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                    <i className="material-symbols-outlined">logout</i>
+                                    <span>Exit Group</span>
+                                  </button>
+                                  {selectedGroup?.type !== 'canonical' ? (
+                                    <button type="button" className="btn btn-outline-white text-start" onClick={handleDeleteGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                      <i className="material-symbols-outlined">delete</i>
+                                      <span>Delete Group</span>
+                                    </button>
+                                  ) : null}
                                     </>
                                   )}
                                 </div>
@@ -1792,7 +2307,36 @@ const Groups: React.FC = () => {
               {/* Header */}
               <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
-                  {(selectedGroupId || previewingSuggestion) ? (
+                  {activeDmThreadId && dmThread ? (
+                    /* DM Mode Header - no back button, DM is shown as its own chat */
+                    (() => {
+                      const recipient = dmThread.participants?.[0];
+                      const recipientName = recipient?.displayName || recipient?.username || 'User';
+                      const recipientPicture = recipient?.picture;
+                      const initials = (recipientName || 'U').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase();
+                      return (
+                        <>
+                          <div
+                            style={{ width: 44, height: 44, borderRadius: '50%', background: '#E5F3FF', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            onClick={() => { if (recipient?.id) navigate(`/students/${recipient.id}`); }}
+                          >
+                            {recipientPicture ? (
+                              <img src={recipientPicture} alt={recipientName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <span style={{ fontSize: 16, fontWeight: 600, color: '#239BC2' }}>{initials}</span>
+                            )}
+                          </div>
+                          <h5
+                            className="mb-0"
+                            style={{ color: '#111827', cursor: 'pointer', marginLeft: 8 }}
+                            onClick={() => { if (recipient?.id) navigate(`/students/${recipient.id}`); }}
+                          >
+                            {recipientName}
+                          </h5>
+                        </>
+                      );
+                    })()
+                  ) : (selectedGroupId || previewingSuggestion) ? (
                     <>
                       <div className="d-flex align-items-center gap-2">
                         <div style={{ width: 44, height: 44, borderRadius: 22, background: (previewingSuggestion?.avatarColor || myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1808,7 +2352,8 @@ const Groups: React.FC = () => {
                     </>
                   )}
                 </div>
-                {(activeTab === 'groups' || selectedGroupId || previewingSuggestion) ? (
+                {/* Hide Group Info button when in DM mode */}
+                {!activeDmThreadId && (activeTab === 'groups' || selectedGroupId || previewingSuggestion) ? (
                   <div className="d-flex align-items-center gap-2">
                     <button
                       className="btn btn-primary"
@@ -1823,12 +2368,175 @@ const Groups: React.FC = () => {
                     </button>
                   </div>
                 ) : null}
+                {/* DM mode: show delete button */}
+                {activeDmThreadId && dmThread && (
+                  <div className="d-flex align-items-center gap-2">
+                    <button
+                      className="btn btn-outline-white"
+                      style={{ height: 40, width: 56, borderRadius: 8, border: '1px solid #E5E7EB' }}
+                      title="Delete conversation"
+                      onClick={() => {
+                        const recipient = dmThread.participants?.[0];
+                        const recipientName = recipient?.displayName || recipient?.username || 'this user';
+                        setDeleteDmConfirm({ open: true, threadId: activeDmThreadId, recipientName, loading: false });
+                      }}
+                    >
+                      <i className="material-symbols-outlined" style={{ color: '#DC2626' }}>delete</i>
+                    </button>
+                  </div>
+                )}
               </div>
               {/* Chat timeline (independent scroll) */}
               <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
-                <div ref={timelineRef} className="flex-grow-1 right-timeline-scroll" style={{ background: '#FAFAFA', padding: '16px 24px', overflow: selectedGroupId ? 'auto' : 'hidden' }}>
-                  {/* Preview empty state for suggested groups */}
-                  {previewingSuggestion ? (
+                <div ref={timelineRef} className="flex-grow-1 right-timeline-scroll" style={{ background: '#FAFAFA', padding: '16px 24px', overflow: (selectedGroupId || activeDmThreadId) ? 'auto' : 'hidden' }}>
+                  {/* DM Mode Timeline */}
+                  {activeDmThreadId ? (
+                    (() => {
+                      if (dmLoading && dmMessages.length === 0) {
+                        return (
+                          <div className="d-flex align-items-center justify-content-center h-100" style={{ minHeight: 200 }}>
+                            <div className="loader-container inline-loader" style={{ position: 'relative', background: 'transparent' }}>
+                              <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+                                <rect className="track" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" />
+                                <rect className="car" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" pathLength="100" />
+                              </svg>
+                            </div>
+                          </div>
+                        );
+                      }
+                      const sorted = [...dmMessages].sort((a: any, b: any) => {
+                        const ad = new Date(a?.createdAt || 0).getTime();
+                        const bd = new Date(b?.createdAt || 0).getTime();
+                        return ad - bd;
+                      });
+                      if (!sorted.length) {
+                        const recipient = dmThread?.participants?.[0];
+                        const recipientName = recipient?.displayName || recipient?.username || 'this user';
+                        return (
+                          <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
+                            <i className="material-symbols-outlined" style={{ fontSize: 48, color: '#9CA3AF', marginBottom: 16 }}>chat_bubble_outline</i>
+                            <h5 style={{ color: '#111827', marginBottom: 8 }}>Start a conversation</h5>
+                            <p className="text-muted text-center" style={{ fontSize: 14, maxWidth: 280 }}>
+                              Send a message to {recipientName} to start chatting.
+                            </p>
+                          </div>
+                        );
+                      }
+                      // Group by day
+                      const byDay: { label: string; items: any[] }[] = [];
+                      const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+                      let currentLabel = '';
+                      sorted.forEach((m) => {
+                        if (!m) return;
+                        const d = m.createdAt ? new Date(m.createdAt) : new Date();
+                        const today = new Date();
+                        const startOf = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+                        const diffDays = Math.floor((startOf(today).getTime() - startOf(d).getTime()) / (24 * 60 * 60 * 1000));
+                        let label = '';
+                        if (isSameDay(d, today)) {
+                          label = 'Today';
+                        } else if (diffDays >= 0 && diffDays <= 6) {
+                          label = d.toLocaleDateString(undefined, { weekday: 'long' });
+                        } else {
+                          label = d.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
+                        }
+                        if (label !== currentLabel) {
+                          byDay.push({ label, items: [m] });
+                          currentLabel = label;
+                        } else {
+                          byDay[byDay.length - 1].items.push(m);
+                        }
+                      });
+                      return (
+                        <>
+                          {/* Load older DM messages */}
+                          {dmNextCursor && (
+                            <div className="text-center mb-3">
+                              <button className="btn btn-outline-white" onClick={() => fetchDmMessages(activeDmThreadId, dmNextCursor)} disabled={dmLoading}>Load older</button>
+                            </div>
+                          )}
+                          {byDay.map((section, sIdx) => (
+                            <div key={`dmsec-${sIdx}`}>
+                              <div className="d-flex align-items-center my-3" aria-hidden="true">
+                                <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                                <div style={{ padding: '0 10px', color: '#6B7280', fontSize: 12 }}>{section.label}</div>
+                                <div className="flex-grow-1" style={{ height: 1, background: '#E5E7EB' }} />
+                              </div>
+                              {section.items.map((m, i) => {
+                                const key = (m.id as string) || (m.clientId as string) || `dm-${sIdx}-${i}`;
+                                const created = m.createdAt ? new Date(m.createdAt) : new Date();
+                                const isMine = Boolean(
+                                  (m?.sender?.id && currentUserSub && m.sender.id === currentUserSub) ||
+                                  m?.sender?.id === 'me'
+                                );
+                                const senderName = isMine ? 'You' : (m?.sender?.displayName || 'User');
+                                const avatar = m?.sender?.picture || '/assets/images/avatar-default.svg';
+                                if (m?.deleted) {
+                                  return (
+                                    <div key={key} className={`d-flex ${isMine ? 'justify-content-end' : 'align-items-start gap-2'} mb-2`}>
+                                      {!isMine && <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />}
+                                      <div style={{ maxWidth: '72%' }}>
+                                        <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
+                                          <div>{senderName}</div>
+                                          <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                        </div>
+                                        <div style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                                return (
+                                  <div key={key} className={`d-flex ${isMine ? 'justify-content-end' : 'align-items-start gap-2'} mb-2`}>
+                                    {!isMine && <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%', cursor: 'pointer' }} onClick={() => { if (m?.sender?.id) navigate(`/students/${m.sender.id}`); }} />}
+                                    <div style={{ maxWidth: '72%' }}>
+                                      <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
+                                        <div style={{ cursor: !isMine ? 'pointer' : 'default' }} onClick={() => { if (!isMine && m?.sender?.id) navigate(`/students/${m.sender.id}`); }}>{senderName}</div>
+                                        <div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                      </div>
+                                      {Array.isArray(m.attachments) && m.attachments.length > 0 && (
+                                        (() => {
+                                          const images = m.attachments.filter((att: any) => att?.mimeType?.startsWith('image/'));
+                                          const docs = m.attachments.filter((att: any) => !att?.mimeType?.startsWith('image/'));
+                                          const imageCount = images.length;
+                                          const singleMaxWidth = 360;
+                                          const multiMaxWidth = 280;
+                                          const singleHeight = 300;
+                                          const multiHeight = 180;
+                                          return (
+                                            <div style={{ marginBottom: m.content ? 8 : 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: isMine ? 'flex-end' : 'flex-start' }}>
+                                              {imageCount > 0 && (
+                                                <div style={{ display: imageCount === 1 ? 'block' : 'grid', gridTemplateColumns: imageCount === 1 ? 'none' : 'repeat(2, 1fr)', gap: 4, maxWidth: imageCount === 1 ? singleMaxWidth : multiMaxWidth, width: '100%' }}>
+                                                  {images.map((att: any, idx: number) => (
+                                                    <span key={att.id} role="button" title={att.fileName} onClick={(e) => { e.preventDefault(); openAttachmentLightbox(att, m.id || m.clientId); }} style={{ display: 'block', width: '100%', height: imageCount === 1 ? singleHeight : multiHeight, borderRadius: 12, overflow: 'hidden', border: '1px solid #E5E7EB', cursor: 'zoom-in', gridColumn: (imageCount === 3 && idx === 2) ? '2 / 3' : 'auto' }}>
+                                                      <img src={att.url} alt={att.fileName} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                                                    </span>
+                                                  ))}
+                                                </div>
+                                              )}
+                                              {docs.map((att: any) => (
+                                                <a key={att.id} href={att.url} target="_blank" rel="noreferrer" download={att.fileName} className="btn btn-outline-white" style={{ border: '1px solid #E5E7EB', borderRadius: 10 }} onClick={(e) => { e.preventDefault(); handleAttachmentOpen(att, m.id || m.clientId); }}>
+                                                  <span style={{ marginRight: 6 }}>📄</span>{att.fileName}
+                                                </a>
+                                              ))}
+                                            </div>
+                                          );
+                                        })()
+                                      )}
+                                      {m.content && (
+                                        <div style={{ background: isMine ? '#E5F3FF' : '#fff', border: `1px solid ${isMine ? '#CDE7FF' : '#E5E7EB'}`, color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
+                                          {m.content}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ))}
+                        </>
+                      );
+                    })()
+                  ) : previewingSuggestion ? (
                     <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
                       <div style={{ width: 80, height: 80, borderRadius: 40, background: previewingSuggestion.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
                         <img src={'/assets/images/book.svg'} alt="group" style={{ width: 48, height: 'auto' }} />
@@ -2109,8 +2817,8 @@ const Groups: React.FC = () => {
                 </div>
                 {/* Composer */}
                 <Composer
-                  onSend={handleSendMessage}
-                  disabled={!selectedGroupId || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                  onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
+                  disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
                   countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
                   onFilesAdded={addFiles}
                   selectedFilesCount={selectedFilesCount}
@@ -2284,60 +2992,60 @@ const Groups: React.FC = () => {
                           ) : (
                             /* Already a member - show invite/leave/delete options */
                             <>
-                              <button
-                                type="button"
-                                className="btn btn-outline-white text-start"
-                                onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }}
-                                style={{
-                                  border: '1px solid #E5E7EB',
-                                  borderRadius: 12,
-                                  padding: '14px 16px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 12,
-                                  width: '100%'
-                                }}
-                              >
-                                <i className="material-symbols-outlined">person_add</i>
-                                <span>Invite Members</span>
-                              </button>
-                              <button
-                                type="button"
-                                className="btn btn-outline-white text-start"
-                                onClick={handleLeaveGroup}
-                                style={{
-                                  border: '1px solid #E5E7EB',
-                                  borderRadius: 12,
-                                  padding: '14px 16px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 12,
-                                  width: '100%'
-                                }}
-                              >
-                                <i className="material-symbols-outlined">logout</i>
-                                <span>Exit Group</span>
-                              </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline-white text-start"
+                            onClick={() => { setInviteQuery(''); setInviteResults([]); setInviteSelected([]); setCopied(false); setInviteLoading(false); setShowInvite(true); }}
+                            style={{
+                              border: '1px solid #E5E7EB',
+                              borderRadius: 12,
+                              padding: '14px 16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 12,
+                              width: '100%'
+                            }}
+                          >
+                            <i className="material-symbols-outlined">person_add</i>
+                            <span>Invite Members</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline-white text-start"
+                            onClick={handleLeaveGroup}
+                            style={{
+                              border: '1px solid #E5E7EB',
+                              borderRadius: 12,
+                              padding: '14px 16px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 12,
+                              width: '100%'
+                            }}
+                          >
+                            <i className="material-symbols-outlined">logout</i>
+                            <span>Exit Group</span>
+                          </button>
 
-                              {selectedGroup?.type !== 'canonical' ? (
-                                <button
-                                  type="button"
-                                  className="btn btn-outline-white text-start"
-                                  onClick={handleDeleteGroup}
-                                  style={{
-                                    border: '1px solid #E5E7EB',
-                                    borderRadius: 12,
-                                    padding: '14px 16px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 12,
-                                    width: '100%'
-                                  }}
-                                >
-                                  <i className="material-symbols-outlined">delete</i>
-                                  <span>Delete Group</span>
-                                </button>
-                              ) : null}
+                          {selectedGroup?.type !== 'canonical' ? (
+                            <button
+                              type="button"
+                              className="btn btn-outline-white text-start"
+                              onClick={handleDeleteGroup}
+                              style={{
+                                border: '1px solid #E5E7EB',
+                                borderRadius: 12,
+                                padding: '14px 16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 12,
+                                width: '100%'
+                              }}
+                            >
+                              <i className="material-symbols-outlined">delete</i>
+                              <span>Delete Group</span>
+                            </button>
+                          ) : null}
                             </>
                           )}
                         </div>
@@ -2390,6 +3098,54 @@ const Groups: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Delete DM Confirmation Modal */}
+      <Modal
+        className="modal-theme modal-confirmation modal-reject"
+        show={deleteDmConfirm.open}
+        onHide={() => setDeleteDmConfirm({ open: false, threadId: null, recipientName: null, loading: false })}
+        centered
+      >
+        <Modal.Header>
+          <h4 className="modal-title">Delete Conversation</h4>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setDeleteDmConfirm({ open: false, threadId: null, recipientName: null, loading: false })}
+          >
+            <i className="material-symbols-outlined">close</i>
+          </button>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="modal-confirmation-container">
+            <div className="modal-confirmation-icon">
+              <i className="material-symbols-outlined">delete</i>
+            </div>
+            <div className="modal-confirmation-content">
+              <h5>Are You Sure?</h5>
+              <p>You want to delete your conversation with {deleteDmConfirm.recipientName}? This action cannot be undone.</p>
+            </div>
+          </div>
+          <div className="modal-button-group modal-full-width-btn modal-footer-button">
+            <Button
+              variant="light-white"
+              className="btn-md"
+              onClick={() => setDeleteDmConfirm({ open: false, threadId: null, recipientName: null, loading: false })}
+              disabled={deleteDmConfirm.loading}
+            >
+              No, Keep It
+            </Button>
+            <Button
+              variant="danger"
+              className="btn-icon-text btn-md"
+              onClick={handleDeleteDm}
+              disabled={deleteDmConfirm.loading}
+            >
+              {deleteDmConfirm.loading ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
 
       {/* Invite Members Modal - simplified */}
       {showInvite && (

@@ -102,9 +102,9 @@ const Courses = (props) => {
     }
     setIsLoading(true);
     try {
-      const response = await dispatch(getCoursesListDataAPI(reqBody));
-      if (response) {
-        setSyllabusList(response?.payload || [])
+    const response = await dispatch(getCoursesListDataAPI(reqBody));
+    if (response) {
+      setSyllabusList(response?.payload || [])
       } else {
         setSyllabusList([]);
       }
