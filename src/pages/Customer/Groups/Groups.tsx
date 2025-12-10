@@ -60,12 +60,12 @@ const Groups: React.FC = () => {
 
   // ============ DM (Direct Message) State ============
   const [activeDmThreadId, setActiveDmThreadId] = useState<string | null>(null);
-  const [dmThread, setDmThread] = useState<{ threadId: string; participants: any[]; lastMessage?: any; unreadCount?: number; updatedAt?: string } | null>(null);
+  const [dmThread, setDmThread] = useState<{ threadId: string; participants: any[]; lastMessage?: any; unreadCount?: number; updatedAt?: string; otherUserDeleted?: boolean; revived?: boolean } | null>(null);
   const [dmMessages, setDmMessages] = useState<any[]>([]);
   const [dmNextCursor, setDmNextCursor] = useState<string | null>(null);
   const [dmLoading, setDmLoading] = useState<boolean>(false);
   // All DM threads for the sidebar
-  const [dmThreads, setDmThreads] = useState<Array<{ threadId: string; participants: any[]; lastMessage?: any; unreadCount?: number; updatedAt?: string }>>([]);
+  const [dmThreads, setDmThreads] = useState<Array<{ threadId: string; participants: any[]; lastMessage?: any; unreadCount?: number; updatedAt?: string; otherUserDeleted?: boolean; revived?: boolean }>>([]);
   const [dmThreadsLoading, setDmThreadsLoading] = useState<boolean>(false);
   // Delete DM confirmation modal
   const [deleteDmConfirm, setDeleteDmConfirm] = useState<{ open: boolean; threadId: string | null; recipientName: string | null; loading: boolean }>({ open: false, threadId: null, recipientName: null, loading: false });
@@ -648,7 +648,12 @@ const Groups: React.FC = () => {
         setAttachmentPreviews(prev => ({ ...prev, ...previewSnapshot }));
       }
       const status = e?.response?.status || e?.status;
-      if (status === 429) {
+      const errorCode = e?.response?.data?.error || e?.data?.error;
+      if (status === 403 && errorCode === 'conversation_closed') {
+        // Other user has deleted the conversation
+        setDmThread(prev => prev ? { ...prev, otherUserDeleted: true } : prev);
+        te('This conversation has been closed by the other user');
+      } else if (status === 429) {
         const headers = (e?.response?.headers || {}) as Record<string, any>;
         const retryRaw = headers['retry-after'] ?? headers['Retry-After'];
         let retrySeconds = parseInt(String(retryRaw ?? ''), 10);
@@ -683,6 +688,8 @@ const Groups: React.FC = () => {
       setDmMessages([]);
       setDmNextCursor(null);
       await fetchDmThreads();
+      // On mobile, go back to list view
+      if (isMobile) setMobileView('list');
       // Clear URL param
       const sp = new URLSearchParams(location.search);
       sp.delete('dm');
@@ -1408,7 +1415,7 @@ const Groups: React.FC = () => {
                   <div className="flex-grow-1 left-list-scroll" style={{ minHeight: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', paddingBottom: isMobile ? 200 : 16, WebkitOverflowScrolling: 'touch', overflowY: 'auto', overflowX: 'hidden' }}>
                   {activeTab === 'chats' ? (
                     <>
-                      <div className="px-3 pt-3 d-flex align-items-center justify-content-between">
+                      <div className="px-3 pt-4 d-flex align-items-center justify-content-between">
                         <h6 className="mb-0" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>Students</h6>
                       </div>
                     {dmThreadsLoading ? (
@@ -1425,14 +1432,39 @@ const Groups: React.FC = () => {
                       </div>
                     ) : dmThreads.length > 0 ? (
                       <div style={{ marginTop: 8 }}>
-                        {dmThreads.map((thread) => {
+                        {(() => {
+                          const q = searchQuery.trim().toLowerCase();
+                          const filtered = q
+                            ? dmThreads.filter((t) => {
+                                const recipient = t.participants?.[0];
+                                const name = (recipient?.displayName || recipient?.username || '').toLowerCase();
+                                const lastMsgText = (t.lastMessage?.content || '').toLowerCase();
+                                return name.includes(q) || lastMsgText.includes(q);
+                              })
+                            : dmThreads;
+                          if (!filtered.length) {
+                            return (
+                              <div className="text-center p-4 text-muted" style={{ fontSize: 14 }}>
+                                No chats match "{searchQuery.trim()}".
+                              </div>
+                            );
+                          }
+                          return filtered.map((thread) => {
                           const recipient = thread.participants?.[0];
                           const recipientName = recipient?.displayName || recipient?.username || 'User';
                           const recipientPicture = recipient?.picture;
                           const initials = (recipientName || 'U').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase();
                           const isSelected = activeDmThreadId === thread.threadId;
                           const lastMsg = thread.lastMessage;
-                          const lastMsgText = lastMsg?.content || (lastMsg?.attachments?.length ? '📎 Attachment' : '');
+                          let lastMsgText = '';
+                          if (lastMsg?.attachments?.length) {
+                            const count = lastMsg.attachments.length;
+                            lastMsgText = `${count} Attachment${count > 1 ? 's' : ''}`;
+                          } else if (lastMsg?.content) {
+                            lastMsgText = lastMsg.content;
+                          } else {
+                            lastMsgText = '';
+                          }
                           const lastMsgTime = lastMsg?.createdAt ? new Date(lastMsg.createdAt) : null;
                           // Relative time helper
                           const getRelativeTime = (date: Date) => {
@@ -1495,10 +1527,15 @@ const Groups: React.FC = () => {
                                 )}
                               </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontWeight: 600, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{recipientName}</div>
-                                {lastMsgText && (
+                                <div style={{ fontWeight: 600, color: thread.otherUserDeleted ? '#9CA3AF' : '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{recipientName}</div>
+                                {thread.otherUserDeleted ? (
+                                  <div style={{ fontSize: 13, color: '#D97706', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <i className="material-symbols-outlined" style={{ fontSize: 14 }}>block</i>
+                                    Conversation closed
+                                  </div>
+                                ) : lastMsgText ? (
                                   <div style={{ fontSize: 14, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 2 }}>{lastMsgText}</div>
-                                )}
+                                ) : null}
                               </div>
                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start', gap: 4, flexShrink: 0, minWidth: 44, alignSelf: 'flex-start', paddingTop: 2 }}>
                                 {timeStr && <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1 }}>{timeStr}</div>}
@@ -1510,7 +1547,8 @@ const Groups: React.FC = () => {
                               </div>
                             </div>
                           );
-                        })}
+                        });
+                        })()}
                       </div>
                     ) : (
                       <div className="text-center p-4">
@@ -1703,9 +1741,9 @@ const Groups: React.FC = () => {
                           <button className="btn btn-outline-white" onClick={() => setMobileView('list')} aria-label="Back" title="Back">
                             <i className="material-symbols-outlined">arrow_back</i>
                           </button>
-                          {activeDmThreadId && dmThread ? (
+                          {activeDmThreadId ? (
                             /* DM Mode mobile header */
-                            (() => {
+                            dmThread ? (() => {
                               const recipient = dmThread.participants?.[0];
                               const recipientName = recipient?.displayName || recipient?.username || 'User';
                               const recipientPicture = recipient?.picture;
@@ -1722,7 +1760,13 @@ const Groups: React.FC = () => {
                                   <h6 className="mb-0" style={{ color: '#111827' }}>{recipientName}</h6>
                                 </div>
                               );
-                            })()
+                            })() : (
+                              /* DM loading state */
+                              <div className="d-flex align-items-center gap-2">
+                                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#E5E7EB' }} />
+                                <h6 className="mb-0" style={{ color: '#9CA3AF' }}>Loading...</h6>
+                              </div>
+                            )
                           ) : (
                             <div className="d-flex align-items-center gap-2">
                               <div style={{ width: 36, height: 36, borderRadius: 18, background: (previewingSuggestion?.avatarColor || myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -2123,17 +2167,24 @@ const Groups: React.FC = () => {
                       </div>
                       {/* Fixed composer at bottom of frame - hidden when group info panel is open */}
                       <div ref={composerWrapRef} style={{ position: 'fixed', left: frameRect.left, width: frameRect.width, bottom: 0, background: '#FAFAFA', zIndex: 3, display: showGroupInfo ? 'none' : 'block' }}>
-                        <Composer
-                          onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
-                          disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
-                          countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
-                          resizeSignal={frameRect.width}
-                          onFilesAdded={addFiles}
-                          selectedFilesCount={selectedFilesCount}
-                          uploadingCount={uploadingCount}
-                          allowEmptySend={readyAttachments.length > 0}
-                          previews={renderAttachmentPreviews()}
-                        />
+                        {activeDmThreadId && dmThread?.otherUserDeleted ? (
+                          <div style={{ padding: '16px 20px', background: '#FEF3C7', borderTop: '1px solid #F59E0B', display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <i className="material-symbols-outlined" style={{ color: '#D97706' }}>info</i>
+                            <span style={{ color: '#92400E', fontSize: 14 }}>This conversation has been closed by the other user.</span>
+                          </div>
+                        ) : (
+                          <Composer
+                            onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
+                            disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                            countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                            resizeSignal={frameRect.width}
+                            onFilesAdded={addFiles}
+                            selectedFilesCount={selectedFilesCount}
+                            uploadingCount={uploadingCount}
+                            allowEmptySend={readyAttachments.length > 0}
+                            previews={renderAttachmentPreviews()}
+                          />
+                        )}
                       </div>
 
                       {/* Mobile Group Info overlay (mirrors desktop panel) */}
@@ -2307,9 +2358,9 @@ const Groups: React.FC = () => {
               {/* Header */}
               <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
                 <div className="d-flex align-items-center gap-2">
-                  {activeDmThreadId && dmThread ? (
+                  {activeDmThreadId ? (
                     /* DM Mode Header - no back button, DM is shown as its own chat */
-                    (() => {
+                    dmThread ? (() => {
                       const recipient = dmThread.participants?.[0];
                       const recipientName = recipient?.displayName || recipient?.username || 'User';
                       const recipientPicture = recipient?.picture;
@@ -2335,7 +2386,13 @@ const Groups: React.FC = () => {
                           </h5>
                         </>
                       );
-                    })()
+                    })() : (
+                      /* DM loading state */
+                      <>
+                        <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#E5E7EB' }} />
+                        <h5 className="mb-0" style={{ color: '#9CA3AF', marginLeft: 8 }}>Loading...</h5>
+                      </>
+                    )
                   ) : (selectedGroupId || previewingSuggestion) ? (
                     <>
                       <div className="d-flex align-items-center gap-2">
@@ -2816,16 +2873,23 @@ const Groups: React.FC = () => {
                   )}
                 </div>
                 {/* Composer */}
-                <Composer
-                  onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
-                  disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
-                  countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
-                  onFilesAdded={addFiles}
-                  selectedFilesCount={selectedFilesCount}
-                  uploadingCount={uploadingCount}
-                  allowEmptySend={readyAttachments.length > 0}
-                  previews={renderAttachmentPreviews()}
-                />
+                {activeDmThreadId && dmThread?.otherUserDeleted ? (
+                  <div style={{ padding: '16px 24px', background: '#FEF3C7', borderTop: '1px solid #F59E0B', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <i className="material-symbols-outlined" style={{ color: '#D97706' }}>info</i>
+                    <span style={{ color: '#92400E', fontSize: 14 }}>This conversation has been closed by the other user.</span>
+                  </div>
+                ) : (
+                  <Composer
+                    onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
+                    disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                    countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                    onFilesAdded={addFiles}
+                    selectedFilesCount={selectedFilesCount}
+                    uploadingCount={uploadingCount}
+                    allowEmptySend={readyAttachments.length > 0}
+                    previews={renderAttachmentPreviews()}
+                  />
+                )}
               </div>
 
               {/* Nested Group Info panel (animated slide) */}
