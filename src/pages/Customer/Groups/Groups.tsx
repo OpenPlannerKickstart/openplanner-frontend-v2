@@ -72,8 +72,6 @@ const Groups: React.FC = () => {
   // Invite modal state
   const [showInvite, setShowInvite] = useState<boolean>(false);
   const [inviteLoading, setInviteLoading] = useState<boolean>(false);
-  const [inviteExpiresIn, setInviteExpiresIn] = useState<number>(7 * 24 * 3600); // 7 days default
-  const [inviteSingleUse, setInviteSingleUse] = useState<boolean>(false);
   // Direct invite modal state
   const [inviteQuery, setInviteQuery] = useState<string>('');
   const [inviteResults, setInviteResults] = useState<Array<{ id: string; username: string; displayName: string; picture?: string | null }>>([]);
@@ -82,6 +80,7 @@ const Groups: React.FC = () => {
   const [inviteSending, setInviteSending] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   // Invites inbox
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [invites, setInvites] = useState<Array<{ id: string; groupId: string; message?: string; fromUserId?: string; groupName?: string; fromName?: string }>>([]);
   const [isDragOverChat, setIsDragOverChat] = useState<boolean>(false);
   const chatDragCounter = useRef(0);
@@ -317,13 +316,6 @@ const Groups: React.FC = () => {
   };
   // Rate-limit state: timestamp (ms) until which sending is disabled
   const [rateLimitUntil, setRateLimitUntil] = useState<number | null>(null);
-  // Tick to refresh countdown text while rate-limited
-  const [rateTick, setRateTick] = useState<number>(0);
-  useEffect(() => {
-    if (!rateLimitUntil) return;
-    const id = setInterval(() => setRateTick((x) => x + 1), 1000);
-    return () => clearInterval(id);
-  }, [rateLimitUntil]);
   // Track composer height so the timeline bottom offset always clears it
   const composerWrapRef = useRef<HTMLDivElement | null>(null);
   const [composerHeight, setComposerHeight] = useState<number>(72);
@@ -381,6 +373,7 @@ const Groups: React.FC = () => {
     };
   }, [isMobile, showGroupInfo]);
 
+  /* eslint-disable react-hooks/exhaustive-deps */
   // Keep timeline scrolled to bottom when entering chat and when new messages append
   useEffect(() => {
     if (!isMobile || mobileView !== 'chat') return;
@@ -388,7 +381,7 @@ const Groups: React.FC = () => {
     if (!el) return;
     // slight delay to allow layout to apply new heights
     requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
-  }, [isMobile, mobileView, selectedGroupId, messages[selectedGroupId || '']?.length, composerHeight, activeDmThreadId, dmMessages.length]);
+  }, [isMobile, mobileView, selectedGroupId, messages[selectedGroupId || '']?.length, composerHeight, activeDmThreadId, dmMessages.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Desktop: keep timeline scrolled to bottom on select and when new messages arrive
   useEffect(() => {
@@ -396,7 +389,8 @@ const Groups: React.FC = () => {
     const el = timelineRef.current;
     if (!el) return;
     requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
-  }, [isMobile, selectedGroupId, messages[selectedGroupId || '']?.length, activeDmThreadId, dmMessages.length]);
+  }, [isMobile, selectedGroupId, messages[selectedGroupId || '']?.length, activeDmThreadId, dmMessages.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const fetchMyGroups = async () => {
     try {
@@ -530,7 +524,6 @@ const Groups: React.FC = () => {
     // Subscribe to DM events
     const messageEvent = `dm:${activeDmThreadId}:message`;
     const deletedEvent = `dm:${activeDmThreadId}:message:deleted`;
-    const typingEvent = `dm:${activeDmThreadId}:typing`;
 
     const onDmMessage = (msg: any) => {
       setDmMessages(prev => {
@@ -666,13 +659,6 @@ const Groups: React.FC = () => {
       return false;
     }
     return true;
-  };
-
-  // Helper to exit DM mode
-  const exitDmMode = () => {
-    const sp = new URLSearchParams(location.search);
-    sp.delete('dm');
-    navigate({ pathname: location.pathname, search: sp.toString() ? `?${sp.toString()}` : '' }, { replace: true });
   };
 
   // Delete DM thread handler
@@ -3276,8 +3262,7 @@ const Groups: React.FC = () => {
                       if (!selectedGroupId || inviteSelected.length === 0) return;
                       try {
                         setInviteSending(true);
-                        const res: any = await post(`groups/${selectedGroupId}/invites/direct`, { userIds: inviteSelected });
-                        const data = res?.data ?? res;
+                        await post(`groups/${selectedGroupId}/invites/direct`, { userIds: inviteSelected });
                         ts('Invites sent');
                         // reset selection
                         setInviteSelected([]);
@@ -3395,6 +3380,7 @@ const Composer: React.FC<{
       resize();
     }
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { resize(); }, [text]);
   // Reset height to single-line when composer mounts or when the chat frame re-measures
   useEffect(() => {
@@ -3421,8 +3407,11 @@ const Composer: React.FC<{
   }, [resizeSignal]);
 
   // Ensure correct initial height on mount and after refresh/orientation changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { resetToSingleLine(); /* after first paint */ setTimeout(resetToSingleLine, 0); }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { resetToSingleLine(); }, [baseHeight]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const handler = () => resetToSingleLine();
     window.addEventListener('resize', handler);
@@ -3433,7 +3422,7 @@ const Composer: React.FC<{
       window.removeEventListener('orientationchange', handler as any);
       document.removeEventListener('visibilitychange', handler);
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="d-flex flex-column" style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#FAFAFA', position: 'sticky', bottom: 0, zIndex: 1, gap: 8 }}>
