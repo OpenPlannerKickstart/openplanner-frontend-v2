@@ -61,48 +61,28 @@ export default function StudentProfile() {
 
     setStartingDm(true);
     try {
-      console.log('[DM] Calling POST /dm with recipientId:', id);
       const res: any = await post('dm', { recipientId: id });
-      console.log('[DM] Raw response:', res);
       
       // Handle various response shapes
       const data = res?.data ?? res;
-      console.log('[DM] Extracted data:', data);
-      
       const threadId = data?.threadId;
-      console.log('[DM] Extracted threadId:', threadId);
       
       if (threadId) {
         // Navigate to groups page with DM thread selected
-        console.log('[DM] Navigating to:', `${ENUMFORROUTES.GROUPS}?dm=${threadId}`);
         navigate(`${ENUMFORROUTES.GROUPS}?dm=${threadId}`);
       } else {
         // Check if there's an error in the response
         if (data?.error || data?.message) {
-          console.error('[DM] API error:', data.error || data.message);
           te(data.message || data.error || 'Failed to start conversation');
         } else if (res?.status && res.status >= 400) {
-          console.error('[DM] HTTP error status:', res.status);
           te('Failed to start conversation');
         } else {
-          console.error('[DM] No threadId in response:', res);
           te('Failed to start conversation - please try again');
         }
       }
-    } catch (err: any) {
-      console.error('[DM] Caught error:', err);
-      const status = err?.response?.status || err?.status;
-      // Don't show duplicate toast if handleError already showed one
-      if (status === 404) {
-        // te already called by handleError for some statuses
-        console.log('[DM] 404 - User or endpoint not found');
-      } else if (status === 400) {
-        console.log('[DM] 400 - Bad request');
-      } else {
-        console.log('[DM] Other error, status:', status);
-      }
+    } catch {
+      // Errors already handled by httpInterceptor/toasts
     } finally {
-      console.log('[DM] Finally block - resetting startingDm');
       setStartingDm(false);
     }
   };
