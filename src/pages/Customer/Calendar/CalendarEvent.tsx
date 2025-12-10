@@ -26,12 +26,14 @@ import DnDCalendar from 'react-big-calendar/lib/addons/dragAndDrop';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { addEditEventDataAPI, deleteEventDataAPI, updateEventStatusDataAPI } from "../../../redux/Service/User/Courses/courses";
-import { ENUMFORSTATUS } from "../../../interfaces/enum";
+import { ENUMFORROUTES, ENUMFORSTATUS } from "../../../interfaces/enum";
+import { useNavigate } from "react-router-dom";
 
 
 const DragAndDropCalendar = DnDCalendar(Calendar);
 const localizer: any = momentLocalizer(moment);
 const CalenderEvent = () => {
+  const navigate = useNavigate();
   const coursesData: any = useSelector(
     (state: RootState) => state.CoursesReducer);
 
@@ -300,6 +302,36 @@ const CalenderEvent = () => {
   /** -----------------Add/Edit syllabus start---------------------------*/
   const [showSyllabus, setShowSyllabus] = useState(false);
   const handleSyllabusShow = () => setShowSyllabus(true);
+  const { hasSubscription, isFreemiumPlan } = (() => {
+    try {
+      const tier = localStorage.getItem("plan_tier");
+      const subscriptionFlag = localStorage.getItem("has_subscription") === "true";
+      return {
+        hasSubscription: subscriptionFlag,
+        isFreemiumPlan: tier === "freemium",
+      };
+    } catch {
+      return {
+        hasSubscription: false,
+        isFreemiumPlan: false,
+      };
+    }
+  })();
+  const FREEMIUM_UPLOAD_LIMIT = 3;
+  const freemiumLimitReached =
+    isFreemiumPlan && !hasSubscription && syllabusDropDownData.length >= FREEMIUM_UPLOAD_LIMIT;
+
+  const handleUpgradeClick = () => {
+    navigate(ENUMFORROUTES.PLAN_DETAILS);
+  };
+
+  const handleAddSyllabusClick = () => {
+    if (freemiumLimitReached) {
+      handleUpgradeClick();
+      return;
+    }
+    handleSyllabusShow();
+  };
   /** -----------------Add/Edit Syllabus end---------------------------*/
 
   const [currentView, setCurrentView] = useState('month'); // Initial view
@@ -641,7 +673,13 @@ const CalenderEvent = () => {
             <button type="button" className="btn btn-primary" onClick={() => { handleShow() }}>
               Add Event
             </button>
-            <button type="button" className="btn btn-warning" onClick={() => { handleSyllabusShow() }}>
+            <button
+              type="button"
+              className="btn btn-warning"
+              onClick={handleAddSyllabusClick}
+              disabled={freemiumLimitReached}
+              style={freemiumLimitReached ? { opacity: 0.7, cursor: "not-allowed" } : {}}
+            >
               Add Syllabus
             </button>
             {/* <button
@@ -938,7 +976,16 @@ const CalenderEvent = () => {
       {/* Add/Edit event Event */}
 
       {/* Add/Edit event Start */}
-      <AddEditSyllabus showSyllabus={showSyllabus} setShowSyllabus={setShowSyllabus} handleGetData={handleGetDropDownData} />
+      <AddEditSyllabus
+        showSyllabus={showSyllabus}
+        setShowSyllabus={setShowSyllabus}
+        handleGetData={handleGetDropDownData}
+        freemiumLimitReached={freemiumLimitReached}
+        hasSubscription={hasSubscription}
+        isFreemiumPlan={isFreemiumPlan}
+        onUpgradeClick={handleUpgradeClick}
+        existingSyllabusCount={syllabusDropDownData.length}
+      />
       {/* Add/Edit event Event */}
 
 

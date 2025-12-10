@@ -186,14 +186,16 @@ export const post = (
   // }
 
   /**  Define the headers for the request, including the Authorization token if required */
+  const isFormDataPayload =
+    typeof FormData !== "undefined" && bodyObj instanceof FormData;
 
-  let header: any = { "Content-Type": "application/json" };
+  let header: any = {};
   if (!isExcludedUrl(url)) {
-    header = {
-      Authorization: getToken() ? `${"Bearer " + getToken()}` : "",
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    };
+    header.Authorization = getToken() ? `${"Bearer " + getToken()}` : "";
+    header["Access-Control-Allow-Origin"] = "*";
+    if (!isFormDataPayload) {
+      header["Content-Type"] = "application/json";
+    }
     // Dev-only: provide a CSRF header so MSW (if enabled) allows POSTs
     if (process.env.NODE_ENV === 'development') {
       header['X-CSRF-Token'] = 'dev';

@@ -18,13 +18,19 @@ const SubscribedRoute = ({ children }: { children: JSX.Element }) => {
       return false;
     }
   })();
+  const isFreemium = ((): boolean => {
+    try {
+      return localStorage.getItem('plan_tier') === 'freemium';
+    } catch {
+      return false;
+    }
+  })();
 
-  if (!hasSubscription) {
+  if (!hasSubscription && !isFreemium) {
     return <Navigate to={ENUMFORROUTES.PLAN_DETAILS} state={{ from: location }} />
   }
   return children;
 }
 
 export default SubscribedRoute
-
 

@@ -40,6 +40,9 @@ export const loginToSystem =
           // cache subscription flag for route guards
           try {
             localStorage.setItem('has_subscription', String(!!payload.isSubscription));
+            if (payload.isSubscription) {
+              localStorage.removeItem('plan_tier');
+            }
           } catch {}
           return dispatch(getLoginSuccess(payload));
         }
@@ -57,7 +60,10 @@ export const loginToSystem =
  */
 export const logoutFromSystem = () => async (dispatch: AppDispatch) => {
   deleteAllCookies();
-  try { localStorage.removeItem('has_subscription'); } catch {}
+  try {
+    localStorage.removeItem('has_subscription');
+    localStorage.removeItem('plan_tier');
+  } catch {}
   dispatch(setLoading(true));
   setTimeout(() => {
     dispatch(setLoading(false));

@@ -97,14 +97,24 @@ export const addEditSyllabusDataAPI =
 
       try {
         const response: any = await post(ADD_EDIT_SYLLABUS_DATA_API, objBody);
-        if (!response.data.error) {
-          ts(response.data.message)
+        if (response && response.data && !response.data.error) {
+          ts(response.data.message);
           return dispatch(addEditSyllabusDataSuccess(response.data.data));
-        } else {
-          dispatch(addEditSyllabusDataFailure());
         }
+
+        dispatch(addEditSyllabusDataFailure());
+        return {
+          error: true,
+          message: response?.data?.message,
+        };
       } catch (err) {
         dispatch(addEditSyllabusDataFailure());
+        return {
+          error: true,
+          // Surface server message when available so callers can react (e.g., freemium limit)
+          message:
+            (err as any)?.response?.data?.message || (err as any)?.message,
+        };
       } finally {
         dispatch(setLoading(false));
       }
