@@ -199,6 +199,36 @@ const Courses = (props) => {
     navigate(ENUMFORROUTES.EDIT_COURSE, { state: { syllabusObj } });
   };
 
+  const { hasSubscription, isFreemiumPlan } = (() => {
+    try {
+      const tier = localStorage.getItem("plan_tier");
+      const subscriptionFlag = localStorage.getItem("has_subscription") === "true";
+      return {
+        hasSubscription: subscriptionFlag,
+        isFreemiumPlan: tier === "freemium",
+      };
+    } catch {
+      return {
+        hasSubscription: false,
+        isFreemiumPlan: false,
+      };
+    }
+  })();
+  const FREEMIUM_UPLOAD_LIMIT = 3;
+  const freemiumLimitReached =
+    isFreemiumPlan && !hasSubscription && syllabusList.length >= FREEMIUM_UPLOAD_LIMIT;
+
+  const handleUpgradeClick = () => {
+    navigate(ENUMFORROUTES.PLAN_DETAILS);
+  };
+
+  const handleAddSyllabusClick = () => {
+    if (freemiumLimitReached) {
+      handleUpgradeClick();
+      return;
+    }
+    setShowEvent(true);
+  };
 
   return (
     <>
@@ -210,11 +240,27 @@ const Courses = (props) => {
             </div>
           </div>
           <div className="page-title-right">
-            <button type="button" className="btn btn-primary" onClick={() => { setShowEvent(true) }}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleAddSyllabusClick}
+              disabled={freemiumLimitReached}
+              style={freemiumLimitReached ? { opacity: 0.7, cursor: 'not-allowed' } : {}}
+            >
               Add Syllabus{" "}
             </button>
           </div>
         </div>
+        {freemiumLimitReached && (
+          <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
+            <div>
+              <strong>Free plan limit reached.</strong> You can upload up to 3 syllabi on the free plan. Upgrade to keep adding courses.
+            </div>
+            <Button variant="primary" size="sm" onClick={handleUpgradeClick}>
+              View plans
+            </Button>
+          </div>
+        )}
         <div className="page-filters p-3 mb-0">
           <div className="page-filters-left">
             {/* <Form.Group className="form-group form-group-sm form-group-inline-control">
@@ -524,6 +570,11 @@ const Courses = (props) => {
 
             <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent}
               setIsAddNewData={setIsAddNewData} isAddNewData={isAddNewData}
+              freemiumLimitReached={freemiumLimitReached}
+              hasSubscription={hasSubscription}
+              isFreemiumPlan={isFreemiumPlan}
+              onUpgradeClick={handleUpgradeClick}
+              existingSyllabusCount={syllabusList.length}
             />
 
 

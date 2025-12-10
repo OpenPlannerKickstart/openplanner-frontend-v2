@@ -9,6 +9,10 @@ import GroupListItem from '../../..//components/Groups/GroupListItem';
 import { useNotifications } from '../../../context/SocketContext';
 import { getDecodeIDToken } from '../../../Utility/Helper';
 import { v4 as uuidv4 } from 'uuid';
+// Image assets must be bundled; do not rely on absolute "/assets" paths in production
+import bookIcon from '../../../assets/images/book.svg';
+import defaultAvatar from '../../../assets/images/avatar-default.svg';
+import emptyStateImg from '../../../assets/images/not-voucher-found.svg';
 import { ATTACH_ACCEPT_INPUT, ATTACH_MAX_PER_MESSAGE, ATTACH_MAX_MB, isMimeAllowed, isSizeAllowed } from '../../../Utility/attachments';
 import { initiateUpload, uploadToS3, toAttachmentDescriptor, computeCrc32Base64 } from '../../../Utility/uploads';
 import type { AttachmentDescriptor } from '../../../interfaces/groups';
@@ -2205,7 +2209,7 @@ const Groups: React.FC = () => {
                             justifyContent: 'space-between'
                           }}
                         >
-                          <img src={'/assets/images/book.svg'} alt="group" style={{ width: 28, height: 'auto' }} />
+                          <img src={bookIcon} alt="group" style={{ width: 28, height: 'auto' }} />
                           <button className="btn btn-outline-white" onClick={() => setShowGroupInfo(false)} aria-label="Close">
                             <i className="material-symbols-outlined">close</i>
                           </button>
@@ -2390,7 +2394,7 @@ const Groups: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <img src={'/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+                      <img src={defaultAvatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%' }} />
                       <h5 className="mb-0" style={{ color: '#6B7280' }}>{activeTab === 'groups' ? 'Select a group' : 'Select a conversation'}</h5>
                     </>
                   )}
@@ -2911,7 +2915,7 @@ const Groups: React.FC = () => {
                     justifyContent: 'space-between'
                   }}
                 >
-                  <img src={'/assets/images/book.svg'} alt="group" style={{ width: 32, height: 'auto' }} />
+                  <img src={bookIcon} alt="group" style={{ width: 32, height: 'auto' }} />
                   <button className="btn btn-outline-white" onClick={() => setShowGroupInfo(false)}>
                     <i className="material-symbols-outlined">close</i>
                   </button>
@@ -3280,7 +3284,7 @@ const Groups: React.FC = () => {
                 <div style={{ maxHeight: 260, overflowY: 'auto', marginTop: 8, scrollbarWidth: 'none' as any }} className="invite-results-scroll">
                   {inviteResults.map(u => (
                     <div key={u.id} className="d-flex align-items-center gap-2 py-2" style={{ cursor: 'pointer', borderBottom: '1px solid #F3F4F6' }} onClick={() => toggleInviteSelect(u.id)}>
-                      <img src={u.picture || '/assets/images/avatar-default.svg'} alt="avatar" style={{ width: 28, height: 28, borderRadius: 14 }} />
+                      <img src={u.picture || defaultAvatar} alt="avatar" style={{ width: 28, height: 28, borderRadius: 14 }} />
                       <div className="flex-grow-1">
                         <div style={{ color: '#111827', fontWeight: 600 }}>{u.displayName}</div>
                         <div className="text-muted" style={{ fontSize: 12 }}>@{u.username}</div>

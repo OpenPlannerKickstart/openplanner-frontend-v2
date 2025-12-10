@@ -2057,7 +2057,7 @@ $sm_sidebar_home_link_width: 170px;
 
 // Pricing plans css
 .pricing-wrapper {  
-  padding: 0px;
+  padding: 100px 0 48px; /* balanced top spacing */
 }
 
 .pricing-card {
@@ -2195,6 +2195,7 @@ $sm_sidebar_home_link_width: 170px;
 @media (max-width: 768px) {
   .pricing-wrapper {
     margin-top: 0; /* remove excessive offset that hid cards on small screens */
+    padding: 48px 0 24px; /* keep mobile spacing modest but balanced */
   }
 }
 

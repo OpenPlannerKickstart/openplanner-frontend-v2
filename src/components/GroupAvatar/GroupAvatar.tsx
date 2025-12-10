@@ -1,4 +1,5 @@
 import React from 'react';
+import bookIcon from '../../assets/images/book.svg';
 
 type GroupAvatarProps = {
   color: string;
@@ -33,7 +34,7 @@ const GroupAvatar: React.FC<GroupAvatarProps> = ({
       aria-label="Group avatar"
     >
       <img
-        src={'/assets/images/book.svg'}
+        src={bookIcon}
         alt="group"
         style={{ width: iconSize, height: 'auto', display: 'block' }}
       />
