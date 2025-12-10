@@ -30,7 +30,7 @@ const GroupListItem: React.FC<Props> = ({
     <div>
       <div
         className={`d-flex align-items-center justify-content-between px-3 py-3`}
-        style={{ cursor: onClick ? 'pointer' : 'default', background: isSelected ? '#FFF8EA' : 'transparent', position: 'relative' }}
+        style={{ cursor: onClick ? 'pointer' : 'default', background: isSelected ? '#FFF8EA' : 'transparent', position: 'relative', overflow: 'hidden' }}
         onClick={onClick}
       >
         {isSelected ? (
@@ -44,7 +44,6 @@ const GroupListItem: React.FC<Props> = ({
               background: '#239BC2',
               borderTopRightRadius: 0,
               borderBottomRightRadius: 0,
-              zIndex: 1,
             }}
           />
         ) : null}

@@ -191,7 +191,6 @@ const AddSyllabusEvents = (props) => {
 
       // Close the offcanvas immediately - upload will continue in background
       handleCloseAddSyllabusEvents();
-      dispatch(isUpdatedSyllabus(true));
 
       try {
         // Start background upload - this opens the floating modal
@@ -202,11 +201,12 @@ const AddSyllabusEvents = (props) => {
           setSyllabusId: syllabusUploadContext.setSyllabusId,
         });
 
-        // Upload complete - show group suggestions
+        // Upload complete - show group suggestions & refresh lists
         if (result.syllabusId) {
           setSyllabusId(String(result.syllabusId));
           await fetchSuggestions(String(result.syllabusId));
           setShowSuggestModal(true);
+          dispatch(isUpdatedSyllabus(true));
         }
       } catch (error) {
         // Error is already handled in startSyllabusUpload (toast + modal state)
@@ -240,11 +240,11 @@ const AddSyllabusEvents = (props) => {
         payload?.doc_id ||
         null;
       handleCloseAddSyllabusEvents();
-      dispatch(isUpdatedSyllabus(true));
       if (sid) {
         setSyllabusId(String(sid));
         await fetchSuggestions(String(sid));
         setShowSuggestModal(true);
+        dispatch(isUpdatedSyllabus(true));
       } else {
         try { console.log('Syllabus save payload (no syllabusId found):', payload); } catch {}
       }

@@ -68,6 +68,7 @@ const Courses = (props) => {
   /* ---------------------- handle Get Course List start ---------------------- */
   const [searchValue, setSeacrhValue] = useState("");
   const [syllabusList, setSyllabusList] = useState<Array<SyllabusResponseType>>([]);
+  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
 
     const delayDebounceFn = setTimeout(() => {
@@ -99,11 +100,20 @@ const Courses = (props) => {
     const reqBody = {
       search: searchValue
     }
+    setIsLoading(true);
+    try {
     const response = await dispatch(getCoursesListDataAPI(reqBody));
     if (response) {
       setSyllabusList(response?.payload || [])
+      } else {
+        setSyllabusList([]);
+      }
+    } catch (error) {
+      console.error('Failed to fetch courses list', error);
+      setSyllabusList([]);
+    } finally {
+      setIsLoading(false);
     }
-
   }
 
   /* ---------------------- handle Get Course List End ---------------------- */
@@ -300,7 +310,32 @@ const Courses = (props) => {
         </div>
 
         <div className="content-area  content-area-title-filter">
-          <div className="page-content-wrapper h-100">
+          <div className="page-content-wrapper h-100" style={{ position: 'relative', minHeight: 320 }}>
+            {isLoading && (
+              <div className="loader-container inline-loader">
+                <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+                  <rect
+                    className="track"
+                    x="2.5"
+                    y="2.5"
+                    fill="none"
+                    stroke-width="5px"
+                    width="32.5"
+                    height="32.5"
+                  />
+                  <rect
+                    className="car"
+                    x="2.5"
+                    y="2.5"
+                    fill="none"
+                    stroke-width="5px"
+                    width="32.5"
+                    height="32.5"
+                    pathLength="100"
+                  />
+                </svg>
+              </div>
+            )}
             {
               selectedView === ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW &&
               <>
@@ -333,7 +368,6 @@ const Courses = (props) => {
                       </thead>
                       <tbody>
                         {
-
                           !isEmptyObjectOrNullUndefiend(syllabusList) ?
                             syllabusList?.map((item, index) => {
                               return (
@@ -407,7 +441,7 @@ const Courses = (props) => {
 
                               )
                             })
-                            : <>
+                            : !isLoading && (
                               <tr>
                                 <td className='text-center'
                                   colSpan={35}
@@ -415,7 +449,7 @@ const Courses = (props) => {
                                   {NO_RECORD_FOUND_MSG}
                                 </td>
                               </tr>
-                            </>
+                            )
                         }
 
                       </tbody>
@@ -506,7 +540,7 @@ const Courses = (props) => {
                           </Col>
                         )
                       }) :
-                        <>
+                        !isLoading && (
                           <div className="no-records-found no-records-found-inner h-100">
                             <div className="no-records-found-image">
                               <img src={notVoucherFound} alt="OpenPlaner" />
@@ -516,7 +550,7 @@ const Courses = (props) => {
                             </div>
                           </div>
 
-                        </>
+                        )
                     }
 
 

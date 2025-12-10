@@ -34,6 +34,7 @@ import { PaymentSuccessfull } from './pages/auth/Registration/PaymentSuccessfull
 import { PaymentFailed } from './pages/auth/Registration/PaymentFailed';
 import { PaymentPlans } from './pages/auth/Registration/PaymentPlans';
 import Groups from './pages/Customer/Groups/Groups';
+import StudentProfile from './pages/Customer/Students/StudentProfile';
 import GlobalSyllabusUploadModal from './components/GlobalSyllabusUploadModal/GlobalSyllabusUploadModal';
 const ParentsLanding = React.lazy(() => import('./pages/Parents/ParentsLanding'));
 // @ts-ignore - TS resolver can misreport on lazy dynamic imports in some configs
@@ -96,6 +97,13 @@ const privateRoutes: RouterProps[] = [
     component: <Groups />,
     caseSensitive: true,
     url: "/groups/:groupId",
+  },
+  // Student profile page
+  {
+    path: ENUMFORROUTES.STUDENT_PROFILE,
+    component: <StudentProfile />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.STUDENT_PROFILE,
   },
   {
     path: ENUMFORROUTES.EDIT_COURSE,
