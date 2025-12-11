@@ -4,7 +4,7 @@ import { get, post } from '../../../Utility/httpInterceptor';
 import { getUserSubId } from '../../../Utility/Helper';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
 import { te } from '../../../Utility/Toaster';
-import defaultAvatar from '/assets/images/avatar-default.svg';
+import defaultAvatar from '../../../assets/images/avatar-default.svg';
 
 interface StudentData {
   id: string;
