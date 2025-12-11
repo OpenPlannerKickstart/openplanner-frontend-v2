@@ -1765,7 +1765,6 @@ const Groups: React.FC = () => {
                             <button className="btn btn-primary" onClick={() => setShowGroupInfo(prev => !prev)} style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Group Info" title="Group Info">
                               <i className="material-symbols-outlined" style={{ color: '#fff' }}>info</i>
                             </button>
-                            <button className="btn btn-outline-white" style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Search" title="Search"><i className="material-symbols-outlined">search</i></button>
                           </div>
                         )}
                         {/* DM mode: show delete button on mobile */}
@@ -2207,18 +2206,19 @@ const Groups: React.FC = () => {
                             <i className="material-symbols-outlined">close</i>
                           </button>
                         </div>
-                        <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
-                          <h6 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h6>
-                          <div className="text-muted" style={{ fontSize: 13 }}>
-                            {(() => {
-                              const typeLabel = selectedGroup?.type === 'canonical' ? 'Class' : 'Group';
-                              const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
-                              const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
-                              return `${typeLabel} - ${countLabel}`;
-                            })()}
-                          </div>
-                        </div>
                         <div className="group-info-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                          {/* Name section - now scrolls with content */}
+                          <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
+                            <h6 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h6>
+                            <div className="text-muted" style={{ fontSize: 13 }}>
+                              {(() => {
+                                const typeLabel = selectedGroup?.type === 'canonical' ? 'Class' : 'Group';
+                                const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
+                                const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
+                                return `${typeLabel} - ${countLabel}`;
+                              })()}
+                            </div>
+                          </div>
                           <div style={{ padding: '16px' }}>
                             {(() => {
                               const hex = selectedGroup?.avatarColor || '#E5F3FF';
@@ -2238,13 +2238,52 @@ const Groups: React.FC = () => {
                                 || 'Unknown';
                               const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
                               const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
+                              const members: Array<any> = Array.isArray(groupDetail?.members) ? groupDetail.members : [];
+                              const memberCount = members.length || (typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : 0);
+                              const visibleMembers = membersExpanded ? members : members.slice(0, 3);
                               return (
-                                <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
-                                  <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
-                                  <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
-                                    Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                                <>
+                                  <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                                    <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                                    <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                                      Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                                    </div>
                                   </div>
-                                </div>
+                                  {/* Members list for subgroups (mobile) */}
+                                  {selectedGroup?.type !== 'canonical' && (
+                                    <div style={{ marginTop: 16 }}>
+                                      <div style={{ fontWeight: 600, color: '#111827', marginBottom: 8 }}>
+                                        {`Group - ${memberCount} Member${memberCount === 1 ? '' : 's'}`}
+                                      </div>
+                                      {members.length > 0 ? (
+                                        <div style={{ maxHeight: membersExpanded ? 260 : undefined, overflowY: membersExpanded ? 'auto' : 'visible' }}>
+                                          {visibleMembers.map((m: any) => (
+                                            <div
+                                              key={m.id || m.userId}
+                                              className="d-flex align-items-center gap-2 py-2"
+                                              style={{ cursor: 'pointer' }}
+                                              onClick={() => navigate(`/students/${m.id || m.userId}`)}
+                                            >
+                                              <img src={m.picture || defaultAvatar} alt={m.displayName || m.name || 'member'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                              <div style={{ color: '#111827' }}>
+                                                {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Member'))}
+                                              </div>
+                                            </div>
+                                          ))}
+                                          {members.length > 3 && (
+                                            <div className="text-center" style={{ paddingTop: 6 }}>
+                                              <button className="btn btn-outline-white" style={{ height: 32, borderRadius: 8 }} onClick={() => setMembersExpanded(v => !v)}>
+                                                {membersExpanded ? 'Collapse' : 'Show all'}
+                                              </button>
+                                            </div>
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <div className="text-muted" style={{ fontSize: 13 }}>No members yet</div>
+                                      )}
+                                    </div>
+                                  )}
+                                </>
                               );
                             })()}
                           </div>
@@ -2287,7 +2326,7 @@ const Groups: React.FC = () => {
                                     <i className="material-symbols-outlined">logout</i>
                                     <span>Exit Group</span>
                                   </button>
-                                  {selectedGroup?.type !== 'canonical' ? (
+                                  {selectedGroup?.type !== 'canonical' && currentUserSub && (selectedGroup?.createdBy?.id === currentUserSub || selectedGroup?.owner?.id === currentUserSub) ? (
                                     <button type="button" className="btn btn-outline-white text-start" onClick={handleDeleteGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
                                       <i className="material-symbols-outlined">delete</i>
                                       <span>Delete Group</span>
@@ -2402,9 +2441,6 @@ const Groups: React.FC = () => {
                       onClick={() => setShowGroupInfo(prev => !prev)}
                     >
                       Group Info
-                    </button>
-                    <button className="btn btn-outline-white" style={{ height: 40, width: 56, borderRadius: 8 }}>
-                      <i className="material-symbols-outlined">search</i>
                     </button>
                   </div>
                 ) : null}
@@ -2913,28 +2949,28 @@ const Groups: React.FC = () => {
                     <i className="material-symbols-outlined">close</i>
                   </button>
                 </div>
-                {/* Name under banner */}
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
-                  <h5 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h5>
-                  <div className="text-muted" style={{ fontSize: 14 }}>
-                    {(() => {
-                      if (selectedGroup?.type === 'canonical') {
-                        const prof =
-                          groupDetail?.course?.instructor ||
-                          groupDetail?.instructor ||
-                          groupDetail?.professorName ||
-                          selectedGroup?.professorName ||
-                          'Unassigned';
-                        return prof;
-                      }
-                      const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
-                      const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
-                      return `Group - ${countLabel}`;
-                    })()}
-                  </div>
-                </div>
-                {/* Scrollable body for desktop (description + actions) */}
+                {/* Scrollable body for desktop (name + description + actions) */}
                 <div className="group-info-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                  {/* Name section - now scrolls with content */}
+                  <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
+                    <h5 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h5>
+                    <div className="text-muted" style={{ fontSize: 14 }}>
+                      {(() => {
+                        if (selectedGroup?.type === 'canonical') {
+                          const prof =
+                            groupDetail?.course?.instructor ||
+                            groupDetail?.instructor ||
+                            groupDetail?.professorName ||
+                            selectedGroup?.professorName ||
+                            'Unassigned';
+                          return prof;
+                        }
+                        const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
+                        const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
+                        return `Group - ${countLabel}`;
+                      })()}
+                    </div>
+                  </div>
                   <div style={{ padding: '16px' }}>
                     {selectedGroup?.type === 'canonical' ? (
                       (() => {
@@ -2990,13 +3026,50 @@ const Groups: React.FC = () => {
                         || 'Unknown';
                       const createdAtRaw = selectedGroup?.createdAt || selectedGroup?.created_on || selectedGroup?.created_at || null;
                       const createdAtStr = createdAtRaw ? new Date(createdAtRaw).toLocaleDateString() : '';
+                      const members: Array<any> = Array.isArray(groupDetail?.members) ? groupDetail.members : [];
+                      const memberCount = members.length || (typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : 0);
+                      const visibleMembers = membersExpanded ? members : members.slice(0, 3);
                       return (
-                        <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
-                          <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
-                          <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
-                            Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                        <>
+                          <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                            <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                            <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                              Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                            </div>
                           </div>
-                        </div>
+                          {/* Members list for subgroups */}
+                          <div style={{ marginTop: 16 }}>
+                            <div style={{ fontWeight: 600, color: '#111827', marginBottom: 8 }}>
+                              {`Group - ${memberCount} Member${memberCount === 1 ? '' : 's'}`}
+                            </div>
+                            {members.length > 0 ? (
+                              <div style={{ maxHeight: membersExpanded ? 260 : undefined, overflowY: membersExpanded ? 'auto' : 'visible' }}>
+                                {visibleMembers.map((m: any) => (
+                                  <div
+                                    key={m.id || m.userId}
+                                    className="d-flex align-items-center gap-2 py-2"
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => navigate(`/students/${m.id || m.userId}`)}
+                                  >
+                                    <img src={m.picture || defaultAvatar} alt={m.displayName || m.name || 'member'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                    <div style={{ color: '#111827' }}>
+                                      {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Member'))}
+                                    </div>
+                                  </div>
+                                ))}
+                                {members.length > 3 && (
+                                  <div className="text-center" style={{ paddingTop: 6 }}>
+                                    <button className="btn btn-outline-white" style={{ height: 32, borderRadius: 8 }} onClick={() => setMembersExpanded(v => !v)}>
+                                      {membersExpanded ? 'Collapse' : 'Show all'}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="text-muted" style={{ fontSize: 13 }}>No members yet</div>
+                            )}
+                          </div>
+                        </>
                       );
                     })())}
                   </div>
@@ -3074,7 +3147,7 @@ const Groups: React.FC = () => {
                             <span>Exit Group</span>
                           </button>
 
-                          {selectedGroup?.type !== 'canonical' ? (
+                          {selectedGroup?.type !== 'canonical' && currentUserSub && (selectedGroup?.createdBy?.id === currentUserSub || selectedGroup?.owner?.id === currentUserSub) ? (
                             <button
                               type="button"
                               className="btn btn-outline-white text-start"

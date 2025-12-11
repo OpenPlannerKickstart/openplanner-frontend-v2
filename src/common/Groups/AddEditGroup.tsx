@@ -125,6 +125,7 @@ const AddEditGroup: React.FC<AddEditGroupProps> = (props) => {
                   />
                 </Form.Group>
 
+                {/* Hidden until BE supports public group discovery
                 <Form.Group className="form-group">
                   <div className="d-flex align-items-center gap-2">
                     <Form.Check
@@ -136,6 +137,7 @@ const AddEditGroup: React.FC<AddEditGroupProps> = (props) => {
                     />
                   </div>
                 </Form.Group>
+                */}
 
                 {/* Color picker + live preview */}
                 <Form.Group className="form-group">
