@@ -1542,7 +1542,7 @@ const Groups: React.FC = () => {
                       </div>
                     ) : (
                       <div className="text-center p-4">
-                        <img src={{emptyStateImg}} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
+                        <img src={emptyStateImg} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
                         <h5 className="mt-3 mb-1">No recent chats</h5>
                         <p className="text-muted mb-0" style={{ fontSize: 14 }}>
                           Start a conversation from a group or create a private study group.
@@ -1665,7 +1665,7 @@ const Groups: React.FC = () => {
                                 )}
                                 <div className="d-flex align-items-center gap-3 flex-grow-1" style={{ minWidth: 0 }}>
                                   <div style={{ width: 56, height: 56, borderRadius: 28, background: sg.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <img src={{bookIcon}} alt="avatar" style={{ width: 32, height: 'auto' }} />
+                                    <img src={bookIcon} alt="avatar" style={{ width: 32, height: 'auto' }} />
                                   </div>
                                   <div style={{ minWidth: 0 }}>
                                     <div style={{ fontWeight: 600, color: '#111827' }}>{sg.name}</div>
@@ -1760,7 +1760,7 @@ const Groups: React.FC = () => {
                           ) : (
                             <div className="d-flex align-items-center gap-2">
                               <div style={{ width: 36, height: 36, borderRadius: 18, background: (previewingSuggestion?.avatarColor || myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <img src={{bookIcon}} alt="avatar" style={{ width: 22, height: 'auto' }} />
+                                <img src={bookIcon} alt="avatar" style={{ width: 22, height: 'auto' }} />
                               </div>
                               <h6 className="mb-0" style={{ color: '#111827' }}>{previewingSuggestion?.name || myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h6>
                             </div>
@@ -1890,7 +1890,7 @@ const Groups: React.FC = () => {
                           ) : previewingSuggestion ? (
                             <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
                               <div style={{ width: 80, height: 80, borderRadius: 40, background: previewingSuggestion.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                                <img src={{bookIcon}} alt="group" style={{ width: 48, height: 'auto' }} />
+                                <img src={bookIcon} alt="group" style={{ width: 48, height: 'auto' }} />
                               </div>
                               <h5 style={{ color: '#111827', marginBottom: 8 }}>{previewingSuggestion.name}</h5>
                               <p className="text-muted text-center" style={{ fontSize: 14, maxWidth: 280 }}>
@@ -2387,7 +2387,7 @@ const Groups: React.FC = () => {
                     <>
                       <div className="d-flex align-items-center gap-2">
                         <div style={{ width: 44, height: 44, borderRadius: 22, background: (previewingSuggestion?.avatarColor || myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <img src={{bookIcon}} alt="avatar" style={{ width: 26, height: 'auto' }} />
+                          <img src={bookIcon} alt="avatar" style={{ width: 26, height: 'auto' }} />
                         </div>
                         <h5 className="mb-0" style={{ color: '#111827' }}>{previewingSuggestion?.name || myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h5>
                       </div>
@@ -2586,7 +2586,7 @@ const Groups: React.FC = () => {
                   ) : previewingSuggestion ? (
                     <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
                       <div style={{ width: 80, height: 80, borderRadius: 40, background: previewingSuggestion.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                        <img src={{bookIcon}} alt="group" style={{ width: 48, height: 'auto' }} />
+                        <img src={bookIcon} alt="group" style={{ width: 48, height: 'auto' }} />
                       </div>
                       <h5 style={{ color: '#111827', marginBottom: 8 }}>{previewingSuggestion.name}</h5>
                       <p className="text-muted text-center" style={{ fontSize: 14, maxWidth: 280 }}>
