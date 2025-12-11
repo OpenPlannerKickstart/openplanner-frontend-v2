@@ -1617,17 +1617,10 @@ const Groups: React.FC = () => {
                         </button>
                       </div>
                       {suggestionsLoading ? (
-                        <div className="px-3" aria-hidden="true">
-                          {[...Array(4)].map((_, i) => (
-                            <div key={`sugskel-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
-                              <div style={{ width: 36, height: 36, background: '#E5E7EB', borderRadius: '50%' }} />
-                              <div style={{ flex: 1 }}>
-                                <div style={{ height: 10, background: '#E5E7EB', borderRadius: 6, width: i % 2 ? '60%' : '40%' }} />
-                                <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: i % 3 ? '30%' : '20%', marginTop: 6 }} />
-                              </div>
-                              <div style={{ width: 88, height: 30, background: '#E5E7EB', borderRadius: 8 }} />
-                            </div>
-                          ))}
+                        <div className="d-flex align-items-center justify-content-center" style={{ padding: '32px 0' }}>
+                          <div className="spinner-border text-primary" role="status" style={{ width: 32, height: 32 }}>
+                            <span className="visually-hidden">Loading...</span>
+                          </div>
                         </div>
                       ) : suggestions && suggestions.length > 0 ? (
                         <div>
