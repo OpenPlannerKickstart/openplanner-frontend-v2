@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import sidebarLogoLg from "../../assets/images/sidebar-logo-lg.svg";
 import sidebarLogosm from "../../assets/images/sidebar-logo-sm.svg";
 import { NavLink } from 'react-router-dom';
@@ -8,14 +8,53 @@ import { AppDispatch } from '../../redux/store';
 import { removeCookieByName } from '../../Utility/Helper';
 import { logoutFromSystem } from '../../redux/Service/auth/login';
 import AddSyllabusEvents from '../../common/AddSyllabusEvents/AddSyllabusEvents';
+
+const SIDEBAR_BREAKPOINT = 1024;
+
 export const Sidebar = () => {
   const [SidebarSize, setSidebarSize] = useState('lg');
-  const windowSize = document.documentElement.clientWidth;
+  // Track whether user manually toggled sidebar (to prevent auto-toggle overriding user choice)
+  const userManuallyToggled = useRef(false);
+  // Track last known screen state to detect crossing the breakpoint
+  const lastWasAboveBreakpoint = useRef(window.innerWidth > SIDEBAR_BREAKPOINT);
+
+  // Auto-collapse/expand sidebar on resize
+  useEffect(() => {
+    const handleResize = () => {
+      const isAboveBreakpoint = window.innerWidth > SIDEBAR_BREAKPOINT;
+      const wasAbove = lastWasAboveBreakpoint.current;
+
+      // Only auto-toggle when crossing the breakpoint
+      if (wasAbove && !isAboveBreakpoint) {
+        // Shrinking below breakpoint → collapse sidebar
+        setSidebarSize('sm');
+        document.documentElement.setAttribute('data-sidebar-size', 'sm');
+        userManuallyToggled.current = false;
+      } else if (!wasAbove && isAboveBreakpoint) {
+        // Growing above breakpoint → expand sidebar
+        setSidebarSize('lg');
+        document.documentElement.setAttribute('data-sidebar-size', 'lg');
+        userManuallyToggled.current = false;
+      }
+
+      lastWasAboveBreakpoint.current = isAboveBreakpoint;
+    };
+
+    // Set initial state based on current window size
+    const initialSize = window.innerWidth > SIDEBAR_BREAKPOINT ? 'lg' : 'sm';
+    setSidebarSize(initialSize);
+    document.documentElement.setAttribute('data-sidebar-size', initialSize);
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toogleMenu = () => {
-    if (windowSize > 1024) {
-      setSidebarSize(SidebarSize === 'sm' ? 'lg' : 'sm');
-      document.documentElement.setAttribute('data-sidebar-size', SidebarSize === 'lg' ? 'sm' : 'lg');
+    if (window.innerWidth > SIDEBAR_BREAKPOINT) {
+      const newSize = SidebarSize === 'sm' ? 'lg' : 'sm';
+      setSidebarSize(newSize);
+      document.documentElement.setAttribute('data-sidebar-size', newSize);
+      userManuallyToggled.current = true;
     }
   };
   const dispatch: AppDispatch = useDispatch();

@@ -23,14 +23,41 @@ import { ts } from '../../Utility/Toaster';
 import { API_URL, WEB_SOCKET_CONNECTION_URL } from '../../Utility/Config';
 import { get, post } from '../../Utility/httpInterceptor';
 import { useNotifications } from '../../context/SocketContext';
+const SIDEBAR_BREAKPOINT = 1024;
+
 const Navbar = (props) => {
-  const [SidebarSize, setSidebarSize] = useState('lg');
-  const windowSize = document.documentElement.clientWidth;
+  const [SidebarSize, setSidebarSize] = useState(() => window.innerWidth > SIDEBAR_BREAKPOINT ? 'lg' : 'sm');
+  const [isMobileView, setIsMobileView] = useState(() => window.innerWidth <= SIDEBAR_BREAKPOINT);
+
+  // Keep SidebarSize in sync with document attribute changes (from Sidebar auto-toggle)
+  // Also track mobile view state for hiding hamburger button
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-sidebar-size') {
+          const currentSize = document.documentElement.getAttribute('data-sidebar-size') || 'lg';
+          setSidebarSize(currentSize);
+        }
+      });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= SIDEBAR_BREAKPOINT);
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const toggleMenu = () => {
-    if (windowSize > 1024) {
-      setSidebarSize(SidebarSize === 'sm' ? 'lg' : 'sm');
-      document.documentElement.setAttribute('data-sidebar-size', SidebarSize === 'lg' ? 'sm' : 'lg');
+    if (window.innerWidth > SIDEBAR_BREAKPOINT) {
+      const newSize = SidebarSize === 'sm' ? 'lg' : 'sm';
+      setSidebarSize(newSize);
+      document.documentElement.setAttribute('data-sidebar-size', newSize);
     }
   };
 
@@ -380,10 +407,12 @@ const Navbar = (props) => {
             <div className="navbar-header-left ">
               {/* <!-- LOGO --> */}
 
-
-              <Button variant='primary' className="btn-icon btn-secondary-two" id="topnav-hamburger-icon" onClick={toggleMenu}>
-                <i className='material-symbols-outlined'>menu</i>
-              </Button>
+              {/* Hide hamburger button on mobile when sidebar is locked collapsed */}
+              {!isMobileView && (
+                <Button variant='primary' className="btn-icon btn-secondary-two" id="topnav-hamburger-icon" onClick={toggleMenu}>
+                  <i className='material-symbols-outlined'>menu</i>
+                </Button>
+              )}
 
               {/* <!-- App Search--> */}
 
