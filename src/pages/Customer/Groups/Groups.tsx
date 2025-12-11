@@ -2243,46 +2243,53 @@ const Groups: React.FC = () => {
                               const visibleMembers = membersExpanded ? members : members.slice(0, 3);
                               return (
                                 <>
-                                  <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
-                                    <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
-                                    <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
-                                      Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
-                                    </div>
-                                  </div>
-                                  {/* Members list for subgroups (mobile) */}
+                                  {/* Bio section - only for subgroups, not canonical class groups */}
                                   {selectedGroup?.type !== 'canonical' && (
-                                    <div style={{ marginTop: 16 }}>
-                                      <div style={{ fontWeight: 600, color: '#111827', marginBottom: 8 }}>
-                                        {`Group - ${memberCount} Member${memberCount === 1 ? '' : 's'}`}
-                                      </div>
-                                      {members.length > 0 ? (
-                                        <div style={{ maxHeight: membersExpanded ? 260 : undefined, overflowY: membersExpanded ? 'auto' : 'visible' }}>
-                                          {visibleMembers.map((m: any) => (
-                                            <div
-                                              key={m.id || m.userId}
-                                              className="d-flex align-items-center gap-2 py-2"
-                                              style={{ cursor: 'pointer' }}
-                                              onClick={() => navigate(`/students/${m.id || m.userId}`)}
-                                            >
-                                              <img src={m.picture || defaultAvatar} alt={m.displayName || m.name || 'member'} style={{ width: 28, height: 28, borderRadius: 14 }} />
-                                              <div style={{ color: '#111827' }}>
-                                                {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Member'))}
-                                              </div>
-                                            </div>
-                                          ))}
-                                          {members.length > 3 && (
-                                            <div className="text-center" style={{ paddingTop: 6 }}>
-                                              <button className="btn btn-outline-white" style={{ height: 32, borderRadius: 8 }} onClick={() => setMembersExpanded(v => !v)}>
-                                                {membersExpanded ? 'Collapse' : 'Show all'}
-                                              </button>
-                                            </div>
-                                          )}
+                                    <>
+                                      <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                                        <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                                        <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                                          Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
                                         </div>
-                                      ) : (
-                                        <div className="text-muted" style={{ fontSize: 13 }}>No members yet</div>
-                                      )}
-                                    </div>
+                                      </div>
+                                      {/* Divider before members list - full width */}
+                                      <div style={{ borderTop: '1px solid #E5E7EB', margin: '16px -16px 0' }} />
+                                    </>
                                   )}
+                                  {/* Members list (mobile) - for both canonical and subgroups */}
+                                  <div style={{ marginTop: 16 }}>
+                                    <div style={{ fontWeight: 600, color: '#111827', marginBottom: 8 }}>
+                                      {selectedGroup?.type === 'canonical' 
+                                        ? `Class - ${memberCount} Student${memberCount === 1 ? '' : 's'}`
+                                        : `Group - ${memberCount} Member${memberCount === 1 ? '' : 's'}`}
+                                    </div>
+                                    {members.length > 0 ? (
+                                      <div style={{ maxHeight: membersExpanded ? 260 : undefined, overflowY: membersExpanded ? 'auto' : 'visible' }}>
+                                        {visibleMembers.map((m: any) => (
+                                          <div
+                                            key={m.id || m.userId}
+                                            className="d-flex align-items-center gap-2 py-2"
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => navigate(`/students/${m.id || m.userId}`)}
+                                          >
+                                            <img src={m.picture || defaultAvatar} alt={m.displayName || m.name || 'member'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                            <div style={{ color: '#111827' }}>
+                                              {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Member'))}
+                                            </div>
+                                          </div>
+                                        ))}
+                                        {members.length > 3 && (
+                                          <div className="text-center" style={{ paddingTop: 6 }}>
+                                            <button className="btn btn-outline-white" style={{ height: 32, borderRadius: 8 }} onClick={() => setMembersExpanded(v => !v)}>
+                                              {membersExpanded ? 'Collapse' : 'Show all'}
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <div className="text-muted" style={{ fontSize: 13 }}>No members yet</div>
+                                    )}
+                                  </div>
                                 </>
                               );
                             })()}
@@ -3037,6 +3044,8 @@ const Groups: React.FC = () => {
                               Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
                             </div>
                           </div>
+                          {/* Divider before members list - full width */}
+                          <div style={{ borderTop: '1px solid #E5E7EB', margin: '16px -16px 0' }} />
                           {/* Members list for subgroups */}
                           <div style={{ marginTop: 16 }}>
                             <div style={{ fontWeight: 600, color: '#111827', marginBottom: 8 }}>
