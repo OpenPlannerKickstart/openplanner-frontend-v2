@@ -75,11 +75,6 @@ export const Sidebar = () => {
                     <i className="material-symbols-outlined">info</i> <span data-key="t-widgets">Help</span>
                   </NavLink>
                 </li> */}
-                <li className="nav-item">
-                  <NavLink className="nav-link menu-link " to="/settings">
-                    <i className="material-symbols-outlined">settings</i> <span data-key="t-widgets">Settings</span>
-                  </NavLink>
-                </li>
                 {((window as any).FEATURE_GROUPS || process.env.FEATURE_GROUPS === 'true') && (
                   <li className="nav-item">
                     <NavLink className="nav-link menu-link " to="/groups">
@@ -87,6 +82,11 @@ export const Sidebar = () => {
                     </NavLink>
                   </li>
                 )}
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="/settings">
+                    <i className="material-symbols-outlined">settings</i> <span data-key="t-widgets">Settings</span>
+                  </NavLink>
+                </li>
               </ul>
             </div>
 
