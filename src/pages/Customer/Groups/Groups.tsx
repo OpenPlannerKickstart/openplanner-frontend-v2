@@ -1442,7 +1442,7 @@ const Groups: React.FC = () => {
                           return filtered.map((thread) => {
                           const recipient = thread.participants?.[0];
                           const recipientName = recipient?.displayName || recipient?.username || 'User';
-                          const recipientPicture = recipient?.picture;
+                          const recipientPicture = recipient?.picture || recipient?.avatarUrl;
                           const initials = (recipientName || 'U').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase();
                           const isSelected = activeDmThreadId === thread.threadId;
                           const lastMsg = thread.lastMessage;
@@ -1729,7 +1729,7 @@ const Groups: React.FC = () => {
                             dmThread ? (() => {
                               const recipient = dmThread.participants?.[0];
                               const recipientName = recipient?.displayName || recipient?.username || 'User';
-                              const recipientPicture = recipient?.picture;
+                              const recipientPicture = recipient?.picture || recipient?.avatarUrl;
                               const initials = (recipientName || 'U').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase();
                               return (
                                 <div className="d-flex align-items-center gap-2" onClick={() => { if (recipient?.id) navigate(`/students/${recipient.id}`); }} style={{ cursor: 'pointer' }}>
@@ -1841,7 +1841,9 @@ const Groups: React.FC = () => {
                                         const created = m.createdAt ? new Date(m.createdAt) : new Date();
                                         const isMine = Boolean((m?.sender?.id && currentUserSub && m.sender.id === currentUserSub) || m?.sender?.id === 'me');
                                         const senderName = isMine ? 'You' : (m?.sender?.displayName || 'User');
-                                        const avatar = m?.sender?.picture || defaultAvatar;
+                                        // For DM messages, use recipient picture from thread if sender picture is missing
+                                        const dmRecipient = dmThread?.participants?.[0];
+                                        const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || (!isMine && (dmRecipient?.picture || dmRecipient?.avatarUrl)) || defaultAvatar;
                                         if (m?.deleted) {
                                           return (
                                             <div key={key} className={`d-flex ${isMine ? 'justify-content-end' : 'align-items-start gap-2'} mb-2`}>
@@ -2021,7 +2023,7 @@ const Groups: React.FC = () => {
                               // Precompute sender display for branches below
                               const senderName = m?.sender?.displayName || 'User';
                               const senderId = m?.sender?.id;
-                              const avatar = m?.sender?.picture || defaultAvatar;
+                              const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || defaultAvatar;
                               const goToSenderProfile = () => { if (senderId) navigate(`/students/${senderId}`); };
                               if (m?.deleted) {
                                         return (
@@ -2342,7 +2344,7 @@ const Groups: React.FC = () => {
                     dmThread ? (() => {
                       const recipient = dmThread.participants?.[0];
                       const recipientName = recipient?.displayName || recipient?.username || 'User';
-                      const recipientPicture = recipient?.picture;
+                      const recipientPicture = recipient?.picture || recipient?.avatarUrl;
                       const initials = (recipientName || 'U').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase();
                       return (
                         <>
@@ -2503,7 +2505,9 @@ const Groups: React.FC = () => {
                                   m?.sender?.id === 'me'
                                 );
                                 const senderName = isMine ? 'You' : (m?.sender?.displayName || 'User');
-                                const avatar = m?.sender?.picture || defaultAvatar;
+                                // For DM messages, use recipient picture from thread if sender picture is missing
+                                const dmRecipient = dmThread?.participants?.[0];
+                                const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || (!isMine && (dmRecipient?.picture || dmRecipient?.avatarUrl)) || defaultAvatar;
                                 if (m?.deleted) {
                                   return (
                                     <div key={key} className={`d-flex ${isMine ? 'justify-content-end' : 'align-items-start gap-2'} mb-2`}>
@@ -2721,7 +2725,7 @@ const Groups: React.FC = () => {
                               }
                               const senderName = m?.sender?.displayName || 'User';
                               const senderId = m?.sender?.id;
-                              const avatar = m?.sender?.picture || defaultAvatar;
+                              const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || defaultAvatar;
                               const goToSenderProfile = () => { if (senderId) navigate(`/students/${senderId}`); };
                               if (m?.deleted) {
                                 return (

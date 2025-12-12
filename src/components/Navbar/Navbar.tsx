@@ -438,8 +438,12 @@ const Navbar = (props) => {
                 <button type="button" className="topbar-user-btn" id="page-header-user-dropdown" data-bs-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
                   <span className="d-flex align-items-center">
-                    <img className="rounded-circle header-profile-user"
-                      src={!isNullUndefinedOrBlank(userData?.profile_image) ? userData?.profile_image : defaultAvatar} alt="Header Avatar" />
+                    <img
+                      className="rounded-circle header-profile-user"
+                      style={{ width: 40, height: 40, objectFit: 'cover', objectPosition: 'center' }}
+                      src={!isNullUndefinedOrBlank(userData?.profile_image) ? userData?.profile_image : defaultAvatar}
+                      alt="Header Avatar"
+                    />
                     <span className="text-start">
                       <span className="d-none d-xl-inline-block  user-name-text">{(!isNullUndefinedOrBlank(userData?.username)) ? `${userData?.username}` : "User"}</span>
                       {/* <span className="d-none d-xl-block  user-name-sub-text">Student</span> */}
