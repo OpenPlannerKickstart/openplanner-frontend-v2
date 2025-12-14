@@ -1294,22 +1294,22 @@ const Groups: React.FC = () => {
             <h1 className="dashboard-page-title">Groups</h1>
           </div>
           <div className="dashboard-header-right">
-            <button type="button" className="btn btn-primary" onClick={() => setShowCreateGroup(true)}>
+          <button type="button" className="btn btn-primary" onClick={() => setShowCreateGroup(true)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 6 }}>
                 <line x1="12" y1="5" x2="12" y2="19"/>
                 <line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
-              Create Group
-            </button>
+            Create Group
+          </button>
             <button type="button" className="btn btn-accent" onClick={handleSyllabusShow}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 6 }}>
                 <line x1="12" y1="5" x2="12" y2="19"/>
                 <line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
-              Add Syllabus
-            </button>
-          </div>
+            Add Syllabus
+          </button>
         </div>
+      </div>
       </header>
       <div className="content-area content-area-title-filter">
         <div className="page-content-wrapper">
@@ -1419,19 +1419,19 @@ const Groups: React.FC = () => {
                     <>
                       <div className="px-3 pt-4 d-flex align-items-center justify-content-between">
                         <h6 className="mb-0" style={{ color: '#111827', fontWeight: 600, letterSpacing: 0.2 }}>Students</h6>
-                      </div>
+                    </div>
                     {dmThreadsLoading ? (
                       <div className="px-3 pt-3">
                         {[...Array(5)].map((_, i) => (
                           <div key={`dmskel-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 8px', borderBottom: '1px solid #F3F4F6' }}>
                             <div style={{ width: 48, height: 48, background: '#E5E7EB', borderRadius: '50%' }} />
-                            <div style={{ flex: 1 }}>
+                          <div style={{ flex: 1 }}>
                               <div style={{ height: 12, background: '#E5E7EB', borderRadius: 6, width: '60%' }} />
                               <div style={{ height: 10, background: '#F0F2F5', borderRadius: 6, width: '40%', marginTop: 8 }} />
-                            </div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
+                    </div>
                     ) : dmThreads.length > 0 ? (
                       <div style={{ marginTop: 8 }}>
                         {(() => {
@@ -1757,27 +1757,27 @@ const Groups: React.FC = () => {
                               );
                             })() : (
                               /* DM loading state */
-                              <div className="d-flex align-items-center gap-2">
+                          <div className="d-flex align-items-center gap-2">
                                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#E5E7EB' }} />
                                 <h6 className="mb-0" style={{ color: '#9CA3AF' }}>Loading...</h6>
-                              </div>
+                            </div>
                             )
                           ) : (
                             <div className="d-flex align-items-center gap-2">
                               <div style={{ width: 36, height: 36, borderRadius: 18, background: (previewingSuggestion?.avatarColor || myGroups.find(g => g.id === selectedGroupId)?.avatarColor) || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <img src={bookIcon} alt="avatar" style={{ width: 22, height: 'auto' }} />
-                              </div>
+                          </div>
                               <h6 className="mb-0" style={{ color: '#111827' }}>{previewingSuggestion?.name || myGroups.find(g => g.id === selectedGroupId)?.name || 'Group'}</h6>
-                            </div>
+                        </div>
                           )}
                         </div>
                         {/* Hide Group Info button in DM mode on mobile */}
                         {!activeDmThreadId && (
-                          <div className="d-flex align-items-center gap-2">
-                            <button className="btn btn-primary" onClick={() => setShowGroupInfo(prev => !prev)} style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Group Info" title="Group Info">
-                              <i className="material-symbols-outlined" style={{ color: '#fff' }}>info</i>
-                            </button>
-                          </div>
+                        <div className="d-flex align-items-center gap-2">
+                          <button className="btn btn-primary" onClick={() => setShowGroupInfo(prev => !prev)} style={{ height: 36, width: 48, borderRadius: 8 }} aria-label="Group Info" title="Group Info">
+                            <i className="material-symbols-outlined" style={{ color: '#fff' }}>info</i>
+                          </button>
+                        </div>
                         )}
                         {/* DM mode: show delete button on mobile */}
                         {activeDmThreadId && dmThread && (
@@ -2026,7 +2026,7 @@ const Groups: React.FC = () => {
                                               {m.content ? (
                                                 <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
                                                   {m.content}
-                                                </div>
+                                              </div>
                                               ) : null}
                                             </div>
                                           </div>
@@ -2097,7 +2097,7 @@ const Groups: React.FC = () => {
                                             {m.content ? (
                                               <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
                                                 {m.content}
-                                              </div>
+                                            </div>
                                             ) : null}
                                           </div>
                                         </div>
@@ -2119,17 +2119,17 @@ const Groups: React.FC = () => {
                             <span style={{ color: '#92400E', fontSize: 14 }}>This conversation has been closed by the other user.</span>
                           </div>
                         ) : (
-                          <Composer
+                        <Composer
                             onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
                             disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
-                            countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
-                            resizeSignal={frameRect.width}
+                          countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                          resizeSignal={frameRect.width}
                             onFilesAdded={addFiles}
                             selectedFilesCount={selectedFilesCount}
                             uploadingCount={uploadingCount}
                             allowEmptySend={readyAttachments.length > 0}
                             previews={renderAttachmentPreviews()}
-                          />
+                        />
                         )}
                       </div>
 
@@ -2172,17 +2172,17 @@ const Groups: React.FC = () => {
                         </div>
                         <div className="group-info-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
                           {/* Name section - now scrolls with content */}
-                          <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
-                            <h6 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h6>
-                            <div className="text-muted" style={{ fontSize: 13 }}>
-                              {(() => {
-                                const typeLabel = selectedGroup?.type === 'canonical' ? 'Class' : 'Group';
-                                const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
-                                const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
-                                return `${typeLabel} - ${countLabel}`;
-                              })()}
-                            </div>
+                        <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
+                          <h6 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h6>
+                          <div className="text-muted" style={{ fontSize: 13 }}>
+                            {(() => {
+                              const typeLabel = selectedGroup?.type === 'canonical' ? 'Class' : 'Group';
+                              const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
+                              const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
+                              return `${typeLabel} - ${countLabel}`;
+                            })()}
                           </div>
+                        </div>
                           <div style={{ padding: '16px' }}>
                             {(() => {
                               const hex = selectedGroup?.avatarColor || '#E5F3FF';
@@ -2210,12 +2210,12 @@ const Groups: React.FC = () => {
                                   {/* Bio section - only for subgroups, not canonical class groups */}
                                   {selectedGroup?.type !== 'canonical' && (
                                     <>
-                                      <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
-                                        <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
-                                        <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
-                                          Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
-                                        </div>
-                                      </div>
+                                <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                                  <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                                  <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                                    Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
+                                  </div>
+                                </div>
                                       {/* Divider before members list - full width */}
                                       <div style={{ borderTop: '1px solid #E5E7EB', margin: '16px -16px 0' }} />
                                     </>
@@ -2430,7 +2430,7 @@ const Groups: React.FC = () => {
                     >
                       <i className="material-symbols-outlined" style={{ color: '#DC2626' }}>delete</i>
                     </button>
-                  </div>
+              </div>
                 )}
               </div>
               {/* Chat timeline (independent scroll) - takes remaining space */}
@@ -2729,7 +2729,7 @@ const Groups: React.FC = () => {
                                       {m.content ? (
                                         <div style={{ background: '#E5F3FF', border: '1px solid #CDE7FF', color: '#0F172A', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
                                           {m.content}
-                                        </div>
+                                      </div>
                                       ) : null}
                                     </div>
                                   </div>
@@ -2799,7 +2799,7 @@ const Groups: React.FC = () => {
                                     {m.content ? (
                                       <div style={{ background: '#fff', border: '1px solid #E5E7EB', color: '#111827', borderRadius: 12, padding: '10px 12px', minWidth: 40 }}>
                                         {m.content}
-                                      </div>
+                                    </div>
                                     ) : null}
                                   </div>
                                 </div>
@@ -2821,16 +2821,16 @@ const Groups: React.FC = () => {
                       <span style={{ color: '#92400E', fontSize: 14 }}>This conversation has been closed by the other user.</span>
                     </div>
                   ) : (
-                    <Composer
+                <Composer
                       onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
                       disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
-                      countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                  countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
                       onFilesAdded={addFiles}
                       selectedFilesCount={selectedFilesCount}
                       uploadingCount={uploadingCount}
                       allowEmptySend={readyAttachments.length > 0}
                       previews={renderAttachmentPreviews()}
-                    />
+                />
                   )}
                 </div>
               </div>
@@ -2876,10 +2876,10 @@ const Groups: React.FC = () => {
                 {/* Scrollable body for desktop (name + description + actions) */}
                 <div className="group-info-scroll" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
                   {/* Name section - now scrolls with content */}
-                  <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
-                    <h5 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h5>
-                    <div className="text-muted" style={{ fontSize: 14 }}>
-                      {(() => {
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
+                  <h5 className="mb-1" style={{ color: '#111827' }}>{selectedGroup?.name || 'Group'}</h5>
+                  <div className="text-muted" style={{ fontSize: 14 }}>
+                    {(() => {
                         if (selectedGroup?.type === 'canonical') {
                           const prof =
                             groupDetail?.course?.instructor ||
@@ -2889,12 +2889,12 @@ const Groups: React.FC = () => {
                             'Unassigned';
                           return prof;
                         }
-                        const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
-                        const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
+                      const count = typeof selectedGroup?.memberCount === 'number' ? selectedGroup?.memberCount : null;
+                      const countLabel = count !== null ? `${count} Student${count === 1 ? '' : 's'}` : 'Students';
                         return `Group - ${countLabel}`;
-                      })()}
-                    </div>
+                    })()}
                   </div>
+                </div>
                   <div style={{ padding: '16px' }}>
                     {selectedGroup?.type === 'canonical' ? (
                       (() => {
@@ -2955,12 +2955,12 @@ const Groups: React.FC = () => {
                       const visibleMembers = membersExpanded ? members : members.slice(0, 3);
                       return (
                         <>
-                          <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
-                            <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
-                            <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
-                              Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
-                            </div>
+                        <div style={{ background: bg, border: `1px solid ${border}`, borderRadius: 12, padding: 16 }}>
+                          <div style={{ color: '#111827', lineHeight: 1.6 }}>{description}</div>
+                          <div className="text-muted" style={{ fontSize: 13, marginTop: 12 }}>
+                            Created By : {creatorName}{createdAtStr ? `  ${createdAtStr}` : ''}
                           </div>
+                        </div>
                           {/* Divider before members list - full width */}
                           <div style={{ borderTop: '1px solid #E5E7EB', margin: '16px -16px 0' }} />
                           {/* Members list for subgroups */}

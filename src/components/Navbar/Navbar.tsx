@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 // import logo from "../../assets/images/dummy-logo.svg";
 import defaultAvatar from "../../assets/images/avatar-default.svg";
-import { Button, Form, Offcanvas } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
 import notVoucherFound from "/assets/images/not-voucher-found.svg";
 import { formatedDate, getUserFirstLastName, getUserSubId, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, removeCookieByName } from '../../Utility/Helper';
@@ -111,13 +111,17 @@ const Navbar = (props) => {
   // const socket = io(API_URL);
 
   const openNotificationModal = async () => {
-    const response = await dispatch(getAllNotificationAPI());
-    if (response) {
-      handleNotificationsShow();
+    // Always show the panel first
+    handleNotificationsShow();
+    
+    // Then fetch data in the background
+    try {
+      await dispatch(getAllNotificationAPI());
       countUnreadNotification();
+    } catch (err) {
+      // Panel is already open, just continue
     }
     fetchInvites();
-
   }
   const readNotification = async (notificationId) => {
     if (isNullUndefinedOrBlank(notificationId)) {
@@ -425,13 +429,18 @@ const Navbar = (props) => {
             <div className="navbar-header-right d-flex align-items-center">
 
               <div className="dropdown topbar-head-dropdown notification-button header-item" id="notificationDropdown">
-                <button type="button" className={`btn btn-lg btn-outline-white btn-icon rounded-pill ${notificationAlert ? "new-notification" : ""}`} onClick={() => { openNotificationModal(); }} >
+                <button 
+                  type="button" 
+                  className={`btn btn-lg btn-outline-white btn-icon rounded-pill ${notificationAlert ? "new-notification" : ""}`} 
+                  onClick={() => {
+                    setNotificationShow(true);
+                    openNotificationModal();
+                  }}
+                >
                   <i className="material-symbols-outlined">notifications</i>
-                  {
-                    notificationCount > 0 ?
-                      <div className='header-counter'>{!isNullUndefinedOrBlank(notificationCount) ? notificationCount : 0}</div>
-                      : <></>
-                  }
+                  {notificationCount > 0 && (
+                    <div className='header-counter'>{notificationCount}</div>
+                  )}
                 </button>
               </div>
               <div className="dropdown header-item topbar-user">
@@ -473,118 +482,190 @@ const Navbar = (props) => {
           </div>
         </div>
       </header>
-      <Offcanvas show={notificationShow} placement="end" className="notification-offcanvas op-offcanvas style-1">
-        <Offcanvas.Header>
-          <Offcanvas.Title>Notifications</Offcanvas.Title>
-          <button type="button" className="btn-close" onClick={handleNotificationClose}>
-            <i className='material-symbols-outlined'>close</i>
-          </button>
-
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <div className="Add-new-task-container">
-            <div className="op-offcanvas-body-container">
-              {/* Pending group invites */}
-              {invites && invites.length > 0 && (
-                <div className="notification-box mb-3">
-                  <div className="d-flex align-items-center justify-content-between" style={{ padding: '6px 8px', borderBottom: '1px solid #E5E7EB' }}>
-                    <h6 className="mb-0">Group Invites</h6>
-                    <button className="btn btn-sm btn-outline-white" onClick={fetchInvites}>Refresh</button>
-                  </div>
-                  <ul className="list-unstyled mb-0">
-                    {invites.map((it) => {
-                      const created = (it as any).createdAt || (it as any).created_at || Date.now();
-                      return (
-                        <li key={it.id} className={`${!it.read ? 'unread' : ''} d-flex align-items-center justify-content-between`} style={{ padding: '10px 12px', borderBottom: '1px solid #F3F4F6' }}>
-                          <div className="noti-details">
-                            <p className="mb-1">{(it.fromUsername || it.fromName || 'Someone')} invited you to join {it.groupName || 'a group'}</p>
-                            <span>{formatedDate(created, `MMM DD, [at] hh:mm a`)}</span>
-                          </div>
-                          <div className='noti-action d-flex gap-2'>
-                            <button className="btn btn-sm btn-link text-info" onClick={async () => { try { const res: any = await post(`invites/${it.id}/accept`, {}); const data = res?.data ?? res; handleNotificationClose(); if (data?.groupId) { navigate(`/groups/${data.groupId}?tab=groups`); } else { navigate(`/groups?tab=groups`); } } catch {} }}>Join</button>
-                            <div className="vr"></div>
-                            {!it.read ? (
-                              <button className="btn btn-sm btn-link text-danger" onClick={() => { const r = getInviteReadSet(); r.add(it.id); setInviteReadSet(r); setInvites(prev => prev.map(x => x.id === it.id ? { ...x, read: true } : x)); }}>Dismiss</button>
-                            ) : (
-                              <button className="btn btn-sm btn-link text-danger" onClick={async () => { try { await post(`invites/${it.id}/decline`, {}); fetchInvites(); } catch {} }}>Clear</button>
-                            )}
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
-              {
-                !isEmptyObjectOrNullUndefiend(notificationList) ?
-
-                  <div className="notification-box">
-                    <ul className="list-unstyled">
-                      {notificationList.map((item, index) => (
-                        <li className={`${item.isNew ? "new" : ""} ${!item.is_read ? "unread" : ""} `} key={item.id}>
-                          <div className="noti-details">
-                            {/* <h6>SHK Diamond removed diamond</h6> */}
-                            <p title={item.message}>{item.message}</p>
-                            <span>{(formatedDate(item.created_at, `MMM DD, [at] hh:mm a`))}</span>
-                            {/* <span>{!isNullUndefinedOrBlank(item.duration) ? item.duration==="0 seconds"?"now":`${item.duration} ago` : "-"}</span> */}
-                          </div>
-                          <div className='noti-action'>
-                            {
-                              item.is_read ? <>
-                              </> :
-                                <>
-                                  <button className="btn btn-sm btn-link text-info" onClick={() => { readNotification(item.id) }}>Mark as read</button>
-                                  <div className="vr"></div>
-                                </>
-                            }
-                            <button className="btn btn-sm btn-link text-danger" onClick={() => { clearNotification(item.id) }}>Clear</button>
-                          </div>
-                        </li>
-                      ))}
-
-                      {/* <li className="unread">
-                  <div className="noti-details">
-                    <h6>SHK Diamond removed diamond</h6>
-                    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
-                    <span>02 September 2023 11:30 am</span>
-                  </div>
-                  <div className='noti-action'>
-                    <button className="btn btn-link text-info">Mark as read</button>
-                    <div className="vr"></div>
-                    <button className="btn btn-link text-danger">Clear</button>
-                  </div>
-                </li> */}
-
-                    </ul>
-                  </div>
-                  :
-                  <div className="no-notification">
-                    <img src={notVoucherFound} alt="D Navinchandra" />
-                    <p>You have no new notifications.</p>
-                  </div>}
-            </div>
-
-            {!isEmptyObjectOrNullUndefiend(notificationList) ?
-              <div className="bottom-button-group">
-                {
-                  is_readAll && <>
-                    <Button type="button" className="btn btn-primary ms-auto" onClick={() => { const allId = notificationList.map((val) => { return val.id }); readNotification(allId) }}>
-                      Mark all as read
-                    </Button>
-                  </>
-                }
-                <Button type="button" className="btn btn-light-white" onClick={() => { const allId = notificationList.map((val) => { return val.id }); clearNotification(allId); }}>
-                  Clear All
-                </Button>
-
-              </div> : <></>
-            }
+      {/* Notification Panel Backdrop */}
+      <div 
+        className={`notification-panel-backdrop ${notificationShow ? 'active' : ''}`} 
+        onClick={handleNotificationClose}
+      />
+      
+      {/* Notification Panel */}
+      <div className={`notification-panel ${notificationShow ? 'active' : ''}`}>
+        <div className="notification-panel-header">
+          <h3 className="notification-panel-title">Notifications</h3>
+          <div className="notification-panel-actions">
+            {(!isEmptyObjectOrNullUndefiend(notificationList) || (invites && invites.length > 0)) && (
+              <button 
+                className="clear-all-btn" 
+                onClick={() => { 
+                  const allId = notificationList.map((val) => val.id); 
+                  clearNotification(allId); 
+                }}
+              >
+                Clear All
+              </button>
+            )}
+            <button className="close-panel-btn" onClick={handleNotificationClose}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
-        </Offcanvas.Body>
-        {/* <div className="offcanvas-footer">
-         <button className="btn btn-link text-primary">View All Notification</button>
-       </div> */}
-      </Offcanvas>
+        </div>
+        <div className="notification-panel-body">
+          {/* Pending group invites */}
+          {invites && invites.length > 0 && invites.map((it) => {
+            const created = (it as any).createdAt || (it as any).created_at || Date.now();
+            return (
+              <div key={it.id} className={`notification-item ${!it.read ? 'unread' : ''}`}>
+                <div className="notification-icon event">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </div>
+                <div className="notification-content">
+                  <div className="notification-title">Group Invite</div>
+                  <p className="notification-message">{(it.fromUsername || it.fromName || 'Someone')} invited you to join {it.groupName || 'a group'}</p>
+                  <span className="notification-time">{formatedDate(created, `MMM DD, [at] hh:mm a`)}</span>
+                  <div className="notification-actions">
+                    <button 
+                      className="btn-accept" 
+                      onClick={async () => { 
+                        try { 
+                          const res: any = await post(`invites/${it.id}/accept`, {}); 
+                          const data = res?.data ?? res; 
+                          handleNotificationClose(); 
+                          if (data?.groupId) { 
+                            navigate(`/groups/${data.groupId}?tab=groups`); 
+                          } else { 
+                            navigate(`/groups?tab=groups`); 
+                          } 
+                        } catch {} 
+                      }}
+                    >
+                      Join
+                    </button>
+                    <button 
+                      className="btn-decline"
+                      onClick={async () => { 
+                        try { 
+                          await post(`invites/${it.id}/decline`, {}); 
+                          fetchInvites(); 
+                        } catch {} 
+                      }}
+                    >
+                      Decline
+                    </button>
+                  </div>
+                </div>
+                <button 
+                  className="notification-dismiss"
+                  onClick={() => { 
+                    const r = getInviteReadSet(); 
+                    r.add(it.id); 
+                    setInviteReadSet(r); 
+                    setInvites(prev => prev.map(x => x.id === it.id ? { ...x, read: true } : x)); 
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            );
+          })}
+          
+          {/* Regular notifications */}
+          {!isEmptyObjectOrNullUndefiend(notificationList) && notificationList.map((item) => {
+            // Determine notification type based on message content
+            const getNotificationType = (msg: string) => {
+              const lowerMsg = msg?.toLowerCase() || '';
+              if (lowerMsg.includes('assignment') || lowerMsg.includes('due')) return 'reminder';
+              if (lowerMsg.includes('class') || lowerMsg.includes('event')) return 'event';
+              if (lowerMsg.includes('course') || lowerMsg.includes('material')) return 'course';
+              return 'alert';
+            };
+            const notifType = getNotificationType(item.message);
+            
+            // Get icon based on type
+            const getIcon = (type: string) => {
+              switch(type) {
+                case 'reminder':
+                  return (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  );
+                case 'event':
+                  return (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  );
+                case 'course':
+                  return (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                  );
+                default:
+                  return (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="8" x2="12" y2="12"/>
+                      <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                  );
+              }
+            };
+            
+            return (
+              <div key={item.id} className={`notification-item ${!item.is_read ? 'unread' : ''}`}>
+                <div className={`notification-icon ${notifType}`}>
+                  {getIcon(notifType)}
+                </div>
+                <div className="notification-content">
+                  <div className="notification-title">
+                    {notifType === 'reminder' ? 'Reminder' : 
+                     notifType === 'event' ? 'Event' : 
+                     notifType === 'course' ? 'Course Update' : 'Alert'}
+                  </div>
+                  <p className="notification-message" title={item.message}>{item.message}</p>
+                  <span className="notification-time">{formatedDate(item.created_at, `MMM DD, [at] hh:mm a`)}</span>
+                </div>
+                <button 
+                  className="notification-dismiss"
+                  onClick={() => clearNotification(item.id)}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            );
+          })}
+          
+          {/* Empty state */}
+          {isEmptyObjectOrNullUndefiend(notificationList) && (!invites || invites.length === 0) && (
+            <div className="notification-empty">
+              <div className="notification-empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+              </div>
+              <p className="notification-empty-text">You have no new notifications</p>
+            </div>
+          )}
+        </div>
+      </div>
     </>
   )
 }
