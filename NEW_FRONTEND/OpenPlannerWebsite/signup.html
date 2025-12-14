@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign up for Open Planner - AI scheduling platform for students">
+  <title>Sign Up - Open Planner</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <style>
+    .signup-page {
+      min-height: 100vh;
+      display: flex;
+    }
+    
+    /* Left Side - Features */
+    .signup-left {
+      flex: 1;
+      background: linear-gradient(135deg, var(--primary-subtle), rgba(74, 174, 212, 0.05));
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .signup-logo {
+      margin-bottom: 2rem;
+    }
+    
+    .signup-logo img {
+      height: 48px;
+      width: auto;
+    }
+    
+    .signup-left-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--neutral-900);
+      margin-bottom: 2.5rem;
+    }
+    
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    
+    .feature-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+    
+    .feature-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .feature-icon svg {
+      width: 18px;
+      height: 18px;
+      color: white;
+    }
+    
+    .feature-content h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--neutral-900);
+      margin-bottom: 0.25rem;
+    }
+    
+    .feature-content p {
+      font-size: 0.875rem;
+      color: var(--neutral-600);
+      line-height: 1.5;
+    }
+    
+    .signup-calendar-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    
+    .signup-calendar-icon svg {
+      width: 180px;
+      height: 180px;
+      opacity: 0.15;
+      color: var(--primary);
+    }
+    
+    .signup-legal-footer {
+      font-size: 0.8125rem;
+      color: var(--neutral-500);
+      line-height: 1.5;
+    }
+    
+    .signup-legal-footer a {
+      color: var(--primary);
+      font-weight: 500;
+    }
+    
+    .signup-legal-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Right Side - Form */
+    .signup-right {
+      flex: 1;
+      background: var(--white);
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow-y: auto;
+    }
+    
+    .signup-form-container {
+      width: 100%;
+      max-width: 420px;
+    }
+    
+    .signup-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--primary-subtle);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+    
+    .signup-icon svg {
+      width: 32px;
+      height: 32px;
+      color: var(--primary);
+    }
+    
+    .signup-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .signup-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--neutral-900);
+    }
+    
+    .signup-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+    
+    .form-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--neutral-700);
+    }
+    
+    .form-label span {
+      color: var(--error);
+    }
+    
+    .form-input-wrapper {
+      position: relative;
+    }
+    
+    .form-input-icon {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--neutral-400);
+      display: flex;
+      align-items: center;
+    }
+    
+    .form-input-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 0.875rem 0.75rem 2.5rem;
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      font-size: 0.875rem;
+      color: var(--neutral-900);
+      transition: all 0.2s ease;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.1);
+    }
+    
+    .form-input::placeholder {
+      color: var(--neutral-400);
+    }
+    
+    .form-input-toggle {
+      position: absolute;
+      right: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--neutral-400);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+    
+    .form-input-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+    
+    .form-select {
+      width: 100%;
+      padding: 0.75rem 0.875rem 0.75rem 2.5rem;
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      font-size: 0.875rem;
+      color: var(--neutral-400);
+      transition: all 0.2s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.875rem center;
+      cursor: pointer;
+    }
+    
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.1);
+    }
+    
+    .phone-input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .phone-prefix {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      font-size: 0.875rem;
+      color: var(--neutral-600);
+      white-space: nowrap;
+    }
+    
+    .phone-prefix svg {
+      width: 18px;
+      height: 18px;
+      color: var(--neutral-400);
+    }
+    
+    .phone-input {
+      flex: 1;
+      padding: 0.75rem;
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      font-size: 0.875rem;
+      color: var(--neutral-900);
+      transition: all 0.2s ease;
+    }
+    
+    .phone-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.1);
+    }
+    
+    .phone-input::placeholder {
+      color: var(--neutral-400);
+    }
+    
+    .signup-btn {
+      width: 100%;
+      padding: 0.875rem;
+      background: var(--primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgb(74 174 212 / 0.4);
+      transition: all 0.2s ease;
+      margin-top: 0.5rem;
+    }
+    
+    .signup-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgb(74 174 212 / 0.5);
+    }
+    
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--neutral-200);
+    }
+    
+    .auth-divider span {
+      font-size: 0.875rem;
+      color: var(--neutral-400);
+    }
+    
+    .oauth-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .oauth-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--neutral-700);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .oauth-btn:hover {
+      background: var(--neutral-50);
+      border-color: var(--neutral-300);
+    }
+    
+    .oauth-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--neutral-500);
+    }
+    
+    .auth-footer a {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Mobile Logo (hidden on desktop) */
+    .signup-mobile-logo {
+      display: none;
+      margin-bottom: 2rem;
+    }
+    
+    .signup-mobile-logo img {
+      height: 48px;
+      width: auto;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .signup-left {
+        display: none;
+      }
+      
+      .signup-right {
+        padding: 2rem;
+      }
+      
+      .signup-mobile-logo {
+        display: block;
+        text-align: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .signup-right {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-page">
+    <!-- Left Side - Features -->
+    <div class="signup-left">
+      <a href="index.html" class="signup-logo">
+        <img src="assets/logo.png" alt="Open Planner">
+      </a>
+      
+      <h2 class="signup-left-title">Get Started With Us</h2>
+      
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="feature-content">
+            <h3>Effortless Scheduling</h3>
+            <p>Upload your syllabi for the semester, and let Open Planner do the heavy lifting.</p>
+          </div>
+        </div>
+        
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="feature-content">
+            <h3>Customizable Calendar</h3>
+            <p>Review your generated schedule and make adjustments to suit your needs.</p>
+          </div>
+        </div>
+        
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="feature-content">
+            <h3>Stay Connected Anywhere</h3>
+            <p>Download the Open Planner App to get push notifications and keep track of your upcoming assignments on the go.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="signup-calendar-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/>
+        </svg>
+      </div>
+      
+      <p class="signup-legal-footer">
+        By creating an account, you agree to our <a href="terms.html">Terms and Conditions</a> and <a href="privacy-policy.html">Services Agreement</a>.
+      </p>
+    </div>
+
+    <!-- Right Side - Form -->
+    <div class="signup-right">
+      <div class="signup-form-container">
+        <!-- Mobile Logo -->
+        <a href="index.html" class="signup-mobile-logo">
+          <img src="assets/logo.png" alt="Open Planner">
+        </a>
+
+        <!-- Icon -->
+        <div class="signup-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+
+        <!-- Header -->
+        <div class="signup-header">
+          <h1>Create Your Account</h1>
+        </div>
+
+        <!-- Form -->
+        <form class="signup-form" action="dashboard.html">
+          <!-- First Name & Last Name -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">First Name <span>*</span></label>
+              <div class="form-input-wrapper">
+                <span class="form-input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <input type="text" class="form-input" placeholder="Enter First Name" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name <span>*</span></label>
+              <div class="form-input-wrapper">
+                <span class="form-input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                <input type="text" class="form-input" placeholder="Enter Last Name" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Name -->
+          <div class="form-group">
+            <label class="form-label">User Name <span>*</span></label>
+            <div class="form-input-wrapper">
+              <span class="form-input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </span>
+              <input type="text" class="form-input" placeholder="Enter User Name" required>
+            </div>
+          </div>
+
+          <!-- Email Address -->
+          <div class="form-group">
+            <label class="form-label">Email Address <span>*</span></label>
+            <div class="form-input-wrapper">
+              <span class="form-input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </span>
+              <input type="email" class="form-input" placeholder="Enter Email" required>
+            </div>
+          </div>
+
+          <!-- Mobile No -->
+          <div class="form-group">
+            <label class="form-label">Mobile No</label>
+            <div class="phone-input-wrapper">
+              <div class="phone-prefix">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                +1
+              </div>
+              <input type="tel" class="phone-input" placeholder="Enter your Mobile Number">
+            </div>
+          </div>
+
+          <!-- Select School Name -->
+          <div class="form-group">
+            <label class="form-label">Select School Name</label>
+            <div class="form-input-wrapper">
+              <span class="form-input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+              </span>
+              <select class="form-select">
+                <option value="" disabled selected>Select your school</option>
+                <option value="ut">University of Texas</option>
+                <option value="smu">SMU</option>
+                <option value="tcu">TCU</option>
+                <option value="baylor">Baylor University</option>
+                <option value="stanford">Stanford University</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label class="form-label">Password <span>*</span></label>
+            <div class="form-input-wrapper">
+              <span class="form-input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input type="password" id="password" class="form-input" placeholder="Enter Password" required>
+              <button type="button" class="form-input-toggle" onclick="togglePassword()">
+                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="signup-btn">Sign Up</button>
+        </form>
+
+        <!-- Divider -->
+        <div class="auth-divider">
+          <span>or sign up with</span>
+        </div>
+
+        <!-- OAuth Buttons -->
+        <div class="oauth-buttons">
+          <button type="button" class="oauth-btn">
+            <svg viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Google
+          </button>
+          <button type="button" class="oauth-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+            </svg>
+            Apple
+          </button>
+        </div>
+
+        <!-- Footer -->
+        <p class="auth-footer">
+          Already have an account? <a href="login.html">Log In</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.querySelector('.eye-icon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.style.color = 'var(--primary)';
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.style.color = 'var(--neutral-400)';
+      }
+    }
+  </script>
+</body>
+</html>

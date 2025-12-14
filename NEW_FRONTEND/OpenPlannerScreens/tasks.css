@@ -1,0 +1,788 @@
+/* ============================================
+   Open Planner - Task List Page Styles
+   ============================================ */
+
+/* Force horizontal layout for task items */
+.tasks-page .task-item,
+.tasks-list .task-item,
+div.task-item.clickable-event {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+}
+
+/* Tasks Page Layout */
+.tasks-page {
+    padding: 1.5rem;
+    max-width: 900px;
+}
+
+/* ============================================
+   Toolbar (Tabs + Filters)
+   ============================================ */
+
+.tasks-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Tabs */
+.tasks-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--neutral-500);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition-base);
+    cursor: pointer;
+}
+
+.tab-btn:hover {
+    color: var(--neutral-700);
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    background: var(--neutral-200);
+    color: var(--neutral-600);
+}
+
+.tab-btn.active .tab-count {
+    background: var(--primary-subtle);
+    color: var(--primary);
+}
+
+/* Filters */
+.tasks-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.search-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input svg {
+    position: absolute;
+    left: 1rem;
+    color: var(--neutral-400);
+    pointer-events: none;
+}
+
+.search-input input {
+    width: 240px;
+    padding: 0.625rem 1rem 0.625rem 2.75rem;
+    font-size: 0.875rem;
+    color: var(--neutral-700);
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+}
+
+.search-input input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-subtle);
+}
+
+.date-range-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.date-range-input input {
+    width: 160px;
+    padding: 0.625rem 2.5rem 0.625rem 1rem;
+    font-size: 0.875rem;
+    color: var(--neutral-700);
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+}
+
+.date-range-input svg {
+    position: absolute;
+    right: 1rem;
+    color: var(--neutral-400);
+    pointer-events: none;
+}
+
+.date-range-input input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-subtle);
+}
+
+/* ============================================
+   Task List Container
+   ============================================ */
+
+.tasks-list-container {
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.tasks-list {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure task items display as rows - override any conflicting styles */
+.tasks-list .task-item,
+.task-item.clickable-event,
+.tasks-list > div.task-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+}
+
+/* ============================================
+   Task Item
+   ============================================ */
+
+.task-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.875rem;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--neutral-100);
+    cursor: pointer;
+    transition: background var(--transition-base);
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 56px;
+}
+
+.task-item:last-child {
+    border-bottom: none;
+}
+
+.task-item:hover {
+    background: var(--neutral-50);
+}
+
+.task-item:focus {
+    outline: none;
+    background: var(--primary-subtle);
+}
+
+.task-item > * {
+    flex-shrink: 0;
+}
+
+.task-item .task-content {
+    flex-shrink: 1;
+    flex-grow: 1;
+}
+
+/* Checkbox */
+.task-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--neutral-300);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    flex-shrink: 0;
+}
+
+.task-checkbox:hover {
+    border-color: var(--primary);
+    background: var(--primary-subtle);
+}
+
+.task-checkbox .check-icon {
+    opacity: 0;
+    transition: opacity var(--transition-base);
+    color: var(--white);
+}
+
+.task-item.completed .task-checkbox {
+    border-color: var(--success);
+    background: var(--success);
+}
+
+.task-item.completed .task-checkbox .check-icon {
+    opacity: 1;
+}
+
+/* Color Indicator */
+.task-color-indicator {
+    width: 4px;
+    height: 28px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    display: block;
+}
+
+.task-color-indicator.blue {
+    background: var(--course-blue, #3B82F6);
+}
+
+.task-color-indicator.yellow {
+    background: var(--course-yellow);
+}
+
+.task-color-indicator.green {
+    background: var(--course-green);
+}
+
+.task-color-indicator.orange {
+    background: var(--course-orange);
+}
+
+.task-color-indicator.teal {
+    background: var(--course-teal);
+}
+
+.task-color-indicator.lime {
+    background: var(--course-lime);
+}
+
+/* Task Content */
+.task-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.task-name {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--neutral-800);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.task-due {
+    font-size: 0.75rem;
+    color: var(--neutral-500);
+    display: block;
+}
+
+/* Completed Task Styling */
+.task-item.completed .task-name {
+    text-decoration: line-through;
+    color: var(--neutral-500);
+}
+
+.task-item.completed .task-due {
+    color: var(--neutral-400);
+}
+
+.task-item.completed {
+    opacity: 0.7;
+}
+
+.task-item.hidden {
+    display: none !important;
+}
+
+/* Star Button */
+.task-star {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    color: var(--neutral-300);
+    flex-shrink: 0;
+}
+
+.task-star:hover {
+    color: var(--course-yellow);
+    background: var(--course-yellow-light);
+}
+
+.task-star.starred {
+    color: var(--course-yellow);
+}
+
+.task-star.starred svg {
+    fill: var(--course-yellow);
+}
+
+/* ============================================
+   Add Task Row
+   ============================================ */
+
+.add-task-row {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--neutral-100);
+    background: var(--neutral-50);
+}
+
+.add-task-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border: 2px dashed var(--neutral-300);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    color: var(--neutral-400);
+    flex-shrink: 0;
+}
+
+.add-task-circle:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-subtle);
+}
+
+.add-task-input {
+    flex: 1;
+    padding: 0.5rem 0;
+    font-size: 0.9375rem;
+    color: var(--neutral-700);
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+.add-task-input::placeholder {
+    color: var(--neutral-400);
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.empty-illustration {
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--neutral-700);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    font-size: 0.9375rem;
+    color: var(--neutral-500);
+    max-width: 320px;
+}
+
+/* ============================================
+   Add Task Modal
+   ============================================ */
+
+.add-task-modal {
+    max-width: 480px;
+}
+
+.add-task-modal .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--neutral-800);
+}
+
+.add-task-modal .modal-title .text-primary {
+    color: var(--primary);
+}
+
+.add-task-modal .modal-body {
+    padding: 1.5rem;
+}
+
+.add-task-modal .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.add-task-modal .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.add-task-modal .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+    margin-bottom: 0.5rem;
+}
+
+.add-task-modal .form-label.required::after {
+    content: " *";
+    color: var(--primary);
+}
+
+.add-task-modal .form-input,
+.add-task-modal .form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    color: var(--neutral-700);
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+}
+
+.add-task-modal .form-input:focus,
+.add-task-modal .form-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-subtle);
+}
+
+.add-task-modal .form-input::placeholder,
+.add-task-modal .form-textarea::placeholder {
+    color: var(--neutral-400);
+}
+
+.add-task-modal .form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.add-task-modal .date-input-wrapper {
+    position: relative;
+}
+
+.add-task-modal .date-input-wrapper .date-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--neutral-400);
+    pointer-events: none;
+}
+
+.add-task-modal .date-input-wrapper .form-input {
+    padding-right: 2.75rem;
+}
+
+.add-task-modal .reminder-toggle-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--neutral-50);
+    border-radius: var(--radius-lg);
+    margin-top: 0.5rem;
+}
+
+.add-task-modal .reminder-label {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+}
+
+.add-task-modal .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--neutral-100);
+    background: var(--neutral-50);
+}
+
+.add-task-modal .modal-footer-right {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+@media (max-width: 768px) {
+    .tasks-page {
+        padding: 1rem;
+    }
+    
+    .tasks-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .tasks-tabs {
+        justify-content: center;
+    }
+    
+    .tasks-filters {
+        flex-direction: column;
+    }
+    
+    .search-input input,
+    .date-range-input input {
+        width: 100%;
+    }
+    
+    .task-item {
+        padding: 0.875rem 1rem;
+    }
+    
+    .task-content {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .tab-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .task-name {
+        font-size: 0.875rem;
+    }
+    
+    .task-due {
+        font-size: 0.75rem;
+    }
+}
+
+/* ============================================
+   Dark Mode Styles for Tasks Page
+   ============================================ */
+
+/* Task Toolbar Dark Mode */
+[data-theme="dark"] .tab-btn {
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .tab-btn:hover {
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+[data-theme="dark"] .tab-count {
+    background: var(--neutral-200);
+    color: var(--neutral-600);
+}
+
+[data-theme="dark"] .tab-btn.active .tab-count {
+    background: var(--primary-subtle);
+    color: var(--primary);
+}
+
+/* Search & Date Inputs Dark Mode */
+[data-theme="dark"] .search-input input,
+[data-theme="dark"] .date-range-input input {
+    background: var(--white);
+    border-color: var(--neutral-200);
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .search-input input:focus,
+[data-theme="dark"] .date-range-input input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-subtle);
+}
+
+[data-theme="dark"] .search-input svg,
+[data-theme="dark"] .date-range-input svg {
+    color: var(--neutral-400);
+}
+
+/* Task List Container Dark Mode */
+[data-theme="dark"] .tasks-list-container {
+    background: var(--white);
+}
+
+/* Task Item Dark Mode */
+[data-theme="dark"] .task-item {
+    border-bottom-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .task-item:hover {
+    background: var(--neutral-100);
+}
+
+[data-theme="dark"] .task-item:focus {
+    background: var(--primary-subtle);
+}
+
+[data-theme="dark"] .task-checkbox {
+    border-color: var(--neutral-300);
+}
+
+[data-theme="dark"] .task-checkbox:hover {
+    border-color: var(--primary);
+    background: var(--primary-subtle);
+}
+
+[data-theme="dark"] .task-item.completed .task-checkbox {
+    border-color: var(--success);
+    background: var(--success);
+}
+
+[data-theme="dark"] .task-name {
+    color: var(--neutral-800);
+}
+
+[data-theme="dark"] .task-due {
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .task-item.completed .task-name {
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .task-item.completed .task-due {
+    color: var(--neutral-400);
+}
+
+/* Star Button Dark Mode */
+[data-theme="dark"] .task-star {
+    color: var(--neutral-400);
+}
+
+[data-theme="dark"] .task-star:hover {
+    color: var(--course-yellow);
+    background: var(--course-yellow-light);
+}
+
+[data-theme="dark"] .task-star.starred {
+    color: var(--course-yellow);
+}
+
+/* Add Task Row Dark Mode */
+[data-theme="dark"] .add-task-row {
+    background: var(--neutral-100);
+    border-top-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .add-task-circle {
+    border-color: var(--neutral-300);
+    color: var(--neutral-400);
+}
+
+[data-theme="dark"] .add-task-circle:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-subtle);
+}
+
+[data-theme="dark"] .add-task-input {
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .add-task-input::placeholder {
+    color: var(--neutral-400);
+}
+
+/* Empty State Dark Mode */
+[data-theme="dark"] .empty-state h3 {
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .empty-state p {
+    color: var(--neutral-500);
+}
+
+/* Add Task Modal Dark Mode */
+[data-theme="dark"] .add-task-modal .modal-title {
+    color: var(--neutral-800);
+}
+
+[data-theme="dark"] .add-task-modal .form-label {
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .add-task-modal .form-input,
+[data-theme="dark"] .add-task-modal .form-textarea {
+    background: var(--neutral-100);
+    border-color: var(--neutral-200);
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .add-task-modal .form-input:focus,
+[data-theme="dark"] .add-task-modal .form-textarea:focus {
+    background: var(--white);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-subtle);
+}
+
+[data-theme="dark"] .add-task-modal .form-input::placeholder,
+[data-theme="dark"] .add-task-modal .form-textarea::placeholder {
+    color: var(--neutral-400);
+}
+
+[data-theme="dark"] .add-task-modal .reminder-toggle-group {
+    background: var(--neutral-100);
+}
+
+[data-theme="dark"] .add-task-modal .reminder-label {
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .add-task-modal .modal-footer {
+    background: var(--neutral-100);
+    border-top-color: var(--neutral-200);
+}

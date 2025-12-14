@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Course - Open Planner</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="courses.css?v=8">
+    
+    <!-- Theme initialization (prevent flash) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('openplanner-theme') || 'light';
+            if (theme === 'dark' || (theme === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+</head>
+<body class="edit-course-body">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-logo">
+                    <img src="assets/logo.png" alt="Open Planner">
+                </a>
+                <button class="sidebar-close" id="sidebarClose">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+                <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link" data-tooltip="My Week">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <span>My Week</span>
+                </a>
+                <a href="calendar.html" class="sidebar-link" data-tooltip="Calendar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
+                    </svg>
+                    <span>Calendar</span>
+                </a>
+                <a href="courses.html" class="sidebar-link active" data-tooltip="Courses">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    <span>Courses</span>
+                </a>
+                <a href="tasks.html" class="sidebar-link" data-tooltip="Task List">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11l3 3L22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                    <span>Task List</span>
+                </a>
+                <a href="settings.html" class="sidebar-link" data-tooltip="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>© 2025 Open Planner</p>
+            </div>
+        </aside>
+        
+        <!-- Sidebar Backdrop (Mobile) -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+        
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Top Header -->
+            <header class="dashboard-header">
+                <div class="dashboard-header-inner">
+                    <div class="dashboard-header-left">
+                        <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="3" y1="12" x2="21" y2="12"/>
+                                <line x1="3" y1="6" x2="21" y2="6"/>
+                                <line x1="3" y1="18" x2="21" y2="18"/>
+                            </svg>
+                        </button>
+                        
+                        <a href="courses.html" class="back-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="15 18 9 12 15 6"/>
+                            </svg>
+                            Back
+                        </a>
+                        <h1 class="dashboard-page-title">Edit Course</h1>
+                    </div>
+                    
+                    <div class="dashboard-header-right">
+                        <button class="notification-btn" id="notificationBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                            </svg>
+                            <span class="notification-badge" id="notificationBadge"></span>
+                        </button>
+                        
+                        <div class="user-menu-container">
+                            <div class="user-menu" id="userMenuBtn">
+                                <div class="user-avatar">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                </div>
+                                <span class="user-name">acmoore5</span>
+                                <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </div>
+                            <div class="user-dropdown" id="userDropdown">
+                                <a href="settings.html" class="user-dropdown-item">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                    Profile
+                                </a>
+                                <div class="user-dropdown-divider"></div>
+                                <button class="user-dropdown-item logout" id="logoutBtn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                        <polyline points="16 17 21 12 16 7"/>
+                                        <line x1="21" y1="12" x2="9" y2="12"/>
+                                    </svg>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Edit Course Content -->
+            <div class="edit-course-page">
+                <!-- Main Content Area -->
+                <div class="edit-course-content">
+                    <!-- Left Panel - Events -->
+                    <div class="events-panel">
+                        <!-- Tabs -->
+                        <div class="course-tabs">
+                            <div class="tabs-left">
+                                <button class="tab-btn active" data-tab="events">Events</button>
+                                <button class="tab-btn" data-tab="syllabus">Syllabus Details</button>
+                            </div>
+                            <div class="tabs-right">
+                                <button class="btn btn-secondary show-preview-btn" id="showPreviewBtn" style="display: none;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                    Show Preview
+                                </button>
+                                <button class="btn btn-accent add-event-btn" id="addNewEventBtn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"/>
+                                        <line x1="5" y1="12" x2="19" y2="12"/>
+                                    </svg>
+                                    Add New Event
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Tab Content -->
+                        <div class="tab-content active" id="eventsTab">
+                            <!-- Table Header -->
+                            <div class="edit-course-table-header">
+                                <div class="col-actions">Actions</div>
+                                <div class="col-time">Time</div>
+                                <div class="col-priority">Priority</div>
+                                <div class="col-event">Event Name</div>
+                                <div class="col-delete">Actions</div>
+                            </div>
+                            
+                            <!-- Dynamic Events Container -->
+                            <div id="courseEventsContainer">
+                                <!-- Events will be rendered here dynamically -->
+                            </div>
+                            
+                            <!-- Past Events Collapsible -->
+                            <div class="past-events-section">
+                                <button class="past-events-toggle" id="pastEventsToggle">
+                                    <span>Past Events</span>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9 18 15 12 9 6"/>
+                                    </svg>
+                                </button>
+                                <div class="past-events-content" id="pastEventsContent">
+                                    <!-- Past events will be rendered here dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Syllabus Details Tab Content -->
+                        <div class="tab-content" id="syllabusTab">
+                            <div class="syllabus-details-form">
+                                <div class="syllabus-details-header">
+                                    <h3 class="syllabus-details-title">Course Information</h3>
+                                    <button class="btn btn-secondary edit-syllabus-btn" id="editSyllabusBtn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                        Edit Details
+                                    </button>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Course Title</label>
+                                    <input type="text" class="form-input" id="syllabusCourseTitleInput" readonly>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Professor Name</label>
+                                        <input type="text" class="form-input" id="syllabusProfessorInput" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Class Time</label>
+                                        <input type="text" class="form-input" id="syllabusClassTimeInput" readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Uploaded Syllabus</label>
+                                    <div class="syllabus-file-display" id="syllabusFileDisplay">
+                                        <div class="file-icon">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                <polyline points="14 2 14 8 20 8"/>
+                                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                                <polyline points="10 9 9 9 8 9"/>
+                                            </svg>
+                                        </div>
+                                        <div class="file-info">
+                                            <span class="file-name" id="syllabusFileName">Syllabus.pdf</span>
+                                            <span class="file-size">PDF Document</span>
+                                        </div>
+                                        <button class="file-view-btn" title="View Syllabus">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                                <circle cx="12" cy="12" r="3"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Course Color</label>
+                                    <div class="course-color-display" id="courseColorDisplay">
+                                        <div class="color-swatch-large" id="courseColorSwatch"></div>
+                                        <span class="color-name" id="courseColorName"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Panel - Syllabus Preview -->
+                    <div class="syllabus-preview-panel">
+                        <div class="preview-header">
+                            <h2 class="preview-title">Syllabus Preview</h2>
+                            <button class="hide-preview-btn" id="hidePreviewBtn">Hide Preview</button>
+                        </div>
+                        <div class="preview-toolbar">
+                            <div class="toolbar-left">
+                                <button class="toolbar-btn" title="Search">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"/>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    </svg>
+                                </button>
+                                <button class="toolbar-btn" title="Previous Page">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="18 15 12 9 6 15"/>
+                                    </svg>
+                                </button>
+                                <button class="toolbar-btn" title="Next Page">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </button>
+                                <div class="page-input-group">
+                                    <input type="text" class="page-input" value="1">
+                                    <select class="page-select">
+                                        <option>6</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="toolbar-right">
+                                <button class="toolbar-btn" title="Zoom Out">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"/>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                        <line x1="8" y1="11" x2="14" y2="11"/>
+                                    </svg>
+                                </button>
+                                <button class="toolbar-btn" title="Zoom In">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"/>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                        <line x1="11" y1="8" x2="11" y2="14"/>
+                                        <line x1="8" y1="11" x2="14" y2="11"/>
+                                    </svg>
+                                </button>
+                                <button class="toolbar-btn" title="Fit to Width">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="9" y1="3" x2="9" y2="21"/>
+                                        <line x1="15" y1="3" x2="15" y2="21"/>
+                                    </svg>
+                                </button>
+                                <button class="toolbar-btn" title="Download">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7 10 12 15 17 10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                </button>
+                                <button class="toolbar-btn" title="Info">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="16" x2="12" y2="12"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="preview-content">
+                            <div class="pdf-placeholder">
+                                <div class="pdf-document">
+                                    <h3>History 112 The World of Late Antiquity, 200-900 C.E.</h3>
+                                    <div class="pdf-info">
+                                        <p><strong>Leonora Neville</strong></p>
+                                        <p>4106 Mosse Humanities Building</p>
+                                        <p>608-263-1814</p>
+                                        <p>LNeville@wisc.edu</p>
+                                    </div>
+                                    <div class="pdf-section">
+                                        <p>Office Hours are Tuesdays 1:15-2:30. If you cannot come at that time, please email me to set up an appointment.</p>
+                                    </div>
+                                    <div class="pdf-section">
+                                        <h4>Course Description:</h4>
+                                        <p>This course charts the dissolution of the ancient Mediterranean world's relative cultural and political unity under the Roman Empire and the development of distinct European, Byzantine and Islamic civilizations. Particular attention will be given to the development and spread of Christianity and Islam. Students will acquire a firm foundation for further study in the history of Islamic societies and medieval European and Byzantine history.</p>
+                                    </div>
+                                    <div class="pdf-section">
+                                        <h4>Learning Objectives and Assessment:</h4>
+                                        <p>Students will learn significant political narratives of the dissolution of the Roman Empire and establishment of barbarian kingdoms in the west, the development of a medieval Eastern Roman Empire and the establishment of the Abbasid Caliphate. Students will be introduced to the processes by which historians derive narratives of events from primary source material. Quizzes will assess acquisition of basic factual information. Brief writing assignments and participation in discussion sections will practice analysis of primary documents.</p>
+                                    </div>
+                                    <div class="pdf-section">
+                                        <p>6 quizzes: 6.5% each (39% of total)</p>
+                                        <p>4 250-word writing assignments: 10.5% each (42% of total)</p>
+                                        <p>Discussion Participation: 19%</p>
+                                        <p>Quizzes are multiple-choice.</p>
+                                    </div>
+                                    <div class="pdf-section">
+                                        <h4>Books:</h4>
+                                        <p>Required: <em>A Short History of the Middle Ages</em>, Barbara Rosenwein, UTP Higher Education, 2002 ISBN: 1442601043 (Abbreviated SHMA)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Event Detail Modal -->
+    <div class="modal-overlay" id="eventModalOverlay">
+        <div class="modal-card calendar-history" id="eventModal">
+            <div class="modal-header">
+                <h3 class="modal-title">Event Details</h3>
+                <div class="modal-actions">
+                    <button class="edit-toggle-btn" id="editToggleBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        <span>Edit</span>
+                    </button>
+                    <button class="modal-close-btn" id="modalCloseBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Start Date</label>
+                    <input type="text" class="form-input" id="eventStartDate" value="12/07/2025 12:30 PM" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">End Date</label>
+                    <input type="text" class="form-input" id="eventEndDate" value="12/07/2025 01:00 PM" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <textarea class="form-input form-textarea" id="eventTitle" readonly>Topic: Boris and competitive conversion
+Readings: SHMA 152-174</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Note</label>
+                    <textarea class="form-input form-textarea" id="eventNote" readonly>Topic: Boris and competitive conversion
+
+Readings: SHMA 152-174</textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Calendar</label>
+                        <div class="form-select-wrapper">
+                            <select class="form-input form-select" id="eventCalendar" disabled>
+                                <option value="analytics">Analytics</option>
+                                <option value="accounting">Accounting</option>
+                                <option value="history" selected>History</option>
+                                <option value="finance">Finance</option>
+                                <option value="marketing">Marketing</option>
+                            </select>
+                            <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Priority</label>
+                        <div class="form-select-wrapper">
+                            <select class="form-input form-select" id="eventPriority" disabled>
+                                <option value="low" selected>Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                            <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Reminder (Notify me before start date)</label>
+                    <div class="reminder-row">
+                        <div class="reminder-field">
+                            <span class="reminder-label">Unit</span>
+                            <div class="form-select-wrapper">
+                                <select class="form-input form-select" id="reminderUnit" disabled>
+                                    <option value="minutes">Minutes</option>
+                                    <option value="hours">Hours</option>
+                                    <option value="days" selected>Days</option>
+                                    <option value="weeks">Weeks</option>
+                                </select>
+                                <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="reminder-field">
+                            <span class="reminder-label">Value</span>
+                            <input type="number" class="form-input" id="reminderValue" value="1" min="1" readonly>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Add to Calendar</label>
+                    <div class="calendar-options" id="calendarOptions">
+                        <button type="button" class="calendar-option-btn" data-calendar="apple" title="Apple Calendar">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="calendar-option-btn" data-calendar="google" title="Google Calendar">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="3" width="18" height="18" rx="2" fill="#4285F4"/>
+                                <rect x="3" y="3" width="9" height="9" fill="#EA4335"/>
+                                <rect x="12" y="12" width="9" height="9" fill="#34A853"/>
+                                <rect x="3" y="12" width="9" height="9" fill="#FBBC05"/>
+                                <rect x="7" y="7" width="10" height="10" rx="1" fill="white"/>
+                                <text x="12" y="15" font-size="8" fill="#4285F4" text-anchor="middle" font-weight="bold">31</text>
+                            </svg>
+                        </button>
+                        <button type="button" class="calendar-option-btn" data-calendar="outlook" title="Outlook Calendar">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <rect x="2" y="4" width="20" height="16" rx="2" fill="#0078D4"/>
+                                <rect x="4" y="6" width="7" height="12" rx="1" fill="#28A8EA"/>
+                                <ellipse cx="7.5" cy="12" rx="2.5" ry="3" fill="white"/>
+                                <rect x="13" y="8" width="7" height="2" fill="white" opacity="0.8"/>
+                                <rect x="13" y="11" width="5" height="2" fill="white" opacity="0.6"/>
+                                <rect x="13" y="14" width="6" height="2" fill="white" opacity="0.4"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer" id="modalFooter">
+                <div class="modal-footer-left">
+                    <button class="btn btn-success" id="markCompleteBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Mark Complete
+                    </button>
+                    <button class="btn btn-danger" id="deleteEventBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+                <div class="modal-footer-right">
+                    <button class="btn btn-secondary" id="cancelEditBtn" style="display: none;">Cancel</button>
+                    <button class="btn btn-primary" id="saveEventBtn" style="display: none;">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Event Modal -->
+    <div class="modal-overlay" id="addEventModal">
+        <div class="modal-card add-event-modal calendar-history">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Event</h2>
+                <button class="modal-close-btn" id="closeAddEventModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label required">
+                            Start Date
+                        </label>
+                        <div class="date-input-wrapper">
+                            <input type="text" class="form-input" id="newEventStartDate" placeholder="Select Date">
+                            <svg class="date-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">
+                            End Date
+                        </label>
+                        <div class="date-input-wrapper">
+                            <input type="text" class="form-input" id="newEventEndDate" placeholder="Select Date">
+                            <svg class="date-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label required">
+                        Title
+                    </label>
+                    <input type="text" class="form-input" id="newEventTitle" placeholder="Enter Title">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        Note
+                    </label>
+                    <textarea class="form-textarea" id="newEventNote" placeholder="Enter Note" rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        Calendar
+                    </label>
+                    <div class="static-field">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                        <span>History 112 The World of Late Antiquity</span>
+                        <input type="hidden" id="newEventCalendar" value="history">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        Priority
+                    </label>
+                    <div class="select-wrapper">
+                        <select class="form-select" id="newEventPriority">
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                        <svg class="select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="form-group reminder-toggle-group">
+                    <span class="reminder-label">Reminder (Notify me before start date)</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="newEventReminder">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="form-group" id="newReminderFields" style="display: none;">
+                    <div class="notifications-container" id="newEventNotificationsContainer">
+                        <div class="notification-row" data-notification-index="0">
+                            <div class="reminder-fields-row">
+                                <div class="reminder-field">
+                                    <span class="reminder-field-label">Unit</span>
+                                    <div class="select-wrapper">
+                                        <select class="form-select" name="newReminderUnit">
+                                            <option value="minutes">Minutes</option>
+                                            <option value="hours">Hours</option>
+                                            <option value="days" selected>Days</option>
+                                            <option value="weeks">Weeks</option>
+                                        </select>
+                                        <svg class="select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="6 9 12 15 18 9"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="reminder-field">
+                                    <span class="reminder-field-label">Value</span>
+                                    <input type="number" class="form-input" name="newReminderValue" value="1" min="1">
+                                </div>
+                            </div>
+                            <button type="button" class="remove-notification-btn" style="display: none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-notification-btn" id="addNewEventNotificationBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Another Notification <span class="notification-count">(1/3)</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="modal-footer add-event-footer">
+                <button class="btn btn-secondary" id="cancelAddEventBtn">Cancel</button>
+                <div class="modal-footer-right">
+                    <button class="btn btn-outline" id="clearAddEventBtn">Clear</button>
+                    <button class="btn btn-primary" id="saveAddEventBtn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="confirm-modal-overlay" id="deleteConfirmModal">
+        <div class="confirm-modal">
+            <div class="confirm-modal-header">
+                <div class="confirm-modal-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        <line x1="10" y1="11" x2="10" y2="17"/>
+                        <line x1="14" y1="11" x2="14" y2="17"/>
+                    </svg>
+                </div>
+                <h3 class="confirm-modal-title" id="deleteModalTitle">Delete Event</h3>
+            </div>
+            <div class="confirm-modal-body">
+                <p class="confirm-modal-message">Are you sure you want to delete this event? This action cannot be undone.</p>
+            </div>
+            <div class="confirm-modal-footer">
+                <button class="btn btn-cancel" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn btn-confirm-delete" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Syllabus Details Modal -->
+    <div class="modal-overlay" id="editSyllabusModal">
+        <div class="modal-card edit-syllabus-modal" id="editSyllabusModalCard">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Course Details</h2>
+                <button class="modal-close-btn" id="closeEditSyllabusModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label required">Course Title</label>
+                    <input type="text" class="form-input" id="editCourseTitleInput" placeholder="Enter Course Title">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Professor Name</label>
+                        <input type="text" class="form-input" id="editProfessorInput" placeholder="Enter Professor Name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Class Time</label>
+                        <div class="time-picker-wrapper">
+                            <input type="text" class="form-input" id="editClassTimeInput" placeholder="Select Class Time" readonly>
+                            <svg class="time-picker-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            <div class="time-picker-dropdown" id="editTimePickerDropdown">
+                                <div class="time-picker-header">Select Time</div>
+                                <div class="time-picker-list" id="editTimePickerList">
+                                    <!-- Time options will be generated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Upload Syllabus</label>
+                    <div class="file-upload-area" id="editFileUploadArea">
+                        <div class="upload-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <p class="upload-text">Drag and Drop file here or <span class="upload-link">Choose file</span></p>
+                        <input type="file" id="editSyllabusFileInput" accept=".pdf,.doc,.docx,.txt" hidden>
+                        <p class="file-name" id="editSelectedFileName"></p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Course Color</label>
+                    <div class="color-picker-container" id="editColorPicker">
+                        <div class="color-option" data-color="#239BC2" data-name="Cyan" style="background-color: #239BC2;"></div>
+                        <div class="color-option" data-color="#EF4444" data-name="Red" style="background-color: #EF4444;"></div>
+                        <div class="color-option" data-color="#F97316" data-name="Orange" style="background-color: #F97316;"></div>
+                        <div class="color-option" data-color="#EAB308" data-name="Yellow" style="background-color: #EAB308;"></div>
+                        <div class="color-option" data-color="#22C55E" data-name="Green" style="background-color: #22C55E;"></div>
+                        <div class="color-option" data-color="#14B8A6" data-name="Teal" style="background-color: #14B8A6;"></div>
+                        <div class="color-option" data-color="#3B82F6" data-name="Blue" style="background-color: #3B82F6;"></div>
+                        <div class="color-option" data-color="#8B5CF6" data-name="Purple" style="background-color: #8B5CF6;"></div>
+                        <div class="color-option" data-color="#EC4899" data-name="Pink" style="background-color: #EC4899;"></div>
+                        <div class="color-option" data-color="#6B7280" data-name="Gray" style="background-color: #6B7280;"></div>
+                        <div class="color-option" data-color="#78716C" data-name="Stone" style="background-color: #78716C;"></div>
+                        <div class="color-option" data-color="#6366F1" data-name="Indigo" style="background-color: #6366F1;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelEditSyllabusBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveEditSyllabusBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification Panel Backdrop -->
+    <div class="notification-panel-backdrop" id="notificationBackdrop"></div>
+    
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-panel-header">
+            <h3 class="notification-panel-title">Notifications</h3>
+            <div class="notification-panel-actions">
+                <button class="clear-all-btn" id="clearAllNotifications">Clear All</button>
+                <button class="close-panel-btn" id="closeNotificationPanel">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="notification-panel-body" id="notificationList">
+            <!-- Notifications will be rendered here -->
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ============================================
+            // Tab Switching
+            // ============================================
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const eventsTab = document.getElementById('eventsTab');
+            const syllabusTab = document.getElementById('syllabusTab');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    if (this.dataset.tab === 'events') {
+                        eventsTab.classList.add('active');
+                        syllabusTab.classList.remove('active');
+                    } else {
+                        eventsTab.classList.remove('active');
+                        syllabusTab.classList.add('active');
+                    }
+                });
+            });
+            
+            // ============================================
+            // Past Events Toggle
+            // ============================================
+            const pastEventsToggle = document.getElementById('pastEventsToggle');
+            const pastEventsContent = document.getElementById('pastEventsContent');
+            
+            if (pastEventsToggle) {
+                pastEventsToggle.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    if (pastEventsContent) {
+                        pastEventsContent.classList.toggle('expanded');
+                    }
+                });
+            }
+            
+            // ============================================
+            // Hide/Show Preview Button
+            // ============================================
+            const hidePreviewBtn = document.getElementById('hidePreviewBtn');
+            const showPreviewBtn = document.getElementById('showPreviewBtn');
+            const syllabusPreviewPanel = document.querySelector('.syllabus-preview-panel');
+            const eventsPanel = document.querySelector('.events-panel');
+            
+            function hidePreview() {
+                if (syllabusPreviewPanel) syllabusPreviewPanel.classList.add('hidden');
+                if (eventsPanel) eventsPanel.classList.add('full-width');
+                if (showPreviewBtn) showPreviewBtn.style.display = 'inline-flex';
+            }
+            
+            function showPreview() {
+                if (syllabusPreviewPanel) syllabusPreviewPanel.classList.remove('hidden');
+                if (eventsPanel) eventsPanel.classList.remove('full-width');
+                if (showPreviewBtn) showPreviewBtn.style.display = 'none';
+            }
+            
+            if (hidePreviewBtn) {
+                hidePreviewBtn.addEventListener('click', hidePreview);
+            }
+            if (showPreviewBtn) {
+                showPreviewBtn.addEventListener('click', showPreview);
+            }
+            
+            // ============================================
+            // Add Event Modal
+            // ============================================
+            const addNewEventBtn = document.getElementById('addNewEventBtn');
+            const addEventModal = document.getElementById('addEventModal');
+            const closeAddEventModal = document.getElementById('closeAddEventModal');
+            const cancelAddEventBtn = document.getElementById('cancelAddEventBtn');
+            const clearAddEventBtn = document.getElementById('clearAddEventBtn');
+            const saveAddEventBtn = document.getElementById('saveAddEventBtn');
+            const newEventReminder = document.getElementById('newEventReminder');
+            const newReminderFields = document.getElementById('newReminderFields');
+            
+            function openAddEventModal() {
+                addEventModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeAddEventModalFn() {
+                addEventModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            function clearAddEventForm() {
+                document.getElementById('newEventStartDate').value = '';
+                document.getElementById('newEventEndDate').value = '';
+                document.getElementById('newEventTitle').value = '';
+                document.getElementById('newEventNote').value = '';
+                document.getElementById('newEventPriority').value = 'low';
+                document.getElementById('newEventReminder').checked = false;
+                newReminderFields.style.display = 'none';
+                
+                // Reset notifications to just one
+                const container = document.getElementById('newEventNotificationsContainer');
+                if (container) {
+                    const rows = container.querySelectorAll('.notification-row');
+                    // Remove all but the first row
+                    rows.forEach((row, index) => {
+                        if (index > 0) row.remove();
+                    });
+                    // Reset the first row values
+                    const firstRow = container.querySelector('.notification-row');
+                    if (firstRow) {
+                        const unitSelect = firstRow.querySelector('select[name="newReminderUnit"]');
+                        const valueInput = firstRow.querySelector('input[name="newReminderValue"]');
+                        const removeBtn = firstRow.querySelector('.remove-notification-btn');
+                        if (unitSelect) unitSelect.value = 'days';
+                        if (valueInput) valueInput.value = '1';
+                        if (removeBtn) removeBtn.style.display = 'none';
+                    }
+                    // Update the add button - show it since we're back to 1 notification
+                    const addBtn = document.getElementById('addNewEventNotificationBtn');
+                    if (addBtn) {
+                        addBtn.style.display = 'flex';
+                        const countSpan = addBtn.querySelector('.notification-count');
+                        if (countSpan) countSpan.textContent = '(1/3)';
+                    }
+                }
+            }
+            
+            if (addNewEventBtn) {
+                addNewEventBtn.addEventListener('click', openAddEventModal);
+            }
+            if (closeAddEventModal) {
+                closeAddEventModal.addEventListener('click', closeAddEventModalFn);
+            }
+            if (cancelAddEventBtn) {
+                cancelAddEventBtn.addEventListener('click', closeAddEventModalFn);
+            }
+            
+            if (addEventModal) {
+                addEventModal.addEventListener('click', function(e) {
+                    if (e.target === addEventModal) {
+                        closeAddEventModalFn();
+                    }
+                });
+            }
+            
+            // Close on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && addEventModal.classList.contains('active')) {
+                    closeAddEventModalFn();
+                }
+            });
+            
+            // Reminder toggle
+            newEventReminder.addEventListener('change', function() {
+                newReminderFields.style.display = this.checked ? 'block' : 'none';
+            });
+            
+            // ============================================
+            // Multi-Notification Functionality
+            // ============================================
+            
+            const MAX_NOTIFICATIONS = 3;
+            
+            const newEventNotificationsContainer = document.getElementById('newEventNotificationsContainer');
+            const addNewEventNotificationBtn = document.getElementById('addNewEventNotificationBtn');
+            
+            if (addNewEventNotificationBtn) {
+                addNewEventNotificationBtn.addEventListener('click', function() {
+                    addNotificationRow(newEventNotificationsContainer, 'new');
+                });
+            }
+            
+            function addNotificationRow(container, prefix) {
+                const existingRows = container.querySelectorAll('.notification-row');
+                if (existingRows.length >= MAX_NOTIFICATIONS) return;
+                
+                const newIndex = existingRows.length;
+                
+                const newRow = document.createElement('div');
+                newRow.className = 'notification-row';
+                newRow.setAttribute('data-notification-index', newIndex);
+                
+                newRow.innerHTML = `
+                    <div class="reminder-fields-row">
+                        <div class="reminder-field">
+                            <span class="reminder-field-label">Unit</span>
+                            <div class="select-wrapper">
+                                <select class="form-select" name="newReminderUnit">
+                                    <option value="minutes">Minutes</option>
+                                    <option value="hours">Hours</option>
+                                    <option value="days" selected>Days</option>
+                                    <option value="weeks">Weeks</option>
+                                </select>
+                                <svg class="select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="reminder-field">
+                            <span class="reminder-field-label">Value</span>
+                            <input type="number" class="form-input" name="newReminderValue" value="1" min="1">
+                        </div>
+                    </div>
+                    <button type="button" class="remove-notification-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                `;
+                
+                container.appendChild(newRow);
+                
+                // Add remove handler
+                const removeBtn = newRow.querySelector('.remove-notification-btn');
+                removeBtn.addEventListener('click', function() {
+                    removeNotificationRow(newRow, container);
+                });
+                
+                // Update UI
+                updateNotificationUI(container);
+            }
+            
+            function removeNotificationRow(row, container) {
+                row.remove();
+                
+                // Re-index remaining rows
+                const remainingRows = container.querySelectorAll('.notification-row');
+                remainingRows.forEach((r, idx) => {
+                    r.setAttribute('data-notification-index', idx);
+                });
+                
+                // Update UI
+                updateNotificationUI(container);
+            }
+            
+            function updateNotificationUI(container) {
+                const rows = container.querySelectorAll('.notification-row');
+                const count = rows.length;
+                const countSpan = addNewEventNotificationBtn ? addNewEventNotificationBtn.querySelector('.notification-count') : null;
+                
+                // Update add button - hide completely when at max
+                if (addNewEventNotificationBtn) {
+                    if (count >= MAX_NOTIFICATIONS) {
+                        addNewEventNotificationBtn.style.display = 'none';
+                    } else {
+                        addNewEventNotificationBtn.style.display = 'flex';
+                        if (countSpan) {
+                            countSpan.textContent = `(${count}/${MAX_NOTIFICATIONS})`;
+                        }
+                    }
+                }
+                
+                // Show/hide remove buttons (hide if only 1 row)
+                rows.forEach(row => {
+                    const removeBtn = row.querySelector('.remove-notification-btn');
+                    if (removeBtn) {
+                        removeBtn.style.display = count > 1 ? 'flex' : 'none';
+                    }
+                });
+            }
+            
+            // Initialize remove button handlers for existing rows
+            document.querySelectorAll('#newEventNotificationsContainer .notification-row .remove-notification-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const row = btn.closest('.notification-row');
+                    const container = row.closest('.notifications-container');
+                    removeNotificationRow(row, container);
+                });
+            });
+            
+            if (clearAddEventBtn) {
+                clearAddEventBtn.addEventListener('click', clearAddEventForm);
+            }
+            
+            if (saveAddEventBtn) {
+                saveAddEventBtn.addEventListener('click', function() {
+                const title = document.getElementById('newEventTitle').value;
+                const startDateStr = document.getElementById('newEventStartDate').value;
+                const endDateStr = document.getElementById('newEventEndDate').value;
+                const note = document.getElementById('newEventNote').value;
+                const priority = document.getElementById('newEventPriority').value;
+                
+                if (!title.trim()) {
+                    alert('Please enter an event title');
+                    return;
+                }
+                if (!startDateStr.trim()) {
+                    alert('Please select a start date');
+                    return;
+                }
+                
+                // Parse date string (MM/DD/YYYY hh:mm AM/PM format)
+                function parseDateTime(dateStr) {
+                    if (!dateStr) return new Date();
+                    const parts = dateStr.match(/(\d+)\/(\d+)\/(\d+)\s+(\d+):(\d+)\s*(AM|PM)?/i);
+                    if (parts) {
+                        let hours = parseInt(parts[4]);
+                        const minutes = parseInt(parts[5]);
+                        const ampm = parts[6];
+                        if (ampm && ampm.toUpperCase() === 'PM' && hours !== 12) hours += 12;
+                        if (ampm && ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+                        return new Date(parseInt(parts[3]), parseInt(parts[1]) - 1, parseInt(parts[2]), hours, minutes);
+                    }
+                    return new Date();
+                }
+                
+                const startDate = parseDateTime(startDateStr);
+                const endDate = endDateStr ? parseDateTime(endDateStr) : new Date(startDate.getTime() + 60 * 60 * 1000);
+                
+                // Generate new ID
+                const maxId = globalEvents.reduce((max, ev) => Math.max(max, ev.id), 0);
+                const newId = maxId + 1;
+                
+                // Create new event
+                const newEvent = {
+                    id: newId,
+                    title: title,
+                    note: note || title,
+                    date: startDate,
+                    endDate: endDate,
+                    calendar: courseCalendar, // Always use the current course calendar
+                    color: 'yellow',
+                    priority: priority.charAt(0).toUpperCase() + priority.slice(1),
+                    completed: false
+                };
+                
+                // Add to globalEvents
+                globalEvents.push(newEvent);
+                
+                // Save to localStorage
+                saveEventsToStorage();
+                
+                // Re-render course events
+                renderCourseEvents();
+                
+                // Trigger refresh on other pages
+                if (typeof renderDashboardEvents === 'function') {
+                    renderDashboardEvents();
+                }
+                document.dispatchEvent(new CustomEvent('refreshCalendarViews'));
+                
+                clearAddEventForm();
+                closeAddEventModalFn();
+            });
+            }
+
+            // ============================================
+            // Course Events Rendering (synced with globalEvents)
+            // ============================================
+            // Get course from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseCalendar = urlParams.get('course') || 'history'; // Default to history if no param
+            
+            // Course display names mapping (for default courses)
+            const courseDisplayNames = {
+                'analytics': 'Analytics',
+                'marketing': 'Marketing',
+                'finance': 'Finance',
+                'history': 'History 112 The World of Late Antiquity',
+                'accounting': 'Accounting'
+            };
+            
+            // For user-created courses, use the title from globalCourseDetails
+            function getCourseDisplayName(courseId) {
+                if (courseDisplayNames[courseId]) {
+                    return courseDisplayNames[courseId];
+                }
+                // Check globalCourseDetails for user-created courses
+                if (globalCourseDetails[courseId] && globalCourseDetails[courseId].title) {
+                    return globalCourseDetails[courseId].title;
+                }
+                // Fallback: capitalize the course ID
+                return courseId.charAt(0).toUpperCase() + courseId.slice(1).replace(/-/g, ' ');
+            }
+            
+            // Get course color from global storage (defined in main.js)
+            const courseColor = getCourseColorClass(courseCalendar);
+            
+            // Get current course details from global storage (defined in main.js)
+            let currentCourseDetails = globalCourseDetails[courseCalendar];
+            
+            // If course doesn't exist, redirect to courses page
+            if (!currentCourseDetails) {
+                console.warn('Course not found:', courseCalendar);
+                // Use history as fallback for display purposes
+                currentCourseDetails = globalCourseDetails['history'] || {
+                    title: 'Unknown Course',
+                    professor: '',
+                    classTime: '',
+                    syllabus: '',
+                    colorHex: '#239BC2',
+                    colorName: 'Cyan',
+                    colorClass: 'cyan'
+                };
+            }
+            
+            // Populate Syllabus Details tab
+            const syllabusCourseTitleInput = document.getElementById('syllabusCourseTitleInput');
+            const syllabusProfessorInput = document.getElementById('syllabusProfessorInput');
+            const syllabusClassTimeInput = document.getElementById('syllabusClassTimeInput');
+            const syllabusFileName = document.getElementById('syllabusFileName');
+            const courseColorSwatch = document.getElementById('courseColorSwatch');
+            const courseColorName = document.getElementById('courseColorName');
+            
+            if (syllabusCourseTitleInput) syllabusCourseTitleInput.value = currentCourseDetails.title;
+            if (syllabusProfessorInput) syllabusProfessorInput.value = currentCourseDetails.professor;
+            if (syllabusClassTimeInput) syllabusClassTimeInput.value = currentCourseDetails.classTime;
+            if (syllabusFileName) syllabusFileName.textContent = currentCourseDetails.syllabus;
+            if (courseColorSwatch) courseColorSwatch.style.backgroundColor = currentCourseDetails.colorHex;
+            if (courseColorName) courseColorName.textContent = currentCourseDetails.colorName;
+            
+            // ============================================
+            // Edit Syllabus Details Modal
+            // ============================================
+            const editSyllabusBtn = document.getElementById('editSyllabusBtn');
+            const editSyllabusModal = document.getElementById('editSyllabusModal');
+            const editSyllabusModalCard = document.getElementById('editSyllabusModalCard');
+            const closeEditSyllabusModal = document.getElementById('closeEditSyllabusModal');
+            const cancelEditSyllabusBtn = document.getElementById('cancelEditSyllabusBtn');
+            const saveEditSyllabusBtn = document.getElementById('saveEditSyllabusBtn');
+            const editFileUploadArea = document.getElementById('editFileUploadArea');
+            const editSyllabusFileInput = document.getElementById('editSyllabusFileInput');
+            const editSelectedFileName = document.getElementById('editSelectedFileName');
+            const editColorPicker = document.getElementById('editColorPicker');
+            
+            let selectedEditColor = currentCourseDetails.colorHex;
+            let selectedEditColorName = currentCourseDetails.colorName;
+            
+            // Time picker for Edit modal
+            const editClassTimeInput = document.getElementById('editClassTimeInput');
+            const editTimePickerDropdown = document.getElementById('editTimePickerDropdown');
+            const editTimePickerList = document.getElementById('editTimePickerList');
+            
+            // Generate time options (30-minute intervals)
+            function generateTimeOptions() {
+                const times = [];
+                for (let hour = 0; hour < 24; hour++) {
+                    for (let min = 0; min < 60; min += 30) {
+                        const hour12 = hour === 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+                        const ampm = hour < 12 ? 'AM' : 'PM';
+                        const timeStr = `${hour12}:${min.toString().padStart(2, '0')} ${ampm}`;
+                        times.push(timeStr);
+                    }
+                }
+                return times;
+            }
+            
+            function renderEditTimeOptions() {
+                const times = generateTimeOptions();
+                editTimePickerList.innerHTML = times.map(time => `
+                    <div class="time-picker-option" data-time="${time}">${time}</div>
+                `).join('');
+            }
+            
+            // Initialize time options
+            if (editTimePickerList) {
+                renderEditTimeOptions();
+            }
+            
+            // Show time picker
+            if (editClassTimeInput) {
+                editClassTimeInput.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    editTimePickerDropdown.classList.add('active');
+                });
+            }
+            
+            // Select time
+            if (editTimePickerList) {
+                editTimePickerList.addEventListener('click', function(e) {
+                    const option = e.target.closest('.time-picker-option');
+                    if (option) {
+                        const time = option.dataset.time;
+                        editClassTimeInput.value = time;
+                        
+                        // Update selected state
+                        editTimePickerList.querySelectorAll('.time-picker-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        option.classList.add('selected');
+                        
+                        editTimePickerDropdown.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Close time picker when clicking outside
+            document.addEventListener('click', function(e) {
+                if (editTimePickerDropdown && editClassTimeInput) {
+                    if (!editClassTimeInput.contains(e.target) && !editTimePickerDropdown.contains(e.target)) {
+                        editTimePickerDropdown.classList.remove('active');
+                    }
+                }
+            });
+            
+            function openEditSyllabusModal() {
+                // Populate form with current values
+                document.getElementById('editCourseTitleInput').value = syllabusCourseTitleInput.value;
+                document.getElementById('editProfessorInput').value = syllabusProfessorInput.value;
+                document.getElementById('editClassTimeInput').value = syllabusClassTimeInput.value;
+                editSelectedFileName.textContent = syllabusFileName.textContent;
+                
+                // Set selected color
+                editColorPicker.querySelectorAll('.color-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    if (opt.dataset.color === selectedEditColor) {
+                        opt.classList.add('selected');
+                    }
+                });
+                
+                // Apply course color class to modal
+                const calendarClasses = ['calendar-analytics', 'calendar-marketing', 'calendar-finance', 'calendar-history', 'calendar-accounting'];
+                calendarClasses.forEach(cls => editSyllabusModalCard.classList.remove(cls));
+                editSyllabusModalCard.classList.add('calendar-' + courseCalendar);
+                
+                editSyllabusModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeEditSyllabusModalFn() {
+                editSyllabusModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            if (editSyllabusBtn) {
+                editSyllabusBtn.addEventListener('click', openEditSyllabusModal);
+            }
+            
+            if (closeEditSyllabusModal) {
+                closeEditSyllabusModal.addEventListener('click', closeEditSyllabusModalFn);
+            }
+            
+            if (cancelEditSyllabusBtn) {
+                cancelEditSyllabusBtn.addEventListener('click', closeEditSyllabusModalFn);
+            }
+            
+            if (editSyllabusModal) {
+                editSyllabusModal.addEventListener('click', function(e) {
+                    if (e.target === editSyllabusModal) {
+                        closeEditSyllabusModalFn();
+                    }
+                });
+            }
+            
+            // Color picker in edit modal
+            if (editColorPicker) {
+                editColorPicker.querySelectorAll('.color-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        editColorPicker.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+                        this.classList.add('selected');
+                        selectedEditColor = this.dataset.color;
+                        selectedEditColorName = this.dataset.name;
+                    });
+                });
+            }
+            
+            // File upload in edit modal
+            if (editFileUploadArea) {
+                editFileUploadArea.addEventListener('click', function() {
+                    editSyllabusFileInput.click();
+                });
+                
+                editSyllabusFileInput.addEventListener('change', function() {
+                    if (editSyllabusFileInput.files.length > 0) {
+                        editSelectedFileName.textContent = editSyllabusFileInput.files[0].name;
+                    }
+                });
+                
+                editFileUploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    editFileUploadArea.classList.add('dragover');
+                });
+                
+                editFileUploadArea.addEventListener('dragleave', function() {
+                    editFileUploadArea.classList.remove('dragover');
+                });
+                
+                editFileUploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    editFileUploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        editSyllabusFileInput.files = files;
+                        editSelectedFileName.textContent = files[0].name;
+                    }
+                });
+            }
+            
+            // Save syllabus details
+            if (saveEditSyllabusBtn) {
+                saveEditSyllabusBtn.addEventListener('click', function() {
+                    const newTitle = document.getElementById('editCourseTitleInput').value;
+                    const newProfessor = document.getElementById('editProfessorInput').value;
+                    const newClassTime = document.getElementById('editClassTimeInput').value;
+                    const newFileName = editSelectedFileName.textContent || currentCourseDetails.syllabus;
+                    
+                    if (!newTitle.trim()) {
+                        alert('Please enter a course title');
+                        return;
+                    }
+                    
+                    // Get the color class from hex
+                    const newColorClass = colorHexToClass[selectedEditColor] || 'yellow';
+                    
+                    // Update global course details and save to localStorage
+                    updateCourseDetails(courseCalendar, {
+                        title: newTitle,
+                        professor: newProfessor,
+                        classTime: newClassTime,
+                        syllabus: newFileName,
+                        colorHex: selectedEditColor,
+                        colorName: selectedEditColorName,
+                        colorClass: newColorClass
+                    });
+                    
+                    // Update the display fields
+                    if (syllabusCourseTitleInput) syllabusCourseTitleInput.value = newTitle;
+                    if (syllabusProfessorInput) syllabusProfessorInput.value = newProfessor;
+                    if (syllabusClassTimeInput) syllabusClassTimeInput.value = newClassTime;
+                    if (syllabusFileName) syllabusFileName.textContent = newFileName;
+                    if (courseColorSwatch) courseColorSwatch.style.backgroundColor = selectedEditColor;
+                    if (courseColorName) courseColorName.textContent = selectedEditColorName;
+                    
+                    // Update modal classes to use new course color
+                    const calendarClasses = ['calendar-analytics', 'calendar-marketing', 'calendar-finance', 'calendar-history', 'calendar-accounting'];
+                    const colorClasses = ['yellow', 'orange', 'green', 'teal', 'lime', 'blue', 'purple', 'pink', 'cyan', 'red', 'gray', 'stone', 'indigo'];
+                    
+                    // Update Event Modal color
+                    if (eventModal) {
+                        calendarClasses.forEach(cls => eventModal.classList.remove(cls));
+                        colorClasses.forEach(cls => eventModal.classList.remove('calendar-' + cls));
+                        eventModal.classList.add('calendar-' + newColorClass);
+                    }
+                    
+                    // Update Add Event Modal color
+                    if (addEventModalCard) {
+                        calendarClasses.forEach(cls => addEventModalCard.classList.remove(cls));
+                        colorClasses.forEach(cls => addEventModalCard.classList.remove('calendar-' + cls));
+                        addEventModalCard.classList.add('calendar-' + newColorClass);
+                    }
+                    
+                    // Re-render events with new color
+                    renderCourseEvents();
+                    
+                    closeEditSyllabusModalFn();
+                });
+            }
+            
+            // Update page title with course name
+            const displayName = getCourseDisplayName(courseCalendar);
+            const pageTitle = document.querySelector('.dashboard-page-title');
+            if (pageTitle) {
+                pageTitle.textContent = 'Edit Course - ' + displayName;
+            }
+            
+            // Update the static calendar field in Add Event modal
+            const staticCalendarField = document.querySelector('.static-field span');
+            if (staticCalendarField) {
+                staticCalendarField.textContent = displayName;
+            }
+            
+            // Update the hidden calendar input value
+            const hiddenCalendarInput = document.getElementById('newEventCalendar');
+            if (hiddenCalendarInput) {
+                hiddenCalendarInput.value = courseCalendar;
+            }
+            
+            // Update document title
+            document.title = 'Edit Course - ' + displayName + ' - Open Planner';
+            
+            // Update the Calendar dropdown in the event detail modal
+            const eventCalendarSelect = document.getElementById('eventCalendar');
+            if (eventCalendarSelect) {
+                eventCalendarSelect.value = courseCalendar;
+            }
+            
+            // Update modal classes to use course-specific colors from storage
+            const eventModal = document.getElementById('eventModal');
+            const addEventModalCard = document.querySelector('#addEventModal .modal-card');
+            const calendarClasses = ['calendar-analytics', 'calendar-marketing', 'calendar-finance', 'calendar-history', 'calendar-accounting'];
+            const allColorClasses = ['calendar-yellow', 'calendar-orange', 'calendar-green', 'calendar-teal', 'calendar-lime', 'calendar-blue', 'calendar-purple', 'calendar-pink', 'calendar-cyan', 'calendar-red', 'calendar-gray', 'calendar-stone', 'calendar-indigo'];
+            
+            if (eventModal) {
+                calendarClasses.forEach(cls => eventModal.classList.remove(cls));
+                allColorClasses.forEach(cls => eventModal.classList.remove(cls));
+                eventModal.classList.add('calendar-' + courseColor);
+            }
+            
+            if (addEventModalCard) {
+                calendarClasses.forEach(cls => addEventModalCard.classList.remove(cls));
+                allColorClasses.forEach(cls => addEventModalCard.classList.remove(cls));
+                addEventModalCard.classList.add('calendar-' + courseColor);
+            }
+            const courseEventsContainer = document.getElementById('courseEventsContainer');
+            // pastEventsContent is already defined above
+            
+            function formatTime(date) {
+                let hours = date.getHours();
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                const ampm = hours >= 12 ? 'pm' : 'am';
+                hours = hours % 12 || 12;
+                return `${hours}:${minutes} ${ampm}`;
+            }
+            
+            function formatDateHeader(date) {
+                const day = date.getDate();
+                const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+                const month = months[date.getMonth()];
+                const year = date.getFullYear();
+                return `Due on ${day}, ${month} ${year}`;
+            }
+            
+            function formatDateForData(date) {
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                const year = date.getFullYear();
+                let hours = date.getHours();
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12 || 12;
+                return `${month}/${day}/${year} ${hours}:${minutes} ${ampm}`;
+            }
+            
+            function createEventRow(event) {
+                const startTime = formatTime(event.date);
+                const endTime = formatTime(event.endDate);
+                const priorityClass = event.priority.toLowerCase();
+                const completedClass = event.completed ? ' completed' : '';
+                const checkedClass = event.completed ? ' checked' : '';
+                // Get current color from global storage
+                const currentColor = getCourseColorClass(courseCalendar);
+                
+                return `
+                    <div class="task-row clickable-event${completedClass}" 
+                         data-event-id="${event.id}"
+                         data-calendar="${event.calendar}"
+                         data-color="${currentColor}"
+                         data-start="${formatDateForData(event.date)}" 
+                         data-end="${formatDateForData(event.endDate)}"
+                         data-title="${event.title.replace(/"/g, '&quot;')}"
+                         data-note="${(event.note || event.title).replace(/"/g, '&quot;').replace(/\n/g, '&#10;')}"
+                         data-priority="${priorityClass}"
+                         role="button"
+                         tabindex="0">
+                        <div class="col-actions">
+                            <button class="task-checkbox${checkedClass}" title="${event.completed ? 'Completed' : 'Mark Complete'}">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="col-time">
+                            <div class="time-indicator ${currentColor}"></div>
+                            <span>${startTime} - ${endTime}</span>
+                        </div>
+                        <div class="col-priority">
+                            <span class="priority-badge ${priorityClass}">${event.priority}</span>
+                        </div>
+                        <div class="col-event">${event.title.replace(/\n/g, ' ')}</div>
+                        <div class="col-delete">
+                            <button class="delete-btn" title="Delete">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function renderCourseEvents() {
+                // Get events for this course from globalEvents
+                const courseEvents = globalEvents
+                    .filter(event => event.calendar === courseCalendar)
+                    .sort((a, b) => a.date - b.date);
+                
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                
+                // Separate upcoming and past events based on date only (not completion status)
+                // Completed events with future dates stay in upcoming but show strikethrough
+                const upcomingEvents = courseEvents.filter(event => event.date >= today);
+                const pastEvents = courseEvents.filter(event => event.date < today);
+                
+                // Group upcoming events by date
+                const groupedEvents = {};
+                upcomingEvents.forEach(event => {
+                    const dateKey = event.date.toDateString();
+                    if (!groupedEvents[dateKey]) {
+                        groupedEvents[dateKey] = [];
+                    }
+                    groupedEvents[dateKey].push(event);
+                });
+                
+                // Render upcoming events
+                let upcomingHTML = '';
+                Object.keys(groupedEvents).forEach(dateKey => {
+                    const events = groupedEvents[dateKey];
+                    const dateHeader = formatDateHeader(events[0].date);
+                    upcomingHTML += `<div class="due-date-group">`;
+                    upcomingHTML += `<div class="due-date-header">${dateHeader}</div>`;
+                    events.forEach(event => {
+                        upcomingHTML += createEventRow(event);
+                    });
+                    upcomingHTML += `</div>`;
+                });
+                
+                if (upcomingHTML === '') {
+                    upcomingHTML = '<div class="no-events-message" style="padding: 2rem; text-align: center; color: var(--neutral-500);">No upcoming events for this course.</div>';
+                }
+                
+                courseEventsContainer.innerHTML = upcomingHTML;
+                
+                // Render past events
+                let pastHTML = '';
+                pastEvents.forEach(event => {
+                    pastHTML += createEventRow(event);
+                });
+                
+                if (pastHTML === '') {
+                    pastHTML = '<div class="no-events-message" style="padding: 1rem; text-align: center; color: var(--neutral-500);">No past events.</div>';
+                }
+                
+                pastEventsContent.innerHTML = pastHTML;
+                
+                // Re-attach event handlers
+                attachEventHandlers();
+            }
+            
+            function attachEventHandlers() {
+                // Handle task checkbox clicks
+                document.querySelectorAll('.events-panel .task-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        e.stopImmediatePropagation();
+                        
+                        const taskRow = this.closest('.task-row');
+                        const eventId = parseInt(taskRow.dataset.eventId);
+                        const event = globalEvents.find(ev => ev.id === eventId);
+                        
+                        if (event) {
+                            event.completed = !event.completed;
+                            saveEventsToStorage();
+                            renderCourseEvents();
+                            
+                            // Trigger refresh on other pages
+                            if (typeof renderDashboardEvents === 'function') {
+                                renderDashboardEvents();
+                            }
+                            document.dispatchEvent(new CustomEvent('refreshCalendarViews'));
+                        }
+                    }, true);
+                });
+                
+                // Handle delete buttons
+                document.querySelectorAll('.events-panel .delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const taskRow = this.closest('.task-row');
+                        const eventId = parseInt(taskRow.dataset.eventId);
+                        
+                        showDeleteConfirm('Delete Event', function() {
+                            // Remove from globalEvents
+                            const index = globalEvents.findIndex(ev => ev.id === eventId);
+                            if (index > -1) {
+                                globalEvents.splice(index, 1);
+                                saveEventsToStorage();
+                                renderCourseEvents();
+                                
+                                // Trigger refresh on other pages
+                                if (typeof renderDashboardEvents === 'function') {
+                                    renderDashboardEvents();
+                                }
+                                document.dispatchEvent(new CustomEvent('refreshCalendarViews'));
+                            }
+                        });
+                    });
+                });
+                
+                // Track which event opened the modal
+                document.querySelectorAll('.events-panel .task-row.clickable-event').forEach(row => {
+                    row.addEventListener('click', function(e) {
+                        if (e.target.closest('.task-checkbox') || e.target.closest('.delete-btn')) {
+                            return;
+                        }
+                        if (eventModalCard) {
+                            eventModalCard.dataset.currentEventId = this.dataset.eventId;
+                            const isCompleted = this.classList.contains('completed');
+                            updateMarkCompleteButton(isCompleted);
+                            if (isCompleted) {
+                                eventModalCard.classList.add('completed');
+                            } else {
+                                eventModalCard.classList.remove('completed');
+                            }
+                        }
+                    });
+                });
+            }
+            
+            // Initial render
+            renderCourseEvents();
+            
+            // ============================================
+            // Delete Confirmation Modal
+            // ============================================
+            const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            let currentDeleteCallback = null;
+            
+            function showDeleteConfirm(title, onConfirm) {
+                document.getElementById('deleteModalTitle').textContent = title;
+                deleteConfirmModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                currentDeleteCallback = onConfirm;
+            }
+            
+            function closeDeleteConfirm() {
+                deleteConfirmModal.classList.remove('active');
+                document.body.style.overflow = '';
+                currentDeleteCallback = null;
+            }
+            
+            if (cancelDeleteBtn) {
+                cancelDeleteBtn.addEventListener('click', closeDeleteConfirm);
+            }
+            
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.addEventListener('click', function() {
+                    if (currentDeleteCallback) {
+                        currentDeleteCallback();
+                    }
+                    closeDeleteConfirm();
+                });
+            }
+            
+            if (deleteConfirmModal) {
+                deleteConfirmModal.addEventListener('click', function(e) {
+                    if (e.target === deleteConfirmModal) {
+                        closeDeleteConfirm();
+                    }
+                });
+            }
+            
+            // ============================================
+            // Mark Complete Button in Modal
+            // ============================================
+            const markCompleteBtn = document.getElementById('markCompleteBtn');
+            const eventModalOverlay = document.getElementById('eventModalOverlay');
+            const eventModalCard = document.getElementById('eventModal');
+            
+            if (markCompleteBtn) {
+                markCompleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    
+                    const eventId = parseInt(eventModalCard.dataset.currentEventId);
+                    if (eventId) {
+                        const event = globalEvents.find(ev => ev.id === eventId);
+                        if (event) {
+                            event.completed = !event.completed;
+                            saveEventsToStorage();
+                            
+                            // Update button state
+                            updateMarkCompleteButton(event.completed);
+                            
+                            // Update modal styling
+                            if (event.completed) {
+                                eventModalCard.classList.add('completed');
+                            } else {
+                                eventModalCard.classList.remove('completed');
+                            }
+                            
+                            // Close modal and re-render
+                            eventModalOverlay.classList.remove('active');
+                            document.body.style.overflow = '';
+                            renderCourseEvents();
+                            
+                            // Trigger refresh on other pages
+                            if (typeof renderDashboardEvents === 'function') {
+                                renderDashboardEvents();
+                            }
+                            document.dispatchEvent(new CustomEvent('refreshCalendarViews'));
+                        }
+                    }
+                }, true);
+            }
+            
+            function updateMarkCompleteButton(isCompleted) {
+                if (markCompleteBtn) {
+                    if (isCompleted) {
+                        markCompleteBtn.innerHTML = `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 12h18M3 6h18M3 18h18"/>
+                            </svg>
+                            Mark Incomplete
+                        `;
+                        markCompleteBtn.classList.remove('btn-success');
+                        markCompleteBtn.classList.add('btn-secondary');
+                    } else {
+                        markCompleteBtn.innerHTML = `
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            Mark Complete
+                        `;
+                        markCompleteBtn.classList.remove('btn-secondary');
+                        markCompleteBtn.classList.add('btn-success');
+                    }
+                }
+            }
+            
+            // ============================================
+            // Notification Panel
+            // ============================================
+            const notificationBtn = document.getElementById('notificationBtn');
+            const notificationPanel = document.getElementById('notificationPanel');
+            const notificationBackdrop = document.getElementById('notificationBackdrop');
+            const closeNotificationPanel = document.getElementById('closeNotificationPanel');
+            const clearAllNotifications = document.getElementById('clearAllNotifications');
+            const notificationList = document.getElementById('notificationList');
+            const notificationBadge = document.getElementById('notificationBadge');
+            
+            let notifications = [
+                { id: 1, type: 'reminder', title: 'Quiz Due Tomorrow', message: 'Quiz 6 is due tomorrow at 11:59 PM.', time: '5 min ago', unread: true },
+                { id: 2, type: 'event', title: 'Reading Assignment', message: 'SHMA 177-218 reading is due this week.', time: '1 hour ago', unread: false }
+            ];
+            
+            function renderNotifications() {
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = `
+                        <div class="notification-empty">
+                            <div class="notification-empty-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                </svg>
+                            </div>
+                            <h4>No notifications</h4>
+                            <p>You're all caught up!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                notificationList.innerHTML = notifications.map(notif => `
+                    <div class="notification-item ${notif.unread ? 'unread' : ''}" data-id="${notif.id}">
+                        <div class="notification-icon ${notif.type}">
+                            ${notif.type === 'reminder' ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>'}
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notif.title}</div>
+                            <div class="notification-message">${notif.message}</div>
+                            <div class="notification-time">${notif.time}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            function updateBadge() {
+                const unreadCount = notifications.filter(n => n.unread).length;
+                notificationBadge.style.display = unreadCount > 0 ? 'block' : 'none';
+            }
+            
+            function openNotificationPanel() {
+                notificationPanel.classList.add('active');
+                notificationBackdrop.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                notifications.forEach(n => n.unread = false);
+                renderNotifications();
+                updateBadge();
+            }
+            
+            function closeNotificationPanelFn() {
+                notificationPanel.classList.remove('active');
+                notificationBackdrop.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            notificationBtn.addEventListener('click', openNotificationPanel);
+            closeNotificationPanel.addEventListener('click', closeNotificationPanelFn);
+            notificationBackdrop.addEventListener('click', closeNotificationPanelFn);
+            
+            clearAllNotifications.addEventListener('click', function() {
+                notifications = [];
+                renderNotifications();
+                updateBadge();
+            });
+            
+            renderNotifications();
+            updateBadge();
+            
+            // ============================================
+            // User Dropdown Menu
+            // ============================================
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (userMenuBtn) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userMenuBtn.classList.toggle('active');
+                    if (userDropdown) {
+                        userDropdown.classList.toggle('active');
+                    }
+                });
+            }
+            
+            if (userMenuBtn && userDropdown) {
+                document.addEventListener('click', function(e) {
+                    if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                        userMenuBtn.classList.remove('active');
+                        userDropdown.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

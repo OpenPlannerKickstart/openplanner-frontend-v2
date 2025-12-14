@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Purchase Open Planner for your student - Parent Checkout">
+  <title>For Parents - Open Planner</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <style>
+    .pricing-cards-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 1.25rem !important;
+    }
+    @media (max-width: 900px) {
+      .pricing-cards-grid {
+        grid-template-columns: 1fr !important;
+        max-width: 450px;
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+    }
+    .checkout-btn-styled {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      padding: 0.875rem 1.5rem;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgb(74 174 212 / 0.4);
+      transition: all 0.2s ease;
+      margin-bottom: 1rem;
+    }
+    .checkout-btn-styled:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgb(74 174 212 / 0.5);
+    }
+    .checkout-btn-styled:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .billing-btn-styled {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      background: var(--accent-purple);
+      color: white;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 0.875rem 1.5rem;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 14px rgb(124 58 237 / 0.4);
+      transition: all 0.2s ease;
+    }
+    .billing-btn-styled:hover {
+      background: #6D28D9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgb(124 58 237 / 0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <header class="navbar">
+    <nav class="container navbar-inner">
+      <a href="index.html" class="navbar-logo">
+        <img src="assets/logo.png" alt="Open Planner">
+      </a>
+      <ul class="navbar-menu">
+        <li><a href="index.html#features" class="navbar-link">Features</a></li>
+        <li><a href="index.html#pricing" class="navbar-link">Pricing</a></li>
+        <li><a href="parents.html" class="navbar-link">Parents</a></li>
+        <li><a href="faqs.html" class="navbar-link">FAQ's</a></li>
+        <li><a href="index.html#contact" class="navbar-link">Contact</a></li>
+      </ul>
+      <div class="navbar-actions">
+        <a href="login.html" class="navbar-login">Log in</a>
+        <a href="signup.html" class="btn btn-primary">Sign up</a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+    <div class="mobile-menu">
+      <ul class="mobile-menu-links">
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="index.html#pricing">Pricing</a></li>
+        <li><a href="parents.html">Parents</a></li>
+        <li><a href="faqs.html">FAQ's</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+      <div class="mobile-menu-actions">
+        <a href="login.html" class="btn btn-secondary">Log in</a>
+        <a href="signup.html" class="btn btn-primary">Sign up</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="parents-hero">
+      <div class="parents-hero-bg"></div>
+      <div class="container" style="max-width: 1200px; width: 100%; padding: 0 2rem;">
+        <div class="parents-content" style="max-width: 100% !important; text-align: left;">
+          <!-- Header -->
+          <div style="text-align: center; margin-bottom: 2.5rem;">
+            <h1 class="parents-title" style="margin-bottom: 0.5rem;">Choose Your Plan</h1>
+          </div>
+
+          <!-- Pricing Cards -->
+          <div class="pricing-cards-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 2rem;">
+            <!-- 1 Month Plan -->
+            <div class="pricing-card" data-plan="monthly" data-price="3.99" style="background: white; border: 1px solid var(--neutral-200); border-radius: var(--radius-2xl); padding: 1.5rem; position: relative;">
+              <div class="pricing-header" style="text-align: center; margin-bottom: 1rem;">
+                <span class="pricing-duration">1 Month</span>
+                <div class="pricing-price" style="margin-top: 0.5rem;">
+                  <span class="price-old">$4.99</span>
+                  <span class="price-current">$3.99</span>
+                  <span class="price-per-month price-per-month-hidden">&nbsp;</span>
+                </div>
+              </div>
+              <div class="pricing-features" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--neutral-200);">
+                <span class="features-label">FEATURES</span>
+                <ul>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Unlimited syllabus uploads
+                  </li>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Full website access
+                  </li>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Full mobile application access
+                  </li>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Notifications
+                  </li>
+                </ul>
+              </div>
+              <!-- Student Counter -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 1.5rem;">
+                <button type="button" class="student-btn minus" data-plan="monthly" style="width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--neutral-300); background: white; cursor: pointer; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">−</button>
+                <span class="student-count" data-plan="monthly" style="background: var(--primary); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; min-width: 120px; text-align: center;">0 students</span>
+                <button type="button" class="student-btn plus" data-plan="monthly" style="width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--neutral-300); background: white; cursor: pointer; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">+</button>
+              </div>
+            </div>
+
+            <!-- 6 Months Plan -->
+            <div class="pricing-card" data-plan="biannual" data-price="14.99" style="background: white; border: 1px solid var(--neutral-200); border-radius: var(--radius-2xl); padding: 1.5rem; position: relative;">
+              <div class="pricing-header" style="text-align: center; margin-bottom: 1rem;">
+                <span class="pricing-duration">6 Months</span>
+                <div class="pricing-price" style="margin-top: 0.5rem;">
+                  <span class="price-old">$18.99</span>
+                  <span class="price-current">$14.99</span>
+                  <span class="price-per-month">$2.50/month</span>
+                </div>
+              </div>
+              <div class="pricing-features" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--neutral-200);">
+                <span class="features-label">FEATURES</span>
+                <ul>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Unlimited syllabus uploads
+                  </li>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Full website access
+                  </li>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Full mobile application access
+                  </li>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Notifications
+                  </li>
+                </ul>
+              </div>
+              <!-- Student Counter -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 1.5rem;">
+                <button type="button" class="student-btn minus" data-plan="biannual" style="width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--neutral-300); background: white; cursor: pointer; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">−</button>
+                <span class="student-count" data-plan="biannual" style="background: var(--primary); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; min-width: 120px; text-align: center;">0 students</span>
+                <button type="button" class="student-btn plus" data-plan="biannual" style="width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--neutral-300); background: white; cursor: pointer; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">+</button>
+              </div>
+            </div>
+
+            <!-- 1 Year Plan -->
+            <div class="pricing-card pricing-card-popular" data-plan="annual" data-price="23.99" style="background: white; border-radius: var(--radius-2xl); padding: 1.5rem; position: relative;">
+              <!-- Popular Badge -->
+              <span class="popular-badge">Popular</span>
+              <div class="pricing-header" style="text-align: center; margin-bottom: 1rem;">
+                <span class="pricing-duration">1 Year</span>
+                <div class="pricing-price" style="margin-top: 0.5rem;">
+                  <span class="price-old">$29.99</span>
+                  <span class="price-current">$23.99</span>
+                  <span class="price-per-month">$2.00/month</span>
+                </div>
+              </div>
+              <div class="pricing-features" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--neutral-200);">
+                <span class="features-label">FEATURES</span>
+                <ul>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Unlimited syllabus uploads
+                  </li>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Full website access
+                  </li>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Full mobile application access
+                  </li>
+                  <li>
+                    <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Notifications
+                  </li>
+                </ul>
+              </div>
+              <!-- Student Counter -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 1.5rem;">
+                <button type="button" class="student-btn minus" data-plan="annual" style="width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--neutral-300); background: white; cursor: pointer; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">−</button>
+                <span class="student-count" data-plan="annual" style="background: var(--primary); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 500; min-width: 120px; text-align: center;">0 students</span>
+                <button type="button" class="student-btn plus" data-plan="annual" style="width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--neutral-300); background: white; cursor: pointer; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info Text -->
+          <p style="text-align: center; color: var(--neutral-600); font-size: 1.0625rem; max-width: 600px; margin: 0 auto 2rem; line-height: 1.6;">
+            Student codes will be sent to your email. Students get access when they redeem a code. You can cancel anytime.
+          </p>
+
+          <!-- Email and Checkout -->
+          <div style="max-width: 400px; margin: 0 auto; text-align: center;">
+            <label for="parent-email" style="display: block; text-align: left; font-weight: 500; color: var(--neutral-700); margin-bottom: 0.5rem;">Parent Email</label>
+            <input type="email" id="parent-email" class="form-input" placeholder="Enter your email address" style="width: 100%; padding: 0.875rem 1rem; border-radius: 8px; border: 1px solid var(--neutral-200); margin-bottom: 1rem;">
+            <button type="button" id="checkout-btn" class="checkout-btn-styled" disabled>Proceed to checkout</button>
+            <a href="#" class="billing-btn-styled">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Manage existing billing
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Student counter and checkout logic
+    document.addEventListener('DOMContentLoaded', function() {
+      const counts = { monthly: 0, biannual: 0, annual: 0 };
+
+      function updateCheckoutButton() {
+        const totalStudents = counts.monthly + counts.biannual + counts.annual;
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const emailInput = document.getElementById('parent-email');
+        
+        if (totalStudents > 0 && emailInput.value.trim()) {
+          checkoutBtn.disabled = false;
+        } else {
+          checkoutBtn.disabled = true;
+        }
+      }
+
+      function updateCount(plan) {
+        const countEl = document.querySelector(`.student-count[data-plan="${plan}"]`);
+        countEl.textContent = counts[plan] + ' student' + (counts[plan] !== 1 ? 's' : '');
+      }
+
+      document.querySelectorAll('.student-btn.plus').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const plan = this.dataset.plan;
+          counts[plan]++;
+          updateCount(plan);
+          updateCheckoutButton();
+        });
+      });
+
+      document.querySelectorAll('.student-btn.minus').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const plan = this.dataset.plan;
+          if (counts[plan] > 0) {
+            counts[plan]--;
+            updateCount(plan);
+            updateCheckoutButton();
+          }
+        });
+      });
+
+      document.getElementById('parent-email').addEventListener('input', updateCheckoutButton);
+    });
+  </script>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.html"><img src="assets/logo.png" alt="Open Planner" class="footer-logo"></a>
+          <p>AI-powered scheduling for students</p>
+        </div>
+        <nav class="footer-nav">
+          <div>
+            <h4 class="footer-nav-title">Product</h4>
+            <ul class="footer-nav-links">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="index.html#features">Features</a></li>
+              <li><a href="index.html#pricing">Pricing</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="footer-nav-title">Support</h4>
+            <ul class="footer-nav-links">
+              <li><a href="faqs.html">FAQ's</a></li>
+              <li><a href="index.html#contact">Contact Us</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="footer-nav-title">Legal</h4>
+            <ul class="footer-nav-links">
+              <li><a href="privacy-policy.html">Privacy Policy</a></li>
+              <li><a href="terms.html">Terms and Conditions</a></li>
+            </ul>
+          </div>
+        </nav>
+        <div class="footer-social">
+          <h4 class="footer-social-title">Follow Us</h4>
+          <div class="footer-social-links">
+            <a href="#" class="footer-social-link" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+            <a href="#" class="footer-social-link" aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copyright">© 2025 Open Planner. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <button class="back-to-top" aria-label="Back to top"><svg viewBox="0 0 24 24"><path d="M18 15l-6-6-6 6"/></svg></button>
+  <script src="js/main.js"></script>
+</body>
+</html>

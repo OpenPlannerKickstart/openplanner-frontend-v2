@@ -33,3 +33,4 @@ yarn-error.log*
 .env.development
 .env.development
 *.development
+/static-frontend/node_modules
