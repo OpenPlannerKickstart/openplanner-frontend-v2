@@ -6,23 +6,23 @@
   min-height: 100vh;
   display: flex;
   background: var(--white);
+  overflow: hidden; /* Prevent layout shifts */
 }
 
 .dashboard-main {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0; /* Allow content to shrink properly in flex */
   display: flex;
   flex-direction: column;
   margin-left: 0;
-  transition: margin-left var(--transition-base);
+  /* Don't transition margin - causes layout shift during page transitions */
 }
 
 @media (min-width: 1024px) {
+  /* On desktop, sidebar is position: relative and takes up space in flex layout */
+  /* So we don't need margin-left since the sidebar already takes its width */
   .dashboard-main {
-    margin-left: var(--sidebar-width);
-  }
-
-  .sidebar.collapsed + .dashboard-main {
-    margin-left: var(--sidebar-width-collapsed);
+    margin-left: 0; /* Sidebar takes its own space in flex */
   }
 }
 

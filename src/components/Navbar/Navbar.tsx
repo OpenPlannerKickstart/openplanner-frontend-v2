@@ -409,9 +409,9 @@ const Navbar = (props) => {
 
               {/* Hide hamburger button on mobile when sidebar is locked collapsed */}
               {!isMobileView && (
-                <Button variant='primary' className="btn-icon btn-secondary-two" id="topnav-hamburger-icon" onClick={toggleMenu}>
-                  <i className='material-symbols-outlined'>menu</i>
-                </Button>
+              <Button variant='primary' className="btn-icon btn-secondary-two" id="topnav-hamburger-icon" onClick={toggleMenu}>
+                <i className='material-symbols-outlined'>menu</i>
+              </Button>
               )}
 
               {/* <!-- App Search--> */}

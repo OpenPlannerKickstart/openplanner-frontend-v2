@@ -43,6 +43,14 @@ const Groups: React.FC = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
+
+  // Add body class for viewport-locked layout (removes dashboard-main padding)
+  useEffect(() => {
+    document.body.classList.add('groups-page-body');
+    return () => {
+      document.body.classList.remove('groups-page-body');
+    };
+  }, []);
   const [activeTab, setActiveTab] = useState<'chats' | 'groups'>('chats');
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1277,36 +1285,40 @@ const Groups: React.FC = () => {
     }
   };
 
-  // On mobile list view, calculate height to fill viewport below main navbar
-  const mobileListStyle: React.CSSProperties | undefined = isMobile && mobileView !== 'chat' 
-    ? { height: 'calc(100dvh - 60px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' } 
-    : (isMobile && mobileView === 'chat' ? { height: 'calc(100dvh - 60px)', overflow: 'hidden' } : undefined);
-
   return (
-    <div className="page-content groups-page" style={mobileListStyle}>
-      <div className="page-title-wrapper" style={{ borderBottom: '1px solid #E5E7EB', flexShrink: 0 }}>
-        <div className="page-title-left">
-          <div className="page-title">
-            <h4>Groups</h4>
+    <div className="groups-page">
+      {/* Dashboard Header */}
+      <header className="dashboard-header" style={{ flexShrink: 0 }}>
+        <div className="dashboard-header-inner">
+          <div className="dashboard-header-left">
+            <h1 className="dashboard-page-title">Groups</h1>
+          </div>
+          <div className="dashboard-header-right">
+            <button type="button" className="btn btn-primary" onClick={() => setShowCreateGroup(true)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 6 }}>
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Create Group
+            </button>
+            <button type="button" className="btn btn-accent" onClick={handleSyllabusShow}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 6 }}>
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Add Syllabus
+            </button>
           </div>
         </div>
-        <div className="page-title-right">
-          <button type="button" className="btn btn-primary" onClick={() => setShowCreateGroup(true)}>
-            Create Group
-          </button>
-          <button type="button" className="btn btn-warning" onClick={handleSyllabusShow}>
-            Add Syllabus
-          </button>
-        </div>
-      </div>
-      <div className="content-area content-area-title-filter" style={{ overflow: isMobile ? 'hidden' : undefined, flex: isMobile ? 1 : undefined, minHeight: 0, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
-        <div className="page-content-wrapper h-100" style={{ overflow: isMobile ? 'hidden' : undefined, flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
-          <div className="row gx-0 gy-0 h-100" style={{ minHeight: 0, flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined }}>
-            <div className="col-12 col-lg-4 px-0 h-100" style={{ flex: isMobile ? 1 : undefined, display: isMobile ? 'flex' : undefined, flexDirection: isMobile ? 'column' : undefined, minHeight: 0 }}>
-              <div className="d-flex flex-column h-100 bg-white" style={{ overflow: 'hidden', flex: isMobile ? 1 : undefined, minHeight: 0 }}>
+      </header>
+      <div className="content-area content-area-title-filter">
+        <div className="page-content-wrapper">
+          <div className="row gx-0 gy-0">
+            <div className="col-12 col-lg-4 px-0">
+              <div className="d-flex flex-column bg-white" style={{ height: '100%' }}>
                 {/* Search - hide entirely on mobile when in chat view */}
                 {!(isMobile && mobileView === 'chat') && (
-                  <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', flexShrink: 0, position: isMobile ? undefined : 'sticky', top: isMobile ? undefined : 0, zIndex: 12 }}>
+                  <div className="d-flex align-items-center search-row" style={{ height: 64, padding: '10px 8px', borderBottom: '1px solid #E5E7EB', background: '#fff' }}>
                     <div className="px-2 w-100" style={{ position: 'relative' }}>
                       <i
                         className="material-symbols-outlined"
@@ -1336,7 +1348,7 @@ const Groups: React.FC = () => {
                 )}
 
                 {/* Tabs - hidden on mobile when in chat; visible otherwise */}
-                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', paddingBottom: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', flexShrink: 0, position: isMobile ? undefined : 'sticky', top: isMobile ? undefined : 64, zIndex: 11 }}>
+                <div className="nav-tabs-outer nav-tabs-style2 px-0 tabs-row" style={{ background: '#fff', display: isMobile && mobileView === 'chat' ? 'none' : 'block' }}>
                   <nav>
                     <div
                       className="nav nav-tabs page-filters"
@@ -1401,8 +1413,8 @@ const Groups: React.FC = () => {
                 </div>
 
                 {/* Left column content: on mobile, toggle between list and chat */}
-                <div className="left-scroll-inner d-flex flex-column" style={{ minHeight: 0, flex: 1, overflow: isMobile ? 'hidden' : 'auto' }}>
-                  <div className="flex-grow-1 left-list-scroll" style={{ minHeight: 0, display: isMobile && mobileView === 'chat' ? 'none' : 'block', paddingBottom: isMobile ? 200 : 16, WebkitOverflowScrolling: 'touch', overflowY: 'auto', overflowX: 'hidden' }}>
+                <div className="left-scroll-inner">
+                  <div className="left-list-scroll" style={{ display: isMobile && mobileView === 'chat' ? 'none' : 'block' }}>
                   {activeTab === 'chats' ? (
                     <>
                       <div className="px-3 pt-4 d-flex align-items-center justify-content-between">
@@ -1717,7 +1729,7 @@ const Groups: React.FC = () => {
                   </div>
                   {/* Mobile chat view embedded in left column when mobileView === 'chat' */}
                   {isMobile && mobileView === 'chat' && (
-                    <div ref={chatFrameRef} className="d-flex flex-column" style={{ minHeight: 0, position: 'relative', flex: '1 1 auto', height: 'calc(100dvh - 60px)', overflow: 'hidden' }}>
+                    <div ref={chatFrameRef} className="d-flex flex-column" style={{ minHeight: 0, position: 'relative', flex: '1 1 auto', height: '100%', overflow: 'hidden' }}>
                       {/* Fixed chat header inside the frame */}
                       <div className="d-flex align-items-center justify-content-between" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 56, padding: '8px 16px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', background: '#fff', zIndex: 2 }}>
                         <div className="d-flex align-items-center gap-2">
@@ -2306,8 +2318,8 @@ const Groups: React.FC = () => {
             </div>
             {/* Right column (chat area) - hide entirely on mobile to avoid duplicate stacked view */}
             <div
-              className={`col-12 col-lg-8 d-flex flex-column right-pane-scroll ${isMobile ? 'd-none' : ''}`}
-              style={{ minHeight: 0, overflow: 'auto', overflowX: 'hidden', position: 'relative' }}
+              className={`col-12 col-lg-8 right-pane-scroll ${isMobile ? 'd-none' : ''}`}
+              style={{ position: 'relative' }}
               onDragEnter={handleChatDragEnter}
               onDragOver={handleChatDragOver}
               onDragLeave={handleChatDragLeave}
@@ -2336,8 +2348,8 @@ const Groups: React.FC = () => {
                   </div>
                 </div>
               )}
-              {/* Header */}
-              <div className="d-flex align-items-center justify-content-between" style={{ height: 64, padding: '10px 24px', boxSizing: 'border-box', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
+              {/* Header - fixed height, doesn't scroll */}
+              <div className="d-flex align-items-center justify-content-between chat-header" style={{ height: 64, padding: '10px 24px', borderBottom: '1px solid #E5E7EB', borderLeft: '1px solid #E5E7EB', background: '#fff' }}>
                 <div className="d-flex align-items-center gap-2">
                   {activeDmThreadId ? (
                     /* DM Mode Header - no back button, DM is shown as its own chat */
@@ -2421,9 +2433,9 @@ const Groups: React.FC = () => {
                   </div>
                 )}
               </div>
-              {/* Chat timeline (independent scroll) */}
-              <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0 }}>
-                <div ref={timelineRef} className="flex-grow-1 right-timeline-scroll" style={{ background: '#FAFAFA', padding: '16px 24px', overflow: (selectedGroupId || activeDmThreadId) ? 'auto' : 'hidden' }}>
+              {/* Chat timeline (independent scroll) - takes remaining space */}
+              <div className="chat-timeline-wrapper">
+                <div ref={timelineRef} className="right-timeline-scroll" style={{ background: '#FAFAFA', padding: '16px 24px' }}>
                   {/* DM Mode Timeline */}
                   {activeDmThreadId ? (
                     (() => {
@@ -2801,24 +2813,26 @@ const Groups: React.FC = () => {
                   </>
                   )}
                 </div>
-                {/* Composer */}
-                {activeDmThreadId && dmThread?.otherUserDeleted ? (
-                  <div style={{ padding: '16px 24px', background: '#FEF3C7', borderTop: '1px solid #F59E0B', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <i className="material-symbols-outlined" style={{ color: '#D97706' }}>info</i>
-                    <span style={{ color: '#92400E', fontSize: 14 }}>This conversation has been closed by the other user.</span>
-                  </div>
-                ) : (
-                  <Composer
-                    onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
-                    disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
-                    countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
-                    onFilesAdded={addFiles}
-                    selectedFilesCount={selectedFilesCount}
-                    uploadingCount={uploadingCount}
-                    allowEmptySend={readyAttachments.length > 0}
-                    previews={renderAttachmentPreviews()}
-                  />
-                )}
+                {/* Composer - fixed at bottom, doesn't scroll */}
+                <div className="desktop-composer-wrapper" style={{ flexShrink: 0, borderTop: '1px solid #E5E7EB' }}>
+                  {activeDmThreadId && dmThread?.otherUserDeleted ? (
+                    <div style={{ padding: '16px 24px', background: '#FEF3C7', borderTop: '1px solid #F59E0B', display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <i className="material-symbols-outlined" style={{ color: '#D97706' }}>info</i>
+                      <span style={{ color: '#92400E', fontSize: 14 }}>This conversation has been closed by the other user.</span>
+                    </div>
+                  ) : (
+                    <Composer
+                      onSend={activeDmThreadId ? handleSendDmMessage : handleSendMessage}
+                      disabled={(!selectedGroupId && !activeDmThreadId) || !!previewingSuggestion || Boolean(rateLimitUntil && Date.now() < rateLimitUntil)}
+                      countdownSeconds={rateLimitUntil ? Math.max(0, Math.ceil((rateLimitUntil - Date.now()) / 1000)) : 0}
+                      onFilesAdded={addFiles}
+                      selectedFilesCount={selectedFilesCount}
+                      uploadingCount={uploadingCount}
+                      allowEmptySend={readyAttachments.length > 0}
+                      previews={renderAttachmentPreviews()}
+                    />
+                  )}
+                </div>
               </div>
 
               {/* Nested Group Info panel (animated slide) */}

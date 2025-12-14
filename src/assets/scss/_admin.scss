@@ -1483,7 +1483,239 @@ $sm_sidebar_home_link_width: 170px;
 
 // FINISH >> WEEKLY PAGE REDESIGN << SHB
 
-// Add syllabus event offcanvas
+// Add syllabus modal (new design - matching NEW_FRONTEND)
+.add-syllabus-modal {
+    .modal-dialog.syllabus-modal {
+        max-width: 580px;
+        width: 100%;
+    }
+    
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        background: #fff;
+        border-bottom: 1px solid #E5E7EB;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        
+        .modal-title {
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            
+            .title-accent {
+                color: #239BC2;
+            }
+        }
+        
+        .modal-close-btn {
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            color: #6B7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+            
+            &:hover {
+                background: #f3f4f6;
+                color: #374151;
+            }
+        }
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            text-transform: none;
+            letter-spacing: normal;
+            
+            .required {
+                color: #EF4444;
+            }
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.9375rem;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background: #fff;
+            color: #1e293b;
+            transition: all 0.2s;
+            
+            &:focus {
+                outline: none;
+                border-color: #239BC2;
+                box-shadow: 0 0 0 3px rgba(35, 155, 194, 0.15);
+            }
+            
+            &::placeholder {
+                color: #9ca3af;
+            }
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            
+            @media (max-width: 576px) {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .file-upload-area {
+            border: 2px dashed #239BC2;
+            border-radius: 16px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+            
+            &:hover {
+                background: rgba(35, 155, 194, 0.05);
+                border-color: #1d7a9a;
+            }
+            
+            .upload-icon {
+                width: 48px;
+                height: 48px;
+                margin: 0 auto 1rem;
+                background: rgba(35, 155, 194, 0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #239BC2;
+            }
+            
+            .upload-text {
+                font-size: 0.9375rem;
+                color: #6b7280;
+                margin: 0;
+            }
+            
+            .upload-link {
+                color: #239BC2;
+                font-weight: 600;
+                cursor: pointer;
+                
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+            
+            .file-name {
+                margin-top: 0.75rem;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: #1d7a9a;
+            }
+        }
+        
+        .color-picker-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.625rem;
+            
+            .color-option {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                cursor: pointer;
+                border: 2px solid transparent;
+                transition: all 0.2s;
+                flex-shrink: 0;
+                
+                &:hover {
+                    transform: scale(1.1);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                }
+                
+                &.selected {
+                    border-color: #1e293b;
+                    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #9ca3af;
+                }
+            }
+        }
+    }
+    
+    .syllabus-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #E5E7EB;
+        background: #f9fafb;
+        
+        .modal-footer-right {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .btn {
+            padding: 0.625rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 10px;
+            min-width: 80px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #239BC2;
+            color: #fff;
+            border: none;
+            
+            &:hover {
+                background: #1d7a9a;
+            }
+            
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+        }
+        
+        .btn-outline {
+            background: #fff;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+            
+            &:hover {
+                background: #f3f4f6;
+                border-color: #9ca3af;
+            }
+        }
+    }
+}
+
+// Add syllabus event offcanvas (legacy)
 .add-syllabus-event {
     width: 100% !important;
     border-top-left-radius: 17px;

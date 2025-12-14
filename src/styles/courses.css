@@ -848,6 +848,10 @@
     align-items: start;
 }
 
+.edit-course-content.preview-hidden {
+    grid-template-columns: 1fr;
+}
+
 /* Events Panel */
 .events-panel {
     background: var(--white);

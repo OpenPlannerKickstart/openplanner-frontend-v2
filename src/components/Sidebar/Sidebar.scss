@@ -5,16 +5,20 @@
 
 .sidebar {
   width: var(--sidebar-width);
+  min-width: var(--sidebar-width); /* Prevent shrinking */
+  max-width: var(--sidebar-width); /* Prevent growing */
   background: linear-gradient(180deg, #3A9BC4 0%, #2E8AB3 100%);
   display: flex;
   flex-direction: column;
+  flex-shrink: 0; /* Prevent flex from shrinking sidebar */
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   z-index: 50;
   transform: translateX(-100%);
-  transition: all var(--transition-base);
+  /* Only transition transform and background, NOT width */
+  transition: transform var(--transition-base), background var(--transition-base);
 }
 
 .sidebar.open {
@@ -24,6 +28,8 @@
 /* Collapsed Sidebar */
 .sidebar.collapsed {
   width: var(--sidebar-width-collapsed);
+  min-width: var(--sidebar-width-collapsed);
+  max-width: var(--sidebar-width-collapsed);
 }
 
 .sidebar.collapsed .sidebar-logo {
@@ -110,6 +116,14 @@
   .sidebar {
     position: relative;
     transform: none;
+    flex-shrink: 0; /* Ensure sidebar doesn't shrink in flex layout */
+  }
+  
+  /* When sidebar is open (not collapsed), ensure consistent width */
+  .sidebar:not(.collapsed) {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    max-width: var(--sidebar-width);
   }
 }
 
