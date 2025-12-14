@@ -59,10 +59,11 @@ export const getUserAPI =
                 if (!response.data.error) {
                     return dispatch(getUserSuccess(response.data.data));
                 } else {
-                    dispatch(getUserFailure());
+                    return dispatch(getUserFailure());
                 }
             } catch (err) {
-                dispatch(getUserFailure());
+                console.error('getUserAPI error:', err);
+                return dispatch(getUserFailure());
             } finally {
                 dispatch(setLoading(false));
             }

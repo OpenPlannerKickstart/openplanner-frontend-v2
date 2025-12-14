@@ -2,6 +2,7 @@ import React from 'react'
 import { Route, HashRouter as Router, Routes, useLocation } from 'react-router-dom';
 import { getToken } from './Utility/Helper';
 import Login from './pages/auth/Login/Login';
+import LandingPage from './pages/LandingPage/LandingPage';
 
 import { RouterProps } from './interfaces';
 
@@ -121,7 +122,7 @@ const privateRoutes: RouterProps[] = [
 const publicRoutes: RouterProps[] = [
   {
     path: "/",
-    component: <Login />,
+    component: <LandingPage />,
     caseSensitive: true,
   },
   {

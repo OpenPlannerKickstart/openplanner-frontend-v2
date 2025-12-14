@@ -37,9 +37,14 @@ const Settings = () => {
     /** ------------------ Get user data Start--------------------------*/
     const [userData, setUserData] = useState<any>(null)
     const getUserData = async () => {
-        let response: any = await dispatch(getUserAPI());
-        if (!isNullUndefinedOrBlank(response?.payload)) {
-            setUserData(response?.payload)
+        try {
+            let response: any = await dispatch(getUserAPI());
+            if (!isNullUndefinedOrBlank(response?.payload)) {
+                setUserData(response?.payload)
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            // Still allow the page to render even if user data fails to load
         }
     }
 
