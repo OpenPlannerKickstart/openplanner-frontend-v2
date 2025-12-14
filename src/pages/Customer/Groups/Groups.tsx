@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import AddEditGroup from '../../../common/Groups/AddEditGroup';
 import { get, post, deleteAPI } from '../../../Utility/httpInterceptor';
@@ -9,6 +10,11 @@ import GroupListItem from '../../..//components/Groups/GroupListItem';
 import { useNotifications } from '../../../context/SocketContext';
 import { getDecodeIDToken } from '../../../Utility/Helper';
 import { v4 as uuidv4 } from 'uuid';
+import { logoutFromSystem } from '../../../redux/Service/auth/login';
+import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
+import { useSidebar } from '../../../layouts/DashboardLayout';
+import type { AppDispatch } from '../../../redux/store';
+import { ENUMFORROUTES } from '../../../interfaces/enum';
 // Image assets must be bundled; do not rely on absolute "/assets" paths in production
 import bookIcon from '../../../assets/images/book.svg';
 import defaultAvatar from '../../../assets/images/avatar-default.svg';
@@ -38,11 +44,13 @@ const useIsMobile = (maxWidthPx: number = 991.98) => {
 };
 
 const Groups: React.FC = () => {
+  const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const params = useParams();
   const location = useLocation();
   const isMobile = useIsMobile();
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
+  const { toggleSidebar } = useSidebar();
 
   // Add body class for viewport-locked layout (removes dashboard-main padding)
   useEffect(() => {
@@ -51,6 +59,44 @@ const Groups: React.FC = () => {
       document.body.classList.remove('groups-page-body');
     };
   }, []);
+
+  /** -----------------User menu state (match other dashboard headers)---------------------------*/
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleUserMenuToggle = () => setIsUserMenuOpen((v) => !v);
+
+  const handleLogout = async () => {
+    await dispatch(logoutFromSystem());
+    navigate(ENUMFORROUTES.LOGIN);
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await dispatch(getUserAPI());
+        // Most of our thunks return { payload }
+        const payload = (response as any)?.payload ?? null;
+        if (payload) setUserData(payload);
+      } catch {
+        // ignore
+      }
+    };
+    fetchUserData();
+  }, [dispatch]);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    if (isUserMenuOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isUserMenuOpen]);
   const [activeTab, setActiveTab] = useState<'chats' | 'groups'>('chats');
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1291,6 +1337,13 @@ const Groups: React.FC = () => {
       <header className="dashboard-header" style={{ flexShrink: 0 }}>
         <div className="dashboard-header-inner">
           <div className="dashboard-header-left">
+            <button className="mobile-menu-toggle" onClick={toggleSidebar}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
             <h1 className="dashboard-page-title">Groups</h1>
           </div>
           <div className="dashboard-header-right">
@@ -1308,6 +1361,53 @@ const Groups: React.FC = () => {
               </svg>
             Add Syllabus
           </button>
+
+            <button className="notification-btn" type="button" aria-label="Notifications" title="Notifications">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              <span className="notification-badge"></span>
+            </button>
+
+            <div className="user-menu-container" ref={userMenuRef}>
+              <div className="user-menu" onClick={handleUserMenuToggle}>
+                <div className="user-avatar">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+                <span className="user-name">
+                  {userData?.username || userData?.email?.split('@')[0] || 'User'}
+                </span>
+                <svg className="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+              <div className={`user-dropdown ${isUserMenuOpen ? 'active' : ''}`}>
+                <a
+                  href="#"
+                  onClick={(e) => { e.preventDefault(); navigate(ENUMFORROUTES.SETTINGS); setIsUserMenuOpen(false); }}
+                  className="user-dropdown-item"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  Profile
+                </a>
+                <div className="user-dropdown-divider"></div>
+                <button className="user-dropdown-item logout" onClick={handleLogout}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  Logout
+                </button>
+              </div>
+            </div>
         </div>
       </div>
       </header>
@@ -3444,7 +3544,7 @@ const Composer: React.FC<{
           style={{ outline: 'none', boxShadow: 'none', resize: 'none', overflowY: 'auto', boxSizing: 'border-box' }}
           disabled={disabled}
         />
-        <button className="btn btn-outline-white" type="button" aria-label="Attach file" title="Attach" disabled={disabled} style={{ height: 40, position: 'relative' }} onClick={handleFileClick}>
+        <button className="btn btn-outline-white composer-attach-btn" type="button" aria-label="Attach file" title="Attach" disabled={disabled} style={{ height: 40, position: 'relative' }} onClick={handleFileClick}>
           <i className="material-symbols-outlined">attach_file</i>
           {(selectedFilesCount > 0) && (
             <span style={{ position: 'absolute', top: -6, right: -2, background: '#0EA5E9', color: '#fff', fontSize: 11, lineHeight: '14px', height: 16, minWidth: 16, borderRadius: 8, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>

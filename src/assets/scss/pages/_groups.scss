@@ -40,6 +40,12 @@
 /* Composer UI niceties */
 .composer-textarea {
   scrollbar-width: none; /* Firefox */
+  /* Match button roundness on the left edge of the composer */
+  border-top-left-radius: var(--radius-lg, 0.75rem) !important;
+  border-bottom-left-radius: var(--radius-lg, 0.75rem) !important;
+  /* Keep the right edge squared so it mates cleanly with the attach/send buttons */
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 .composer-textarea::-webkit-scrollbar {
   display: none; /* WebKit */

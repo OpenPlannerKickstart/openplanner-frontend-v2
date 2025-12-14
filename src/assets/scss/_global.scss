@@ -430,6 +430,20 @@ body.groups-page-body {
     .desktop-composer-wrapper {
       flex: 0 0 auto; /* fixed height, doesn't grow */
       background: #FAFAFA;
+
+      /* Groups composer: keep hover color/shadow, but do NOT "lift" the Send button */
+      .btn.btn-primary:hover {
+        transform: none !important;
+      }
+
+      /* Groups composer: attach button border should match input (avoid thick/double borders) */
+      .composer-attach-btn {
+        border-style: solid !important;
+        border-width: 1px !important;
+        border-color: #E5E7EB !important;
+        /* prevent a "double" divider where textarea + button borders meet */
+        border-left-width: 0 !important;
+      }
     }
   }
 }
