@@ -1,864 +1,362 @@
-import React, { useEffect, useState } from "react";
-import { Badge, Button, Form, Modal, Offcanvas } from "react-bootstrap";
-import DatePicker from "react-datepicker";
-import Select, { components, ControlProps } from "react-select";
-import Open from "./Open";
-import Complete from "./Complete";
-import { setNestedObjectValues, useFormik } from 'formik';
-import * as yup from 'yup';
-import { customJsonInclude, formatedDate, getDate, isEmpty, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError } from "../../../Utility/Helper";
-import { TASK_DATE_IS_REQUIRED, TASK_NAME_IS_REQUIRED, TASK_NOTE_IS_REQUIRED } from "../../../Utility/Validation_Message";
-import { MAX_3, MAX_300, MAX_5, MAX_50, ONLY_NUMBERS } from "../../../Utility/Validation_Helper";
-import { reminderUnitDropDownData } from "../../../Utility/staticDropDown";
-import { AppDispatch } from "../../../redux/store";
-import { connect, useDispatch } from "react-redux";
-import { addEditTaskAPI, taskListingAPI } from "../../../redux/Service/task";
-import { ENUMFORTASK } from "../../../interfaces/enum";
-import { Task } from "../../../interfaces/interface";
-const Task = (props) => {
-  // Deleted modal
-  const [deleteShow, setDeleteShow] = useState(false);
-  const handleDeleteClose = () => setDeleteShow(false);
-  const handleDeleteShow = () => setDeleteShow(true);
+import React, { useEffect, useState, useRef } from 'react';
+import { AppDispatch, RootState } from '../../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { dashboardTasksDataAPI } from '../../../redux/Service/User/DashBoard/dashboard';
+import { updateEventStatusDataAPI, deleteEventDataAPI } from '../../../redux/Service/User/Courses/courses';
+import {
+  formatedDate,
+  isEmptyObjectOrNullUndefiend,
+  isNullUndefinedOrBlank,
+} from '../../../Utility/Helper';
+import { ENUMFORROUTES, ENUMFORSTATUS } from '../../../interfaces/enum';
+import { useNavigate } from 'react-router-dom';
+import { logoutFromSystem } from '../../../redux/Service/auth/login';
+import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
+import { useSidebar } from '../../../layouts/DashboardLayout';
+import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
 
-  // Compated Deleted modal
-  const [SuccessDeleteShow, setSuccessDeleteShow] = useState(false);
-  const handleSuccessDeleteClose = () => setSuccessDeleteShow(false);
-  const handleSuccessDeleteShow = () => setSuccessDeleteShow(true);
-
-  // Success modal
-  const [SuccessShow, setSuccessShow] = useState(false);
-  const handleSuccessClose = () => setSuccessShow(false);
-  const handleSuccessShow = () => setSuccessShow(true);
-
-  // ADD new task offcanvas
-  const [showAddNewCourse, setShowAddNewCourse] = useState(false);
-  const handleCloseAddNewCourse = () => {
-    setShowAddNewCourse(false);
-    setTimeout(() => {
-      setSavedtaskFormData(null);
-      taskFormData.resetForm();
-    }, 200);
-  }
-  const toggleShowAddNewCourse = () => setShowAddNewCourse(true);
-
-
-  /** --------------------Add Edit Task Start------------------------*/
+const Task = () => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
+  const { toggleSidebar } = useSidebar();
 
-  // Define initial values
-  const initFormValues = {
-    task_name: "",
-    due_date: null,
-    note: "",
-    is_reminder: false,
-    reminder: [],
-  };
+  const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
 
-  // useState for saved form data
-  const [savedtaskFormData, setSavedtaskFormData] = useState<any>(null);
+  /** -----------------User menu and notification state---------------------------*/
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // Define validation schema
-  const validationSchema: any = yup.object({
-    task_name: yup.string()
-      .trim()
-      .required(TASK_NAME_IS_REQUIRED),
-    due_date: yup.string()
-      .trim()
-      .required(TASK_DATE_IS_REQUIRED),
-    note: yup.string()
-      .trim().notRequired().nullable(),
-    // .required(TASK_NOTE_IS_REQUIRED),
-    is_reminder: yup.boolean(),
-    // reminder: yup.array()
-    //   .of(
-    //     yup.object().shape({
-    //       unit: yup
-    //         .string()
-    //         .nullable()
-    //         .when("is_reminder", {
-    //           is: (is_reminder) =>
-    //             taskFormData?.values?.is_reminder === true,
-    //           then: (schema) => schema.required("Unit is required"),
-    //           otherwise: (schema) => schema.notRequired(),
-    //         }),
-    //       value: yup
-    //         .string()
-    //         .matches(ONLY_NUMBERS, "Only numbers are allowed")
-    //         .nullable()
-    //         .when("is_reminder", {
-    //           is: (is_reminder) =>
-    //             taskFormData?.values?.is_reminder === true,
-    //           then: (schema) => schema.required("Value is required"),
-    //           otherwise: (schema) => schema.notRequired(),
-    //         })
-    //     })
-    //   )
-    //   .nullable()
-    //   .when("is_reminder", {
-    //     is: (is_reminder) =>
-    //       taskFormData?.values?.is_reminder === true,
-    //     then: (schema) => schema.required(),
-    //     otherwise: (schema) => schema.notRequired(),
-    //   }),
-    reminder: yup.array()
-      .of(
-        yup.object().shape({
-          unit: yup
-            .string()
-            .nullable()
-            .when("is_reminder", {
-              is: (is_reminder) =>
-                taskFormData?.values?.is_reminder === true,
-              then: (schema) => schema.required("Unit is required"),
-              otherwise: (schema) => schema.notRequired(),
-            }),
-          value: yup
-            .string()
-            .matches(ONLY_NUMBERS, "Only numbers are allowed")
-            .nullable()
-            .when("is_reminder", {
-              is: (is_reminder) =>
-                taskFormData?.values?.is_reminder === true,
-              then: (schema) => schema.required("Value is required"),
-              otherwise: (schema) => schema.notRequired(),
-            })
-        })
-      )
-      .nullable()
-      .default([])
-      .when("is_reminder", {
-        is: (is_reminder) => is_reminder === true,
-        then: (schema) =>
-          schema
-            .required("Reminder is required")
-            .test("no-duplicates", "Duplicate reminders are not allowed", (reminders) => {
-              if (!Array.isArray(reminders) || reminders.length === 0) return true;
+  /** -----------------Task state---------------------------*/
+  const [taskData, setTaskData] = useState<any>([]);
+  const [activeTab, setActiveTab] = useState<'todo' | 'completed' | 'starred'>('todo');
+  const [editEventFormData, setEditEventFormData] = useState<any>(null);
+  const [show, setShow] = useState(false);
 
-              const seen = new Set();
-              for (const reminder of reminders) {
-                const key = `${reminder.unit}-${reminder.value}`;
-                if (seen.has(key)) {
-                  return false; // Duplicate found
-                }
-                seen.add(key);
-              }
-              return true; // No duplicates
-            }),
-        otherwise: (schema) => schema.notRequired(),
-      }),
-
-  });
-
-  // onSubmit function
-  const onSubmit = async (values, onSubmitProps) => {
-    // Handle form submission logic
-  };
-
-  // useFormik instance
-  const taskFormData: any = useFormik({
-    initialValues: savedtaskFormData || initFormValues,
-    validationSchema,
-    onSubmit,
-    enableReinitialize: true,
-  });
-
-  // Utility function to handle blur updates
-  const handleBlurValueUpdate = (key) => {
-    taskFormData.setFieldValue(key, taskFormData.values[key].trim());
-    setTimeout(() => {
-      taskFormData.setFieldTouched(key, true);
-    }, 100);
-  };
-
-  // Submission handler
-  const handleSubmitTaskFormData = async () => {
-    taskFormData.handleSubmit();
-    const taskFormDataErrors = await taskFormData.validateForm();
-    if (Object.keys(taskFormDataErrors).length > 0) {
-      taskFormData.setTouched(
-        setNestedObjectValues(taskFormDataErrors, true)
-      );
-      return;
-    }
-
-    let reqBody = { ...taskFormData.values };
-    if (!isNullUndefinedOrBlank(reqBody.due_date)) {
-      reqBody = {
-        ...reqBody,
-        due_date: getDate(reqBody.due_date)
+  /** -------------------Task listing api start-------------------------*/
+  const handleTaskListing = async () => {
+    try {
+      const response = await dispatch(dashboardTasksDataAPI());
+      if (response && !isNullUndefinedOrBlank(response?.payload)) {
+        setTaskData(response.payload);
       }
+    } catch (error) {
+      console.error('Error fetching task data:', error);
     }
-    customJsonInclude(reqBody);
-    console.log(reqBody, "reqBody");
-    const response = await dispatch(addEditTaskAPI(reqBody));
-    if (!isNullUndefinedOrBlank(response?.payload)) {
-
-      handleCloseAddNewCourse();
-      setTimeout(() => {
-
-        taskFormData.resetForm();
-      }, 300);
-      getTaskListing()
-    }
-
   };
-
-  const addReminder = (is_reminder) => {
-    taskFormData.setFieldValue("is_reminder", is_reminder);
-    if (is_reminder) {
-      addReminderList()
-    } else {
-      taskFormData.setFieldValue("reminder", []);
-    }
-  }
-
-  // const appendReminder = () => {
-  //   let obj: any = {
-  //     unit: "",
-  //     value: "",
-  //   }
-  //   let reminder: any = [...taskFormData.values.reminder];
-  //   if (isEmptyObjectOrNullUndefiend(taskFormData?.errors?.reminder)) {
-  //     reminder.push(obj);
-  //     taskFormData.setFieldValue("reminder", reminder);
-  //   }
-  // }
-  const addReminderList = () => {
-    let obj: any = {
-      unit: "",
-      value: "",
-    }
-    const reminder: any = [...taskFormData.values.reminder];
-    const isAnyValueNull = reminder?.some((item: any) => (isNullUndefinedOrBlank(item?.unit) || isNullUndefinedOrBlank(item?.value)))
-    // console.log(!isAnyValueNull, "isAnyValueNull", reminder, eventFormData?.values?.is_reminder,(isAnyValueNull && eventFormData?.values?.is_reminder));
-    if (isAnyValueNull && taskFormData?.values?.is_reminder) {
-
-      reminder?.forEach((item: any, index: number) => {
-        taskFormData.setFieldTouched(`reminder.${index}.unit`, true);
-        taskFormData.setFieldTouched(`reminder.${index}.value`, true);
-      })
-
-      return;
-
-    }
-    const updatedData = [...reminder, obj];
-    taskFormData.setFieldValue("reminder", updatedData);
-  }
-  // const removeReminder = (index) => {
-  //   let reminder: any = [...taskFormData.values.reminder];
-  //   reminder.splice(index, 1);
-  //   taskFormData.setFieldValue("reminder", reminder);
-
-  //   // Remove the corresponding error if it exists
-  //   const errors = { ...taskFormData.errors };
-  //   if (errors.reminder) {
-  //     const reminderErrors = [...(errors.reminder as any[])];
-  //     reminderErrors.splice(index, 1);
-  //     taskFormData.setErrors({
-  //       ...errors,
-  //       reminder: reminderErrors,
-  //     });
-
-  //   }
-  // }
-  const removeReminderList = (index) => {
-    let reminder: any = [...taskFormData.values.reminder];
-    let errors: any = typeof taskFormData.errors.reminder !== "string" ? [...taskFormData.errors.reminder as any || []] : null;
-    reminder.splice(index, 1);
-    taskFormData.setFieldValue("reminder", reminder);
-    const updatedErrors: any = taskFormData.errors.reminder
-      ? errors?.filter((_, i) => i !== index)
-      : [];
-    const updatedTouched = taskFormData.touched.reminder
-      ? errors?.filter((_, i) => i !== index)
-      : [];
-
-    setTimeout(() => {
-
-      taskFormData.setErrors({
-        ...taskFormData.errors,
-        reminder: updatedErrors || null,
-      });
-
-      taskFormData.setTouched({
-        ...taskFormData.touched,
-        reminder: updatedTouched || null,
-      });
-      taskFormData.validateField(`reminder`);
-    }, 200);
-
-
-  }
-  useEffect(() => {
-    const reminders = taskFormData?.values?.reminder || [];
-    // Find duplicate indexes
-    const duplicateIndexes: number[] = [];
-    reminders?.forEach((reminder, index) => {
-      for (let i = index + 1; i < reminders.length; i++) {
-        if (
-          reminders[i].unit === reminder.unit &&
-          reminders[i].value === reminder.value
-        ) {
-          duplicateIndexes.push(index, i);
-        }
-      }
-    });
-
-    // Set errors for each duplicate index
-    duplicateIndexes?.forEach((index) => {
-      taskFormData?.setFieldError(`reminder[${index}].value`, "Duplicate Found");
-    });
-
-  }, [taskFormData.values.reminder, taskFormData]);
-
-  /** --------------------Add Edit Task End------------------------*/
-
-  /** ---------------------Task Listing Start-----------------------*/
-  const [startDate, setStartDate] = useState<any>(null);
-  const [endDate, setEndDate] = useState<any>(null);
-  const [search, setSearch] = useState<any>("");
-  const [selectedTab, setSelectedTab] = useState<string>(ENUMFORTASK.OPEN)
-  const onChangeTab = (val) => {
-    if (selectedTab !== val) {
-      setSelectedTab(val);
-    }
-  }
-
-  const [taskList, setTaskList] = useState<Array<Task>>([]);
-  const [count, setCount] = useState<number>(0)
-  const [completedCount, setCompletedCount] = useState<number>(0)
-  const getTaskListing = async () => {
-    let reqBody = {
-      status: selectedTab,
-      search: search,
-      start_date: startDate,
-      end_date: endDate,
-
-      filter: "due_date"
-    }
-    // customJsonInclude(reqBody);
-    const response = await dispatch(taskListingAPI(reqBody));
-    if (!isNullUndefinedOrBlank(response?.payload)) {
-      setTaskList(response?.payload?.tasks);
-      setCount(response?.payload?.pending_task_count);
-      setCompletedCount(response?.payload?.completed_task_count);
-    }
-  }
 
   useEffect(() => {
+    handleTaskListing();
+  }, []);
 
-    const delayDebounceFn = setTimeout(() => {
-      getTaskListing();
+  /** -------------------Task complete/incomplete toggle-------------------------*/
+  const handleTaskToggle = async (taskId: number, currentStatus: string) => {
+    const newStatus = currentStatus === ENUMFORSTATUS.COMPLETED ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED;
+    const reqBody = {
+      event_id: [taskId],
+      status: newStatus,
+    };
+    const response = await dispatch(updateEventStatusDataAPI(reqBody));
+    if (!isNullUndefinedOrBlank(response?.payload)) {
+      handleTaskListing();
+    }
+  };
 
-    }, 300);
+  /** -------------------Delete task-------------------------*/
+  const [deleteShow, setDeleteShow] = useState(false);
+  const [deleteTaskId, setDeleteTaskId] = useState<number | null>(null);
+
+  const handleDeleteShow = (taskId: number) => {
+    setDeleteTaskId(taskId);
+    setDeleteShow(true);
+  };
+
+  const handleDeleteClose = () => {
+    setDeleteShow(false);
+    setDeleteTaskId(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteTaskId) {
+      const response = await dispatch(deleteEventDataAPI({ event_id: [deleteTaskId] }));
+      if (!isNullUndefinedOrBlank(response?.payload)) {
+        handleDeleteClose();
+        handleTaskListing();
+      }
+    }
+  };
+
+  /** -------------------Add/Edit task modal-------------------------*/
+  const handleShow = () => {
+    setEditEventFormData(null);
+    setShow(true);
+  };
+
+  const handleSelectTask = (task: any) => {
+    setEditEventFormData(task);
+    setShow(true);
+  };
+
+  const handleGetUpdatedData = () => {
+    handleTaskListing();
+  };
+
+  /** -------------------User menu and notification handlers-------------------------*/
+  const handleUserMenuToggle = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    await dispatch(logoutFromSystem());
+    navigate(ENUMFORROUTES.LOGIN);
+  };
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const response = await dispatch(getUserAPI());
+      if (response && !isNullUndefinedOrBlank(response?.payload)) {
+        setUserData(response.payload);
+      }
+    };
+    fetchUserData();
+  }, [dispatch]);
+
+  // Update user data when settings data changes
+  useEffect(() => {
+    if (!isNullUndefinedOrBlank(settingsData?.userData)) {
+      setUserData(settingsData.userData);
+    }
+  }, [settingsData?.userData]);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
     return () => {
-      setTaskList([]);
-      clearTimeout(delayDebounceFn);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
+
+  /** -------------------Filter tasks by tab-------------------------*/
+  const getFilteredTasks = () => {
+    if (!taskData || taskData.length === 0) return [];
+
+    switch (activeTab) {
+      case 'completed':
+        return taskData.filter((task: any) => task.status === ENUMFORSTATUS.COMPLETED);
+      case 'starred':
+        return taskData.filter((task: any) => task.is_starred === true);
+      case 'todo':
+      default:
+        return taskData.filter((task: any) => task.status !== ENUMFORSTATUS.COMPLETED);
     }
-  }, [selectedTab, search, endDate, startDate])
+  };
 
-  useEffect(() => {
-    setSearch(null);
-    setStartDate(null);
-    setEndDate(null);
-  }, [selectedTab])
+  const filteredTasks = getFilteredTasks();
+  const todoCount = taskData.filter((task: any) => task.status !== ENUMFORSTATUS.COMPLETED).length;
+  const completedCount = taskData.filter((task: any) => task.status === ENUMFORSTATUS.COMPLETED).length;
+  const starredCount = taskData.filter((task: any) => task.is_starred === true).length;
 
-
-
-
-  /** ---------------------Task Listing End-----------------------*/
-
-  // console.log(savedtaskFormData, "savedtaskFormData")
   return (
     <>
-      <div className="page-content">
-        <div className="page-title-wrapper">
-          <div className="page-title-left">
-            <div className="page-title">
-              <h4>All Tasks</h4>
+      {/* Top Header */}
+      <header className="dashboard-header">
+        <div className="dashboard-header-inner">
+          <div className="dashboard-header-left">
+            <button className="mobile-menu-toggle" onClick={toggleSidebar}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+
+            <h1 className="dashboard-page-title">All Tasks</h1>
+          </div>
+
+          <div className="dashboard-header-right">
+            <button className="btn btn-primary" onClick={handleShow}>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Task
+            </button>
+
+            <button className="notification-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              <span className="notification-badge"></span>
+            </button>
+
+            <div className="user-menu-container" ref={userMenuRef}>
+              <div className="user-menu" onClick={handleUserMenuToggle}>
+                <div className="user-avatar">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+                <span className="user-name">
+                  {userData?.username || userData?.email?.split('@')[0] || 'User'}
+                </span>
+                <svg className="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+              <div className={`user-dropdown ${isUserMenuOpen ? 'active' : ''}`}>
+                <a href="#" onClick={(e) => { e.preventDefault(); navigate(ENUMFORROUTES.SETTINGS); setIsUserMenuOpen(false); }} className="user-dropdown-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  Profile
+                </a>
+                <div className="user-dropdown-divider"></div>
+                <button className="user-dropdown-item logout" onClick={handleLogout}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
-          <div className="page-title-right">
+        </div>
+      </header>
+
+      {/* Delete Confirmation Modal */}
+      {deleteShow && (
+        <div className="confirm-modal-overlay">
+          <div className="confirm-modal">
+            <div className="confirm-modal-header">
+              <div className="confirm-modal-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  <line x1="10" y1="11" x2="10" y2="17" />
+                  <line x1="14" y1="11" x2="14" y2="17" />
+                </svg>
+              </div>
+              <h3 className="confirm-modal-title">Delete Task</h3>
+            </div>
+            <div className="confirm-modal-body">
+              <p className="confirm-modal-message">Are you sure you want to delete this? This action cannot be undone.</p>
+            </div>
+            <div className="confirm-modal-footer">
+              <button className="btn btn-cancel" onClick={handleDeleteClose}>Cancel</button>
+              <button className="btn btn-confirm-delete" onClick={handleDeleteConfirm}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tasks Content */}
+      <div className="tasks-page">
+        {/* Tabs and Filters */}
+        <div className="tasks-toolbar">
+          <div className="tasks-tabs">
             <button
-              type="button"
-              className="btn btn-primary"
-              onClick={toggleShowAddNewCourse}
+              className={`tab-btn ${activeTab === 'todo' ? 'active' : ''}`}
+              onClick={() => setActiveTab('todo')}
             >
-              Add Task
+              <span>To do</span>
+              <span className="tab-count">{todoCount}</span>
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'completed' ? 'active' : ''}`}
+              onClick={() => setActiveTab('completed')}
+            >
+              <span>Completed</span>
+              <span className="tab-count">{completedCount}</span>
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'starred' ? 'active' : ''}`}
+              onClick={() => setActiveTab('starred')}
+            >
+              <span>Starred</span>
+              <span className="tab-count">{starredCount}</span>
             </button>
           </div>
         </div>
 
-        <div className="content-area task-content-area content-area-title-filter">
-          <div className="page-content-wrapper h-100">
-            <div className="all-task-container">
-
-              <div className="nav-tabs-outer nav-tabs-style2">
-                <nav>
-                  <div
-                    className="nav nav-tabs page-filters"
-                    id="nav-tab"
-                    role="tablist"
+        {/* Tasks List */}
+        <div className="tasks-list-container">
+          <div className="tasks-list">
+            {filteredTasks && filteredTasks.length > 0 ? (
+              filteredTasks.map((task: any) => (
+                <div
+                  key={task.id}
+                  className="task-item clickable-event"
+                  role="button"
+                  tabIndex={0}
+                  style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px' }}
+                  onClick={() => handleSelectTask(task)}
+                >
+                  <button
+                    className="task-checkbox"
+                    aria-label="Mark as complete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTaskToggle(task.id, task.status);
+                    }}
                   >
-                    <div className="page-filters-left">
-                      <button
-                        className={`nav-link ${selectedTab === ENUMFORTASK.OPEN ? "active" : ""}`}
-                        id="nav-opentask-tab"
-                        data-bs-toggle="tab"
-                        data-bs-target="#nav-opentask"
-                        type="button"
-                        role="tab"
-
-                        onClick={() => { onChangeTab(ENUMFORTASK.OPEN) }}
-                      >
-
-                        To do  <Badge bg="light-grey">{!isNullUndefinedOrBlank(count) ? count : 0}</Badge>
-                      </button>
-
-                      <button
-                        className={`nav-link ${selectedTab === ENUMFORTASK.COMPLETED ? "active" : ""}`}
-                        id="nav-complatetask-tab"
-                        type="button"
-                        role="tab"
-
-                        onClick={() => { onChangeTab(ENUMFORTASK.COMPLETED) }}
-                      >
-                        Completed  <Badge bg="light-grey">{!isNullUndefinedOrBlank(completedCount) ? completedCount : 0}</Badge>
-                      </button>
-                    </div>
-                    <div className="page-filters-right">
-                      <Form.Group className="form-group form-group-sm form-group-inline-control">
-                        <div className="form-control-wrapper">
-                          <div className="form-group-icon-start">
-                            <i className="material-symbols-outlined">search</i>
-                            <Form.Control type="text" placeholder="Search by Task Name" onChange={(e) => { setSearch(e.target.value) }} />
-                          </div>
-                        </div>
-                      </Form.Group>
-                      <Form.Group className="form-group form-group-sm">
-                        <div className="react-datepicker-container form-group-icon-end">
-                          <i className="material-symbols-outlined control-icon">date_range</i>
-                          {/* <DatePicker
-                            dropdownMode="select"
-                            isClearable={true}
-                            dateFormat="dd/MM/yyyy"
-                            className="form-control"
-                            popperProps={{ strategy: "fixed" }}
-                            placeholderText="Date Range"
-                          /> */}
-                          <DatePicker
-                            dropdownMode="select"
-                            isClearable={true}
-                            dateFormat="MM/dd/yyyy"
-                            className="form-control"
-                            popperProps={{ strategy: "fixed" }}
-                            placeholderText="Date Range"
-                            toggleCalendarOnIconClick
-                            selectsRange={true}
-                            onChange={(dates) => {
-                              const [start, end] = dates;
-                              setStartDate(start ? start : null);
-                              setEndDate(end ? end : null);
-                            }
-                            }
-                            startDate={startDate}
-                            endDate={endDate}
-                          />
-                        </div>
-                      </Form.Group>
-                    </div>
-                  </div>
-                </nav>
-                <div className="tab-content" id="nav-tabContent">
-                  <div
-                    className={`tab-pane fade ${selectedTab === ENUMFORTASK.OPEN ? "show active" : ""}`}
-                    id="nav-opentask"
-                    role="tabpanel"
-                    aria-labelledby="nav-opentask-tab"
-                  >
-                    <div className="tab-content-container">
-                      <Open taskList={taskList} getTaskListing={getTaskListing} setSavedtaskFormData={setSavedtaskFormData} toggleShowAddNewCourse={toggleShowAddNewCourse} />
-                    </div>
-                  </div>
-                  <div
-                    className={`tab-pane fade ${selectedTab === ENUMFORTASK.COMPLETED ? "show active" : ""}`}
-                    id="nav-complatetask"
-                    role="tabpanel"
-                    aria-labelledby="nav-complatetask-tab"
-                  >
-                    <div className="tab-content-container">
-                      <Complete taskList={taskList} getTaskListing={getTaskListing} setSavedtaskFormData={setSavedtaskFormData} toggleShowAddNewCourse={toggleShowAddNewCourse} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-
-
-            {/***** Offcanvas start *****/}
-            <div className="add-syllabus-event-wrapper">
-              <Offcanvas
-                className="op-offcanvas style-1"
-                show={showAddNewCourse}
-                placement={"end"}
-                onHide={handleCloseAddNewCourse}
-              >
-                <Offcanvas.Header>
-                  <Offcanvas.Title>
-                    {!isNullUndefinedOrBlank(savedtaskFormData?.task_id) ? "Edit" : "Add New"}  <span>Task</span>
-                  </Offcanvas.Title>
-                  <button type="button" className="btn-close" onClick={handleCloseAddNewCourse}>
-                    <i className='material-symbols-outlined'>close</i>
+                    {task.status === ENUMFORSTATUS.COMPLETED && (
+                      <svg className="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    )}
                   </button>
-                </Offcanvas.Header>
-                <Offcanvas.Body>
-                  <div className="Add-new-task-container">
-                    <div className="op-offcanvas-body-container">
-                      <Form.Group
-                        className="form-group required"
-                        controlId="exampleForm.ControlInput1"
-                      >
-                        <Form.Label>Task Name</Form.Label>
-                        <div className="form-group">
-                          <Form.Control type="text" placeholder="Enter task name"
-                            {...taskFormData.getFieldProps("task_name")}
-                            maxLength={MAX_50}
-                            onBlur={() => {
-                              handleBlurValueUpdate("task_name");
-                            }}
-                          />
-                          {
-                            taskFormData.touched.task_name && taskFormData.errors.task_name
-                              ? renderError(taskFormData.errors.task_name)
-                              : null
-                          }
-                        </div>
-                      </Form.Group>
-                      <Form.Group className="form-group required">
-                        <Form.Label>Due Date</Form.Label>
-                        <div className="react-datepicker-container form-group-icon-end">
-                          <i className="material-symbols-outlined control-icon">calendar_month</i>
-                          <DatePicker
-                            dropdownMode="select"
-                            isClearable={true}
-                            dateFormat="MM/dd/yyyy h:mm aa"
-                            showTimeSelect
-                            // timeFormat="hh:mm aa"
-                            className="form-control"
-                            popperProps={{ strategy: "fixed" }}
-                            placeholderText={"Select Due Date"}
-                            minDate={new Date()}
-                            selected={taskFormData.values.due_date}
-                            onChange={(date) => {
-                              if (date === null) {
-                                taskFormData.setFieldValue("due_date", null);
-                                return;
-                              }
-                              const now = new Date();
-                              const selectedDate = new Date(date);
-
-                              // Only default the time if it hasn't been explicitly set
-                              const isSameDate =
-                                now.getFullYear() === selectedDate.getFullYear() &&
-                                now.getMonth() === selectedDate.getMonth() &&
-                                now.getDate() === selectedDate.getDate();
-
-                              if (isSameDate && !date.getHours() && !date.getMinutes()) {
-                                selectedDate.setHours(now.getHours());
-                                selectedDate.setMinutes(now.getMinutes());
-                              }
-                              taskFormData.setFieldValue("due_date", selectedDate ? selectedDate : null);
-                            }
-                            }
-                            filterTime={(time) => {
-                              const now = new Date();
-                              const selectedDate = taskFormData.values.due_date || new Date();
-
-                              // Disable times earlier than the current time for today's date
-                              if (selectedDate.toDateString() === now.toDateString()) {
-                                return time.getTime() >= now.getTime();
-                              }
-
-                              // Allow all times for future dates
-                              return true;
-                            }}
-                          />
-                        </div>
-                        {
-                          taskFormData.touched.due_date && taskFormData.errors.due_date
-                            ? renderError(taskFormData.errors.due_date)
-                            : null
-                        }
-                      </Form.Group>
-                      <Form.Group
-                        className="form-group "
-                        controlId="exampleForm.ControlInput1"
-                      >
-                        <Form.Label>Note</Form.Label>
-                        <div className="form-group">
-                          <Form.Control as="textarea" rows={3} placeholder="Enter note"
-                            {...taskFormData.getFieldProps("note")}
-                            maxLength={MAX_300}
-                            onBlur={() => {
-                              handleBlurValueUpdate("note");
-                            }}
-                          />
-                          {
-                            taskFormData.touched.note && taskFormData.errors.note
-                              ? renderError(taskFormData.errors.note)
-                              : null
-                          }
-                        </div>
-                      </Form.Group>
-                      <div className="Reminder-box">
-                        <div className="title-with-switch">
-                          <div className="title-text"><h4>Reminder (Notify me before start date)</h4></div>
-                          <div className="switch-box ">
-                            <label className="switch" htmlFor="switch">
-                              <input type="checkbox" id='switch'
-                                checked={taskFormData?.values?.is_reminder}
-                                onChange={() => { addReminder(!taskFormData.values.is_reminder) }}
-                              />
-                              <div className="slider round"></div>
-                            </label>
-                          </div>
-                        </div>
-                        {
-                          taskFormData?.values.is_reminder && !isEmptyObjectOrNullUndefiend(taskFormData?.values.reminder) &&
-                          <>
-                            {
-                              taskFormData?.values?.reminder?.map((item: any, index: number) => {
-                                return (
-                                  <>
-                                    <div className="remider-fields" key={index}>
-                                      <Form.Group className='form-group required'>
-                                        <Form.Label>Unit</Form.Label>
-                                        <Select
-                                          options={reminderUnitDropDownData}
-                                          placeholder={<div>Select Unit</div>}
-                                          menuPosition="fixed"
-                                          className="react-select-container"
-                                          onChange={(selectedOption: any) => {
-                                            taskFormData.setFieldValue(
-                                              `reminder.${index}.unit`, selectedOption.value)
-                                          }}
-                                          value={reminderUnitDropDownData?.filter(({ value }) => {
-                                            return (
-                                              value ===
-                                              // searchByCustomer
-                                              taskFormData?.values?.reminder?.[index]?.unit
-                                            );
-                                          })}
-                                        />
-                                        {(taskFormData?.touched?.reminder?.[index]?.unit as any) &&
-                                          (taskFormData?.errors?.reminder?.[index]?.unit as any) &&
-                                          renderError((taskFormData?.errors?.reminder?.[index] as any)?.unit)}
-
-
-                                      </Form.Group>
-                                      <Form.Group className="form-group required" controlId="exampleForm.ControlInput1">
-                                        <Form.Label>Value</Form.Label>
-                                        <Form.Control type="text" placeholder="Enter Value"
-                                          {...taskFormData.getFieldProps(`reminder.${index}.value`)}
-                                          // onChange={(e) => {
-                                          //   console.log(taskFormData.values.remider);
-                                          // }}
-                                          maxLength={MAX_3}
-                                          onBlur={() => {
-                                            taskFormData.setFieldTouched(
-                                              `reminder.${index}.value`,
-                                              true
-                                            );
-                                            // handleBlurValueUpdate(`reminder.${index}.value`);
-                                          }}
-
-
-                                        />
-                                        {(taskFormData?.touched?.reminder?.[index]?.value as any) &&
-                                          (taskFormData?.errors?.reminder?.[index]?.value as any) &&
-                                          renderError((taskFormData?.errors?.reminder?.[index] as any)?.value)}
-                                      </Form.Group>
-                                      {
-                                        taskFormData?.values?.reminder?.length > 1 ?
-                                          <button type="button" className="btn btn-light-danger" onClick={() => { removeReminderList(index) }}>
-                                            <i className="material-symbols-outlined">delete</i>
-                                          </button> : null
-                                      }
-
-                                    </div>
-
-                                  </>
-                                )
-                              }
-                              )
-                            }
-                            < div className="add-remider-filed-button">
-                              <Button variant='warning'
-                                disabled={!isNullUndefinedOrBlank(taskFormData?.errors?.reminder) && typeof taskFormData?.errors?.reminder === "string"}
-                                className='btn-icon btn-icon-text'
-                                onClick={() => { addReminderList() }}> <i className="material-symbols-outlined">add</i></Button>
-                            </div>
-
-                          </>
-                        }
-
-                      </div>
-                    </div>
-                    <div className="bottom-button-group">
-                      <Button type="button" className="btn btn-light-white me-auto" onClick={() => { handleCloseAddNewCourse() }}>
-                        Cancel
-                      </Button>
-                      <Button type="button" className="btn btn-light-white" onClick={() => { taskFormData.resetForm(); setSavedtaskFormData(initFormValues) }}>
-                        Clear
-                      </Button>
-                      <Button type="button" className="btn btn-primary" onClick={handleSubmitTaskFormData}>
-                        Save
-                      </Button>
-                    </div>
+                  <div className="task-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                    <span className="task-name">{task.title}</span>
+                    <span className="task-due">{formatedDate(task.end_date, 'MMM DD, YYYY')}</span>
                   </div>
-                </Offcanvas.Body>
-              </Offcanvas>
-            </div>
-            {/***** Offcanvas end *****/}
-
-
-            {/* Delete Modal */}
-            <Modal
-              className="modal-theme modal-confirmation modal-reject"
-              show={deleteShow}
-              onHide={handleDeleteClose}
-              centered
-            >
-              <Modal.Header>
-                <h4 className="modal-title">Delete Task</h4>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={handleDeleteClose}
-                >
-                  <i className='material-symbols-outlined'>close</i>
-                </button>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="modal-confirmation-container">
-                  <div className="modal-confirmation-icon">
-                    <i className="material-symbols-outlined">delete</i>
-                  </div>
-                  <div className="modal-confirmation-content">
-                    <h5>Are You Sure?</h5>
-                    <p>
-                      You want to delete this task ?
-                    </p>
-                  </div>
+                  <button className="task-star" aria-label="Mark as important">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill={task.is_starred ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                  </button>
                 </div>
-                <div className="modal-button-group modal-full-width-btn modal-footer-button">
-                  <Button
-                    variant="light-white"
-                    className="btn-md"
-                    onClick={handleDeleteClose}
-                  >
-                    {" "}
-                    No, Change My Mind
-                  </Button>
-                  <Button
-                    variant="danger"
-                    className="btn-icon-text btn-md"
-                    onClick={handleDeleteClose}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </Modal.Body>
-            </Modal>
-            {/* Delete Modal */}
-
-            {/* Compated Delete Modal */}
-            <Modal
-              className="modal-theme modal-confirmation modal-reject"
-              show={SuccessDeleteShow}
-              onHide={handleSuccessDeleteClose}
-              centered
-            >
-              <Modal.Header>
-                <h4 className="modal-title">Task Deleted!</h4>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={handleSuccessDeleteClose}
-                >
-                  <i className='material-symbols-outlined'>close</i>
-                </button>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="modal-confirmation-container">
-                  <div className="modal-confirmation-icon">
-                    <i className="material-symbols-outlined">delete</i>
-                  </div>
-                  <div className="modal-confirmation-content">
-                    <h5>You have successfully
-                      deleted Task!</h5>
-                    <p>
-                      Get back to task page to complete the other task
-                    </p>
-                  </div>
-                </div>
-                <div className="modal-button-group modal-full-width-btn modal-footer-button">
-                  <Button
-                    variant="success"
-                    className="btn-icon-text btn-md"
-                    onClick={handleSuccessDeleteClose}
-                  >
-                    Done
-                  </Button>
-                </div>
-              </Modal.Body>
-            </Modal>
-            {/* Delete Modal */}
-
-
-            {/* Success Modal */}
-            <Modal className='modal-theme modal-confirmation modal-approve' show={SuccessShow} onHide={handleSuccessClose} centered>
-              <Modal.Header >
-                <h4 className="modal-title">Task Completed!</h4>
-                <button type="button" className="btn-close" onClick={handleSuccessClose}>
-                  <i className='material-symbols-outlined'>close</i>
-                </button>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="modal-confirmation-container">
-                  <div className="modal-confirmation-icon">
-                    <i className="material-symbols-outlined">mood</i>
-                  </div>
-                  <div className="modal-confirmation-content">
-                    <h5>You have successfully
-                      completed  Task!</h5>
-                    <p>Get back to task page to complete the other task</p>
-                  </div>
-                </div>
-                <div className="modal-button-group modal-full-width-btn modal-footer-button">
-                  <Button variant="success"
-                    className="btn-icon-text btn-md" onClick={handleSuccessClose}> Done
-                  </Button>
-                </div>
-              </Modal.Body>
-            </Modal>
-            {/* Success Modal */}
+              ))
+            ) : (
+              <div className="no-tasks-message">
+                <p>No tasks found</p>
+              </div>
+            )}
           </div>
         </div>
-      </div >
+      </div>
+
+      {/* Add/Edit Task Modal */}
+      <AddEditEvent
+        show={show}
+        setShow={setShow}
+        handleGetData={handleGetUpdatedData}
+        setEditEventFormData={setEditEventFormData}
+        editEventFormData={editEventFormData}
+      />
     </>
   );
 };
-const mapStateToProps = (state) => ({
-  data: state?.TaskReducer?.taskList
-})
 
-const mapDispatchToProps = {
-  addEditTaskAPI,
-  taskListingAPI
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Task)
-
+export default Task;

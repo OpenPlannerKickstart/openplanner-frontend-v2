@@ -1,0 +1,170 @@
+import React, { useState, useEffect, useRef } from 'react';
+import sidebarLogoLg from "../../assets/images/sidebar-logo-lg.svg";
+import sidebarLogosm from "../../assets/images/sidebar-logo-sm.svg";
+import { NavLink } from 'react-router-dom';
+import { Button } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../redux/store';
+import { removeCookieByName } from '../../Utility/Helper';
+import { logoutFromSystem } from '../../redux/Service/auth/login';
+import AddSyllabusEvents from '../../common/AddSyllabusEvents/AddSyllabusEvents';
+
+const SIDEBAR_BREAKPOINT = 1024;
+
+export const Sidebar = () => {
+  const [SidebarSize, setSidebarSize] = useState('lg');
+  // Track whether user manually toggled sidebar (to prevent auto-toggle overriding user choice)
+  const userManuallyToggled = useRef(false);
+  // Track last known screen state to detect crossing the breakpoint
+  const lastWasAboveBreakpoint = useRef(window.innerWidth > SIDEBAR_BREAKPOINT);
+
+  // Auto-collapse/expand sidebar on resize
+  useEffect(() => {
+    const handleResize = () => {
+      const isAboveBreakpoint = window.innerWidth > SIDEBAR_BREAKPOINT;
+      const wasAbove = lastWasAboveBreakpoint.current;
+
+      // Only auto-toggle when crossing the breakpoint
+      if (wasAbove && !isAboveBreakpoint) {
+        // Shrinking below breakpoint → collapse sidebar
+        setSidebarSize('sm');
+        document.documentElement.setAttribute('data-sidebar-size', 'sm');
+        userManuallyToggled.current = false;
+      } else if (!wasAbove && isAboveBreakpoint) {
+        // Growing above breakpoint → expand sidebar
+        setSidebarSize('lg');
+        document.documentElement.setAttribute('data-sidebar-size', 'lg');
+        userManuallyToggled.current = false;
+      }
+
+      lastWasAboveBreakpoint.current = isAboveBreakpoint;
+    };
+
+    // Set initial state based on current window size
+    const initialSize = window.innerWidth > SIDEBAR_BREAKPOINT ? 'lg' : 'sm';
+    setSidebarSize(initialSize);
+    document.documentElement.setAttribute('data-sidebar-size', initialSize);
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const toogleMenu = () => {
+    if (window.innerWidth > SIDEBAR_BREAKPOINT) {
+      const newSize = SidebarSize === 'sm' ? 'lg' : 'sm';
+      setSidebarSize(newSize);
+      document.documentElement.setAttribute('data-sidebar-size', newSize);
+      userManuallyToggled.current = true;
+    }
+  };
+  const dispatch: AppDispatch = useDispatch();
+  const callLogout = async () => {
+
+    await dispatch(logoutFromSystem());
+  };
+  const [showEvent, setShowEvent] = useState(false);
+  const [isAddNewData, setIsAddNewData] = useState(false);
+
+  return (
+    <>
+      <div className="app-menu navbar-menu" >
+        {/* <!-- LOGO --> */}
+        < div className="navbar-brand-box" >
+          <a href="https://open-planner.com/" target='_blank
+          
+          ' className="logo logo-dark">
+
+            <span className="logo-lg">
+              <img src={sidebarLogoLg} alt="sidebarLogoLg" height="48" />
+            </span>
+            <span className="logo-sm">
+              <img src={sidebarLogosm} alt="logoSm" height="48" />
+            </span>
+
+          </a>
+
+        </div >
+        <div id="scrollbar">
+          <div className="container-fluid">
+            <div className="navbar-sidemenu">
+              <ul className="navbar-nav" id="navbar-nav">
+                {/* <li className="menu-title"><span data-key="t-menu">MAIN HOME</span></li> */}
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="/dashboard">
+                    <i className="material-symbols-outlined">cottage</i> <span data-key="t-widgets">My Week</span>
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="/calendar">
+                    <i className="material-symbols-outlined">calendar_month</i> <span data-key="t-widgets">Calendar</span>
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="/courses">
+                    <i className="material-symbols-outlined">book_2</i> <span data-key="t-widgets">Courses</span>
+                  </NavLink>
+                </li>
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="/task">
+                    <i className="material-symbols-outlined">ballot</i> <span data-key="t-widgets">Task List</span>
+                  </NavLink>
+                </li>
+                {/* <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="">
+                    <i className="material-symbols-outlined">info</i> <span data-key="t-widgets">Help</span>
+                  </NavLink>
+                </li> */}
+                {((window as any).FEATURE_GROUPS || process.env.FEATURE_GROUPS === 'true') && (
+                  <li className="nav-item">
+                    <NavLink className="nav-link menu-link " to="/groups">
+                      <i className="material-symbols-outlined">groups</i> <span data-key="t-widgets">Groups</span>
+                    </NavLink>
+                  </li>
+                )}
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="/settings">
+                    <i className="material-symbols-outlined">settings</i> <span data-key="t-widgets">Settings</span>
+                  </NavLink>
+                </li>
+              </ul>
+            </div>
+
+            <div className="navbar-bottom navbar-sidemenu">
+              {/* <ul className="navbar-nav" id="navbar-nav">
+                <li className="nav-item">
+                  <NavLink className="nav-link menu-link " to="/settings">
+                    <i className="th-outline-setting-2"></i> <span data-key="t-widgets">Settings</span>
+                  </NavLink>
+                </li>
+                <li className="nav-item" onClick={() => {
+                  setTimeout(() => {
+                    callLogout();
+                  }, 200);
+                }}>
+                  <NavLink className="nav-link menu-link" to="">
+                    <i className="th-outline-logout"></i> <span data-key="t-widgets">Logout</span>
+                  </NavLink>
+                </li>
+              </ul> */}
+              {/* <button className="add-event-button" onClick={() => { setShowEvent(true) }}>
+                <i className='material-symbols-outlined'>add_circle</i>
+                Add New Event/Syllabus
+              </button> */}
+              <div className="sidebar-footer">
+                <p>© 2025 Open Planner</p>
+              </div>
+            </div>
+          </div>
+          {/* <!-- Sidebar --> */}
+        </div>
+        <div className="sidebar-background"></div>
+        <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent}
+          setIsAddNewData={setIsAddNewData} isAddNewData={isAddNewData} />
+
+      </div >
+      {/* <!-- Left Sidebar End --> */}
+    </>
+  )
+}
+
+export default (Sidebar);

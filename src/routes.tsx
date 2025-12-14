@@ -13,6 +13,7 @@ import SubscribedRoute from './common/SubscribedRoute';
 import NotFound from './components/NotFound/NotFound';
 
 import Navbar from './components/Navbar/Navbar';
+import DashboardLayout from './layouts/DashboardLayout';
 
 import { ENUMFORROUTES } from './interfaces/enum';
 import Dashboard from './pages/Customer/Dashboard/Dashboard';
@@ -196,20 +197,24 @@ const Layout = ({ isAuthenticated, children }: { isAuthenticated: boolean, child
   })();
   const showChrome =
     isAuthenticated && (hasSubscription || isFreemium) && !isParentsRoute && !isPaywallRoute;
-  return (
-    <div className={showChrome ? 'layout-wrapper' : ''} id={showChrome ? "layout-wrapper" : ''}>
-      {showChrome && (
-        <Navbar />
-      )}
-      {showChrome && (
-        <Sidebar />
-      )}
-      <div className={showChrome ? 'main-content' : ''}>
+
+  // Use new DashboardLayout for authenticated dashboard pages
+  if (showChrome) {
+    return (
+      <DashboardLayout>
         {children}
         {!isParentsRoute && !isPaywallRoute && <NavigationConfirm />}
-      </div>
-    </div>
-  )
+      </DashboardLayout>
+    );
+  }
+
+  // For public pages, just render children without chrome
+  return (
+    <>
+      {children}
+      {!isParentsRoute && !isPaywallRoute && <NavigationConfirm />}
+    </>
+  );
 }
 
 /**

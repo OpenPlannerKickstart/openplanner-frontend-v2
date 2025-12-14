@@ -1,314 +1,220 @@
-import React, { useEffect, useState } from "react";
-import {
-  customJsonInclude,
-  formatedDate,
-  getDate,
-  isEmptyObjectOrNullUndefiend,
-  isNullUndefinedOrBlank,
-} from "../../../Utility/Helper";
-import moment from "moment";
-import { momentLocalizer } from "react-big-calendar";
-
-import { AppDispatch, RootState } from "../../../redux/store";
-import { connect, useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useState, useRef } from 'react';
+import { AppDispatch, RootState } from '../../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   getCalenderDataAPI,
   getSyllabusDropDownDataAPI,
-} from "../../../redux/Service/User/Calender/calender";
-import DatePicker from "react-datepicker";
-import { Button, Form, Modal, OverlayTrigger, Popover } from "react-bootstrap";
-import AddEditEvent from "../../../common/AddSyllabusEvents/AddEditEvent";
-import AddEditSyllabus from "../../../common/AddSyllabusEvents/AddEditSyllabus";
-import notVoucherFound from "/assets/images/not-voucher-found.svg";
-import { isUpdatedEvent, isUpdatedSyllabus } from "../../../redux/User/Courses/coursesSlice";
-import { Calendar } from 'react-big-calendar';
-import DnDCalendar from 'react-big-calendar/lib/addons/dragAndDrop';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { addEditEventDataAPI, deleteEventDataAPI, updateEventStatusDataAPI } from "../../../redux/Service/User/Courses/courses";
-import { ENUMFORROUTES, ENUMFORSTATUS } from "../../../interfaces/enum";
-import { useNavigate } from "react-router-dom";
+} from '../../../redux/Service/User/Calender/calender';
+import {
+  deleteEventDataAPI,
+  updateEventStatusDataAPI,
+} from '../../../redux/Service/User/Courses/courses';
+import {
+  formatedDate,
+  isEmptyObjectOrNullUndefiend,
+  isNullUndefinedOrBlank,
+  customJsonInclude,
+} from '../../../Utility/Helper';
+import { ENUMFORROUTES, ENUMFORSTATUS } from '../../../interfaces/enum';
+import { useNavigate } from 'react-router-dom';
+import { logoutFromSystem } from '../../../redux/Service/auth/login';
+import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
+import { useSidebar } from '../../../layouts/DashboardLayout';
+import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
+import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
+import moment from 'moment';
 
-
-const DragAndDropCalendar = DnDCalendar(Calendar);
-const localizer: any = momentLocalizer(moment);
-const CalenderEvent = () => {
-  const navigate = useNavigate();
-  const coursesData: any = useSelector(
-    (state: RootState) => state.CoursesReducer);
-
+const CalendarEvent = () => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
+  const { toggleSidebar } = useSidebar();
 
-  const customToolbar = ({ date, onNavigate, onView, view = "month" }) => {
-    const goToBack = () => {
-      onNavigate("PREV");
-    };
-    const goToNext = () => {
-      onNavigate("NEXT");
-    };
-    const goToToday = () => {
-      onNavigate("TODAY");
-    };
+  const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
+  const coursesData: any = useSelector((state: RootState) => state.CoursesReducer);
 
-    const changeView = (newView) => {
-      onView(newView);
-    };
-    const formatDateByView = (view, date) => {
-      const momentDate = moment(date);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
-      if (view === 'day') {
-        return momentDate.format("DD, MMMM YYYY"); // Example: 18, April 2025
-      }
-
-      if (view === 'week') {
-        const startDay = momentDate.startOf('week').format("DD MMM"); // Start of the week
-        const endDay = momentDate.endOf('week').format("DD MMM"); // End of the week
-        return `${startDay} - ${endDay}`; // Example: 14 Apr - 20 Apr 2025
-      }
-
-      return momentDate.format("MMMM YYYY"); // Default to month view: April 2025
-    };
-    return (
-      <div className="calendar-header">
-        <div className="rbc-toolbar">
-          <div className="calendar-views">
-            <button className="btn btn-sm today-btn" onClick={goToToday}>
-              Today
-            </button>
-            <button
-              className={`${view === 'month' ? 'active' : ''} btn btn-sm`}
-              onClick={() => changeView("month")}
-            >
-              Month
-            </button>
-            <button
-              className={`${view === 'week' ? 'active' : ''} btn btn-sm`}
-              onClick={() => changeView("week")}
-            >
-              Week
-            </button>
-            <button
-              className={`${view === 'day' ? 'active' : ''} btn btn-sm`}
-              onClick={() => changeView("day")}
-            >
-              Day
-            </button>
-            {/* <button
-              className={`${view === 'agenda' ? 'active' : ''} btn btn-sm`}
-              onClick={() => changeView("agenda")}
-            >
-              Agenda
-            </button> */}
-          </div>
-          <div className="calendar-month">
-            <button className="btn btn-sm" onClick={goToBack}>
-              <i className="material-symbols-outlined">keyboard_arrow_left</i>
-            </button>
-            <span className="selected_month">
-              {formatDateByView(view, date)}
-
-            </span>
-            <button className="btn btn-sm" onClick={goToNext}>
-              <i className="material-symbols-outlined">keyboard_arrow_right</i>
-            </button>
-          </div>
-        </div>
-        <div className="hide-filter-button button-group">
-          {/* <Button
-            variant="outline-white"
-            className="btn-icon-text "
-            onClick={() => {
-              handleSideBar(isSideBarOpen);
-            }}
-          >
-            <i className="material-symbols-outlined btn-outline">
-              {isSideBarOpen ? "keyboard_backspace" : "menu"}
-            </i>
-            {isSideBarOpen ? "Hide Filter" : "Show Filter"}
-          </Button> */}
-          {/* <Button variant="outline-white" className="btn-icon-text ">
-                        <i className="material-symbols-outlined btn-outline"> keyboard_backspace </i>Show Filter
-                    </Button> */}
-        </div>
-      </div>
-    );
-  };
-
-  /** ---------------Edit event start-----------------------------*/
-  const [editEventFormData, setEditEventFormData] = useState<any>(null);
-  // const handleSelectEvent = (event) => {
-  //   handleShow();
-  //   setEditEventFormData({
-  //     ...event?.event_data, start_date: new Date(formatedDate(event?.event_data?.start_date, "yyyy-MM-DD HH:mm:ss")),
-  //     end_date: new Date(formatedDate(event?.event_data?.end_date, "yyyy-MM-DD HH:mm:ss")),
-
-  //   })
-  // };
-  /** --------------------Edit event End------------------------*/
-  function customEventView({ event }) {
-    const isCompleted = event?.event_data?.status === "Completed" ? true : false
-    const isHigh = event?.event_data?.priority === "High" ? true : false
-    // console.log(isCompleted, "isCompleted", event?.event_data)
-
-    return (
-      <div key={Math.random()}>
-        <div
-          className={`rbc-event-primary`}
-          style={{
-            backgroundColor:
-              event?.event_data?.status === 'Completed'
-                ? '#EEEFF2'
-                : event?.event_data?.course_color
-                  ? `rgba(${parseInt(event.event_data.course_color.slice(1, 3), 16)}, 
-                         ${parseInt(event.event_data.course_color.slice(3, 5), 16)}, 
-                         ${parseInt(event.event_data.course_color.slice(5, 7), 16)}, 0.2)`
-                  : 'rgba(0, 0, 0, 0.2)',
-            borderColor: event?.event_data?.course_color,
-          }}
-        >
-          <div className="priority-icon">
-            {isHigh && <span className="priority-ribbon"></span>}
-            <p>
-              <b className={isCompleted ? '' : "text-black"} style={{ textDecoration: isCompleted ? 'line-through' : "none" }}>{event.title} </b>
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  /** ----------------------get CalenderData Start----------------------*/
-  const [searchByStartDate, setSearchByStartDate] = useState<any>(null);
-  const [searchByEndDate, setSearchByEndDate] = useState<any>(null);
-  const [syllabusId, setSyllabusId] = useState<any>([]);
-  const [calenderData, setCalenderData] = useState<any>([]);
-  function formatDate(dateStr) {
-    const date = moment(dateStr).utc();
-
-    const year = date.year();
-    const month = date.month(); // No need to add 1 because `moment` handles it properly when creating a new Date
-    const day = date.date();
-    const hours = date.hour();
-    const minutes = date.minute();
-    const seconds = date.second();
-
-    // Return a Date object directly
-    const dateStrVal = moment(Date.UTC(year, month, day, hours, minutes, seconds)).format("YYYY-MM-DD HH:mm:ss")
-
-    return new Date(dateStrVal);
-  }
-  const handleGetCalenderData = async () => {
-    let reqBody: any = {
-      syllabus_id: syllabusId,
-    };
-
-    customJsonInclude(reqBody);
-    // if (!isNullUndefinedOrBlank(searchByStartDate)) {
-    //   reqBody.start_date = getDate(searchByStartDate, "yyyy-MM-DD");
-    // }
-    // if (!isNullUndefinedOrBlank(searchByStartDate)) {
-    //   reqBody.end_date = getDate(searchByEndDate, "yyyy-MM-DD");
-    // }
-    const response = await dispatch(getCalenderDataAPI(reqBody));
-    if (!isNullUndefinedOrBlank(response?.payload)) {
-      const eventData = response?.payload?.map((item: any) => {
-        return {
-          ...item,
-          start: formatDate(item.start),
-          end: formatDate(item.end),
-        };
-      });
-      setCalenderData(eventData || []);
-    } else {
-      setCalenderData([]);
-    }
-  };
-
-  useEffect(() => {
-    // const delayDebounceFn = setTimeout(() => {
-
-    //   handleGetCalenderData();
-    // }, 200);
-    // return () => {
-    //   clearTimeout(delayDebounceFn);
-    // }
-    handleGetCalenderData();
-  }, [searchByStartDate, searchByEndDate, syllabusId]);
-
-  /** ----------------------get CalenderData End----------------------*/
-
-  /** ---------------------get syllabus dropdown Start-----------------------*/
+  const [currentDate, setCurrentDate] = useState(moment());
+  const [miniCalendarDate, setMiniCalendarDate] = useState(moment());
+  const [currentView, setCurrentView] = useState<'month' | 'week' | 'day'>('month');
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+  const [selectedClasses, setSelectedClasses] = useState<number[]>([]);
   const [syllabusDropDownData, setSyllabusDropDownData] = useState<any>([]);
+
+  const [show, setShow] = useState(false);
+  const [showSyllabus, setShowSyllabus] = useState(false);
+  const [editEventFormData, setEditEventFormData] = useState<any>(null);
+  const [deleteShow, setDeleteShow] = useState(false);
+  const [deleteEventData, setDeleteEventData] = useState<any>(null);
+
   const handleGetDropDownData = async () => {
     const response = await dispatch(getSyllabusDropDownDataAPI());
-    if (!isNullUndefinedOrBlank(response?.payload)) {
+    if (response && !isNullUndefinedOrBlank(response?.payload)) {
       setSyllabusDropDownData(response?.payload);
-      const syllabusId = response?.payload?.map((item) => item.value);
-      setSyllabusId(syllabusId);
+      const syllabusIds = response?.payload?.map((item: any) => item.value);
+      setSelectedClasses(syllabusIds);
+    }
+  };
+
+  const handleGetCalendarData = async () => {
+    const reqBody: any = { syllabus_id: selectedClasses };
+    customJsonInclude(reqBody);
+    const response = await dispatch(getCalenderDataAPI(reqBody));
+    if (response && !isNullUndefinedOrBlank(response?.payload)) {
+      setCalendarEvents(response?.payload || []);
+    } else {
+      setCalendarEvents([]);
     }
   };
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      handleGetDropDownData();
-
-    }, 300);
-    return () => {
-      clearTimeout(delayDebounceFn);
-    }
-
+    handleGetDropDownData();
   }, []);
 
-  const handleCheckSyllabusID = (id) => {
-    let newSyllabusId = [...syllabusId];
-    if (syllabusId.includes(id)) {
-      newSyllabusId = syllabusId.filter((data) => data !== id);
+  useEffect(() => {
+    if (selectedClasses.length > 0) {
+      handleGetCalendarData();
+    }
+  }, [selectedClasses]);
+
+  useEffect(() => {
+    if (coursesData.isUpdatedEventData) {
+      handleGetCalendarData();
+    }
+  }, [coursesData.isUpdatedEventData]);
+
+  useEffect(() => {
+    if (coursesData.isUpdatedSyllabusData) {
+      handleGetDropDownData();
+    }
+  }, [coursesData.isUpdatedSyllabusData]);
+
+  const handleToday = () => {
+    setCurrentDate(moment());
+    setMiniCalendarDate(moment());
+  };
+
+  const handlePrevious = () => {
+    const newDate = moment(currentDate).subtract(1, 'month');
+    setCurrentDate(newDate);
+  };
+
+  const handleNext = () => {
+    const newDate = moment(currentDate).add(1, 'month');
+    setCurrentDate(newDate);
+  };
+
+  const handleMiniPrevious = () => {
+    setMiniCalendarDate(moment(miniCalendarDate).subtract(1, 'month'));
+  };
+
+  const handleMiniNext = () => {
+    setMiniCalendarDate(moment(miniCalendarDate).add(1, 'month'));
+  };
+
+  const getMiniCalendarDays = (): moment.Moment[] => {
+    const start = moment(miniCalendarDate).startOf('month').startOf('week');
+    const end = moment(miniCalendarDate).endOf('month').endOf('week');
+    const days: moment.Moment[] = [];
+    const day = start.clone();
+
+    while (day.isBefore(end)) {
+      days.push(day.clone());
+      day.add(1, 'day');
+    }
+    return days;
+  };
+
+  const getCalendarDays = (): moment.Moment[] => {
+    const start = moment(currentDate).startOf('month').startOf('week');
+    const end = moment(currentDate).endOf('month').endOf('week');
+    const days: moment.Moment[] = [];
+    const day = start.clone();
+
+    while (day.isBefore(end)) {
+      days.push(day.clone());
+      day.add(1, 'day');
+    }
+    return days;
+  };
+
+  const getEventsForDay = (date: moment.Moment) => {
+    return calendarEvents.filter((event: any) => {
+      const eventDate = moment(event.start);
+      return eventDate.format('YYYY-MM-DD') === date.format('YYYY-MM-DD');
+    });
+  };
+
+  const getColorClassName = (hexColor: string): string => {
+    const colorMap: { [key: string]: string } = {
+      '#F97316': 'orange',
+      '#f97316': 'orange',
+      '#EAB308': 'yellow',
+      '#eab308': 'yellow',
+      '#ffc107': 'yellow',
+      '#FFC107': 'yellow',
+      '#22C55E': 'green',
+      '#22c55e': 'green',
+      '#4caf50': 'green',
+      '#4CAF50': 'green',
+      '#14B8A6': 'teal',
+      '#14b8a6': 'teal',
+      '#009688': 'teal',
+      '#D97706': 'gold',
+      '#d97706': 'gold',
+      '#3B82F6': 'blue',
+      '#3b82f6': 'blue',
+      '#cddc39': 'lime',
+      '#CDDC39': 'lime',
+      '#239BC2': 'cyan',
+      '#239bc2': 'cyan',
+      '#EF4444': 'red',
+      '#ef4444': 'red',
+      '#8B5CF6': 'purple',
+      '#8b5cf6': 'purple',
+      '#EC4899': 'pink',
+      '#ec4899': 'pink',
+      '#6B7280': 'gray',
+      '#6b7280': 'gray',
+      '#78716C': 'stone',
+      '#78716c': 'stone',
+      '#6366F1': 'indigo',
+      '#6366f1': 'indigo',
+    };
+    return colorMap[hexColor] || 'yellow';
+  };
+
+  const handleToggleClass = (classId: number) => {
+    if (selectedClasses.includes(classId)) {
+      setSelectedClasses(selectedClasses.filter((id) => id !== classId));
     } else {
-      newSyllabusId = [...syllabusId, id];
-    }
-    setSyllabusId(newSyllabusId);
-  };
-
-  /** ---------------------get syllabus dropdown End-----------------------*/
-
-  /** ------------------reset filter start--------------------------*/
-  const handleResetFilter = () => {
-    setSearchByStartDate(null);
-    setSearchByEndDate(null);
-    setCurrentDate(new Date());
-    const syllabusId = syllabusDropDownData?.map((item) => item.value);
-    setSyllabusId(syllabusId);
-  };
-  /** ------------------reset filter end--------------------------*/
-
-  /** ----------------- sidebar logic start---------------------------*/
-  const [isSideBarOpen, setIsSideBarOpen] = useState(true);
-
-  const handleSideBar = (value) => {
-    setIsSideBarOpen(!value);
-    if (isSideBarOpen) {
-      handleResetFilter();
+      setSelectedClasses([...selectedClasses, classId]);
     }
   };
-  /** ----------------- sidebar logic end---------------------------*/
 
+  const handleShow = () => {
+    setEditEventFormData(null);
+    setShow(true);
+  };
 
-  /** -----------------Add/Edit Event start---------------------------*/
-  const [show, setShow] = useState(false);
-  const handleShow = () => setShow(true);
-  /** -----------------Add/Edit Event end---------------------------*/
+  const handleEventClick = (event: any) => {
+    setEditEventFormData({
+      ...event.event_data,
+      start_date: new Date(formatedDate(event.event_data.start_date, 'yyyy-MM-DD HH:mm:ss')),
+      end_date: new Date(formatedDate(event.event_data.end_date, 'yyyy-MM-DD HH:mm:ss')),
+    });
+    setShow(true);
+  };
 
-
-  /** -----------------Add/Edit syllabus start---------------------------*/
-  const [showSyllabus, setShowSyllabus] = useState(false);
-  const handleSyllabusShow = () => setShowSyllabus(true);
   const { hasSubscription, isFreemiumPlan } = (() => {
     try {
-      const tier = localStorage.getItem("plan_tier");
-      const subscriptionFlag = localStorage.getItem("has_subscription") === "true";
+      const tier = localStorage.getItem('plan_tier');
+      const subscriptionFlag = localStorage.getItem('has_subscription') === 'true';
       return {
         hasSubscription: subscriptionFlag,
-        isFreemiumPlan: tier === "freemium",
+        isFreemiumPlan: tier === 'freemium',
       };
     } catch {
       return {
@@ -317,6 +223,7 @@ const CalenderEvent = () => {
       };
     }
   })();
+
   const FREEMIUM_UPLOAD_LIMIT = 3;
   const freemiumLimitReached =
     isFreemiumPlan && !hasSubscription && syllabusDropDownData.length >= FREEMIUM_UPLOAD_LIMIT;
@@ -330,652 +237,362 @@ const CalenderEvent = () => {
       handleUpgradeClick();
       return;
     }
-    handleSyllabusShow();
+    setShowSyllabus(true);
   };
-  /** -----------------Add/Edit Syllabus end---------------------------*/
-
-  const [currentView, setCurrentView] = useState('month'); // Initial view
-  const [currentDate, setCurrentDate] = useState(new Date()); // Initial date
-
-  const handleDateClick = (date) => {
-    setCurrentView('day'); // Change to Day view
-    setCurrentDate(date); // Set the clicked date
-  };
-
-  const CustomDateHeader = ({ date, events = [], onSeeMoreClick }) => {
-    const [isHovered, setIsHovered] = useState(false);
-
-    const handleMouseEnter = () => setIsHovered(true);
-    const handleMouseLeave = () => setIsHovered(false);
-
-    return (
-      <>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "0 0px",
-            height: "100%",
-          }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          {/* Date on the left */}
-          <span onClick={() => { handleDateClick(date) }} style={{ cursor: "pointer" }}>
-            <b>{date.getDate()}</b>
-          </span>
-
-          {/* Button on the right */}
-          {
-            events?.length > 3 &&
-
-            <span style={{ cursor: "pointer", marginRight: "6px", marginLeft: "auto", fontSize: "12px" }} onClick={(e) => {
-              e.stopPropagation();
-              if (onSeeMoreClick) onSeeMoreClick(date, events);
-            }}>
-              Show All
-            </span>
-
-
-
-
-          }
-          <button
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "22px",
-              height: "22px",
-              fontSize: "16px",
-              backgroundColor: "#374151",
-              color: "white",
-              border: "none",
-              borderRadius: "50%",
-              cursor: "pointer",
-              visibility: isHovered ? "visible" : "hidden",
-              opacity: isHovered ? 1 : 0,
-              transition: "0.2s all",
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              const startDate = new Date(date);
-              const endDate = new Date(date);
-              endDate.setHours(23, 59, 59, 999);
-
-              setEditEventFormData({
-                ...editEventFormData,
-                start_date: startDate,
-                end_date: endDate,
-                is_reminder: false,
-                reminder: [],
-              });
-              handleShow();
-            }}
-          >
-            +
-          </button>
-        </div>
-        {/* See More button */}
-
-      </>
-    );
-  };
-
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (coursesData.isUpdatedEventData) {
-        handleGetCalenderData();
-        setTimeout(() => {
-          dispatch(isUpdatedEvent(false));
-        }, 400);
-      }
-
-    }, 300);
-    return () => {
-      clearTimeout(delayDebounceFn);
-    }
-  }, [coursesData.isUpdatedEventData])
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (coursesData.isUpdatedSyllabusData) {
-        handleGetDropDownData();
-        setTimeout(() => {
-          dispatch(isUpdatedSyllabus(false));
-        }, 400);
-      }
-
-    }, 300);
-    return () => {
-      clearTimeout(delayDebounceFn);
-    }
-  }, [coursesData.isUpdatedSyllabusData]);
-
-
-  /** -------------------drag and drop start-------------------------*/
-  const handleEventDrop = async ({ event, start, end }) => {
-    // console.log("Event dropped:", event, "Start:", start, "End:", end);
-    // Step 1: Update the event in the local state
-    // const updatedEvents = calenderData.map((existingEvent) => {
-    //   if (existingEvent.id === event.id) {
-    //     return { ...existingEvent, start, end }; // Update the event with new dates
-    //   }
-    //   return existingEvent;
-    // });
-    // setCalenderData(updatedEvents);
-
-    // Step 2: Prepare the request body for the API
-    const reqBody = {
-      event_id: event?.event_data?.id,
-      title: event?.event_data?.title,
-      start_date: getDate(start.toISOString()), // Convert to ISO string
-      end_date: getDate(end.toISOString()), // Convert to ISO string
-      syllabus_id: event?.event_data?.syllabus_id,
-      is_all_day_event: event?.event_data?.is_all_day_event,
-      is_reminder: event?.event_data?.is_reminder,
-      note: event?.event_data?.note,
-      priority: event?.event_data?.priority,
-      reminder: event?.event_data?.reminder,
-    };
-    customJsonInclude(reqBody)
-    try {
-      // Step 3: Call the editEvent API
-      const response = await dispatch(addEditEventDataAPI(reqBody));
-
-      if (response) {
-        // Step 4: Fetch the latest calendar data
-        // await props.handleGetData(); // Assuming this fetches the updated calendar data
-        handleGetCalenderData();
-      }
-    } catch (error) {
-      console.error("Error updating the event:", error);
-    }
-  };
-
-  /** ----------------------drag and drop end----------------------*/
-
-  /** --------------------add event start------------------------*/
-  const handleSelectSlot = ({ start, end }) => {
-    // console.log(formatedDate(start, "DD/MM/YYYY [at] hh:mm A"), "start", formatedDate(end, "DD/MM/YYYY [at] hh:mm A"), "end")
-    const startDate = new Date(start); // Start date at 12:00 AM
-    let endDate = new Date(end); // Clone the date for end time
-    if (currentView == "month") {
-      endDate = new Date(start);
-      endDate.setMinutes(30, 0); // Set end time to 11:59:59 PM
-    }
-    if (currentView !== "month") {
-
-      setEditEventFormData({
-        ...editEventFormData,
-        start_date: startDate,
-        end_date: endDate,
-        is_reminder: false,
-        reminder: [],
-      });
-      handleShow();
-    }
-  };
-
-  /** --------------------add event end------------------------*/
-
-
-  /** ---------------------preview Data start-----------------------*/
-  const handleEditEvent = (event) => {
-
-    handleCloseModal();
-    handleShow();
-    setEditEventFormData({
-      ...event?.event_data, start_date: new Date(formatedDate(event?.event_data?.start_date, "yyyy-MM-DD HH:mm:ss")),
-      end_date: new Date(formatedDate(event?.event_data?.end_date, "yyyy-MM-DD HH:mm:ss")),
-
-    })
-  };
-
-  const [showModal, setShowModal] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null);
-
-  const handleSelectEvent = (event) => {
-    setSelectedEvent(event); // Set the selected event
-    setShowModal(true); // Show the modal
-  };
-
-  const handleCloseModal = () => {
-    setSelectedEvent(null);
-    setShowModal(false); // Hide the modal
-  };
-
-  /** ---------------------preview Data end-----------------------*/
-
-
-
-  /** -------------------Delete event start-------------------------*/
-  const [deleteShow, setDeleteShow] = useState(false);
-  const [selectedEventObj, setSelectedEventObj] = useState<any>(null);
 
   const handleDeleteClose = () => {
     setDeleteShow(false);
-    setTimeout(() => {
-      setSelectedEventObj(null);
-      setDeleteSuccess(false);
-    }, 300);
-  }
-  const handleDeleteShow = (data) => {
-    // console.log(data)
-    handleCloseModal();
-    setDeleteShow(true)
-    setSelectedEventObj(data);
-  }
+    setDeleteEventData(null);
+  };
 
-  const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
+  const handleDeleteConfirm = async () => {
+    if (deleteEventData) {
+      const response = await dispatch(
+        deleteEventDataAPI({ event_id: [deleteEventData.event_data.id] })
+      );
+      if (response && !isNullUndefinedOrBlank(response?.payload)) {
+        handleDeleteClose();
+        handleGetCalendarData();
+      }
+    }
+  };
 
-  const handleDeleteData = async (eventId) => {
-    // console.log(eventId)
-    let event_id: any = [];
-    if (eventId instanceof Array) {
-      event_id = eventId;
-    }
-    else {
-      event_id = [eventId];
-    }
-    const reqBody = {
-      event_id: event_id,
-    }
+  const handleUserMenuToggle = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
+  };
 
-    const response = await dispatch(deleteEventDataAPI(reqBody));
-    if (!isNullUndefinedOrBlank(response?.payload)) {
-      handleGetCalenderData();
-      handleDeleteClose();
-      handleCloseModal();
-    }
-  }
+  const handleLogout = async () => {
+    await dispatch(logoutFromSystem());
+    navigate(ENUMFORROUTES.LOGIN);
+  };
 
-  /** -------------------Delete Event end-------------------------*/
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const response = await dispatch(getUserAPI());
+      if (response && !isNullUndefinedOrBlank(response?.payload)) {
+        setUserData(response.payload);
+      }
+    };
+    fetchUserData();
+  }, [dispatch]);
 
+  useEffect(() => {
+    if (!isNullUndefinedOrBlank(settingsData?.userData)) {
+      setUserData(settingsData.userData);
+    }
+  }, [settingsData?.userData]);
 
-  /** --------------------Event Complete Start------------------------*/
-  const handleEventCompleted = async (id, status) => {
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
 
-    if (!id) {
-      return;
-    }
-    let event_id: any = [];
-    if (id instanceof Array) {
-      event_id = id;
-    }
-    else {
-      event_id = [id];
-    }
-    const reqBody = {
-      event_id: event_id,
-      status: status === ENUMFORSTATUS.COMPLETED ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED,
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
-    let response = await dispatch(updateEventStatusDataAPI(reqBody));
-    if (!isNullUndefinedOrBlank(response?.payload)) {
-      handleGetCalenderData();
-      await dispatch(isUpdatedEvent(true));
-      handleCloseModal();
-      // setEventStatus(status);
-      // handleSuccessShow();
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
+
+  const renderCalendarWeeks = () => {
+    const days = getCalendarDays();
+    const weeks: moment.Moment[][] = [];
+    for (let i = 0; i < days.length; i += 7) {
+      weeks.push(days.slice(i, i + 7));
     }
-  }
 
-  /** ---------------------Event Complete Start-----------------------*/
+    return weeks.map((week, weekIndex) => (
+      <div className="calendar-week" key={weekIndex}>
+        {week.map((day, dayIndex) => {
+          const eventsForDay = getEventsForDay(day);
+          const isOtherMonth = !day.isSame(currentDate, 'month');
+          const isToday = day.isSame(moment(), 'day');
 
-
-  /** -----------------------show more start---------------------*/
-  const [showSeeMore, setShowSeeMore] = useState(false);
-  const [seeMoreEvents, setSeeMoreEvents] = useState<any>([]);
-  const [seeMoreDate, setSeeMoreDate] = useState(null);
-
-  const CustomShowMore = ({ events, date, onClose }) => {
-    // console.log(events, "events", date, "date")
-    return (
-      <Modal className='modal-theme modal-confirmation modal-approve' show={true} onHide={onClose} centered>
-        <Modal.Header className="border-bottom">
-          <h4 className="modal-title">Events on {formatedDate(date, "MM/DD/yyyy")}</h4>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={onClose}
-          >
-            <i className="material-symbols-outlined">close</i>
-          </button>
-        </Modal.Header>
-        <Modal.Body>
-          <ul className="event-list">
-            {events.map((event, idx) => (
-              <>
-                {/* <a href="">{event?.event_data?.course_color}</a> */}
-                <li key={idx}><span className="event-color" style={{ backgroundColor: event?.event_data?.course_color }}></span>{event.title}</li>
-              </>
-            ))}
-          </ul>
-        </Modal.Body>
-      </Modal>
-    );
-  }
-  /** ------------------------show more end--------------------*/
+          return (
+            <div
+              className={`calendar-cell ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`}
+              key={dayIndex}
+            >
+              <span className="cell-date">{day.date()}</span>
+              <div className="cell-events">
+                {eventsForDay.slice(0, 3).map((event: any, eventIndex: number) => {
+                  const colorClass = getColorClassName(event.event_data?.course_color || '#ffc107');
+                  return (
+                    <div
+                      key={eventIndex}
+                      className={`event-chip ${colorClass}`}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => handleEventClick(event)}
+                    >
+                      {event.title}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    ));
+  };
 
   return (
     <>
-      <div className="page-content">
-        <div className="page-title-wrapper">
-          <div className="page-title-left">
-            <div className="page-title">
-              <h4>Calendar</h4>
-            </div>
+      <header className="dashboard-header">
+        <div className="dashboard-header-inner">
+          <div className="dashboard-header-left">
+            <button className="mobile-menu-toggle" onClick={toggleSidebar}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+
+            <h1 className="dashboard-page-title">Calendar</h1>
           </div>
-          <div className="page-title-right">
-            <button type="button" className="btn btn-primary" onClick={() => { handleShow() }}>
+
+          <div className="dashboard-header-right">
+            <button className="btn btn-primary" onClick={handleShow}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
               Add Event
             </button>
-            <button
-              type="button"
-              className="btn btn-warning"
-              onClick={handleAddSyllabusClick}
-              disabled={freemiumLimitReached}
-              style={freemiumLimitReached ? { opacity: 0.7, cursor: "not-allowed" } : {}}
-            >
+            <button className="btn btn-accent" onClick={handleAddSyllabusClick}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
               Add Syllabus
             </button>
-            {/* <button
-              type="button"
-              className="btn btn-primary"
-              onClick={toggleShowEditEvent}
-            >
-              Edit Event
-            </button> */}
-          </div>
-        </div>
 
-        <div className="content-area  content-area-title calender-content-area">
-          <div className="page-content-wrapper h-100">
-            <div className="sidebar-with-calendar">
-              <div
-                className={`sider-bar ${isSideBarOpen ? "d-block" : "d-none"}`}
-              >
-                {/* <div className="cal-side-title">
-                  <div className="title-text">
-                    <h4>Filter</h4>
-                  </div>
-                  <div
-                    className="reset-btn"
-                    onClick={() => {
-                      handleResetFilter();
-                    }}
-                  >
-                    <a>Reset Filters </a>
-                  </div>
-                </div> */}
-                <div className="cal-side-body">
-                  <div className="filter-date">
-                    {/* <div className="title-text">
-                      <h4>Date</h4>
-                    </div> */}
-                    <Form.Group className="form-group">
-                      <div className="react-datepicker-container filter-calendar">
+            <button className="notification-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              <span className="notification-badge"></span>
+            </button>
 
-                        <DatePicker
-                          toggleCalendarOnIconClick
-                          selected={searchByStartDate}
-                          onChange={(date) => {
-                            setSearchByStartDate(date);
-                            setCurrentDate(date || currentDate);
-                            setSearchByEndDate(date); // Clear end date if you use it elsewhere
-                          }}
-                          c
-                          open={true}
-                          // startDate={searchByStartDate}
-                          // endDate={searchByEndDate}
-                          isClearable={true}
-                          dateFormat="MM/dd/yyyy"
-                          className="form-control"
-                          placeholderText="Select a Date"
-                          inline
-                        />
-                      </div>
-                    </Form.Group>
-                  </div>
-                  <div className="classes-wrapper">
-                    <div className="title-with-counter">
-                      <div className="title-text">
-                        <h4>My Classes</h4>
-                      </div>
-                      <div className="counter-title">
-                        <h4>
-                          {" "}
-                          {!isEmptyObjectOrNullUndefiend(syllabusDropDownData)
-                            ? `${syllabusDropDownData.length} Classes`
-                            : "0 Class"}{" "}
-                        </h4>
-                      </div>
-                    </div>
-                    <div className="classes-details-wrapper">
-                      <div className="classes-details">
-                        {!isEmptyObjectOrNullUndefiend(syllabusDropDownData) ?
-                          syllabusDropDownData?.map((item, index) => {
-                            return (
-                              <>
-                                <div className="class-main">
-                                  <div className="checkbox checkbox-primary classes-checkbox checkbox-small" >
-                                    {/* <input
-                                      id={`${index} -checkbox`}
-                                      className="material-inputs filled-in"
-                                      type="checkbox"
-                                      // name={`syllabus-${item.value}`}
-
-                                      onChange={() => {
-                                        handleCheckSyllabusID(item.value);
-                                      }}
-                                      checked={syllabusId.includes(item.value)}
-                                    /> */}
-                                    <div
-                                      // style={{ border: "2px solid black" }}
-                                      className={`check-box ${syllabusId.includes(item.value) ? "active" : ""}`}
-                                      onClick={() => {
-                                        handleCheckSyllabusID(item.value);
-                                      }}
-                                      style={{
-                                        // @ts-ignore
-                                        ["--course-color" as any]: item.other.course_color, // Pass dynamic color as a CSS variable
-                                        border: `3px solid ${item.other.course_color}`
-                                      }}
-                                    >
-                                      {syllabusId.includes(item.value) && <i className="material-symbols-outlined">check</i>}
-                                    </div>
-
-                                    <label htmlFor={`${index} -checkbox`}>
-                                      {item.label}
-                                    </label>
-                                  </div>
-                                </div>
-
-                              </>
-                            );
-                          })
-                          :
-                          <>
-                            <div className="no-records-found no-records-found-inner h-100">
-                              <div className="no-records-found-image">
-                                <img src={notVoucherFound} alt="OpenPlaner" />
-                              </div>
-                              <div className="no-records-found-text">
-                                <h6>No data found!</h6>
-                              </div>
-                            </div>
-
-                          </>
-                        }
-                        {/* <div className="class-main">
-                                                <div className="checkbox checkbox-primary classes-checkbox">
-                                                    <input
-                                                        type="checkbox"
-                                                        id="checkbox"
-                                                        className="material-inputs filled-in"
-                                                    />
-                                                    <label htmlFor="checkbox">Project Management</label>
-                                                </div>
-                                                <div className="color-box">
-                                                    <span></span>
-                                                </div>
-                                            </div>
-                                            <div className="class-main">
-                                                <div className="checkbox checkbox-primary classes-checkbox">
-                                                    <input
-                                                        type="checkbox"
-                                                        id="checkbox"
-                                                        className="material-inputs filled-in"
-                                                    />
-                                                    <label htmlFor="checkbox">Project Management</label>
-                                                </div>
-                                                <div className="color-box">
-                                                    <span></span>
-                                                </div>
-                                            </div> */}
-                      </div>
-                    </div>
-                  </div>
-                  {/* <div>
-                    {!isEmptyObjectOrNullUndefiend(syllabusDropDownData) &&
-                      syllabusDropDownData?.map((item, index) => {
-                        return (
-                          <>
-                            <div>
-                              <input
-                                type="checkbox"
-                                name={`syllabus-${item.value}`}
-                                id=""
-                                onChange={() => {
-                                  handleCheckSyllabusID(item.value);
-                                }}
-                                checked={syllabusId.includes(item.value)}
-                              />
-                              <span>{item.label}</span>
-                            </div>
-                          </>
-                        );
-                      })}
-                  </div> */}
+            <div className="user-menu-container" ref={userMenuRef}>
+              <div className="user-menu" onClick={handleUserMenuToggle}>
+                <div className="user-avatar">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
                 </div>
+                <span className="user-name">
+                  {userData?.username || userData?.email?.split('@')[0] || 'User'}
+                </span>
+                <svg className="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
               </div>
-              {/* <div className="calendar-outer">
-                <Calendar
-                  // scrollToTime={new Date(new Date().setHours(12, 50, 0, 0))}
-                  localizer={localizer}
-                  events={calenderData}
-                  startAccessor="start"
-                  endAccessor="end"
-                  onSelectEvent={(event) => {
-                    handleSelectEvent(event);
-                  }}
-                  // view={currentView}
-                  date={currentDate}
-                  onView={(view) => setCurrentView(view)} // Sync view change
-                  onNavigate={(date) => setCurrentDate(date)} // Sync date chang
-                  selectable={true}
-                  components={{
-
-                    month: {
-                      dateHeader: CustomDateHeader,
-                    },
-                    event: customEventView,
-                    toolbar: customToolbar,
-
-                  }}
-                  // popup={true}
-                  showAllEvents={true}
-                // showMoreLabel="Show More"
-                // style={{ height: "100%", width: "100%" }}
-
-                />
-              </div> */}
-
-              <div className="calendar-outer2">
-                <DndProvider backend={HTML5Backend}>
-                  <DragAndDropCalendar
-                    scrollToTime={new Date(new Date().setHours(12, 50, 0, 0))}
-                    localizer={localizer}
-                    events={calenderData}
-                    onSelectSlot={handleSelectSlot}
-                    onEventDrop={handleEventDrop} // Handle drag-and-drop events
-                    // onSelectEvent={(event) => handleSelectEvent(event)}
-                    onSelectEvent={handleSelectEvent}
-                    date={currentDate}
-                    onView={(view) => setCurrentView(view)} // Sync view change
-                    onNavigate={(date) => setCurrentDate(date)} // Sync date change
-                    selectable={true}
-                    // onShowMore={() => { console.log("first") }}
-                    showAllEvents={true}
-                    dayPropGetter={(date) => {
-                      const isSelected =
-                        searchByStartDate && currentView === 'month' &&
-                        new Date(searchByStartDate).toDateString() === date.toDateString();
-
-                      return {
-                        style: {
-                          backgroundColor: isSelected
-                            ? '#eaf6ff' // Highlight color for selected date
-                            : undefined,
-                          border: isSelected
-                            ? '2px solid rgb(79, 160, 226)' // Border for selected date
-                            : undefined,
-                        },
-                      };
-                    }}
-
-                    components={{
-
-                      month: {
-                        dateHeader: (props) => {
-                          // Find events for this date
-                          const eventsForDate = calenderData.filter(ev =>
-                            new Date(ev.start).toDateString() === props.date.toDateString()
-                          );
-                          return (
-                            <CustomDateHeader
-                              {...props}
-                              events={eventsForDate}
-                              onSeeMoreClick={(date, events) => {
-                                setSeeMoreDate(date);
-                                setSeeMoreEvents(events);
-                                setShowSeeMore(true);
-                              }}
-                            />
-                          );
-                        },
-                      },
-                      event: customEventView,
-                      toolbar: customToolbar,
-                      // showMore: (props) => {
-                      //   // @ts-ignore
-                      //   const { date, events } = props;
-                      //   setSeeMoreDate(date);
-                      //   setSeeMoreEvents(events);
-                      //   setShowSeeMore(true);
-                      //   return null; // Don't render anything in the calendar cell
-                      // }
-                    }}
-
-                    style={{ height: "100vh", width: "100%" }}
-                  />
-                </DndProvider>
+              <div className={`user-dropdown ${isUserMenuOpen ? 'active' : ''}`}>
+                <a href="#" onClick={(e) => { e.preventDefault(); navigate(ENUMFORROUTES.SETTINGS); setIsUserMenuOpen(false); }} className="user-dropdown-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  Profile
+                </a>
+                <div className="user-dropdown-divider"></div>
+                <button className="user-dropdown-item logout" onClick={handleLogout}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  Logout
+                </button>
               </div>
             </div>
           </div>
+        </div>
+      </header>
 
+      <div className="calendar-page">
+        <aside className="calendar-sidebar">
+          <div className="mini-calendar">
+            <div className="mini-calendar-header">
+              <button className="mini-nav-btn prev" onClick={handleMiniPrevious}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <span className="mini-calendar-title">{miniCalendarDate.format('MMMM YYYY')}</span>
+              <button className="mini-nav-btn next" onClick={handleMiniNext}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            </div>
+            <div className="mini-calendar-grid">
+              <div className="mini-day-header">Su</div>
+              <div className="mini-day-header">Mo</div>
+              <div className="mini-day-header">Tu</div>
+              <div className="mini-day-header">We</div>
+              <div className="mini-day-header">Th</div>
+              <div className="mini-day-header">Fr</div>
+              <div className="mini-day-header">Sa</div>
 
+              {getMiniCalendarDays().map((day, index) => {
+                const isOtherMonth = !day.isSame(miniCalendarDate, 'month');
+                const isToday = day.isSame(moment(), 'day');
+                return (
+                  <div
+                    key={index}
+                    className={`mini-day ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`}
+                    onClick={() => {
+                      setCurrentDate(day.clone());
+                      setMiniCalendarDate(day.clone());
+                    }}
+                  >
+                    {day.date()}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="my-classes">
+            <div className="my-classes-header">
+              <h3>My Classes</h3>
+              <span className="class-count">
+                {syllabusDropDownData.length} {syllabusDropDownData.length === 1 ? 'Class' : 'Classes'}
+              </span>
+            </div>
+            <div className="class-list">
+              {syllabusDropDownData.map((item: any) => {
+                const colorClass = getColorClassName(item?.other?.course_color || '#ffc107');
+                return (
+                  <label className="class-item" key={item.value}>
+                    <input
+                      type="checkbox"
+                      checked={selectedClasses.includes(item.value)}
+                      onChange={() => handleToggleClass(item.value)}
+                    />
+                    <span className={`checkmark ${colorClass}`}></span>
+                    <span className="class-name">{item.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        </aside>
+
+        <div className="calendar-main">
+          <div className="calendar-controls">
+            <div className="view-toggles">
+              <button className="view-btn" onClick={handleToday}>
+                Today
+              </button>
+              <button
+                className={`view-btn ${currentView === 'month' ? 'active' : ''}`}
+                onClick={() => setCurrentView('month')}
+              >
+                Month
+              </button>
+              <button
+                className={`view-btn ${currentView === 'week' ? 'active' : ''}`}
+                onClick={() => setCurrentView('week')}
+              >
+                Week
+              </button>
+              <button
+                className={`view-btn ${currentView === 'day' ? 'active' : ''}`}
+                onClick={() => setCurrentView('day')}
+              >
+                Day
+              </button>
+            </div>
+
+            <div className="calendar-navigation">
+              <button className="cal-nav-btn prev" onClick={handlePrevious}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <h2 className="current-month">{currentDate.format('MMMM YYYY')}</h2>
+              <button className="cal-nav-btn next" onClick={handleNext}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {currentView === 'month' && (
+            <div className="calendar-grid">
+              <div className="calendar-header-row">
+                <div className="calendar-day-header">Sun</div>
+                <div className="calendar-day-header">Mon</div>
+                <div className="calendar-day-header">Tue</div>
+                <div className="calendar-day-header">Wed</div>
+                <div className="calendar-day-header">Thu</div>
+                <div className="calendar-day-header">Fri</div>
+                <div className="calendar-day-header">Sat</div>
+              </div>
+
+              <div className="calendar-body">{renderCalendarWeeks()}</div>
+            </div>
+          )}
+
+          {currentView === 'week' && (
+            <div className="week-view">
+              <p>Week view - Coming soon</p>
+            </div>
+          )}
+
+          {currentView === 'day' && (
+            <div className="day-view">
+              <p>Day view - Coming soon</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Add/Edit event Start */}
-      <AddEditEvent show={show} setShow={setShow} handleGetData={handleGetCalenderData} setEditEventFormData={setEditEventFormData} editEventFormData={editEventFormData} />
-      {/* Add/Edit event Event */}
+      {deleteShow && (
+        <div className="confirm-modal-overlay">
+          <div className="confirm-modal">
+            <div className="confirm-modal-header">
+              <div className="confirm-modal-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  <line x1="10" y1="11" x2="10" y2="17" />
+                  <line x1="14" y1="11" x2="14" y2="17" />
+                </svg>
+              </div>
+              <h3 className="confirm-modal-title">Delete Event</h3>
+            </div>
+            <div className="confirm-modal-body">
+              <p className="confirm-modal-message">Are you sure you want to delete this? This action cannot be undone.</p>
+            </div>
+            <div className="confirm-modal-footer">
+              <button className="btn btn-cancel" onClick={handleDeleteClose}>Cancel</button>
+              <button className="btn btn-confirm-delete" onClick={handleDeleteConfirm}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* Add/Edit event Start */}
+      <AddEditEvent
+        show={show}
+        setShow={setShow}
+        handleGetData={handleGetCalendarData}
+        setEditEventFormData={setEditEventFormData}
+        editEventFormData={editEventFormData}
+      />
+
       <AddEditSyllabus
         showSyllabus={showSyllabus}
         setShowSyllabus={setShowSyllabus}
@@ -986,131 +603,8 @@ const CalenderEvent = () => {
         onUpgradeClick={handleUpgradeClick}
         existingSyllabusCount={syllabusDropDownData.length}
       />
-      {/* Add/Edit event Event */}
-
-
-      {/* Modal for Event Details */}
-      <Modal className='modal-theme '
-        show={showModal} onHide={handleCloseModal} centered>
-        <Modal.Header className="border-bottom">
-          <h4 className="modal-title">Event Details</h4>
-          <button type="button" className="btn-close" onClick={handleCloseModal}>
-            <i className="material-symbols-outlined">close</i>
-          </button>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedEvent ? (
-            <>
-              <p className="event-details-items mb-1 fs-15">
-                <strong>Event Title:</strong>{" "}
-                {selectedEvent?.event_data.title || "Event Details"}
-              </p>
-              <p className="event-details-items mb-1 fs-15">
-                <strong>Priority:</strong>{" "} {selectedEvent?.event_data.priority}
-              </p>
-              <p className="event-details-items mb-1 fs-15">
-                <strong>Start:</strong>{" "}
-                {formatedDate(selectedEvent.start, "MM/DD/YYYY [at] hh:mm A")}
-              </p>
-              <p className="event-details-items mb-1 fs-15">
-                <strong>End:</strong>{" "}
-                {formatedDate(selectedEvent.end, "MM/DD/YYYY [at] hh:mm A")}
-              </p>
-              <p className="event-details-items mb-0 fs-15">
-                <strong>Description:</strong>{" "}
-                {selectedEvent.event_data.note || "No description available"}
-              </p>
-            </>
-          ) : (
-            <p>No event selected.</p>
-          )}
-          <div className="justify-content-end modal-button-group modal-footer-button">
-            <Button variant="light-white" onClick={() => { handleEditEvent(selectedEvent) }}>
-              Edit Event
-            </Button>
-            <Button variant="danger" onClick={() => { handleDeleteShow(selectedEvent) }}>
-              Delete
-            </Button>
-            <Button variant="primary" onClick={() => { handleEventCompleted(selectedEvent?.event_data?.id, selectedEvent?.event_data?.status) }}>
-              {selectedEvent?.event_data?.status === ENUMFORSTATUS.PENDING ? "Mark as Completed" : "Mark as not Completed"}
-            </Button>
-
-          </div>
-        </Modal.Body>
-      </Modal>
-
-      {/* Delete Modal */}
-      <Modal
-        className="modal-theme modal-confirmation modal-reject"
-        show={deleteShow}
-        onHide={handleDeleteClose}
-        centered
-      >
-        <Modal.Header>
-          <h4 className="modal-title">Delete Event</h4>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={handleDeleteClose}
-          >
-            <i className="material-symbols-outlined">close</i>
-          </button>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="modal-confirmation-container">
-            <div className="modal-confirmation-icon">
-              <i className="material-symbols-outlined">delete</i>
-            </div>
-            <div className="modal-confirmation-content">
-              <h5> {!deleteSuccess ? "Are You Sure?" : "You have successfully deleted Event!"}</h5>
-              <p>
-                {!deleteSuccess ?
-                  "You want to delete this event ?" :
-                  "Get back to Event page to add or complete the other event"
-                }
-
-              </p>
-            </div>
-          </div>
-          <div className="modal-button-group modal-full-width-btn modal-footer-button">
-            {
-              !deleteSuccess &&
-              <Button
-                variant="light-white"
-                className="btn-md"
-                onClick={handleDeleteClose}
-              >
-                No, Change My Mind
-              </Button>
-            }
-            <Button
-              variant={!deleteSuccess ? "danger" : "success"}
-              className="btn-icon-text btn-md"
-              onClick={() => {
-                !deleteSuccess ? handleDeleteData(selectedEventObj?.event_data?.id) : handleDeleteClose()
-              }}
-            >
-              {!deleteSuccess ? "Delete" : "Ok"}
-            </Button>
-          </div>
-        </Modal.Body>
-      </Modal>
-
-      {showSeeMore && (
-        <CustomShowMore
-          events={seeMoreEvents}
-          date={seeMoreDate}
-          onClose={() => setShowSeeMore(false)}
-        />
-      )}
     </>
   );
 };
-const mapStateToProps = (state) => ({});
 
-const mapDispatchToProps = {
-  getCalenderDataAPI,
-  getSyllabusDropDownDataAPI,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(CalenderEvent);
+export default CalendarEvent;
