@@ -598,24 +598,24 @@ const Dashboard = () => {
                 if (highlightOn && filteredEvents.length === 0) return null;
 
                 return (
-                  <React.Fragment key={groupIndex}>
-                    {/* Due Date Header */}
-                    <div className="due-date-header">
-                      Due on{' '}
-                      {!isNullUndefinedOrBlank(group?.due_date)
-                        ? formatedDate(group?.due_date, 'dddd, MMM DD')
-                        : '-'}
-                    </div>
+                <React.Fragment key={groupIndex}>
+                  {/* Due Date Header */}
+                  <div className="due-date-header">
+                    Due on{' '}
+                    {!isNullUndefinedOrBlank(group?.due_date)
+                      ? formatedDate(group?.due_date, 'dddd, MMM DD')
+                      : '-'}
+                  </div>
 
-                    {/* Event Rows */}
+                  {/* Event Rows */}
                     {filteredEvents.map((event: any, eventIndex: number) => {
                       const highlightColor =
                         event?.course_color || event?.syllabus?.course_color || event?.syllabus?.courseColor;
 
                       return (
-                        <div
-                          key={eventIndex}
-                          className={`task-row clickable-event ${
+                    <div
+                      key={eventIndex}
+                      className={`task-row clickable-event ${
                             highlightOn ? 'course-highlight-match' : ''
                           } ${event?.status === ENUMFORSTATUS.COMPLETED ? 'completed' : ''}`}
                           style={
@@ -623,8 +623,8 @@ const Dashboard = () => {
                               ? ({ ['--active-course-color' as any]: highlightColor } as any)
                               : undefined
                           }
-                          onClick={() => handleSelectEvent(event)}
-                        >
+                      onClick={() => handleSelectEvent(event)}
+                    >
                       <div className="col-actions">
                         <button
                           className={`task-checkbox ${event?.status === ENUMFORSTATUS.COMPLETED ? 'checked' : ''}`}
@@ -677,7 +677,7 @@ const Dashboard = () => {
                     </div>
                       );
                     })}
-                  </React.Fragment>
+                </React.Fragment>
                 );
               })}
             </div>
