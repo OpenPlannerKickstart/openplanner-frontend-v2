@@ -67,6 +67,8 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 0.125rem;
+    justify-items: center;
+    justify-content: center;
 }
 
 .mini-day-header {
