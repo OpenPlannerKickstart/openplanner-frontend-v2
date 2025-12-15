@@ -60,11 +60,11 @@ const CalendarEvent = () => {
   const handleGetDropDownData = async () => {
     setLoadingDropdown(true);
     try {
-      const response = await dispatch(getSyllabusDropDownDataAPI());
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        setSyllabusDropDownData(response?.payload);
-        const syllabusIds = response?.payload?.map((item: any) => item.value);
-        setSelectedClasses(syllabusIds);
+    const response = await dispatch(getSyllabusDropDownDataAPI());
+    if (response && !isNullUndefinedOrBlank(response?.payload)) {
+      setSyllabusDropDownData(response?.payload);
+      const syllabusIds = response?.payload?.map((item: any) => item.value);
+      setSelectedClasses(syllabusIds);
       } else {
         setSyllabusDropDownData([]);
         setSelectedClasses([]);
@@ -77,13 +77,13 @@ const CalendarEvent = () => {
   const handleGetCalendarData = async () => {
     setLoadingEvents(true);
     try {
-      const reqBody: any = { syllabus_id: selectedClasses };
-      customJsonInclude(reqBody);
-      const response = await dispatch(getCalenderDataAPI(reqBody));
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        setCalendarEvents(response?.payload || []);
-      } else {
-        setCalendarEvents([]);
+    const reqBody: any = { syllabus_id: selectedClasses };
+    customJsonInclude(reqBody);
+    const response = await dispatch(getCalenderDataAPI(reqBody));
+    if (response && !isNullUndefinedOrBlank(response?.payload)) {
+      setCalendarEvents(response?.payload || []);
+    } else {
+      setCalendarEvents([]);
       }
     } finally {
       setLoadingEvents(false);
@@ -736,13 +736,13 @@ const CalendarEvent = () => {
                   const courseColorHex = item?.course_color || item?.other?.course_color || '#239BC2';
                   const colorClass = getColorClassName(courseColorHex);
                   const isChecked = selectedClasses.includes(item.value);
-                  return (
-                    <label className="class-item" key={item.value}>
-                      <input
-                        type="checkbox"
+                return (
+                  <label className="class-item" key={item.value}>
+                    <input
+                      type="checkbox"
                         checked={isChecked}
-                        onChange={() => handleToggleClass(item.value)}
-                      />
+                      onChange={() => handleToggleClass(item.value)}
+                    />
                       <span
                         className={`checkmark ${colorClass} ${isChecked ? 'checked' : ''}`}
                         style={{
@@ -751,9 +751,9 @@ const CalendarEvent = () => {
                           color: isChecked ? '#fff' : courseColorHex,
                         }}
                       ></span>
-                      <span className="class-name">{item.label}</span>
-                    </label>
-                  );
+                    <span className="class-name">{item.label}</span>
+                  </label>
+                );
                 })
               )}
             </div>

@@ -2231,32 +2231,53 @@ $sm_sidebar_home_link_width: 170px;
         }
 
         .react-datepicker__navigation {
-            top: 12px;
-            width: 32px;
-            height: 32px;
-            border: none;
-            border-radius: var(--radius-md, 0.5rem);
-            background: transparent;
+            /* 
+             * Positioning: month-container padding (12px) + header padding-top (12px) = 24px to top of title
+             * Title is 32px tall, so center is at 24px + 16px = 40px
+             * Nav button is 32px tall, so top = 40px - 16px = 24px
+             */
+            top: 24px !important;
+            width: 32px !important;
+            height: 32px !important;
+            border: none !important;
+            border-radius: var(--radius-md, 0.5rem) !important;
+            background: transparent !important;
         }
 
         .react-datepicker__navigation:hover {
-            background: var(--neutral-100);
+            background: var(--neutral-100) !important;
         }
 
         .react-datepicker__navigation--previous {
-            left: 12px;
+            left: 20px !important;
         }
 
         /* Pull the "next" arrow back onto the month side (not over the time column) */
         .react-datepicker__navigation--next {
-            right: calc(160px + 12px) !important;
+            right: calc(160px + 20px) !important;
+        }
+
+        /* Center the arrow icon within the navigation button */
+        .react-datepicker__navigation-icon {
+            position: static !important;
+            display: block !important;
+            width: 100% !important;
+            height: 100% !important;
         }
 
         .react-datepicker__navigation-icon::before {
-            border-color: var(--neutral-500);
-            border-width: 2px 2px 0 0;
-            width: 8px;
-            height: 8px;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-75%, -50%) rotate(45deg) !important;
+            border-color: var(--neutral-500) !important;
+            border-width: 2px 2px 0 0 !important;
+            width: 8px !important;
+            height: 8px !important;
+        }
+
+        .react-datepicker__navigation--previous .react-datepicker__navigation-icon::before {
+            transform: translate(-25%, -50%) rotate(-135deg) !important;
         }
 
         .react-datepicker__time-container {
