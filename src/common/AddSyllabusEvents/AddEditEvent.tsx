@@ -653,58 +653,58 @@ export const AddEditEvent = (props) => {
                             )}
                         </div>
                     ) : (
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label className="form-label">Calendar{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
-                                {isEditMode || !isExistingEvent ? (
-                                    <Select
-                                        options={syllabusDropDownData}
-                                        placeholder="Select"
-                                        onChange={(selectedOption) => eventFormData.setFieldValue("syllabus_id", selectedOption?.value || null)}
-                                        value={syllabusDropDownData?.filter(({ value }) => value === eventFormData.values.syllabus_id)}
-                                        isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse)}
-                                        isClearable
-                                        menuPosition="fixed"
-                                        className="react-select-container"
-                                        classNamePrefix="react-select"
-                                    />
-                                ) : (
-                                    <div className="form-select-wrapper">
-                                        <select className="form-input form-select" disabled>
-                                            <option>{syllabusDropDownData?.find(({ value }) => value === eventFormData.values.syllabus_id)?.label || 'N/A'}</option>
-                                        </select>
-                                        <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <polyline points="6 9 12 15 18 9"/>
-                                        </svg>
-                                    </div>
-                                )}
-                                {eventFormData.touched.syllabus_id && eventFormData.errors.syllabus_id && renderError(eventFormData.errors.syllabus_id as any)}
-                            </div>
-
-                            <div className="form-group">
-                                <label className="form-label">Priority</label>
-                                {isEditMode || !isExistingEvent ? (
-                                    <Select
-                                        options={eventPriorityDropDownData}
-                                        placeholder="Select Priority"
-                                        onChange={(selectedOption) => eventFormData.setFieldValue("priority", selectedOption?.value || null)}
-                                        value={eventPriorityDropDownData?.filter(({ value }) => value === eventFormData.values.priority)}
-                                        menuPosition="fixed"
-                                        className="react-select-container"
-                                        classNamePrefix="react-select"
-                                    />
-                                ) : (
-                                    <div className="form-select-wrapper">
-                                        <select className="form-input form-select" disabled>
-                                            <option>{eventPriorityDropDownData?.find(({ value }) => value === eventFormData.values.priority)?.label || 'Low'}</option>
-                                        </select>
-                                        <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <polyline points="6 9 12 15 18 9"/>
-                                        </svg>
-                                    </div>
-                                )}
-                            </div>
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label className="form-label">Calendar{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
+                            {isEditMode || !isExistingEvent ? (
+                                <Select
+                                    options={syllabusDropDownData}
+                                    placeholder="Select"
+                                    onChange={(selectedOption) => eventFormData.setFieldValue("syllabus_id", selectedOption?.value || null)}
+                                    value={syllabusDropDownData?.filter(({ value }) => value === eventFormData.values.syllabus_id)}
+                                    isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse)}
+                                    isClearable
+                                    menuPosition="fixed"
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                />
+                            ) : (
+                                <div className="form-select-wrapper">
+                                    <select className="form-input form-select" disabled>
+                                        <option>{syllabusDropDownData?.find(({ value }) => value === eventFormData.values.syllabus_id)?.label || 'N/A'}</option>
+                                    </select>
+                                    <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </div>
+                            )}
+                            {eventFormData.touched.syllabus_id && eventFormData.errors.syllabus_id && renderError(eventFormData.errors.syllabus_id as any)}
                         </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Priority</label>
+                            {isEditMode || !isExistingEvent ? (
+                                <Select
+                                    options={eventPriorityDropDownData}
+                                    placeholder="Select Priority"
+                                    onChange={(selectedOption) => eventFormData.setFieldValue("priority", selectedOption?.value || null)}
+                                    value={eventPriorityDropDownData?.filter(({ value }) => value === eventFormData.values.priority)}
+                                    menuPosition="fixed"
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                />
+                            ) : (
+                                <div className="form-select-wrapper">
+                                    <select className="form-input form-select" disabled>
+                                        <option>{eventPriorityDropDownData?.find(({ value }) => value === eventFormData.values.priority)?.label || 'Low'}</option>
+                                    </select>
+                                    <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                     )}
 
                     {/* Reminders Section */}

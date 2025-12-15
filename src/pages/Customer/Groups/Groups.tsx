@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Modal } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import AddEditGroup from '../../../common/Groups/AddEditGroup';
@@ -19,7 +18,6 @@ import { useNotificationPanel } from '../../../components/Notifications/Notifica
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 // Image assets must be bundled; do not rely on absolute "/assets" paths in production
 import bookIcon from '../../../assets/images/book.svg';
-import defaultAvatar from '../../../assets/images/avatar-default.svg';
 import emptyStateImg from '../../../assets/images/not-voucher-found.svg';
 import { ATTACH_ACCEPT_INPUT, ATTACH_MAX_PER_MESSAGE, ATTACH_MAX_MB, isMimeAllowed, isSizeAllowed } from '../../../Utility/attachments';
 import { initiateUpload, uploadToS3, toAttachmentDescriptor, computeCrc32Base64 } from '../../../Utility/uploads';
@@ -1324,6 +1322,32 @@ const Groups: React.FC = () => {
     }
   };
 
+  // Exit group confirmation (uses ConfirmDeleteModal variant)
+  const [leaveGroupConfirm, setLeaveGroupConfirm] = useState<{ open: boolean; loading: boolean }>({
+    open: false,
+    loading: false,
+  });
+
+  const openLeaveGroupConfirm = () => {
+    if (!selectedGroupId) return;
+    setLeaveGroupConfirm({ open: true, loading: false });
+  };
+
+  const handleConfirmLeaveGroup = async () => {
+    if (!selectedGroupId) {
+      setLeaveGroupConfirm({ open: false, loading: false });
+      return;
+    }
+    try {
+      setLeaveGroupConfirm({ open: true, loading: true });
+      await handleLeaveGroup();
+      setLeaveGroupConfirm({ open: false, loading: false });
+    } catch {
+      // handleLeaveGroup already toasts; keep dialog open for retry/cancel
+      setLeaveGroupConfirm({ open: true, loading: false });
+    }
+  };
+
   const [deleteGroupConfirm, setDeleteGroupConfirm] = useState<{ open: boolean; loading: boolean }>({
     open: false,
     loading: false,
@@ -1458,9 +1482,9 @@ const Groups: React.FC = () => {
                 </svg>
       </div>
               <div className={`user-dropdown ${isUserMenuOpen ? 'active' : ''}`}>
-                <a
-                  href="#"
-                  onClick={(e) => { e.preventDefault(); navigate(ENUMFORROUTES.SETTINGS); setIsUserMenuOpen(false); }}
+                <button
+                  type="button"
+                  onClick={() => { navigate(ENUMFORROUTES.SETTINGS); setIsUserMenuOpen(false); }}
                   className="user-dropdown-item"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1468,7 +1492,7 @@ const Groups: React.FC = () => {
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                   Profile
-                </a>
+                </button>
                 <div className="user-dropdown-divider"></div>
                 <button className="user-dropdown-item logout" onClick={handleLogout}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -2421,7 +2445,11 @@ const Groups: React.FC = () => {
                                             style={{ cursor: 'pointer' }}
                                             onClick={() => navigate(`/students/${m.id || m.userId}`)}
                                           >
-                                            <img src={m.picture || defaultAvatar} alt={m.displayName || m.name || 'member'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                            <HeaderStyleAvatar
+                                              src={(m.picture || m.avatarUrl || null) as any}
+                                              alt={m.displayName || m.name || 'member'}
+                                              size={28}
+                                            />
                                             <div style={{ color: '#111827' }}>
                                               {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Member'))}
                                             </div>
@@ -2478,7 +2506,7 @@ const Groups: React.FC = () => {
                                     <i className="material-symbols-outlined">person_add</i>
                                     <span>Invite Members</span>
                                   </button>
-                                  <button type="button" className="btn btn-outline-white text-start" onClick={handleLeaveGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                  <button type="button" className="btn btn-outline-white text-start" onClick={openLeaveGroupConfirm} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
                                     <i className="material-symbols-outlined">logout</i>
                                     <span>Exit Group</span>
                                   </button>
@@ -2542,7 +2570,6 @@ const Groups: React.FC = () => {
                       const recipient = dmThread.participants?.[0];
                       const recipientName = recipient?.displayName || recipient?.username || 'User';
                       const recipientPicture = recipient?.picture || recipient?.avatarUrl;
-                      const initials = (recipientName || 'U').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase();
                       return (
                         <>
                           <div
@@ -2552,7 +2579,7 @@ const Groups: React.FC = () => {
                             {recipientPicture ? (
                               <img src={recipientPicture} alt={recipientName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
-                              <span style={{ fontSize: 16, fontWeight: 600, color: '#239BC2' }}>{initials}</span>
+                              <HeaderUserIcon size={24} />
                             )}
                           </div>
                           <h5
@@ -2567,7 +2594,9 @@ const Groups: React.FC = () => {
                     })() : (
                       /* DM loading state */
                       <>
-                        <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#E5E7EB' }} />
+                        <div className="user-avatar" style={{ width: 44, height: 44, flex: '0 0 44px' }} aria-label="Loading avatar">
+                          <HeaderUserIcon size={24} />
+                        </div>
                         <h5 className="mb-0" style={{ color: '#9CA3AF', marginLeft: 8 }}>Loading...</h5>
                       </>
                     )
@@ -2582,7 +2611,9 @@ const Groups: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <img src={defaultAvatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+                      <div style={{ width: 44, height: 44, borderRadius: 22, background: '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <img src={bookIcon} alt="avatar" style={{ width: 26, height: 'auto', opacity: 0.9 }} />
+                      </div>
                       <h5 className="mb-0" style={{ color: '#6B7280' }}>{activeTab === 'groups' ? 'Select a group' : 'Select a conversation'}</h5>
                     </>
                   )}
@@ -3099,7 +3130,12 @@ const Groups: React.FC = () => {
                                   style={{ cursor: 'pointer' }}
                                   onClick={() => { if (m.id) navigate(`/students/${m.id}`); }}
                                 >
-                                  <img src={m.picture || defaultAvatar} alt={m.displayName || m.name || 'student'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                  <HeaderStyleAvatar
+                                    src={(m.picture || m.avatarUrl || null) as any}
+                                    alt={m.displayName || m.name || 'student'}
+                                    size={28}
+                                    onClick={() => { if (m.id) navigate(`/students/${m.id}`); }}
+                                  />
                                   <div style={{ color: '#111827' }}>
                                     {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Student'))}
                                   </div>
@@ -3162,7 +3198,12 @@ const Groups: React.FC = () => {
                                     style={{ cursor: 'pointer' }}
                                     onClick={() => navigate(`/students/${m.id || m.userId}`)}
                                   >
-                                    <img src={m.picture || defaultAvatar} alt={m.displayName || m.name || 'member'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                    <HeaderStyleAvatar
+                                      src={(m.picture || m.avatarUrl || null) as any}
+                                      alt={m.displayName || m.name || 'member'}
+                                      size={28}
+                                      onClick={() => { if (m?.id || m?.userId) navigate(`/students/${m.id || m.userId}`); }}
+                                    />
                                     <div style={{ color: '#111827' }}>
                                       {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Member'))}
                                     </div>
@@ -3243,7 +3284,7 @@ const Groups: React.FC = () => {
                           <button
                             type="button"
                             className="btn btn-outline-white text-start"
-                            onClick={handleLeaveGroup}
+                            onClick={openLeaveGroupConfirm}
                             style={{
                               border: '1px solid #E5E7EB',
                               borderRadius: 12,
@@ -3343,6 +3384,26 @@ const Groups: React.FC = () => {
         loading={deleteGroupConfirm.loading}
       />
 
+      {/* Exit Group Confirmation (variant: green exit button + logout icon) */}
+      <ConfirmDeleteModal
+        show={leaveGroupConfirm.open}
+        onClose={() => {
+          if (leaveGroupConfirm.loading) return;
+          setLeaveGroupConfirm({ open: false, loading: false });
+        }}
+        onConfirm={handleConfirmLeaveGroup}
+        modalClassName="modal-theme modal-confirmation modal-approve"
+        bodyTitle="Exit this group?"
+        message={<>You’ll leave this group and stop receiving messages. You can rejoin later if you’re invited or find it again.</>}
+        cancelText="No, Stay"
+        confirmText="Exit group"
+        confirmVariant="success"
+        confirmIconName="logout"
+        iconName="logout"
+        loadingText="Exiting..."
+        loading={leaveGroupConfirm.loading}
+      />
+
       {/* Delete DM Confirmation Modal (standardized) */}
       <ConfirmDeleteModal
         show={deleteDmConfirm.open}
@@ -3437,7 +3498,7 @@ const Groups: React.FC = () => {
                 <div style={{ maxHeight: 260, overflowY: 'auto', marginTop: 8, scrollbarWidth: 'none' as any }} className="invite-results-scroll">
                   {inviteResults.map(u => (
                     <div key={u.id} className="d-flex align-items-center gap-2 py-2" style={{ cursor: 'pointer', borderBottom: '1px solid #F3F4F6' }} onClick={() => toggleInviteSelect(u.id)}>
-                      <img src={u.picture || defaultAvatar} alt="avatar" style={{ width: 28, height: 28, borderRadius: 14 }} />
+                      <HeaderStyleAvatar src={(u.picture || (u as any).avatarUrl || null) as any} alt={u.displayName || u.username || 'User'} size={28} />
                       <div className="flex-grow-1">
                         <div style={{ color: '#111827', fontWeight: 600 }}>{u.displayName}</div>
                         <div className="text-muted" style={{ fontSize: 12 }}>@{u.username}</div>
