@@ -10,6 +10,7 @@ import {
   isEmptyObjectOrNullUndefiend,
   isNullUndefinedOrBlank,
 } from '../../../Utility/Helper';
+import moment from 'moment';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
 import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
@@ -17,6 +18,7 @@ import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 
 const Courses = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -59,9 +61,44 @@ const Courses = () => {
     }
   }, [coursesData.isUpdatedSyllabusData]);
 
+  // Format class_time coming from backend. We store class_time as "HH:mm:ssZ" (time-only with offset).
+  const formatCourseTime = (value: any): string => {
+    if (isNullUndefinedOrBlank(value)) return '-';
+    if (typeof value === 'string' && value.includes('-')) return value; // already a range string
+    try {
+      // Backend stores SQL TIME as "HH:mm:ss" (no timezone). Also accept legacy "HH:mm:ssZ".
+      if (typeof value === 'string' && /^\d{2}:\d{2}:\d{2}/.test(value)) {
+        const m = moment.parseZone(value, ['HH:mm:ss', 'HH:mm:ssZ'], true);
+        return m.isValid() ? m.format('h:mm a') : '-';
+      }
+      const m = moment(value);
+      return m.isValid() ? m.format('h:mm a') : '-';
+    } catch {
+      return '-';
+    }
+  };
+
+  const getCourseEventCountFromCourse = (course: any): number | null => {
+    const candidates = [
+      course?.no_of_events,
+      course?.events_count,
+      course?.event_count,
+      course?.eventsCount,
+      course?.eventCount,
+      course?.total_events,
+      course?.totalEvents,
+    ];
+    for (const c of candidates) {
+      const n = Number(c);
+      if (Number.isFinite(n)) return n;
+    }
+    return null;
+  };
+
   /** -------------------Delete course-------------------------*/
   const [deleteShow, setDeleteShow] = useState(false);
   const [deleteCourseId, setDeleteCourseId] = useState<number | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleDeleteShow = (e: React.MouseEvent, courseId: number) => {
     e.stopPropagation();
@@ -70,17 +107,26 @@ const Courses = () => {
   };
 
   const handleDeleteClose = () => {
+    if (deleteLoading) return;
     setDeleteShow(false);
     setDeleteCourseId(null);
   };
 
   const handleDeleteConfirm = async () => {
     if (deleteCourseId) {
-      const reqBody = { course_id: deleteCourseId };
-    const response = await dispatch(deleteSyllabusDataAPI(reqBody));
-      if (!isNullUndefinedOrBlank(response?.payload)) {
-        handleDeleteClose();
-        handleGetCoursesList();
+      try {
+        setDeleteLoading(true);
+        // Backend expects syllabus id(s), not `course_id`
+        // (matches SyllabusDetails.tsx delete flow)
+        const reqBody = { id: [deleteCourseId] };
+        const response = await dispatch(deleteSyllabusDataAPI(reqBody));
+        if (!isNullUndefinedOrBlank(response?.payload)) {
+          setDeleteShow(false);
+          setDeleteCourseId(null);
+          handleGetCoursesList();
+        }
+      } finally {
+        setDeleteLoading(false);
       }
     }
   };
@@ -308,31 +354,20 @@ const Courses = () => {
         </div>
       </header>
 
-      {/* Delete Confirmation Modal */}
-      {deleteShow && (
-        <div className="confirm-modal-overlay">
-          <div className="confirm-modal">
-            <div className="confirm-modal-header">
-              <div className="confirm-modal-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                  <line x1="10" y1="11" x2="10" y2="17" />
-                  <line x1="14" y1="11" x2="14" y2="17" />
-                </svg>
-                          </div>
-              <h3 className="confirm-modal-title">Delete Course</h3>
-                        </div>
-            <div className="confirm-modal-body">
-              <p className="confirm-modal-message">Are you sure you want to delete this course? This action cannot be undone.</p>
-                                  </div>
-            <div className="confirm-modal-footer">
-              <button className="btn btn-cancel" onClick={handleDeleteClose}>Cancel</button>
-              <button className="btn btn-confirm-delete" onClick={handleDeleteConfirm}>Delete</button>
-                                        </div>
-                                      </div>
-                                    </div>
-      )}
+      <ConfirmDeleteModal
+        show={deleteShow}
+        onClose={handleDeleteClose}
+        onConfirm={handleDeleteConfirm}
+        /* Reuse Delete Conversation modal styling, but no header */
+        message={
+          <>
+            Are you sure you want to delete this? This action cannot be undone.
+          </>
+        }
+        cancelText="Cancel"
+        confirmText="Delete"
+        loading={deleteLoading}
+      />
 
       {/* Courses Content */}
       <div className="courses-page">
@@ -341,7 +376,11 @@ const Courses = () => {
           {courses && courses.length > 0 ? (
             courses.map((course: any) => {
               const colorClass = getColorClassName(course?.course_color);
-              const eventCount = course?.events_count || 0;
+              const eventCountFromCourse = getCourseEventCountFromCourse(course);
+              const eventCount = eventCountFromCourse ?? 0;
+              const classTimeDisplay =
+                course?.class_time_display ||
+                formatCourseTime(course?.class_time ?? course?.course_time ?? course?.classTime);
 
               return (
                 <div
@@ -370,7 +409,7 @@ const Courses = () => {
                           <line x1="8" y1="2" x2="8" y2="6" />
                           <line x1="3" y1="10" x2="21" y2="10" />
                         </svg>
-                        <span>{course.course_time || '-'}</span>
+                        <span>{classTimeDisplay}</span>
                   </div>
                       <div className="meta-item color-tag">
                         <span className={`color-swatch ${colorClass}`}></span>

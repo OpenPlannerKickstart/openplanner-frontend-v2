@@ -8,10 +8,12 @@ import * as yup from 'yup';
 type Props = {
   show: boolean;
   setShow: (v: boolean) => void;
+  initialValues?: { title: string; due_date: Date | null; note: string; is_reminder: boolean } | null;
+  mode?: 'create' | 'details';
   onSave?: (payload: { title: string; due_date: Date | null; note: string; is_reminder: boolean }) => Promise<boolean | void> | boolean | void;
 };
 
-const AddEditTask: React.FC<Props> = ({ show, setShow, onSave }) => {
+const AddEditTask: React.FC<Props> = ({ show, setShow, onSave, initialValues, mode }) => {
   const [internalShow, setInternalShow] = useState(false);
 
   const handleClose = () => {
@@ -41,10 +43,10 @@ const AddEditTask: React.FC<Props> = ({ show, setShow, onSave }) => {
 
   const formik = useFormik({
     initialValues: {
-      title: '',
-      due_date: null as Date | null,
-      note: '',
-      is_reminder: false,
+      title: initialValues?.title ?? '',
+      due_date: (initialValues?.due_date ?? null) as Date | null,
+      note: initialValues?.note ?? '',
+      is_reminder: !!initialValues?.is_reminder,
     },
     validationSchema,
     onSubmit: () => {},
@@ -82,7 +84,11 @@ const AddEditTask: React.FC<Props> = ({ show, setShow, onSave }) => {
     >
       <div className="modal-header">
         <h2 className="modal-title">
-          Add New <span className="text-primary">Task</span>
+          {(mode === 'details' || !!initialValues?.title) ? (
+            <>Task <span className="text-primary">Details</span></>
+          ) : (
+            <>Add New <span className="text-primary">Task</span></>
+          )}
         </h2>
         <button className="modal-close-btn" type="button" onClick={handleClose} aria-label="Close">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
