@@ -191,15 +191,45 @@ const FAQPage = () => {
             <div>
               <h4 className="footer-nav-title">Support</h4>
               <ul className="footer-nav-links">
-                <li><a href="/#/faqs">FAQ&apos;s</a></li>
+                <li>
+                  <a
+                    href="/#/faqs"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navLink("/faqs");
+                    }}
+                  >
+                    FAQ&apos;s
+                  </a>
+                </li>
                 <li><a href="/#contact">Contact Us</a></li>
               </ul>
             </div>
             <div>
               <h4 className="footer-nav-title">Legal</h4>
               <ul className="footer-nav-links">
-                <li><a href="/#/privacy-policy">Privacy Policy</a></li>
-                <li><a href="/#/terms">Terms and Conditions</a></li>
+                <li>
+                  <a
+                    href="/#/privacy-policy"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navLink("/privacy-policy");
+                    }}
+                  >
+                    Privacy Policy
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/#/terms"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navLink("/terms");
+                    }}
+                  >
+                    Terms and Conditions
+                  </a>
+                </li>
               </ul>
             </div>
           </nav>

@@ -766,17 +766,59 @@ const LandingPage = () => {
                                             FAQ&apos;s
                                         </a>
                                     </li>
+                                    <li>
+                                        <a
+                                            href="/#/privacy-policy"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                navigate("/privacy-policy");
+                                            }}
+                                        >
+                                            Privacy Policy
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="/#/terms"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                navigate("/terms");
+                                            }}
+                                        >
+                                            Terms and Conditions
+                                        </a>
+                                    </li>
                                     <li><a href="#contact">Contact Us</a></li>
                                 </ul>
               </div>
               <div className="footer-nav-group">
-                <h4>Legal</h4>
-                <ul>
-                  <li><a href="#">Privacy Policy</a></li>
-                  <li><a href="#">Terms and Conditions</a></li>
-                </ul>
-              </div>
-            </nav>
+                                <h4>Legal</h4>
+                                <ul>
+                                    <li>
+                                        <a
+                                            href="/#/privacy-policy"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                navigate("/privacy-policy");
+                                            }}
+                                        >
+                                            Privacy Policy
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            href="/#/terms"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                navigate("/terms");
+                                            }}
+                                        >
+                                            Terms and Conditions
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
 
             <div className="footer-social">
               <h4>Follow Us</h4>
