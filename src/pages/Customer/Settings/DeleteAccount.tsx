@@ -11,7 +11,7 @@ import { deleteUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { MAX_200 } from '../../../Utility/Validation_Helper';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
 
-const DeleteAccount = () => {
+const DeleteAccount: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
     const [eyeToggle, setEyeToggle] = useState<boolean>(false);
     const callLogout = async () => {
@@ -43,8 +43,21 @@ const DeleteAccount = () => {
     });
 
     // onSubmit function
-    const onSubmit = async (values, onSubmitProps) => {
-        // Handle form submission logic
+    const onSubmit = async (values: any, onSubmitProps: any) => {
+        try {
+            const reqBody = { ...values };
+            customJsonInclude(reqBody);
+            
+            const response = await dispatch(deleteUserAPI(reqBody));
+            if (response?.payload) {
+                // Account deleted, logout user
+                await callLogout();
+            }
+        } catch (error) {
+            console.error('Error deleting account:', error);
+        } finally {
+            onSubmitProps.setSubmitting(false);
+        }
     };
 
     // useFormik instance
@@ -65,7 +78,6 @@ const DeleteAccount = () => {
 
     // Submission handler
     const handleSubmitFormData = async () => {
-        formData.handleSubmit();
         const formDataErrors = await formData.validateForm();
         if (Object.keys(formDataErrors).length > 0) {
             formData.setTouched(
@@ -74,15 +86,8 @@ const DeleteAccount = () => {
             return;
         }
 
-        const reqBody = { ...formData.values };
-        customJsonInclude(reqBody);
-        // console.log(reqBody)
-        const response = await dispatch(deleteUserAPI(reqBody));
-
-        if (response) {
-            formData.resetForm();
-            callLogout();
-        }
+        // Trigger formik submit
+        formData.handleSubmit();
     };
     /** --------------------delete account end------------------------*/
 

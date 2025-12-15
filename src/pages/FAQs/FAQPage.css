@@ -760,58 +760,72 @@ input, textarea, select {
 .faq-page {
   min-height: 100vh;
   position: relative;
-  font-family: var(--font-sans) !important;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  background-color: var(--white);
 }
 
-/* Override Bootstrap/global styles */
-.faq-page * {
-  box-sizing: border-box;
+/* Strong override for Bootstrap/global styles */
+.faq-page,
+.faq-page *,
+.faq-page *:before,
+.faq-page *:after {
+  box-sizing: border-box !important;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
 }
 
-.faq-page .navbar {
-  font-family: var(--font-sans) !important;
+.faq-page h1,
+.faq-page h2,
+.faq-page h3,
+.faq-page h4,
+.faq-page h5,
+.faq-page h6 {
+  font-family: 'Outfit', system-ui, sans-serif !important;
 }
 
+/* Ensure container works properly */
 .faq-page .container {
   width: 100% !important;
   max-width: 1200px !important;
   margin: 0 auto !important;
-  padding: 0 1.5rem !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
 }
 
-/* Ensure navbar positioning */
-.faq-page .navbar-inner {
-  max-width: 1200px !important;
-  margin: 0 auto !important;
+/* Strong navbar overrides */
+.faq-page .navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
   width: 100% !important;
-  padding: 0 1.5rem !important;
-}
-
-/* Ensure proper navbar layout */
-.faq-page .navbar-menu {
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.faq-page .navbar-actions {
+.faq-page .navbar-inner {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  height: 72px !important;
+  width: 100% !important;
   margin: 0 !important;
 }
 
+/* Navbar elements positioning */
 .faq-page .navbar-logo {
   margin: 0 !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
 }
 
-/* Reset any conflicting styles */
-.faq-page .navbar,
-.faq-page .navbar-inner,
-.faq-page .navbar-logo,
-.faq-page .navbar-menu,
+.faq-page .navbar-menu {
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
 .faq-page .navbar-actions {
-  position: static;
-  float: none;
-  clear: none;
-}
-
-.faq-page .navbar {
-  position: fixed !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }

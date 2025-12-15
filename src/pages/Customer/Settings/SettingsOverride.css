@@ -1,0 +1,239 @@
+/* ============================================
+   Settings Page - Bootstrap Override Styles
+   ============================================ */
+
+/* Force override Bootstrap and other conflicting styles */
+.tab-content-container .settings-card {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  background: white !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 1.5rem !important;
+  padding: 1.5rem !important;
+  width: 100% !important;
+  display: block !important;
+  color: #334155 !important;
+  position: relative !important;
+  z-index: 1 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-height: 200px !important;
+}
+
+.tab-content-container .settings-card * {
+  font-family: inherit !important;
+  box-sizing: border-box !important;
+}
+
+.tab-content-container .settings-card-title {
+  font-family: 'Outfit', system-ui, sans-serif !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #0F172A !important;
+  margin: 0 0 1.5rem 0 !important;
+  line-height: 1.2 !important;
+  display: block !important;
+}
+
+.tab-content-container .profile-avatar-section {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1.25rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.tab-content-container .profile-avatar {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 50% !important;
+  background: #F1F5F9 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #64748B !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+}
+
+.tab-content-container .profile-username {
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  color: #0F172A !important;
+  font-family: 'Outfit', system-ui, sans-serif !important;
+  display: block !important;
+  margin: 0 0 0.5rem 0 !important;
+}
+
+.tab-content-container .avatar-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.375rem !important;
+  padding: 0.5rem 0.875rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  background: #F1F5F9 !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 0.5rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+  margin-right: 0.5rem !important;
+}
+
+.tab-content-container .avatar-note {
+  font-size: 0.875rem !important;
+  color: #475569 !important;
+  margin-bottom: 1.5rem !important;
+  line-height: 1.5 !important;
+  display: block !important;
+}
+
+.tab-content-container .profile-form {
+  display: block !important;
+  width: 100% !important;
+}
+
+.tab-content-container .form-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
+  width: 100% !important;
+}
+
+.tab-content-container .form-group {
+  display: block !important;
+  width: 100% !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.tab-content-container .form-label {
+  display: block !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  margin: 0 0 0.5rem 0 !important;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+}
+
+.tab-content-container .required {
+  color: #EF4444 !important;
+}
+
+.tab-content-container .form-input {
+  display: block !important;
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.875rem !important;
+  color: #334155 !important;
+  background: white !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 0.75rem !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  box-sizing: border-box !important;
+  min-height: 44px !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.tab-content-container .form-input:focus {
+  outline: none !important;
+  border-color: #4AAED4 !important;
+  box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.1) !important;
+}
+
+.tab-content-container .form-input:disabled {
+  background: #F8FAFC !important;
+  color: #64748B !important;
+  cursor: not-allowed !important;
+}
+
+.tab-content-container .form-input::placeholder {
+  color: #94A3B8 !important;
+}
+
+.tab-content-container .form-actions {
+  display: flex !important;
+  gap: 0.75rem !important;
+  margin-top: 1.5rem !important;
+}
+
+.tab-content-container .btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  padding: 0.875rem 1.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  border-radius: 0.75rem !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+}
+
+.tab-content-container .btn-primary {
+  background: #4AAED4 !important;
+  color: white !important;
+  box-shadow: 0 4px 14px rgba(74, 174, 212, 0.4) !important;
+}
+
+.tab-content-container .btn-primary:hover {
+  background: #3A9BC4 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(74, 174, 212, 0.5) !important;
+}
+
+/* React Select Overrides */
+.tab-content-container .form-select-custom .css-control {
+  min-height: 44px !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 0.75rem !important;
+  box-shadow: none !important;
+  font-size: 0.875rem !important;
+}
+
+.tab-content-container .form-select-custom .css-control:hover {
+  border-color: #4AAED4 !important;
+}
+
+.tab-content-container .form-select-custom .css-control--is-focused {
+  border-color: #4AAED4 !important;
+  box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.1) !important;
+}
+
+/* Ensure tab content is always visible */
+.tab-content-container {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  position: relative !important;
+  padding: 20px !important;
+}
+
+.tab-content-container * {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .tab-content-container .form-row {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .tab-content-container .profile-avatar-section {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+}

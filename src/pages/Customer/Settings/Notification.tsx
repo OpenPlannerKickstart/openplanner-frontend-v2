@@ -9,7 +9,11 @@ import { customJsonInclude, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank
 import { getNotificationSettingAPI, notificationSettingAPI } from '../../../redux/Service/User/Settings/settings';
 import { ENUMFORACCOUNTTAB } from '../../../interfaces/enum';
 
-const Notification = (props) => {
+interface NotificationProps {
+  selectedTab: string;
+}
+
+const Notification: React.FC<NotificationProps> = (props) => {
   const dispatch: AppDispatch = useDispatch();
 
   // Define initial values
@@ -28,8 +32,21 @@ const Notification = (props) => {
   });
 
   // onSubmit function
-  const onSubmit = async (values, onSubmitProps) => {
-    // Handle form submission logic
+  const onSubmit = async (values: any, onSubmitProps: any) => {
+    try {
+      const reqBody = { ...values };
+      customJsonInclude(reqBody);
+      
+      const response = await dispatch(notificationSettingAPI(reqBody));
+      if (response?.payload) {
+        setSavedFormData({ ...values });
+        // Handle successful response
+      }
+    } catch (error) {
+      console.error('Error updating notification settings:', error);
+    } finally {
+      onSubmitProps.setSubmitting(false);
+    }
   };
 
   // useFormik instance
@@ -50,7 +67,6 @@ const Notification = (props) => {
 
   // Submission handler
   const handleSubmitFormData = async () => {
-    formData.handleSubmit();
     const formDataErrors = await formData.validateForm();
     if (Object.keys(formDataErrors).length > 0) {
       formData.setTouched(
@@ -58,14 +74,9 @@ const Notification = (props) => {
       );
       return;
     }
-
-    const reqBody = { ...formData.values };
-    customJsonInclude(reqBody);
-    const response = await dispatch(notificationSettingAPI(reqBody));
-
-    if (response) {
-      // Handle successful response
-    }
+    
+    // Trigger formik submit
+    formData.handleSubmit();
   };
   const [userChanged, setUserChanged] = useState(false);
   useEffect(() => {
