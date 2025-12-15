@@ -431,8 +431,28 @@ const ParentsLanding = () => {
               <div>
                 <h4 className="parents-footer-nav-title">Legal</h4>
                 <ul className="parents-footer-nav-links">
-                  <li><a href="/#/privacy-policy">Privacy Policy</a></li>
-                  <li><a href="/#/terms">Terms and Conditions</a></li>
+                  <li>
+                    <a
+                      href="/#/privacy-policy"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navLink("/privacy-policy");
+                      }}
+                    >
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/#/terms"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navLink("/terms");
+                      }}
+                    >
+                      Terms and Conditions
+                    </a>
+                  </li>
                 </ul>
               </div>
             </div>

@@ -3,6 +3,9 @@ import { Route, HashRouter as Router, Routes, useLocation } from 'react-router-d
 import { getToken } from './Utility/Helper';
 import Login from './pages/auth/Login/Login';
 import LandingPage from './pages/LandingPage/LandingPage';
+import FAQPage from './pages/FAQs/FAQPage';
+import PrivacyPolicyPage from './pages/Legal/PrivacyPolicyPage';
+import TermsPage from './pages/Legal/TermsPage';
 
 import { RouterProps } from './interfaces';
 
@@ -127,7 +130,17 @@ const publicRoutes: RouterProps[] = [
   },
   {
     path: "/faqs",
-    component: React.lazy(() => import('./pages/FAQs/FAQPage')),
+    component: <FAQPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/privacy-policy",
+    component: <PrivacyPolicyPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/terms",
+    component: <TermsPage />,
     caseSensitive: true,
   },
   // Support hash-anchor deep links when using HashRouter (e.g., #pricing, #features)

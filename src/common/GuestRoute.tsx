@@ -36,6 +36,10 @@ const GuestRoute = ({ children }: { children: JSX.Element }) => {
     ENUMFORROUTES.SUCCESS,
     ENUMFORROUTES.FAILURE,
     "/faqs",
+    "/privacy-policy",
+    "/terms",
+    "/login",
+    "/registration",
     ENUMFORROUTES.PARENTS,
   ];
 
