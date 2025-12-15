@@ -1236,6 +1236,16 @@ input, textarea, select {
   color: var(--white);
 }
 
+.today-btn.active {
+  background: var(--primary);
+  color: var(--white);
+}
+
+[data-theme="dark"] .today-btn.active {
+  background: var(--primary);
+  color: var(--white);
+}
+
 .date-navigator {
   display: flex;
   align-items: center;

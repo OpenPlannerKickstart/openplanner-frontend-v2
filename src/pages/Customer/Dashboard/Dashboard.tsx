@@ -46,6 +46,9 @@ const Dashboard = () => {
   const [startDate, setStartDate] = useState(moment().startOf('week').format('YYYY-MM-DD'));
   const [endDate, setEndDate] = useState(moment().endOf('week').format('YYYY-MM-DD'));
   const [activeCourseId, setActiveCourseId] = useState<string | number | null>(null);
+  const isOnTodayWeek =
+    moment(startDate).isSame(moment().startOf('week'), 'day') &&
+    moment(endDate).isSame(moment().endOf('week'), 'day');
 
   const getCourseIdFromPillItem = (item: any): string | number | null => {
     return (
@@ -438,7 +441,7 @@ const Dashboard = () => {
 
             <h1 className="dashboard-page-title">My Week</h1>
 
-            <button className="today-btn" onClick={() => handleDateChange('today')}>
+            <button className={`today-btn ${isOnTodayWeek ? 'active' : ''}`} onClick={() => handleDateChange('today')}>
               Today
             </button>
 
@@ -574,12 +577,12 @@ const Dashboard = () => {
           <div className="tasks-container">
             {/* Table Header */}
             <div className="tasks-table-header">
-              <div className="col-actions">Actions</div>
+              <div className="col-actions">DONE</div>
               <div className="col-time">Time</div>
               <div className="col-priority">Priority</div>
               <div className="col-course">Course Name</div>
               <div className="col-event">Event Name</div>
-              <div className="col-delete">Actions</div>
+              <div className="col-delete">DELETE</div>
             </div>
 
             {/* Dynamic Events Container */}
@@ -686,12 +689,12 @@ const Dashboard = () => {
           <div className="tasks-container">
             {/* Table Header (show even in empty state) */}
             <div className="tasks-table-header">
-              <div className="col-actions">Actions</div>
+              <div className="col-actions">DONE</div>
               <div className="col-time">Time</div>
               <div className="col-priority">Priority</div>
               <div className="col-course">Course Name</div>
               <div className="col-event">Event Name</div>
-              <div className="col-delete">Actions</div>
+              <div className="col-delete">DELETE</div>
             </div>
 
             {/* Empty state: show an "Add event" row instead of plain text */}

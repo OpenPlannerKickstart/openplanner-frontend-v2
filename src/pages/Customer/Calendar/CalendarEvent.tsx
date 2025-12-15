@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -16,6 +16,7 @@ import {
   customJsonInclude,
 } from '../../../Utility/Helper';
 import { ENUMFORROUTES, ENUMFORSTATUS } from '../../../interfaces/enum';
+import { ENUM_FOR_EVENT_PRIORITY } from '../../../interfaces/enum';
 import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
 import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
@@ -41,10 +42,14 @@ const CalendarEvent = () => {
 
   const [currentDate, setCurrentDate] = useState(moment());
   const [miniCalendarDate, setMiniCalendarDate] = useState(moment());
+  const [selectedDate, setSelectedDate] = useState(moment());
   const [currentView, setCurrentView] = useState<'month' | 'week' | 'day'>('month');
   const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
   const [selectedClasses, setSelectedClasses] = useState<number[]>([]);
   const [syllabusDropDownData, setSyllabusDropDownData] = useState<any>([]);
+  const [loadingDropdown, setLoadingDropdown] = useState<boolean>(true);
+  const [loadingEvents, setLoadingEvents] = useState<boolean>(false);
+  const [hasLoadedEventsOnce, setHasLoadedEventsOnce] = useState<boolean>(false);
 
   const [show, setShow] = useState(false);
   const [showSyllabus, setShowSyllabus] = useState(false);
@@ -53,22 +58,36 @@ const CalendarEvent = () => {
   const [deleteEventData, setDeleteEventData] = useState<any>(null);
 
   const handleGetDropDownData = async () => {
-    const response = await dispatch(getSyllabusDropDownDataAPI());
-    if (response && !isNullUndefinedOrBlank(response?.payload)) {
-      setSyllabusDropDownData(response?.payload);
-      const syllabusIds = response?.payload?.map((item: any) => item.value);
-      setSelectedClasses(syllabusIds);
+    setLoadingDropdown(true);
+    try {
+      const response = await dispatch(getSyllabusDropDownDataAPI());
+      if (response && !isNullUndefinedOrBlank(response?.payload)) {
+        setSyllabusDropDownData(response?.payload);
+        const syllabusIds = response?.payload?.map((item: any) => item.value);
+        setSelectedClasses(syllabusIds);
+      } else {
+        setSyllabusDropDownData([]);
+        setSelectedClasses([]);
+      }
+    } finally {
+      setLoadingDropdown(false);
     }
   };
 
   const handleGetCalendarData = async () => {
-    const reqBody: any = { syllabus_id: selectedClasses };
-    customJsonInclude(reqBody);
-    const response = await dispatch(getCalenderDataAPI(reqBody));
-    if (response && !isNullUndefinedOrBlank(response?.payload)) {
-      setCalendarEvents(response?.payload || []);
-    } else {
-      setCalendarEvents([]);
+    setLoadingEvents(true);
+    try {
+      const reqBody: any = { syllabus_id: selectedClasses };
+      customJsonInclude(reqBody);
+      const response = await dispatch(getCalenderDataAPI(reqBody));
+      if (response && !isNullUndefinedOrBlank(response?.payload)) {
+        setCalendarEvents(response?.payload || []);
+      } else {
+        setCalendarEvents([]);
+      }
+    } finally {
+      setLoadingEvents(false);
+      setHasLoadedEventsOnce(true);
     }
   };
 
@@ -95,18 +114,42 @@ const CalendarEvent = () => {
   }, [coursesData.isUpdatedSyllabusData]);
 
   const handleToday = () => {
-    setCurrentDate(moment());
-    setMiniCalendarDate(moment());
+    const now = moment();
+    setCurrentDate(now);
+    setMiniCalendarDate(now);
+    setSelectedDate(now);
+  };
+
+  const getHeaderLabel = () => {
+    const base = moment(selectedDate || currentDate);
+    if (currentView === 'day') return base.format('MMMM D, YYYY');
+    if (currentView === 'week') {
+      const start = base.clone().startOf('week');
+      const end = base.clone().endOf('week');
+      // Example: Dec 14 - Dec 20, 2025
+      return `${start.format('MMM D')} - ${end.format('MMM D, YYYY')}`;
+    }
+    return moment(currentDate).format('MMMM YYYY');
+  };
+
+  const syncFocusDate = (next: moment.Moment) => {
+    setSelectedDate(next);
+    setCurrentDate(next);
+    setMiniCalendarDate(next);
   };
 
   const handlePrevious = () => {
-    const newDate = moment(currentDate).subtract(1, 'month');
-    setCurrentDate(newDate);
+    const base = moment(selectedDate || currentDate);
+    const unit: moment.unitOfTime.DurationConstructor =
+      currentView === 'day' ? 'day' : currentView === 'week' ? 'week' : 'month';
+    syncFocusDate(base.clone().subtract(1, unit));
   };
 
   const handleNext = () => {
-    const newDate = moment(currentDate).add(1, 'month');
-    setCurrentDate(newDate);
+    const base = moment(selectedDate || currentDate);
+    const unit: moment.unitOfTime.DurationConstructor =
+      currentView === 'day' ? 'day' : currentView === 'week' ? 'week' : 'month';
+    syncFocusDate(base.clone().add(1, unit));
   };
 
   const handleMiniPrevious = () => {
@@ -116,6 +159,11 @@ const CalendarEvent = () => {
   const handleMiniNext = () => {
     setMiniCalendarDate(moment(miniCalendarDate).add(1, 'month'));
   };
+
+  useEffect(() => {
+    // When switching views, keep the main navigation synced to the selected date.
+    setCurrentDate(moment(selectedDate));
+  }, [currentView]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getMiniCalendarDays = (): moment.Moment[] => {
     const start = moment(miniCalendarDate).startOf('month').startOf('week');
@@ -143,11 +191,77 @@ const CalendarEvent = () => {
     return days;
   };
 
+  const parseEventDate = (value: any): Date | null => {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    if (typeof value === 'number') return new Date(value);
+    if (typeof value === 'string') {
+      // ISO? let Date parse it.
+      if (value.includes('T')) {
+        const d = new Date(value);
+        return Number.isNaN(d.getTime()) ? null : d;
+      }
+      // Common backend formats
+      const m = moment.utc(value, ['YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DD'], true);
+      if (m.isValid()) return m.toDate();
+      const fallback = new Date(value);
+      return Number.isNaN(fallback.getTime()) ? null : fallback;
+    }
+    return null;
+  };
+
+  type NormalizedCalendarEvent = {
+    id?: string | number;
+    title: string;
+    start: Date;
+    end: Date;
+    status?: string;
+    priority?: string;
+    courseColor?: string;
+    raw: any;
+  };
+
+  const normalizedEvents: NormalizedCalendarEvent[] = useMemo(() => {
+    return (calendarEvents || [])
+      .map((ev: any) => {
+        const raw = ev;
+        const eventData = ev?.event_data ?? ev;
+        const title =
+          eventData?.title ??
+          ev?.title ??
+          eventData?.name ??
+          'Event';
+
+        const startVal = ev?.start ?? eventData?.start_date ?? eventData?.startDate;
+        const endVal = ev?.end ?? eventData?.end_date ?? eventData?.endDate;
+        const start = parseEventDate(startVal);
+        const end = parseEventDate(endVal) ?? start;
+
+        if (!start) return null;
+
+        const courseColor =
+          eventData?.course_color ??
+          ev?.course_color ??
+          eventData?.courseColor ??
+          ev?.courseColor;
+
+        return {
+          id: eventData?.id ?? ev?.id,
+          title,
+          start,
+          end,
+          status: eventData?.status ?? ev?.status,
+          priority: eventData?.priority ?? ev?.priority,
+          courseColor,
+          raw,
+        } as NormalizedCalendarEvent;
+      })
+      .filter(Boolean) as NormalizedCalendarEvent[];
+  }, [calendarEvents]);
+
   const getEventsForDay = (date: moment.Moment) => {
-    return calendarEvents.filter((event: any) => {
-      const eventDate = moment(event.start);
-      return eventDate.format('YYYY-MM-DD') === date.format('YYYY-MM-DD');
-    });
+    const dayKey = date.format('YYYY-MM-DD');
+    return normalizedEvents.filter((event) => moment(event.start).format('YYYY-MM-DD') === dayKey);
   };
 
   /** Map hex colors to CSS class names - synced with colorPalette in AddEditSyllabus */
@@ -235,6 +349,23 @@ const CalendarEvent = () => {
       ...event.event_data,
       start_date: new Date(formatedDate(event.event_data.start_date, 'yyyy-MM-DD HH:mm:ss')),
       end_date: new Date(formatedDate(event.event_data.end_date, 'yyyy-MM-DD HH:mm:ss')),
+    });
+    setShow(true);
+  };
+
+  const handleCreateEventForDay = (day: moment.Moment) => {
+    const start = day.clone().hour(9).minute(0).second(0).millisecond(0);
+    const end = start.clone().add(30, 'minutes');
+    setEditEventFormData({
+      id: null,
+      title: '',
+      note: '',
+      start_date: start.toDate(),
+      end_date: end.toDate(),
+      is_reminder: false,
+      reminder: [],
+      priority: ENUM_FOR_EVENT_PRIORITY?.LOW || 'Low',
+      is_all_day_event: false,
     });
     setShow(true);
   };
@@ -342,23 +473,35 @@ const CalendarEvent = () => {
           const eventsForDay = getEventsForDay(day);
           const isOtherMonth = !day.isSame(currentDate, 'month');
           const isToday = day.isSame(moment(), 'day');
+          const isSelected = day.isSame(selectedDate, 'day');
 
           return (
             <div
-              className={`calendar-cell ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`}
+              className={`calendar-cell ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${
+                isSelected ? 'selected' : ''
+              }`}
               key={dayIndex}
+              onClick={() => {
+                setSelectedDate(day.clone());
+                if (eventsForDay.length === 0) {
+                  handleCreateEventForDay(day);
+                }
+              }}
             >
               <span className="cell-date">{day.date()}</span>
               <div className="cell-events">
                 {eventsForDay.slice(0, 3).map((event: any, eventIndex: number) => {
-                  const colorClass = getColorClassName(event.event_data?.course_color || event.course_color || '#239BC2');
+                  const colorClass = getColorClassName(event.courseColor || '#239BC2');
                   return (
                     <div
                       key={eventIndex}
                       className={`event-chip ${colorClass}`}
                       role="button"
                       tabIndex={0}
-                      onClick={() => handleEventClick(event)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEventClick(event.raw);
+                      }}
                     >
                       {event.title}
                     </div>
@@ -370,6 +513,65 @@ const CalendarEvent = () => {
         })}
       </div>
     ));
+  };
+
+  const isCompletedStatus = (status?: string) => {
+    if (!status) return false;
+    return String(status).toLowerCase() === String(ENUMFORSTATUS.COMPLETED).toLowerCase() || String(status).toLowerCase() === 'completed';
+  };
+
+  const isHighPriority = (priority?: string) => String(priority).toLowerCase() === 'high';
+
+  const getWeekDays = () => {
+    const start = moment(selectedDate).startOf('week');
+    return Array.from({ length: 7 }, (_, i) => start.clone().add(i, 'day'));
+  };
+
+  const getWeekEventsForDay = (day: moment.Moment) => {
+    const dayStart = day.clone().startOf('day');
+    const dayEnd = day.clone().endOf('day');
+    return normalizedEvents.filter((ev) => {
+      const start = moment(ev.start);
+      const end = moment(ev.end);
+      // overlap check: start < dayEnd && end > dayStart
+      return start.isBefore(dayEnd) && end.isAfter(dayStart);
+    });
+  };
+
+  const layoutDayEvents = (day: moment.Moment, events: NormalizedCalendarEvent[]) => {
+    const dayStart = day.clone().startOf('day');
+    const toMin = (d: Date) => Math.max(0, Math.min(24 * 60, moment(d).diff(dayStart, 'minutes')));
+
+    const items = events
+      .map((ev) => {
+        const startMin = toMin(ev.start);
+        const endMin = Math.max(startMin + 5, toMin(ev.end)); // ensure visible
+        return { ev, startMin, endMin };
+      })
+      .sort((a, b) => (a.startMin - b.startMin) || (a.endMin - b.endMin));
+
+    // simple greedy column assignment
+    const colEnds: number[] = [];
+    const assigned = items.map((it) => {
+      let col = colEnds.findIndex((end) => it.startMin >= end);
+      if (col === -1) {
+        col = colEnds.length;
+        colEnds.push(it.endMin);
+      } else {
+        colEnds[col] = it.endMin;
+      }
+      return { ...it, col };
+    });
+
+    const totalCols = Math.max(1, colEnds.length);
+    return assigned.map((it) => {
+      const widthPct = 100 / totalCols;
+      return {
+        ...it,
+        leftPct: it.col * widthPct,
+        widthPct,
+      };
+    });
   };
 
   return (
@@ -493,13 +695,17 @@ const CalendarEvent = () => {
               {getMiniCalendarDays().map((day, index) => {
                 const isOtherMonth = !day.isSame(miniCalendarDate, 'month');
                 const isToday = day.isSame(moment(), 'day');
+                const isSelected = day.isSame(selectedDate, 'day');
                 return (
                   <div
                     key={index}
-                    className={`mini-day ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`}
+                    className={`mini-day ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${
+                      isSelected ? 'selected' : ''
+                    }`}
                     onClick={() => {
                       setCurrentDate(day.clone());
                       setMiniCalendarDate(day.clone());
+                      setSelectedDate(day.clone());
                     }}
                   >
                     {day.date()}
@@ -517,25 +723,53 @@ const CalendarEvent = () => {
               </span>
             </div>
             <div className="class-list">
-              {syllabusDropDownData.map((item: any) => {
-                const colorClass = getColorClassName(item?.course_color || item?.other?.course_color || '#239BC2');
-                return (
-                  <label className="class-item" key={item.value}>
-                    <input
-                      type="checkbox"
-                      checked={selectedClasses.includes(item.value)}
-                      onChange={() => handleToggleClass(item.value)}
-                    />
-                    <span className={`checkmark ${colorClass}`}></span>
-                    <span className="class-name">{item.label}</span>
-                  </label>
-                );
-              })}
+              {loadingDropdown ? (
+                <div style={{ padding: '0.75rem 0.25rem', color: 'var(--neutral-500)', fontSize: 14 }}>
+                  Loading classes…
+                </div>
+              ) : syllabusDropDownData.length === 0 ? (
+                <div style={{ padding: '0.75rem 0.25rem', color: 'var(--neutral-500)', fontSize: 14 }}>
+                  No classes yet.
+                </div>
+              ) : (
+                syllabusDropDownData.map((item: any) => {
+                  const courseColorHex = item?.course_color || item?.other?.course_color || '#239BC2';
+                  const colorClass = getColorClassName(courseColorHex);
+                  const isChecked = selectedClasses.includes(item.value);
+                  return (
+                    <label className="class-item" key={item.value}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleToggleClass(item.value)}
+                      />
+                      <span
+                        className={`checkmark ${colorClass} ${isChecked ? 'checked' : ''}`}
+                        style={{
+                          borderColor: courseColorHex,
+                          background: isChecked ? courseColorHex : '#fff',
+                          color: isChecked ? '#fff' : courseColorHex,
+                        }}
+                      ></span>
+                      <span className="class-name">{item.label}</span>
+                    </label>
+                  );
+                })
+              )}
             </div>
           </div>
         </aside>
 
         <div className="calendar-main">
+          {(loadingDropdown || loadingEvents) && (
+            <div className="loader-container inline-loader" style={{ background: 'rgba(255, 255, 255, 0.72)' }}>
+              <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+                <rect className="track" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" />
+                <rect className="car" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" pathLength="100" />
+              </svg>
+            </div>
+          )}
+
           <div className="calendar-controls">
             <div className="view-toggles">
               <button className="view-btn" onClick={handleToday}>
@@ -567,7 +801,7 @@ const CalendarEvent = () => {
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
-              <h2 className="current-month">{currentDate.format('MMMM YYYY')}</h2>
+              <h2 className="current-month">{getHeaderLabel()}</h2>
               <button className="cal-nav-btn next" onClick={handleNext}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <polyline points="9 18 15 12 9 6" />
@@ -578,6 +812,20 @@ const CalendarEvent = () => {
 
           {currentView === 'month' && (
             <div className="calendar-grid">
+              {!loadingDropdown &&
+                !loadingEvents &&
+                hasLoadedEventsOnce &&
+                selectedClasses.length > 0 &&
+                calendarEvents.length === 0 && (
+                  <div className="calendar-empty-overlay">
+                    <div className="calendar-empty-card">
+                      <div className="calendar-empty-title">No events found</div>
+                      <p className="calendar-empty-text">
+                        There aren’t any events for the selected classes in this view.
+                      </p>
+                    </div>
+                  </div>
+                )}
               <div className="calendar-header-row">
                 <div className="calendar-day-header">Sun</div>
                 <div className="calendar-day-header">Mon</div>
@@ -594,13 +842,179 @@ const CalendarEvent = () => {
 
           {currentView === 'week' && (
             <div className="week-view">
-              <p>Week view - Coming soon</p>
+              {(() => {
+                const days = getWeekDays();
+                const isThisWeek = moment().isSame(moment(selectedDate).startOf('week'), 'week');
+                const now = moment();
+                const nowDayIdx = isThisWeek ? now.diff(moment(selectedDate).startOf('week'), 'days') : -1;
+                const nowMin = now.hours() * 60 + now.minutes();
+
+                const hours = Array.from({ length: 24 }, (_, i) => i);
+
+                return (
+                  <>
+                    <div className="week-view-header">
+                      <div className="week-time-column" />
+                      {days.map((d) => {
+                        const isToday = d.isSame(moment(), 'day');
+                        return (
+                          <div
+                            key={d.format('YYYY-MM-DD')}
+                            className="week-day-column"
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => setSelectedDate(d.clone())}
+                          >
+                            <div className="week-day-name">{d.format('ddd')}</div>
+                            <div className={`week-day-date ${isToday ? 'today' : ''}`}>{d.date()}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <div className="week-view-body">
+                      <div className="week-time-slots">
+                        {hours.map((h) => (
+                          <div className="time-slot-row" key={h}>
+                            <div className="time-label">{moment().hour(h).minute(0).format('h A')}</div>
+                            {days.map((d) => (
+                              <div className="time-slot" key={`${d.format('YYYY-MM-DD')}-${h}`} />
+                            ))}
+                          </div>
+                        ))}
+
+                        <div className="week-events-container">
+                          {days.map((d, dayIdx) => {
+                            const dayEvents = getWeekEventsForDay(d);
+                            const positioned = layoutDayEvents(d, dayEvents);
+                            return (
+                              <div className="week-day-events" key={d.format('YYYY-MM-DD')}>
+                                {dayIdx === nowDayIdx ? (
+                                  <div
+                                    className="current-time-indicator"
+                                    style={{ top: `${nowMin}px` }}
+                                    aria-hidden
+                                  />
+                                ) : null}
+
+                                {positioned.map(({ ev, startMin, endMin, leftPct, widthPct }, idx) => {
+                                  const colorClass = getColorClassName(ev.courseColor || '#239BC2');
+                                  const completed = isCompletedStatus(ev.status);
+                                  const high = isHighPriority(ev.priority);
+                                  const height = Math.max(22, endMin - startMin);
+                                  const startStr = moment(ev.start).format('h:mm A');
+                                  const endStr = moment(ev.end).format('h:mm A');
+
+                                  return (
+                                    <div
+                                      key={`${String(ev.id ?? idx)}-${startMin}-${endMin}`}
+                                      className={`week-event ${colorClass} ${completed ? 'completed' : ''}`}
+                                      style={{
+                                        top: `${startMin}px`,
+                                        height: `${height}px`,
+                                        left: `calc(${leftPct}% + 2px)`,
+                                        width: `calc(${widthPct}% - 4px)`,
+                                      }}
+                                      role="button"
+                                      tabIndex={0}
+                                      onClick={() => handleEventClick(ev.raw)}
+                                    >
+                                      {high ? <span className="priority-indicator high" title="High priority" /> : null}
+                                      <span className="week-event-title">{ev.title}</span>
+                                      <span className="week-event-time">{startStr} - {endStr}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           )}
 
           {currentView === 'day' && (
             <div className="day-view">
-              <p>Day view - Coming soon</p>
+              {(() => {
+                const day = moment(selectedDate);
+                const isToday = day.isSame(moment(), 'day');
+                const now = moment();
+                const nowMin = now.hours() * 60 + now.minutes();
+
+                const hours = Array.from({ length: 24 }, (_, i) => i);
+                const ROW_HEIGHT = 70; // matches .day-time-row height in calendar.css
+                const pxPerMin = ROW_HEIGHT / 60;
+
+                const dayEvents = getWeekEventsForDay(day);
+                const positioned = layoutDayEvents(day, dayEvents);
+
+                return (
+                  <>
+                    <div className="day-view-header">
+                      <div className="day-view-date">
+                        <div className="day-view-weekday">{day.format('ddd')}</div>
+                        <div className={`day-view-number ${isToday ? 'today' : ''}`}>{day.date()}</div>
+                        <div className="day-view-month">{day.format('MMMM YYYY')}</div>
+                      </div>
+                    </div>
+
+                    <div className="day-view-body">
+                      <div className="day-time-slots">
+                        {hours.map((h) => (
+                          <div className="day-time-row" key={h}>
+                            <div className="day-time-label">{moment().hour(h).minute(0).format('h A')}</div>
+                            <div className="day-time-content" />
+                          </div>
+                        ))}
+
+                        <div className="day-events-container">
+                          {isToday ? (
+                            <div
+                              className="current-time-indicator"
+                              style={{ top: `${nowMin * pxPerMin}px` }}
+                              aria-hidden
+                            />
+                          ) : null}
+
+                          {positioned.map(({ ev, startMin, endMin, leftPct, widthPct }, idx) => {
+                            const colorClass = getColorClassName(ev.courseColor || '#239BC2');
+                            const completed = isCompletedStatus(ev.status);
+                            const high = isHighPriority(ev.priority);
+                            const height = Math.max(26, (endMin - startMin) * pxPerMin);
+                            const top = startMin * pxPerMin;
+                            const startStr = moment(ev.start).format('h:mm A');
+                            const endStr = moment(ev.end).format('h:mm A');
+
+                            return (
+                              <div
+                                key={`${String(ev.id ?? idx)}-${startMin}-${endMin}`}
+                                className={`day-event ${colorClass} ${completed ? 'completed' : ''}`}
+                                style={{
+                                  top: `${top}px`,
+                                  height: `${height}px`,
+                                  left: `calc(${leftPct}% + 8px)`,
+                                  width: `calc(${widthPct}% - 16px)`,
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => handleEventClick(ev.raw)}
+                              >
+                                {high ? <span className="priority-indicator high" title="High priority" /> : null}
+                                <div className="day-event-time">{startStr} - {endStr}</div>
+                                <div className="day-event-title">{ev.title}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           )}
         </div>
