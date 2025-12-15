@@ -654,6 +654,55 @@
     border-left-color: var(--course-lime);
 }
 
+/* Month view event-chip colors (match week/day color classes) */
+.calendar-page .event-chip.cyan {
+    background: rgba(35, 155, 194, 0.15);
+    color: #0C4A6E;
+    border-left-color: #239BC2;
+}
+
+.calendar-page .event-chip.red {
+    background: rgba(239, 68, 68, 0.12);
+    color: #991B1B;
+    border-left-color: #EF4444;
+}
+
+.calendar-page .event-chip.purple {
+    background: rgba(139, 92, 246, 0.12);
+    color: #4C1D95;
+    border-left-color: #8B5CF6;
+}
+
+.calendar-page .event-chip.pink {
+    background: rgba(236, 72, 153, 0.12);
+    color: #9D174D;
+    border-left-color: #EC4899;
+}
+
+.calendar-page .event-chip.gray {
+    background: rgba(107, 114, 128, 0.12);
+    color: #374151;
+    border-left-color: #6B7280;
+}
+
+.calendar-page .event-chip.stone {
+    background: rgba(120, 113, 108, 0.12);
+    color: #44403C;
+    border-left-color: #78716C;
+}
+
+.calendar-page .event-chip.gold {
+    background: rgba(217, 119, 6, 0.12);
+    color: #92400E;
+    border-left-color: #D97706;
+}
+
+.calendar-page .event-chip.indigo {
+    background: rgba(99, 102, 241, 0.12);
+    color: #312E81;
+    border-left-color: #6366F1;
+}
+
 /* Completed Event Styles */
 .calendar-page .event-chip.completed {
     opacity: 0.6;
@@ -1591,6 +1640,55 @@
 [data-theme="dark"] .event-chip.lime {
     background: var(--course-lime-light);
     color: var(--course-lime);
+}
+
+/* Month view event-chip colors (dark mode) */
+[data-theme="dark"] .event-chip.cyan {
+    background: rgba(35, 155, 194, 0.18);
+    color: #7DD3FC;
+    border-left-color: #239BC2;
+}
+
+[data-theme="dark"] .event-chip.red {
+    background: rgba(239, 68, 68, 0.16);
+    color: #FCA5A5;
+    border-left-color: #EF4444;
+}
+
+[data-theme="dark"] .event-chip.purple {
+    background: rgba(139, 92, 246, 0.16);
+    color: #C4B5FD;
+    border-left-color: #8B5CF6;
+}
+
+[data-theme="dark"] .event-chip.pink {
+    background: rgba(236, 72, 153, 0.16);
+    color: #F9A8D4;
+    border-left-color: #EC4899;
+}
+
+[data-theme="dark"] .event-chip.gray {
+    background: rgba(107, 114, 128, 0.16);
+    color: #E5E7EB;
+    border-left-color: #6B7280;
+}
+
+[data-theme="dark"] .event-chip.stone {
+    background: rgba(120, 113, 108, 0.16);
+    color: #E7E5E4;
+    border-left-color: #78716C;
+}
+
+[data-theme="dark"] .event-chip.gold {
+    background: rgba(217, 119, 6, 0.16);
+    color: #FCD34D;
+    border-left-color: #D97706;
+}
+
+[data-theme="dark"] .event-chip.indigo {
+    background: rgba(99, 102, 241, 0.16);
+    color: #C7D2FE;
+    border-left-color: #6366F1;
 }
 
 /* Week View Dark Mode */

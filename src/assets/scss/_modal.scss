@@ -1,3 +1,33 @@
+/* ============================================
+   Modal Scale Animation (replaces default slide)
+   ============================================ */
+
+/* Override Bootstrap's default slide-down animation with scale */
+.modal.fade .modal-dialog {
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.modal.fade.show .modal-dialog {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Ensure backdrop fades normally */
+.modal-backdrop.fade {
+    opacity: 0;
+    transition: opacity 0.15s linear;
+}
+
+.modal-backdrop.fade.show {
+    opacity: 0.5;
+}
+
+/* ============================================
+   Modal Theme Styles
+   ============================================ */
+
 .modal-theme {
     .modal-content {
         border: 0;
