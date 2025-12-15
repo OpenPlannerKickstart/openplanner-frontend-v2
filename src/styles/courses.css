@@ -1741,6 +1741,16 @@
     -webkit-overflow-scrolling: touch !important;
 }
 
+/* Center the rendered PDF page(s) within the preview panel */
+.syllabus-preview-panel .rpv-core__inner-page-container {
+    /* rpv positions the actual page absolutely inside this container.
+       Centering the container centers the page. */
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
 /* Pages - no shadows, no borders, just content */
 .syllabus-preview-panel .rpv-core__inner-page,
 .syllabus-preview-panel .rpv-core__page-layer,

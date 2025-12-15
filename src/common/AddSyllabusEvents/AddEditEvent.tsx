@@ -9,6 +9,7 @@ import { MAX_1000, MAX_3, MAX_300, MAX_50, ONLY_NUMBERS } from '../../Utility/Va
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError } from '../../Utility/Helper';
 import { addEditEventDataAPI, deleteEventDataAPI } from '../../redux/Service/User/Courses/courses';
+import { addEditTaskAPI, deleteTaskAPI, upadteTaskStatusAPI } from '../../redux/Service/task';
 import { Button, Modal } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import Select, { components, ControlProps } from "react-select";
@@ -27,6 +28,7 @@ export const AddEditEvent = (props) => {
     const dispatch: AppDispatch = useDispatch();
     const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
+    const entityType: 'event' | 'task' = props?.entityType === 'task' ? 'task' : 'event';
     
     // Get courses list from Redux for color lookup
     const coursesListData = useSelector((state: RootState) => (state.CoursesReducer as any)?.getCoursesListData);
@@ -115,7 +117,10 @@ export const AddEditEvent = (props) => {
                 return new Date(value) > new Date(start_date); // Check if end_date > start_date
             }),
         is_reminder: yup.boolean(),
-        syllabus_id: yup.string().required(SELECTION_IS_REQUIRED),
+        syllabus_id:
+            entityType === 'task'
+                ? yup.mixed().notRequired()
+                : yup.string().required(SELECTION_IS_REQUIRED),
         reminder: yup.array()
             .of(
                 yup.object().shape({
@@ -181,6 +186,25 @@ export const AddEditEvent = (props) => {
                 >(eventFormDataErrors, true))
             return;
         }
+        if (entityType === 'task') {
+            const reqBody: any = {
+                task_name: eventFormData.values.title,
+                // Tasks only have due_date; map from the modal's End Date
+                due_date: eventFormData.values.end_date ? getDate(eventFormData.values.end_date) : null,
+                note: eventFormData.values.note,
+                is_reminder: eventFormData.values.is_reminder,
+                reminder: eventFormData.values.reminder,
+                ...(eventFormData.values.id ? { task_id: eventFormData.values.id } : {}),
+            };
+            customJsonInclude(reqBody);
+            const response = await dispatch(addEditTaskAPI(reqBody));
+            if (response) {
+                handleCloseAddSyllabusEvents();
+                props?.handleGetData?.();
+            }
+            return;
+        }
+
         const reqBody = {
             title: eventFormData.values.title,
             start_date: getDate(eventFormData.values.start_date),
@@ -358,6 +382,17 @@ export const AddEditEvent = (props) => {
     const [deleteSuccess, setDeleteSuccess] = useState<boolean>(false);
 
     const handleDeleteData = async (eventId) => {
+        if (entityType === 'task') {
+            const task_id = eventId instanceof Array ? eventId : [eventId];
+            const response = await dispatch(deleteTaskAPI({ task_id }));
+            if (!isNullUndefinedOrBlank(response?.payload)) {
+                handleCloseAddSyllabusEvents();
+                props?.handleGetData?.();
+                handleDeleteClose();
+            }
+            return;
+        }
+
         let event_id: any = [];
         if (eventId instanceof Array) {
             event_id = eventId;
@@ -379,6 +414,20 @@ export const AddEditEvent = (props) => {
     }
 
     /** -------------------Delete Event end-------------------------*/
+
+    const handleMarkComplete = async () => {
+        if (!isExistingEvent) return;
+        if (entityType !== 'task') return;
+        const currentStatus = eventFormData?.values?.status;
+        const nextStatus =
+            currentStatus === 'Completed' ? 'Pending' : 'Completed';
+        const response = await dispatch(upadteTaskStatusAPI({ id: [eventFormData.values.id], status: nextStatus }));
+        if (!isNullUndefinedOrBlank(response?.payload)) {
+            // Update local form state so the UI stays in sync
+            eventFormData.setFieldValue('status', nextStatus);
+            props?.handleGetData?.();
+        }
+    };
 
     return (
         <>
@@ -446,15 +495,21 @@ export const AddEditEvent = (props) => {
                                         eventFormData.setFieldValue("end_date", endDate);
                                     }}
                                     showTimeSelect
-                                    dateFormat="MM/dd/yyyy hh:mm aa"
-                                    timeIntervals={15}
+                                    dateFormat="MM/dd/yyyy h:mm aa"
+                                    timeIntervals={30}
                                     className="form-input"
                                     popperProps={{ strategy: "fixed" }}
+                                    popperPlacement="bottom-start"
+                                    popperClassName="task-date-popper"
+                                    calendarClassName="task-date-calendar"
+                                    wrapperClassName="task-date-wrapper"
+                                    showPopperArrow={false}
                                     placeholderText="Select Date"
                                     onBlur={() => eventFormData.setFieldTouched("start_date", true)}
-                                    minDate={new Date()}
+                                    minDate={entityType === 'task' ? undefined : new Date()}
                                     disabled={eventFormData?.values?.is_all_day_event}
                                     filterTime={(time) => {
+                                        if (entityType === 'task') return true;
                                         const now = new Date();
                                         const selectedDate = eventFormData.values.start_date || new Date();
                                         if (selectedDate.toDateString() === now.toDateString()) {
@@ -490,15 +545,21 @@ export const AddEditEvent = (props) => {
                                     selected={eventFormData.values.end_date}
                                     onChange={(date) => eventFormData.setFieldValue("end_date", date)}
                                     showTimeSelect
-                                    dateFormat="MM/dd/yyyy hh:mm aa"
-                                    timeIntervals={15}
+                                    dateFormat="MM/dd/yyyy h:mm aa"
+                                    timeIntervals={30}
                                     className="form-input"
                                     popperProps={{ strategy: "fixed" }}
+                                    popperPlacement="bottom-start"
+                                    popperClassName="task-date-popper"
+                                    calendarClassName="task-date-calendar"
+                                    wrapperClassName="task-date-wrapper"
+                                    showPopperArrow={false}
                                     placeholderText="Select Date"
                                     onBlur={() => eventFormData.setFieldTouched("end_date", true)}
                                     disabled={eventFormData?.values?.is_all_day_event}
-                                    minDate={eventFormData?.values?.start_date}
+                                    minDate={entityType === 'task' ? undefined : eventFormData?.values?.start_date}
                                     filterTime={(time) => {
+                                        if (entityType === 'task') return true;
                                         const now = new Date();
                                         const selectedDate = eventFormData.values.start_date || new Date();
                                         if (selectedDate.toDateString() === now.toDateString()) {
@@ -567,34 +628,7 @@ export const AddEditEvent = (props) => {
                     </div>
 
                     {/* Calendar & Priority Row */}
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label className="form-label">Calendar{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
-                            {isEditMode || !isExistingEvent ? (
-                                <Select
-                                    options={syllabusDropDownData}
-                                    placeholder="Select"
-                                    onChange={(selectedOption) => eventFormData.setFieldValue("syllabus_id", selectedOption?.value || null)}
-                                    value={syllabusDropDownData?.filter(({ value }) => value === eventFormData.values.syllabus_id)}
-                                    isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse)}
-                                    isClearable
-                                    menuPosition="fixed"
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                />
-                            ) : (
-                                <div className="form-select-wrapper">
-                                    <select className="form-input form-select" disabled>
-                                        <option>{syllabusDropDownData?.find(({ value }) => value === eventFormData.values.syllabus_id)?.label || 'N/A'}</option>
-                                    </select>
-                                    <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <polyline points="6 9 12 15 18 9"/>
-                                    </svg>
-                                </div>
-                            )}
-                            {eventFormData.touched.syllabus_id && eventFormData.errors.syllabus_id && renderError(eventFormData.errors.syllabus_id as any)}
-                        </div>
-
+                    {entityType === 'task' ? (
                         <div className="form-group">
                             <label className="form-label">Priority</label>
                             {isEditMode || !isExistingEvent ? (
@@ -618,7 +652,60 @@ export const AddEditEvent = (props) => {
                                 </div>
                             )}
                         </div>
-                    </div>
+                    ) : (
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label className="form-label">Calendar{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
+                                {isEditMode || !isExistingEvent ? (
+                                    <Select
+                                        options={syllabusDropDownData}
+                                        placeholder="Select"
+                                        onChange={(selectedOption) => eventFormData.setFieldValue("syllabus_id", selectedOption?.value || null)}
+                                        value={syllabusDropDownData?.filter(({ value }) => value === eventFormData.values.syllabus_id)}
+                                        isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse)}
+                                        isClearable
+                                        menuPosition="fixed"
+                                        className="react-select-container"
+                                        classNamePrefix="react-select"
+                                    />
+                                ) : (
+                                    <div className="form-select-wrapper">
+                                        <select className="form-input form-select" disabled>
+                                            <option>{syllabusDropDownData?.find(({ value }) => value === eventFormData.values.syllabus_id)?.label || 'N/A'}</option>
+                                        </select>
+                                        <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <polyline points="6 9 12 15 18 9"/>
+                                        </svg>
+                                    </div>
+                                )}
+                                {eventFormData.touched.syllabus_id && eventFormData.errors.syllabus_id && renderError(eventFormData.errors.syllabus_id as any)}
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Priority</label>
+                                {isEditMode || !isExistingEvent ? (
+                                    <Select
+                                        options={eventPriorityDropDownData}
+                                        placeholder="Select Priority"
+                                        onChange={(selectedOption) => eventFormData.setFieldValue("priority", selectedOption?.value || null)}
+                                        value={eventPriorityDropDownData?.filter(({ value }) => value === eventFormData.values.priority)}
+                                        menuPosition="fixed"
+                                        className="react-select-container"
+                                        classNamePrefix="react-select"
+                                    />
+                                ) : (
+                                    <div className="form-select-wrapper">
+                                        <select className="form-input form-select" disabled>
+                                            <option>{eventPriorityDropDownData?.find(({ value }) => value === eventFormData.values.priority)?.label || 'Low'}</option>
+                                        </select>
+                                        <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <polyline points="6 9 12 15 18 9"/>
+                                        </svg>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Reminders Section */}
                     {isExistingEvent && !isEditMode ? (
@@ -757,7 +844,14 @@ export const AddEditEvent = (props) => {
                     <div className="modal-footer-left">
                         {isExistingEvent && (
                             <>
-                                <button type="button" className="btn btn-success" onClick={() => {/* Mark complete logic */}}>
+                                <button
+                                    type="button"
+                                    className="btn btn-success"
+                                    onClick={handleMarkComplete}
+                                    style={entityType !== 'task' ? { opacity: 0.6, cursor: 'not-allowed' } : undefined}
+                                    disabled={entityType !== 'task'}
+                                    title={entityType !== 'task' ? 'Mark complete is currently supported for tasks only' : undefined}
+                                >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <polyline points="20 6 9 17 4 12"/>
                                     </svg>
@@ -784,6 +878,11 @@ export const AddEditEvent = (props) => {
                                 Cancel
                             </button>
                         )}
+                        {!isExistingEvent && (
+                            <button type="button" className="btn btn-outline" onClick={handleClearData}>
+                                Clear
+                            </button>
+                        )}
                         {(isEditMode || !isExistingEvent) && (
                             <button type="button" className="btn btn-primary" onClick={handleEventSubmit}>
                                 {isExistingEvent ? 'Save Changes' : 'Save'}
@@ -801,7 +900,7 @@ export const AddEditEvent = (props) => {
                 centered
             >
                 <Modal.Header>
-                    <h4 className="modal-title">Delete Event</h4>
+                    <h4 className="modal-title">{entityType === 'task' ? 'Delete Task' : 'Delete Event'}</h4>
                     <button
                         type="button"
                         className="btn-close"
@@ -817,7 +916,7 @@ export const AddEditEvent = (props) => {
                         </div>
                         <div className="modal-confirmation-content">
                             <h5> Are You Sure?</h5>
-                            <p>  You want to delete this event ?
+                            <p>  You want to delete this {entityType === 'task' ? 'task' : 'event'} ?
 
                             </p>
                         </div>

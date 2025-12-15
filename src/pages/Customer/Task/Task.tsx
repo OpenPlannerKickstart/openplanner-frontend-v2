@@ -1,12 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteEventDataAPI } from '../../../redux/Service/User/Courses/courses';
-import { upadteTaskStatusAPI, updateTaskStarAPI, addEditTaskAPI, taskListingAPI } from '../../../redux/Service/task';
+import { upadteTaskStatusAPI, updateTaskStarAPI, taskListingAPI } from '../../../redux/Service/task';
 import {
   formatedDate,
-  getDate,
-  isEmptyObjectOrNullUndefiend,
   isNullUndefinedOrBlank,
 } from '../../../Utility/Helper';
 import { ENUMFORROUTES, ENUMFORSTATUS } from '../../../interfaces/enum';
@@ -14,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
 import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
-import AddEditTask from '../../../common/Tasks/AddEditTask';
+import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 
 const Task = () => {
@@ -33,10 +30,11 @@ const Task = () => {
   /** -----------------Task state---------------------------*/
   const [taskData, setTaskData] = useState<any>([]);
   const [activeTab, setActiveTab] = useState<'todo' | 'completed' | 'starred'>('todo');
-  const [show, setShow] = useState(false);
+  const [showEventDetails, setShowEventDetails] = useState(false);
+  const [editEventFormData, setEditEventFormData] = useState<any>(null);
 
   /** -------------------Task listing api start-------------------------*/
-  const handleTaskListing = async () => {
+  const handleTaskListing = useCallback(async () => {
     try {
       // Use /taskListing for the Task List page (supports is_starred + full list)
       const response = await dispatch(taskListingAPI({}));
@@ -52,11 +50,11 @@ const Task = () => {
       console.error('Error fetching task data:', error);
       setTaskData([]);
     }
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     handleTaskListing();
-  }, []);
+  }, [handleTaskListing]);
 
   /** -------------------Task complete/incomplete toggle-------------------------*/
   const handleTaskToggle = async (taskId: number, currentStatus: string) => {
@@ -118,37 +116,35 @@ const Task = () => {
     }
   };
 
-  /** -------------------Delete task-------------------------*/
-  const [deleteShow, setDeleteShow] = useState(false);
-  const [deleteTaskId, setDeleteTaskId] = useState<number | null>(null);
-
-  const handleDeleteShow = (taskId: number) => {
-    setDeleteTaskId(taskId);
-    setDeleteShow(true);
-  };
-
-  const handleDeleteClose = () => {
-    setDeleteShow(false);
-    setDeleteTaskId(null);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (deleteTaskId) {
-      const response = await dispatch(deleteEventDataAPI({ event_id: [deleteTaskId] }));
-      if (!isNullUndefinedOrBlank(response?.payload)) {
-        handleDeleteClose();
-        handleTaskListing();
-      }
-    }
-  };
-
   /** -------------------Add/Edit task modal-------------------------*/
   const handleShow = () => {
-    setShow(true);
+    setEditEventFormData(null);
+    setShowEventDetails(true);
   };
 
   const handleSelectTask = (task: any) => {
-    setShow(true);
+    const rawDue = task?.due_date || task?.end_date || null;
+    const dueDate = !isNullUndefinedOrBlank(rawDue)
+      ? new Date(formatedDate(rawDue, 'yyyy-MM-DD HH:mm:ss'))
+      : null;
+    const start = dueDate ?? new Date();
+    const end = dueDate ? new Date(dueDate.getTime() + 30 * 60 * 1000) : new Date(start.getTime() + 30 * 60 * 1000);
+
+    // Map Task → AddEditEvent form shape
+    setEditEventFormData({
+      id: task?.id,
+      title: task?.task_name || task?.title || '',
+      note: task?.note || '',
+      start_date: start,
+      end_date: end,
+      is_reminder: !!task?.is_reminder,
+      reminder: task?.reminder || [],
+      status: task?.status,
+      // syllabus_id optional for tasks; the modal will show Calendar as N/A if missing
+      syllabus_id: task?.syllabus_id || task?.course_id || undefined,
+      priority: task?.priority || undefined,
+    });
+    setShowEventDetails(true);
   };
 
   const handleGetUpdatedData = () => {
@@ -292,13 +288,17 @@ const Task = () => {
                 </svg>
               </div>
               <div className={`user-dropdown ${isUserMenuOpen ? 'active' : ''}`}>
-                <a href="#" onClick={(e) => { e.preventDefault(); navigate(ENUMFORROUTES.SETTINGS); setIsUserMenuOpen(false); }} className="user-dropdown-item">
+                <button
+                  type="button"
+                  className="user-dropdown-item"
+                  onClick={() => { navigate(ENUMFORROUTES.SETTINGS); setIsUserMenuOpen(false); }}
+                >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                   Profile
-                </a>
+                </button>
                 <div className="user-dropdown-divider"></div>
                 <button className="user-dropdown-item logout" onClick={handleLogout}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -313,32 +313,6 @@ const Task = () => {
           </div>
         </div>
       </header>
-
-      {/* Delete Confirmation Modal */}
-      {deleteShow && (
-        <div className="confirm-modal-overlay">
-          <div className="confirm-modal">
-            <div className="confirm-modal-header">
-              <div className="confirm-modal-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                  <line x1="10" y1="11" x2="10" y2="17" />
-                  <line x1="14" y1="11" x2="14" y2="17" />
-                </svg>
-              </div>
-              <h3 className="confirm-modal-title">Delete Task</h3>
-            </div>
-            <div className="confirm-modal-body">
-              <p className="confirm-modal-message">Are you sure you want to delete this? This action cannot be undone.</p>
-            </div>
-            <div className="confirm-modal-footer">
-              <button className="btn btn-cancel" onClick={handleDeleteClose}>Cancel</button>
-              <button className="btn btn-confirm-delete" onClick={handleDeleteConfirm}>Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Tasks Content */}
       <div className="tasks-page">
@@ -428,25 +402,15 @@ const Task = () => {
         </div>
       </div>
 
-      {/* Add/Edit Task Modal */}
-      <AddEditTask
-        show={show}
-        setShow={setShow}
-        onSave={async (payload) => {
-          const reqBody = {
-            task_name: payload.title,
-            due_date: payload.due_date ? getDate(payload.due_date) : null,
-            note: payload.note || '',
-            is_reminder: payload.is_reminder,
-            reminder: [],
-          };
-          const response = await dispatch(addEditTaskAPI(reqBody));
-          if (!isNullUndefinedOrBlank(response?.payload)) {
-            handleGetUpdatedData();
-            return true;
-          }
-          return false;
-        }}
+      {/* Event Details Modal (used for tasks as a sub-type of events) */}
+      <AddEditEvent
+        show={showEventDetails}
+        setShow={setShowEventDetails}
+        handleGetData={handleGetUpdatedData}
+        editEventFormData={editEventFormData}
+        setEditEventFormData={setEditEventFormData}
+        selectedCourse={null}
+        entityType="task"
       />
     </>
   );

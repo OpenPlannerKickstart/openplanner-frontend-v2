@@ -117,6 +117,69 @@ const SyllabusDetails = (props) => {
   const freemiumUploadLocked =
     isNewSyllabus && !hasSubscription && !!props?.freemiumLimitReached;
 
+  // View vs edit state (match new Courses tab design)
+  const [isEditingDetails, setIsEditingDetails] = useState<boolean>(false);
+  useEffect(() => {
+    // Existing courses should open in "Course Information" view mode.
+    // New course (no id) should open in edit mode.
+    setIsEditingDetails(isNewSyllabus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props?.selectedSyllabusObj?.id]);
+
+  const getSyllabusDocMeta = (obj: any) => {
+    const syllabusDocData = obj?.syllabus_doc;
+    const url =
+      typeof syllabusDocData === "string"
+        ? syllabusDocData
+        : syllabusDocData?.url || obj?.doc_url || obj?.syllabus_doc_url;
+    const name =
+      typeof syllabusDocData === "object"
+        ? syllabusDocData?.original_name
+        : obj?.doc_name || obj?.syllabus_doc_name || "";
+    return { url, name };
+  };
+
+  const formatTime = (value: any): string => {
+    if (isNullUndefinedOrBlank(value)) return "";
+    if (typeof value === "string") {
+      // If backend already provides a display string like "TTh 2:00 PM - 3:30 PM"
+      if (value.includes("-") || value.includes("–")) return value;
+      // If it's SQL time "HH:mm:ss"
+      const m = value.match(/^(\d{2}):(\d{2})(?::(\d{2}))?/);
+      if (m) {
+        const d = new Date();
+        d.setHours(Number(m[1]), Number(m[2]), Number(m[3] ?? 0), 0);
+        return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+      }
+      return value;
+    }
+    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+      return value.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    }
+    return "";
+  };
+
+  const getCourseColorName = (hex?: string) => {
+    if (!hex || typeof hex !== "string") return "";
+    const map: Record<string, string> = {
+      "#239bc2": "Cyan",
+      "#f97316": "Orange",
+      "#eab308": "Yellow",
+      "#22c55e": "Green",
+      "#14b8a6": "Teal",
+      "#d97706": "Gold",
+      "#3b82f6": "Blue",
+      "#cddc39": "Lime",
+      "#ef4444": "Red",
+      "#8b5cf6": "Purple",
+      "#ec4899": "Pink",
+      "#6b7280": "Gray",
+      "#78716c": "Stone",
+      "#6366f1": "Indigo",
+    };
+    return map[hex.toLowerCase()] || hex;
+  };
+
   const handleUpgrade = () => {
     if (props?.onUpgradeClick) {
       props.onUpgradeClick();
@@ -370,7 +433,100 @@ const SyllabusDetails = (props) => {
   return (
     <>
       <div className="tab-body-container">
-        <div className="syllabus-details-box">
+        {/* View mode (Course Information) */}
+        {!isEditingDetails && !isNewSyllabus ? (
+          <>
+            <div className="syllabus-details-header">
+              <h3 className="syllabus-details-title">Course Information</h3>
+              <button
+                type="button"
+                className="btn btn-secondary edit-syllabus-btn"
+                onClick={() => setIsEditingDetails(true)}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+                Edit Details
+              </button>
+            </div>
+
+            {(() => {
+              const obj = props?.selectedSyllabusObj || {};
+              const { url: docUrl, name: docName } = getSyllabusDocMeta(obj);
+              const title = obj?.title || "";
+              const professor = obj?.professor_name || "";
+              const classTimeDisplay =
+                obj?.class_time_display ||
+                obj?.classTimeDisplay ||
+                obj?.class_time ||
+                "";
+              const classTimeText = typeof classTimeDisplay === "string" ? classTimeDisplay : formatTime(classTimeDisplay);
+              const colorHex = obj?.course_color || "";
+              const colorName = getCourseColorName(colorHex);
+
+              return (
+                <div className="syllabus-details-box">
+                  <div className="form-group">
+                    <label className="form-label">Course Title</label>
+                    <input className="form-input" value={title} readOnly />
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">Professor Name</label>
+                      <input className="form-input" value={professor} readOnly />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Class Time</label>
+                      <input className="form-input" value={classTimeText} readOnly />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Uploaded Syllabus</label>
+                    <div className="syllabus-file-display">
+                      <div className="file-icon" aria-hidden="true">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                        </svg>
+                      </div>
+                      <div className="file-info">
+                        <div className="file-name">{!isNullUndefinedOrBlank(docName) ? docName : "No syllabus uploaded"}</div>
+                        <div className="file-size">{!isNullUndefinedOrBlank(docName) ? "PDF Document" : ""}</div>
+                      </div>
+                      <button
+                        type="button"
+                        className="file-view-btn"
+                        disabled={isNullUndefinedOrBlank(docUrl)}
+                        title={isNullUndefinedOrBlank(docUrl) ? "No syllabus to preview" : "View syllabus"}
+                        onClick={() => {
+                          if (!isNullUndefinedOrBlank(docUrl)) props?.setPdfPreviewLink(docUrl);
+                        }}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Course Color</label>
+                    <div className="course-color-display">
+                      <span className="color-swatch-large" style={{ background: colorHex || "#239BC2" }} />
+                      <span className="color-name">{colorName}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+          </>
+        ) : (
+          /* Edit mode (existing form) */
+          <div className="syllabus-details-box">
           <Form.Group
             className="form-group required"
             controlId="exampleForm.ControlInput1"
@@ -721,26 +877,41 @@ const SyllabusDetails = (props) => {
           </Form.Group>
 
         </div>
+      )}
       </div>
-      <div className="bottom-button-group">
+
+      {/* Bottom buttons: only show in edit mode */}
+      {isEditingDetails ? (
+        <div className="bottom-button-group">
         <Button
           type="button"
           className="btn btn-light-white me-auto"
           onClick={() => {
+            // Existing syllabus: return to view mode. New syllabus: close panel.
+            if (!isNewSyllabus) {
+              setIsEditingDetails(false);
+              // Reset edits
+              try {
+                syllabusFormData.resetForm();
+              } catch {}
+              return;
+            }
             props.handleCloseSyllabusDetails();
           }}
         >
           Cancel
         </Button>
-        <Button
-          type="button"
-          className="btn btn-light-danger"
-          onClick={() => {
-            handleDeleteShow();
-          }}
-        >
-          Delete Syllabus
-        </Button>
+        {!isNewSyllabus && (
+          <Button
+            type="button"
+            className="btn btn-light-danger"
+            onClick={() => {
+              handleDeleteShow();
+            }}
+          >
+            Delete Syllabus
+          </Button>
+        )}
         <Button
           type="button"
           className="btn btn-primary"
@@ -751,7 +922,8 @@ const SyllabusDetails = (props) => {
         >
           Save
         </Button>
-      </div>
+        </div>
+      ) : null}
 
       {/* Delete Modal */}
       <Modal

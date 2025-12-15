@@ -261,11 +261,11 @@ const Events = (props: any) => {
   return (
     <>
       <div className="edit-course-table-header">
-        <div>ACTIONS</div>
+        <div>DONE</div>
         <div>TIME</div>
         <div>PRIORITY</div>
         <div>EVENT NAME</div>
-        <div>ACTIONS</div>
+        <div>DELETE</div>
       </div>
 
       {hasAnyEvents ? (

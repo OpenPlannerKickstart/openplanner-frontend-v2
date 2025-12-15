@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import AddEditGroup from '../../../common/Groups/AddEditGroup';
@@ -16,6 +16,7 @@ import { useSidebar } from '../../../layouts/DashboardLayout';
 import type { AppDispatch } from '../../../redux/store';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 // Image assets must be bundled; do not rely on absolute "/assets" paths in production
 import bookIcon from '../../../assets/images/book.svg';
 import defaultAvatar from '../../../assets/images/avatar-default.svg';
@@ -23,6 +24,44 @@ import emptyStateImg from '../../../assets/images/not-voucher-found.svg';
 import { ATTACH_ACCEPT_INPUT, ATTACH_MAX_PER_MESSAGE, ATTACH_MAX_MB, isMimeAllowed, isSizeAllowed } from '../../../Utility/attachments';
 import { initiateUpload, uploadToS3, toAttachmentDescriptor, computeCrc32Base64 } from '../../../Utility/uploads';
 import type { AttachmentDescriptor } from '../../../interfaces/groups';
+
+// Reuse the exact same "no profile picture" icon used in the new header user menu
+const HeaderUserIcon: React.FC<{ size?: number }> = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const HeaderStyleAvatar: React.FC<{
+  src?: string | null;
+  alt: string;
+  size?: number;
+  onClick?: () => void;
+}> = ({ src, alt, size = 28, onClick }) => {
+  const clickable = typeof onClick === 'function';
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={alt}
+        style={{ width: size, height: size, borderRadius: '50%', cursor: clickable ? 'pointer' : 'default', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+        onClick={onClick}
+      />
+    );
+  }
+  return (
+    <div
+      className="user-avatar"
+      style={{ width: size, height: size, cursor: clickable ? 'pointer' : 'default', flex: `0 0 ${size}px` }}
+      onClick={onClick}
+      aria-label={alt}
+      title={alt}
+    >
+      <HeaderUserIcon size={Math.round(size * 0.75)} />
+    </div>
+  );
+};
 
 // Simple responsive hook for mobile breakpoint detection (align with Bootstrap lg)
 const useIsMobile = (maxWidthPx: number = 991.98) => {
@@ -1285,9 +1324,23 @@ const Groups: React.FC = () => {
     }
   };
 
-  const handleDeleteGroup = async () => {
+  const [deleteGroupConfirm, setDeleteGroupConfirm] = useState<{ open: boolean; loading: boolean }>({
+    open: false,
+    loading: false,
+  });
+
+  const handleDeleteGroup = () => {
     if (!selectedGroupId) return;
+    setDeleteGroupConfirm({ open: true, loading: false });
+  };
+
+  const handleConfirmDeleteGroup = async () => {
+    if (!selectedGroupId) {
+      setDeleteGroupConfirm({ open: false, loading: false });
+      return;
+    }
     try {
+      setDeleteGroupConfirm({ open: true, loading: true });
       await post(`groups/${selectedGroupId}/delete`, {});
       ts('Group deleted');
       setShowGroupInfo(false);
@@ -1295,6 +1348,8 @@ const Groups: React.FC = () => {
       await fetchMyGroups();
     } catch (err) {
       te('Failed to delete group');
+    } finally {
+      setDeleteGroupConfirm({ open: false, loading: false });
     }
   };
 
@@ -1985,11 +2040,11 @@ const Groups: React.FC = () => {
                                         const senderName = isMine ? 'You' : (m?.sender?.displayName || 'User');
                                         // For DM messages, use recipient picture from thread if sender picture is missing
                                         const dmRecipient = dmThread?.participants?.[0];
-                                        const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || (!isMine && (dmRecipient?.picture || dmRecipient?.avatarUrl)) || defaultAvatar;
+                                        const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || (!isMine && (dmRecipient?.picture || dmRecipient?.avatarUrl)) || null;
                                         if (m?.deleted) {
                                           return (
                                             <div key={key} className={`d-flex ${isMine ? 'justify-content-end' : 'align-items-start gap-2'} mb-2`}>
-                                              {!isMine && <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />}
+                                              {!isMine && <HeaderStyleAvatar src={avatar} alt={senderName} size={28} />}
                                               <div style={{ maxWidth: '90%' }}>
                                                 <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}><div>{senderName}</div><div>{created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div></div>
                                                 <div style={{ background: '#F3F4F6', border: '1px solid #E5E7EB', color: '#6B7280', borderRadius: 12, padding: '10px 12px', fontStyle: 'italic' }}>This message was deleted.</div>
@@ -2013,7 +2068,7 @@ const Groups: React.FC = () => {
                                         })() : null;
                                         return (
                                           <div key={key} className={`d-flex ${isMine ? 'justify-content-end' : 'align-items-start gap-2'} mb-2`}>
-                                            {!isMine && <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%', cursor: 'pointer' }} onClick={() => { if (m?.sender?.id) navigate(`/students/${m.sender.id}`); }} />}
+                                            {!isMine && <HeaderStyleAvatar src={avatar} alt={senderName} size={28} onClick={() => { if (m?.sender?.id) navigate(`/students/${m.sender.id}`); }} />}
                                             <div style={{ maxWidth: '90%' }}>
                                               {/* Conditional order: attachments-only = name first; attachments+text = name between */}
                                               {hasAttachments && !hasText && nameTimeRow}
@@ -2165,12 +2220,12 @@ const Groups: React.FC = () => {
                               // Precompute sender display for branches below
                               const senderName = m?.sender?.displayName || 'User';
                               const senderId = m?.sender?.id;
-                              const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || defaultAvatar;
+                              const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || null;
                               const goToSenderProfile = () => { if (senderId) navigate(`/students/${senderId}`); };
                               if (m?.deleted) {
                                         return (
                                           <div key={key} className="d-flex align-items-start gap-2 mb-2">
-                                    <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%', cursor: 'pointer' }} onClick={goToSenderProfile} />
+                                    <HeaderStyleAvatar src={avatar} alt={senderName} size={28} onClick={goToSenderProfile} />
                                             <div style={{ maxWidth: '90%' }}>
                                               <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
                                                 <div style={{ cursor: 'pointer' }} onClick={goToSenderProfile}>{senderName}</div>
@@ -2218,7 +2273,7 @@ const Groups: React.FC = () => {
                                       })() : null;
                                       return (
                                         <div key={key} className="d-flex align-items-start gap-2 mb-2">
-                                          <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%', cursor: 'pointer' }} onClick={goToSenderProfile} />
+                                          <HeaderStyleAvatar src={avatar} alt={senderName} size={28} onClick={goToSenderProfile} />
                                           <div style={{ maxWidth: '90%' }}>
                                             {/* Conditional order: attachments-only = name first; attachments+text = name between */}
                                             {hasAttachments && !hasText && nameTimeRow}
@@ -2649,11 +2704,11 @@ const Groups: React.FC = () => {
                                 const senderName = isMine ? 'You' : (m?.sender?.displayName || 'User');
                                 // For DM messages, use recipient picture from thread if sender picture is missing
                                 const dmRecipient = dmThread?.participants?.[0];
-                                const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || (!isMine && (dmRecipient?.picture || dmRecipient?.avatarUrl)) || defaultAvatar;
+                                const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || (!isMine && (dmRecipient?.picture || dmRecipient?.avatarUrl)) || null;
                                 if (m?.deleted) {
                                   return (
                                     <div key={key} className={`d-flex ${isMine ? 'justify-content-end' : 'align-items-start gap-2'} mb-2`}>
-                                      {!isMine && <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%' }} />}
+                                      {!isMine && <HeaderStyleAvatar src={avatar} alt={senderName} size={28} />}
                                       <div style={{ maxWidth: '72%' }}>
                                         <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 4px 4px 4px', justifyContent: 'space-between', width: '100%' }}>
                                           <div>{senderName}</div>
@@ -2701,7 +2756,7 @@ const Groups: React.FC = () => {
                                 })() : null;
                                 return (
                                   <div key={key} className={`d-flex ${isMine ? 'justify-content-end' : 'align-items-start gap-2'} mb-2`}>
-                                    {!isMine && <img src={avatar} alt={senderName} style={{ width: 28, height: 28, borderRadius: '50%', cursor: 'pointer' }} onClick={() => { if (m?.sender?.id) navigate(`/students/${m.sender.id}`); }} />}
+                                    {!isMine && <HeaderStyleAvatar src={avatar} alt={senderName} size={28} onClick={() => { if (m?.sender?.id) navigate(`/students/${m.sender.id}`); }} />}
                                     <div style={{ maxWidth: '72%' }}>
                                       {/* Conditional order: attachments-only = name first; attachments+text = name between */}
                                       {hasAttachments && !hasText && nameTimeRow}
@@ -2867,12 +2922,12 @@ const Groups: React.FC = () => {
                               }
                               const senderName = m?.sender?.displayName || 'User';
                               const senderId = m?.sender?.id;
-                              const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || defaultAvatar;
+                              const avatar = m?.sender?.picture || m?.sender?.avatarUrl || m?.sender_picture || null;
                               const goToSenderProfile = () => { if (senderId) navigate(`/students/${senderId}`); };
                               if (m?.deleted) {
                                 return (
                                   <div key={key} className="d-flex align-items-start gap-2 mb-2">
-                                  <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%', cursor: 'pointer' }} onClick={goToSenderProfile} />
+                                  <HeaderStyleAvatar src={avatar} alt={senderName} size={32} onClick={goToSenderProfile} />
                                     <div style={{ maxWidth: '72%' }}>
                                       <div className="d-flex align-items-center" style={{ fontSize: 12, color: '#6B7280', margin: '0 2px 4px 2px', justifyContent: 'space-between', width: '100%' }}>
                                         <div style={{ cursor: 'pointer' }} onClick={goToSenderProfile}>{senderName}</div>
@@ -2920,7 +2975,7 @@ const Groups: React.FC = () => {
                               })() : null;
                               return (
                                 <div key={key} className="d-flex align-items-start gap-2 mb-2">
-                                  <img src={avatar} alt={senderName} style={{ width: 32, height: 32, borderRadius: '50%', cursor: 'pointer' }} onClick={goToSenderProfile} />
+                                  <HeaderStyleAvatar src={avatar} alt={senderName} size={32} onClick={goToSenderProfile} />
                                   <div style={{ maxWidth: '72%' }}>
                                     {/* Conditional order: attachments-only = name first; attachments+text = name between */}
                                     {hasAttachments && !hasText && nameTimeRow}
@@ -3259,69 +3314,45 @@ const Groups: React.FC = () => {
         }}
       />
 
-      {/* Confirm Delete (UI only for now) */}
-      {confirmDelete.open && (
-        <div role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1050, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setConfirmDelete({ open: false, messageId: null })}>
-          <div className="bg-white" style={{ width: 360, borderRadius: 12, boxShadow: '0 10px 24px rgba(0,0,0,0.15)', border: '1px solid #E5E7EB' }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ padding: '16px 16px 0 16px' }}>
-              <h6 className="mb-1" style={{ color: '#111827' }}>Delete message?</h6>
-              <div className="text-muted" style={{ fontSize: 14 }}>This can't be undone. This will remove the message for everyone in the group.</div>
-            </div>
-            <div className="d-flex justify-content-end gap-2" style={{ padding: 16 }}>
-              <button className="btn btn-outline-white" onClick={() => setConfirmDelete({ open: false, messageId: null })}>Cancel</button>
-              <button className="btn btn-primary" onClick={handleConfirmDelete} disabled={!!confirmDelete.loading}>Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Message Confirmation (standardized) */}
+      <ConfirmDeleteModal
+        show={confirmDelete.open}
+        onClose={() => setConfirmDelete({ open: false, messageId: null, loading: false })}
+        onConfirm={handleConfirmDelete}
+        message={
+          <>
+            You want to delete this message? This action cannot be undone. This will remove the message for everyone in the group.
+          </>
+        }
+        cancelText="No, Keep It"
+        confirmText="Delete"
+        loading={!!confirmDelete.loading}
+      />
 
-      {/* Delete DM Confirmation Modal */}
-      <Modal
-        className="modal-theme modal-confirmation modal-reject"
+      {/* Delete Group Confirmation (standardized) */}
+      <ConfirmDeleteModal
+        show={deleteGroupConfirm.open}
+        onClose={() => {
+          if (deleteGroupConfirm.loading) return;
+          setDeleteGroupConfirm({ open: false, loading: false });
+        }}
+        onConfirm={handleConfirmDeleteGroup}
+        message={<>You want to delete this group? This action cannot be undone.</>}
+        cancelText="No, Keep It"
+        confirmText="Delete"
+        loading={deleteGroupConfirm.loading}
+      />
+
+      {/* Delete DM Confirmation Modal (standardized) */}
+      <ConfirmDeleteModal
         show={deleteDmConfirm.open}
-        onHide={() => setDeleteDmConfirm({ open: false, threadId: null, recipientName: null, loading: false })}
-        centered
-      >
-        <Modal.Header>
-          <h4 className="modal-title">Delete Conversation</h4>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setDeleteDmConfirm({ open: false, threadId: null, recipientName: null, loading: false })}
-          >
-            <i className="material-symbols-outlined">close</i>
-          </button>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="modal-confirmation-container">
-            <div className="modal-confirmation-icon">
-              <i className="material-symbols-outlined">delete</i>
-            </div>
-            <div className="modal-confirmation-content">
-              <h5>Are You Sure?</h5>
-              <p>You want to delete your conversation with {deleteDmConfirm.recipientName}? This action cannot be undone.</p>
-            </div>
-          </div>
-          <div className="modal-button-group modal-full-width-btn modal-footer-button">
-            <Button
-              variant="light-white"
-              className="btn-md"
-              onClick={() => setDeleteDmConfirm({ open: false, threadId: null, recipientName: null, loading: false })}
-              disabled={deleteDmConfirm.loading}
-            >
-              No, Keep It
-            </Button>
-            <Button
-              variant="danger"
-              className="btn-icon-text btn-md"
-              onClick={handleDeleteDm}
-              disabled={deleteDmConfirm.loading}
-            >
-              {deleteDmConfirm.loading ? 'Deleting...' : 'Delete'}
-            </Button>
-          </div>
-        </Modal.Body>
-      </Modal>
+        onClose={() => setDeleteDmConfirm({ open: false, threadId: null, recipientName: null, loading: false })}
+        onConfirm={handleDeleteDm}
+        message={<>You want to delete your conversation with {deleteDmConfirm.recipientName}? This action cannot be undone.</>}
+        cancelText="No, Keep It"
+        confirmText="Delete"
+        loading={deleteDmConfirm.loading}
+      />
 
       {/* Invite Members Modal - simplified */}
       {showInvite && (
