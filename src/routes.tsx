@@ -126,6 +126,32 @@ const publicRoutes: RouterProps[] = [
     caseSensitive: true,
   },
   {
+    path: "/faqs",
+    component: React.lazy(() => import('./pages/FAQs/FAQPage')),
+    caseSensitive: true,
+  },
+  // Support hash-anchor deep links when using HashRouter (e.g., #pricing, #features)
+  {
+    path: "/pricing",
+    component: <LandingPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/features",
+    component: <LandingPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/testimonials",
+    component: <LandingPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/contact",
+    component: <LandingPage />,
+    caseSensitive: true,
+  },
+  {
     path: ENUMFORROUTES.LOGIN,
     component: <Login />,
     caseSensitive: true,
