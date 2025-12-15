@@ -69,16 +69,24 @@ const SyllabusDetails = (props) => {
 
   useEffect(() => {
     if (!isEmptyObjectOrNullUndefiend(props?.selectedSyllabusObj)) {
+      // Handle syllabus_doc as either object with url or direct string
+      const syllabusDocData = props?.selectedSyllabusObj?.syllabus_doc;
+      const syllabusDocUrl = typeof syllabusDocData === 'string' 
+        ? syllabusDocData 
+        : syllabusDocData?.url || props?.selectedSyllabusObj?.doc_url;
+      const syllabusDocName = typeof syllabusDocData === 'object' 
+        ? syllabusDocData?.original_name 
+        : props?.selectedSyllabusObj?.doc_name || "";
+      
       const newData = {
         ...props?.selectedSyllabusObj,
         class_time: props?.selectedSyllabusObj?.class_time
           ? new Date(`1970-01-01T${props?.selectedSyllabusObj?.class_time}`)
           : null,
-        syllabus_doc: props?.selectedSyllabusObj?.syllabus_doc?.url,
-        syllabus_doc_name:
-          props?.selectedSyllabusObj?.syllabus_doc?.original_name || "",
+        syllabus_doc: syllabusDocUrl,
+        syllabus_doc_name: syllabusDocName,
       };
-      props?.setPdfPreviewLink(props?.selectedSyllabusObj?.syllabus_doc?.url);
+      props?.setPdfPreviewLink(syllabusDocUrl);
 
       setSavedSyllabusFormData(newData);
     }
@@ -315,10 +323,22 @@ const SyllabusDetails = (props) => {
   const handleShow = () => { setShow(true); }
   /** -----------------edit document alert start---------------------------*/
 
+  // Course colors matching the new design system (synced with getColorClassName in Courses.tsx)
   const colorPalette = [
-    "#239BC2", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3",
-    "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39",
-    "#ffeb3b", "#ffc107", "#ff9800", "#ff5722", "#795548", "#607d8b"
+    "#239BC2", // cyan (default)
+    "#F97316", // orange
+    "#EAB308", // yellow
+    "#22C55E", // green
+    "#14B8A6", // teal
+    "#D97706", // gold
+    "#3B82F6", // blue
+    "#cddc39", // lime
+    "#EF4444", // red
+    "#8B5CF6", // purple
+    "#EC4899", // pink
+    "#6B7280", // gray
+    "#78716C", // stone
+    "#6366F1", // indigo
   ];
 
   // const [showColorPopover, setShowColorPopover] = useState(false);

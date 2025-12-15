@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { connect, useDispatch } from 'react-redux'
-import { AppDispatch } from '../../redux/store';
+import { connect, useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../../redux/store';
 import { getSyllabusDropDownDataAPI } from '../../redux/Service/User/Calender/calender';
 import { addEvenData } from '../../interfaces/interface';
 import { END_DATE_IS_REQUIRED, SELECTION_IS_REQUIRED, START_DATE_IS_REQUIRED, TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
@@ -26,9 +26,14 @@ import { ENUM_FOR_EVENT_PRIORITY } from '../../interfaces/enum';
 export const AddEditEvent = (props) => {
     const dispatch: AppDispatch = useDispatch();
     const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    
+    // Get courses list from Redux for color lookup
+    const coursesListData = useSelector((state: RootState) => (state.CoursesReducer as any)?.getCoursesListData);
 
     const handleCloseAddSyllabusEvents = () => {
         setShowAddSyllabusEvents(false);
+        setIsEditMode(false);
         props?.setShow(false)
         setTimeout(() => {
             eventFormData.resetForm();
@@ -43,6 +48,13 @@ export const AddEditEvent = (props) => {
         if (props?.show) {
             handleShowAddSyllabusEvents();
             eventFormData.resetForm();
+            // If editing an existing event, start in view mode
+            // If adding new event, start in edit mode
+            if (!isNullUndefinedOrBlank(props?.editEventFormData?.id)) {
+                setIsEditMode(false);
+            } else {
+                setIsEditMode(true);
+            }
             if (!isNullUndefinedOrBlank(props?.selectedCourse)) {
                 setSavedEventFormData({ ...initEventData, syllabus_id: props?.selectedCourse?.id });
             } else {
@@ -270,6 +282,61 @@ export const AddEditEvent = (props) => {
         }
     }
 
+    const handleCancelEdit = () => {
+        // Reset form to saved data and exit edit mode
+        eventFormData.setValues(savedEventFormData);
+        setIsEditMode(false);
+    }
+
+    const isExistingEvent = !isNullUndefinedOrBlank(eventFormData?.values?.id);
+
+    // Get course color for Event Details modal border and header gradient
+    const getCourseColor = () => {
+        // 1. Try to get from editEventFormData (event object now has course_color directly)
+        if (props?.editEventFormData?.course_color) {
+            return props.editEventFormData.course_color;
+        }
+        // 2. Try nested syllabus object on event (backward compatibility)
+        if (props?.editEventFormData?.syllabus?.course_color) {
+            return props.editEventFormData.syllabus.course_color;
+        }
+        // 3. Try to get from selectedCourse
+        if (props?.selectedCourse?.course_color) {
+            return props.selectedCourse.course_color;
+        }
+        // 4. Look up from syllabusDropDownData based on syllabus_id (now has top-level course_color)
+        const syllabusId = eventFormData?.values?.syllabus_id;
+        if (syllabusId && syllabusDropDownData?.length) {
+            const syllabus = syllabusDropDownData.find((s: any) => s.value === syllabusId);
+            // Try top-level first, then nested other.course_color
+            if (syllabus?.course_color) {
+                return syllabus.course_color;
+            }
+            if (syllabus?.other?.course_color) {
+                return syllabus.other.course_color;
+            }
+        }
+        // 5. Look up from courses list in Redux based on syllabus_id
+        if (syllabusId && coursesListData?.length) {
+            const course = coursesListData.find((c: any) => c.id === syllabusId);
+            if (course?.course_color) {
+                return course.course_color;
+            }
+        }
+        // Default to yellow for existing events without a color
+        return isExistingEvent ? '#EAB308' : null;
+    };
+
+    const courseColor = getCourseColor();
+
+    // Helper to lighten a hex color for the gradient
+    const getLightColor = (hex: string) => {
+        // Convert hex to RGB, make it lighter, return as rgba
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, 0.15)`;
+    };
 
     /* -------------------------- Add Event Data End -------------------------- */
     /** -------------------Delete event start-------------------------*/
@@ -317,101 +384,84 @@ export const AddEditEvent = (props) => {
         <>
             {/***** Modal start *****/}
             <Modal
-                className="add-event-modal-wrapper"
-                    show={showAddSyllabusEvents}
-                    onHide={handleCloseAddSyllabusEvents}
+                className={`add-event-modal-wrapper ${isExistingEvent ? 'event-details-wrapper' : 'add-new-event-wrapper'}`}
+                show={showAddSyllabusEvents}
+                onHide={handleCloseAddSyllabusEvents}
                 centered
-                dialogClassName="add-event-modal"
+                dialogClassName={`add-event-modal ${isExistingEvent ? 'event-details-modal' : ''} ${isEditMode ? 'edit-mode' : ''}`}
+                style={isExistingEvent && courseColor ? { '--event-color': courseColor, '--event-color-light': getLightColor(courseColor) } as React.CSSProperties : undefined}
             >
-                <Modal.Header>
+                <Modal.Header style={isExistingEvent && courseColor ? { background: `linear-gradient(to right, ${getLightColor(courseColor)}, #fff)` } : undefined}>
                     <Modal.Title>
-                        {!isNullUndefinedOrBlank(eventFormData?.values?.id) ? "Edit" : "Add New"} Event
+                        {isExistingEvent ? "Event Details" : "Add New Event"}
                     </Modal.Title>
-                    <button type="button" className="modal-close-btn" onClick={handleCloseAddSyllabusEvents}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="18" y1="6" x2="6" y2="18"/>
-                            <line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
+                    <div className="modal-actions">
+                        {isExistingEvent && (
+                            <button 
+                                type="button" 
+                                className={`edit-toggle-btn ${isEditMode ? 'active' : ''}`}
+                                onClick={() => setIsEditMode(!isEditMode)}
+                            >
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                                <span>{isEditMode ? 'Editing' : 'Edit'}</span>
+                            </button>
+                        )}
+                        <button type="button" className="modal-close-btn" onClick={handleCloseAddSyllabusEvents}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
                         </button>
+                    </div>
                 </Modal.Header>
                 <Modal.Body>
-                    {/* Start/End Date Row */}
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label className="form-label required">Start Date</label>
+                    {/* Start Date */}
+                    <div className="form-group">
+                        <label className="form-label">Start Date{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
+                        {isEditMode || !isExistingEvent ? (
                             <div className="date-input-wrapper">
-                                                                <DatePicker
-                                                                    dropdownMode="select"
-                                                                    selected={eventFormData.values.start_date}
-                                                                    onChange={(date) => {
-                                                                        if (date === null) {
-                                                                            eventFormData.setFieldValue("start_date", null);
-                                                                            eventFormData.setFieldValue("end_date", null);
-                                                                            return;
-                                                                        }
-                                                                        const now = new Date();
-                                                                        const selectedDate = new Date(date);
+                                <DatePicker
+                                    dropdownMode="select"
+                                    selected={eventFormData.values.start_date}
+                                    onChange={(date) => {
+                                        if (date === null) {
+                                            eventFormData.setFieldValue("start_date", null);
+                                            eventFormData.setFieldValue("end_date", null);
+                                            return;
+                                        }
+                                        const now = new Date();
+                                        const selectedDate = new Date(date);
                                         const isSameDate = now.getFullYear() === selectedDate.getFullYear() &&
-                                                                            now.getMonth() === selectedDate.getMonth() &&
-                                                                            now.getDate() === selectedDate.getDate();
-                                                                        if (isSameDate && !date?.getHours() && !date?.getMinutes()) {
-                                                                            selectedDate.setHours(now.getHours());
-                                                                            selectedDate.setMinutes(now.getMinutes());
-                                                                        }
-                                                                        eventFormData.setFieldValue("start_date", selectedDate);
-                                                                        const endDate = new Date(selectedDate.getTime() + 30 * 60 * 1000);
-                                                                        eventFormData.setFieldValue("end_date", endDate);
-                                                                    }}
-                                                                    showTimeSelect
-                                                                    dateFormat="MM/dd/yyyy hh:mm aa"
-                                                                    timeIntervals={15}
+                                            now.getMonth() === selectedDate.getMonth() &&
+                                            now.getDate() === selectedDate.getDate();
+                                        if (isSameDate && !date?.getHours() && !date?.getMinutes()) {
+                                            selectedDate.setHours(now.getHours());
+                                            selectedDate.setMinutes(now.getMinutes());
+                                        }
+                                        eventFormData.setFieldValue("start_date", selectedDate);
+                                        const endDate = new Date(selectedDate.getTime() + 30 * 60 * 1000);
+                                        eventFormData.setFieldValue("end_date", endDate);
+                                    }}
+                                    showTimeSelect
+                                    dateFormat="MM/dd/yyyy hh:mm aa"
+                                    timeIntervals={15}
                                     className="form-input"
-                                                                    popperProps={{ strategy: "fixed" }}
-                                                                    placeholderText="Select Date"
+                                    popperProps={{ strategy: "fixed" }}
+                                    placeholderText="Select Date"
                                     onBlur={() => eventFormData.setFieldTouched("start_date", true)}
-                                                                    minDate={new Date()}
-                                                                    disabled={eventFormData?.values?.is_all_day_event}
-                                                                    filterTime={(time) => {
-                                                                        const now = new Date();
-                                                                        const selectedDate = eventFormData.values.start_date || new Date();
-                                                                        if (selectedDate.toDateString() === now.toDateString()) {
-                                                                            return time.getTime() >= now.getTime();
-                                                                        }
-                                                                        return true;
-                                                                    }}
-                                                                />
-                                <svg className="date-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                    <line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/>
-                                    <line x1="3" y1="10" x2="21" y2="10"/>
-                                </svg>
-                            </div>
-                            {eventFormData.touched.start_date && eventFormData.errors.start_date && renderError(eventFormData.errors.start_date as any)}
-                                                            </div>
-                        <div className="form-group">
-                            <label className="form-label required">End Date</label>
-                            <div className="date-input-wrapper">
-                                                                <DatePicker
-                                                                    selected={eventFormData.values.end_date}
-                                    onChange={(date) => eventFormData.setFieldValue("end_date", date)}
-                                                                    showTimeSelect
-                                                                    dateFormat="MM/dd/yyyy hh:mm aa"
-                                                                    timeIntervals={15}
-                                    className="form-input"
-                                                                    popperProps={{ strategy: "fixed" }}
-                                                                    placeholderText="Select Date"
-                                    onBlur={() => eventFormData.setFieldTouched("end_date", true)}
-                                                                    disabled={eventFormData?.values?.is_all_day_event}
-                                                                    minDate={eventFormData?.values?.start_date}
-                                                                    filterTime={(time) => {
-                                                                        const now = new Date();
-                                                                        const selectedDate = eventFormData.values.start_date || new Date();
-                                                                        if (selectedDate.toDateString() === now.toDateString()) {
-                                                                            return time.getTime() >= now.getTime();
-                                                                        }
-                                                                        return true;
-                                                                    }}
+                                    minDate={new Date()}
+                                    disabled={eventFormData?.values?.is_all_day_event}
+                                    filterTime={(time) => {
+                                        const now = new Date();
+                                        const selectedDate = eventFormData.values.start_date || new Date();
+                                        if (selectedDate.toDateString() === now.toDateString()) {
+                                            return time.getTime() >= now.getTime();
+                                        }
+                                        return true;
+                                    }}
                                 />
                                 <svg className="date-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -420,191 +470,327 @@ export const AddEditEvent = (props) => {
                                     <line x1="3" y1="10" x2="21" y2="10"/>
                                 </svg>
                             </div>
-                            {eventFormData.touched.end_date && eventFormData.errors.end_date && renderError(eventFormData.errors.end_date as any)}
-                        </div>
-                                                            </div>
+                        ) : (
+                            <input 
+                                type="text" 
+                                className="form-input" 
+                                value={eventFormData.values.start_date ? formatedDate(eventFormData.values.start_date, 'MM/DD/yyyy hh:mm A') : ''} 
+                                readOnly 
+                            />
+                        )}
+                        {eventFormData.touched.start_date && eventFormData.errors.start_date && renderError(eventFormData.errors.start_date as any)}
+                    </div>
+
+                    {/* End Date */}
+                    <div className="form-group">
+                        <label className="form-label">End Date{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
+                        {isEditMode || !isExistingEvent ? (
+                            <div className="date-input-wrapper">
+                                <DatePicker
+                                    selected={eventFormData.values.end_date}
+                                    onChange={(date) => eventFormData.setFieldValue("end_date", date)}
+                                    showTimeSelect
+                                    dateFormat="MM/dd/yyyy hh:mm aa"
+                                    timeIntervals={15}
+                                    className="form-input"
+                                    popperProps={{ strategy: "fixed" }}
+                                    placeholderText="Select Date"
+                                    onBlur={() => eventFormData.setFieldTouched("end_date", true)}
+                                    disabled={eventFormData?.values?.is_all_day_event}
+                                    minDate={eventFormData?.values?.start_date}
+                                    filterTime={(time) => {
+                                        const now = new Date();
+                                        const selectedDate = eventFormData.values.start_date || new Date();
+                                        if (selectedDate.toDateString() === now.toDateString()) {
+                                            return time.getTime() >= now.getTime();
+                                        }
+                                        return true;
+                                    }}
+                                />
+                                <svg className="date-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                            </div>
+                        ) : (
+                            <input 
+                                type="text" 
+                                className="form-input" 
+                                value={eventFormData.values.end_date ? formatedDate(eventFormData.values.end_date, 'MM/DD/yyyy hh:mm A') : ''} 
+                                readOnly 
+                            />
+                        )}
+                        {eventFormData.touched.end_date && eventFormData.errors.end_date && renderError(eventFormData.errors.end_date as any)}
+                    </div>
+
                     {/* Title */}
-                                                    <div className="form-group">
-                        <label className="form-label required">Title</label>
-                        <input
-                            type="text"
-                            className="form-input"
-                            placeholder="Enter Title"
-                                                            {...eventFormData.getFieldProps("title")}
-                                                            maxLength={MAX_1000}
-                                                        />
+                    <div className="form-group">
+                        <label className="form-label">Title{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
+                        {isEditMode || !isExistingEvent ? (
+                            <textarea
+                                className="form-input form-textarea"
+                                placeholder="Enter Title"
+                                {...eventFormData.getFieldProps("title")}
+                                maxLength={MAX_1000}
+                            />
+                        ) : (
+                            <textarea
+                                className="form-input form-textarea"
+                                value={eventFormData.values.title || ''}
+                                readOnly
+                            />
+                        )}
                         {eventFormData.touched.title && eventFormData.errors.title && renderError(eventFormData.errors.title as any)}
-                                                    </div>
+                    </div>
 
                     {/* Note */}
-                                                    <div className="form-group">
-                        <label className="form-label">Note</label>
-                        <textarea
-                            className="form-textarea"
-                            placeholder="Enter Note"
-                            rows={4}
-                                                            {...eventFormData.getFieldProps("note")}
-                                                            maxLength={MAX_300}
-                                                        />
-                                                    </div>
-                    {/* Calendar */}
                     <div className="form-group">
-                        <label className="form-label required">Calendar</label>
-                                                    <Select
-                                                        options={syllabusDropDownData}
-                            placeholder="Select"
-                            onChange={(selectedOption) => eventFormData.setFieldValue("syllabus_id", selectedOption?.value || null)}
-                            value={syllabusDropDownData?.filter(({ value }) => value === eventFormData.values.syllabus_id)}
-                            isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse)}
-                                                        isClearable
-                                                        menuPosition="fixed"
-                                                        className="react-select-container"
-                            classNamePrefix="react-select"
-                                                    />
-                        {eventFormData.touched.syllabus_id && eventFormData.errors.syllabus_id && renderError(eventFormData.errors.syllabus_id as any)}
+                        <label className="form-label">Note</label>
+                        {isEditMode || !isExistingEvent ? (
+                            <textarea
+                                className="form-input form-textarea"
+                                placeholder="Enter Note"
+                                rows={4}
+                                {...eventFormData.getFieldProps("note")}
+                                maxLength={MAX_300}
+                            />
+                        ) : (
+                            <textarea
+                                className="form-input form-textarea"
+                                value={eventFormData.values.note || ''}
+                                rows={4}
+                                readOnly
+                            />
+                        )}
                     </div>
 
-                    {/* Priority */}
-                    <div className="form-group">
-                        <label className="form-label">Priority</label>
-                                                    <Select
-                                                        options={eventPriorityDropDownData}
-                            placeholder="Select Priority"
-                            onChange={(selectedOption) => eventFormData.setFieldValue("priority", selectedOption?.value || null)}
-                            value={eventPriorityDropDownData?.filter(({ value }) => value === eventFormData.values.priority)}
-                                                        menuPosition="fixed"
-                                                        className="react-select-container"
-                            classNamePrefix="react-select"
-                                                    />
+                    {/* Calendar & Priority Row */}
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label className="form-label">Calendar{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
+                            {isEditMode || !isExistingEvent ? (
+                                <Select
+                                    options={syllabusDropDownData}
+                                    placeholder="Select"
+                                    onChange={(selectedOption) => eventFormData.setFieldValue("syllabus_id", selectedOption?.value || null)}
+                                    value={syllabusDropDownData?.filter(({ value }) => value === eventFormData.values.syllabus_id)}
+                                    isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse)}
+                                    isClearable
+                                    menuPosition="fixed"
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                />
+                            ) : (
+                                <div className="form-select-wrapper">
+                                    <select className="form-input form-select" disabled>
+                                        <option>{syllabusDropDownData?.find(({ value }) => value === eventFormData.values.syllabus_id)?.label || 'N/A'}</option>
+                                    </select>
+                                    <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </div>
+                            )}
+                            {eventFormData.touched.syllabus_id && eventFormData.errors.syllabus_id && renderError(eventFormData.errors.syllabus_id as any)}
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Priority</label>
+                            {isEditMode || !isExistingEvent ? (
+                                <Select
+                                    options={eventPriorityDropDownData}
+                                    placeholder="Select Priority"
+                                    onChange={(selectedOption) => eventFormData.setFieldValue("priority", selectedOption?.value || null)}
+                                    value={eventPriorityDropDownData?.filter(({ value }) => value === eventFormData.values.priority)}
+                                    menuPosition="fixed"
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                />
+                            ) : (
+                                <div className="form-select-wrapper">
+                                    <select className="form-input form-select" disabled>
+                                        <option>{eventPriorityDropDownData?.find(({ value }) => value === eventFormData.values.priority)?.label || 'Low'}</option>
+                                    </select>
+                                    <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    {/* All Day Checkbox - only show in edit mode */}
-                    {!isNullUndefinedOrBlank(eventFormData?.values?.id) && (
-                        <div className="form-group checkbox-group">
-                            <label className="checkbox-label">
-                                                        <input
-                                                            type="checkbox"
-                                    onChange={() => handleMarkAllDayEvent(!eventFormData?.values?.is_all_day_event)}
-                                                            disabled={isNullUndefinedOrBlank(eventFormData?.values?.start_date)}
-                                                            checked={eventFormData?.values?.is_all_day_event}
-                                                        />
-                                <span>Mark as all day Event</span>
-                            </label>
+
+                    {/* Reminders Section */}
+                    {isExistingEvent && !isEditMode ? (
+                        /* View mode: show reminders in read-only format */
+                        eventFormData?.values?.reminder?.length > 0 && (
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Reminders (Notify me before start date) 
+                                    <span className="notification-count">{eventFormData?.values?.reminder?.length || 0}/3</span>
+                                </label>
+                                <div className="notifications-container">
+                                    {eventFormData?.values?.reminder?.map((item: any, index: number) => (
+                                        <div className="notification-row" key={index}>
+                                            <div className="reminder-fields-row">
+                                                <div className="reminder-field">
+                                                    <span className="reminder-field-label">Unit</span>
+                                                    <div className="form-select-wrapper">
+                                                        <select className="form-input form-select" disabled>
+                                                            <option>{reminderUnitDropDownData?.find(({ value }) => value === item.unit)?.label || item.unit}</option>
+                                                        </select>
+                                                        <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <polyline points="6 9 12 15 18 9"/>
+                                                        </svg>
                                                     </div>
+                                                </div>
+                                                <div className="reminder-field">
+                                                    <span className="reminder-field-label">Value</span>
+                                                    <input type="number" className="form-input" value={item.value} readOnly />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )
+                    ) : (
+                        /* Edit mode: show toggle and editable reminders */
+                        <>
+                            <div className="form-group reminder-toggle-group">
+                                <span className="reminder-label">Reminder (Notify me before start date)</span>
+                                <label className="toggle-switch">
+                                    <input
+                                        type="checkbox"
+                                        checked={eventFormData?.values?.is_reminder}
+                                        onChange={() => handleChangeReminder(!eventFormData.values.is_reminder)}
+                                    />
+                                    <span className="toggle-slider"></span>
+                                </label>
+                            </div>
+                            {eventFormData?.values.is_reminder && !isEmptyObjectOrNullUndefiend(eventFormData?.values.reminder) && (
+                                <div className="form-group">
+                                    <div className="notifications-container">
+                                        {eventFormData?.values?.reminder?.map((item: any, index: number) => (
+                                            <div className="notification-row" key={index}>
+                                                <div className="reminder-fields-row">
+                                                    <div className="reminder-field">
+                                                        <span className="reminder-field-label">Unit</span>
+                                                        <Select
+                                                            options={reminderUnitDropDownData}
+                                                            placeholder="Select Unit"
+                                                            menuPosition="fixed"
+                                                            className="react-select-container"
+                                                            classNamePrefix="react-select"
+                                                            onChange={(selectedOption: any) => eventFormData.setFieldValue(`reminder.${index}.unit`, selectedOption.value)}
+                                                            value={reminderUnitDropDownData?.filter(({ value }) => value === eventFormData?.values?.reminder?.[index]?.unit)}
+                                                            onBlur={() => eventFormData.setFieldTouched(`reminder.${index}.unit`, true)}
+                                                        />
+                                                        {(eventFormData?.touched?.reminder?.[index]?.unit as any) && (eventFormData?.errors?.reminder?.[index]?.unit as any) && renderError(eventFormData?.errors?.reminder?.[index]?.unit as any)}
+                                                    </div>
+                                                    <div className="reminder-field">
+                                                        <span className="reminder-field-label">Value</span>
+                                                        <input
+                                                            type="number"
+                                                            className="form-input"
+                                                            placeholder="Enter Value"
+                                                            {...eventFormData.getFieldProps(`reminder.${index}.value`)}
+                                                            maxLength={MAX_3}
+                                                            onBlur={() => eventFormData.setFieldTouched(`reminder.${index}.value`, true)}
+                                                        />
+                                                        {(eventFormData?.touched?.reminder?.[index]?.value as any) && (eventFormData?.errors?.reminder?.[index]?.value as any) && renderError(eventFormData?.errors?.reminder?.[index]?.value as any)}
+                                                    </div>
+                                                </div>
+                                                {eventFormData?.values?.reminder?.length > 1 && (
+                                                    <button type="button" className="remove-notification-btn" onClick={() => removeReminderList(index)}>
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                                        </svg>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    {(eventFormData?.touched?.reminder as any) && (eventFormData?.errors?.reminder as any) && typeof eventFormData?.errors?.reminder === "string" && renderError((eventFormData?.errors?.reminder as any))}
+                                    <button
+                                        type="button"
+                                        className="add-notification-btn"
+                                        disabled={!isNullUndefinedOrBlank(eventFormData?.errors?.reminder) && typeof eventFormData?.errors?.reminder === "string"}
+                                        onClick={() => addReminderList()}
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <line x1="12" y1="5" x2="12" y2="19"/>
+                                            <line x1="5" y1="12" x2="19" y2="12"/>
+                                        </svg>
+                                        Add Another Notification <span className="notification-count">({eventFormData?.values?.reminder?.length || 0}/3)</span>
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     )}
 
-                    {/* Reminder Toggle */}
-                    <div className="form-group reminder-toggle-group">
-                        <span className="reminder-label">Reminder (Notify me before start date)</span>
-                        <label className="toggle-switch">
-                            <input
-                                type="checkbox"
-                                                                    checked={eventFormData?.values?.is_reminder}
-                                onChange={() => handleChangeReminder(!eventFormData.values.is_reminder)}
-                                                                />
-                            <span className="toggle-slider"></span>
-                                                            </label>
-                                                        </div>
-                    {/* Reminder Fields */}
-                    {eventFormData?.values.is_reminder && !isEmptyObjectOrNullUndefiend(eventFormData?.values.reminder) && (
+                    {/* Add to Calendar - show for existing events */}
+                    {isExistingEvent && (
                         <div className="form-group">
-                            <div className="notifications-container">
-                                {eventFormData?.values?.reminder?.map((item: any, index: number) => (
-                                    <div className="notification-row" key={index}>
-                                        <div className="reminder-fields-row">
-                                            <div className="reminder-field">
-                                                <span className="reminder-field-label">Unit</span>
-                                                                                    <Select
-                                                                                        options={reminderUnitDropDownData}
-                                                    placeholder="Select Unit"
-                                                                                        menuPosition="fixed"
-                                                                                        className="react-select-container"
-                                                    classNamePrefix="react-select"
-                                                    onChange={(selectedOption: any) => eventFormData.setFieldValue(`reminder.${index}.unit`, selectedOption.value)}
-                                                    value={reminderUnitDropDownData?.filter(({ value }) => value === eventFormData?.values?.reminder?.[index]?.unit)}
-                                                    onBlur={() => eventFormData.setFieldTouched(`reminder.${index}.unit`, true)}
-                                                                                    />
-                                                {(eventFormData?.touched?.reminder?.[index]?.unit as any) && (eventFormData?.errors?.reminder?.[index]?.unit as any) && renderError(eventFormData?.errors?.reminder?.[index]?.unit as any)}
-                                            </div>
-                                            <div className="reminder-field">
-                                                <span className="reminder-field-label">Value</span>
-                                                <input
-                                                    type="number"
-                                                    className="form-input"
-                                                    placeholder="Enter Value"
-                                                                                        {...eventFormData.getFieldProps(`reminder.${index}.value`)}
-                                                                                        maxLength={MAX_3}
-                                                    onBlur={() => eventFormData.setFieldTouched(`reminder.${index}.value`, true)}
-                                                                                    />
-                                                {(eventFormData?.touched?.reminder?.[index]?.value as any) && (eventFormData?.errors?.reminder?.[index]?.value as any) && renderError(eventFormData?.errors?.reminder?.[index]?.value as any)}
-                                                                            </div>
-                                                            </div>
-                                        {eventFormData?.values?.reminder?.length > 1 && (
-                                            <button type="button" className="remove-notification-btn" onClick={() => removeReminderList(index)}>
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <line x1="18" y1="6" x2="6" y2="18"/>
-                                                    <line x1="6" y1="6" x2="18" y2="18"/>
-                                                </svg>
-                                            </button>
-                                        )}
-                                                </div>
-                                ))}
-                                                            </div>
-                            {(eventFormData?.touched?.reminder as any) && (eventFormData?.errors?.reminder as any) && typeof eventFormData?.errors?.reminder === "string" && renderError((eventFormData?.errors?.reminder as any))}
-                            <button
-                                type="button"
-                                className="add-notification-btn"
-                                disabled={!isNullUndefinedOrBlank(eventFormData?.errors?.reminder) && typeof eventFormData?.errors?.reminder === "string"}
-                                onClick={() => addReminderList()}
-                            >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <line x1="12" y1="5" x2="12" y2="19"/>
-                                    <line x1="5" y1="12" x2="19" y2="12"/>
-                                </svg>
-                                Add Another Notification <span className="notification-count">({eventFormData?.values?.reminder?.length || 0}/3)</span>
-                            </button>
+                            <label className="form-label">Add to Calendar</label>
+                            <div className="calendar-buttons calendar-options">
+                                <add-to-calendar-button
+                                    name={eventFormData?.values?.title}
+                                    startDate={!isNullUndefinedOrBlank(eventFormData?.values?.start_date) ? formatedDate(eventFormData?.values?.start_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
+                                    endDate={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
+                                    startTime={!isNullUndefinedOrBlank(eventFormData?.values?.start_date) ? formatedDate(eventFormData?.values?.start_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
+                                    endTime={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
+                                    timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone}
+                                    description={!isNullUndefinedOrBlank(eventFormData?.values?.note) ? eventFormData?.values?.note : ""}
+                                    options="'Apple','Google','Outlook.com'"
+                                    buttonsList
+                                    hideTextLabelButton
+                                    buttonStyle="round"
+                                    lightMode="bodyScheme"
+                                ></add-to-calendar-button>
+                            </div>
                         </div>
                     )}
-                    {/* Add to Calendar - only show in edit mode */}
-                    {!isNullUndefinedOrBlank(eventFormData?.values?.id) && (
-                        <div className="form-group">
-                            <label className="form-label">Add On Your Default Calendar</label>
-                            <div className="calendar-buttons">
-                                                                <add-to-calendar-button
-                                                                    name={eventFormData?.values?.title}
-                                                                    startDate={!isNullUndefinedOrBlank(eventFormData?.values?.start_date) ? formatedDate(eventFormData?.values?.start_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
-                                                                    endDate={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
-                                                                    startTime={!isNullUndefinedOrBlank(eventFormData?.values?.start_date) ? formatedDate(eventFormData?.values?.start_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
-                                                                    endTime={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
-                                                                    timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone}
-                                                                    description={!isNullUndefinedOrBlank(eventFormData?.values?.note) ? eventFormData?.values?.note : ""}
-                                                                    options="'Apple','Google','Outlook.com'"
-                                                                    buttonsList
-                                                                    hideTextLabelButton
-                                                                    buttonStyle="round"
-                                                                    lightMode="bodyScheme"
-                                                                ></add-to-calendar-button>
-                                                            </div>
-                                                        </div>
-                    )}
                 </Modal.Body>
-                <div className="add-event-footer">
-                    <button type="button" className="btn btn-outline" onClick={handleCloseAddSyllabusEvents}>
-                                            Cancel
-                    </button>
-                    <div className="modal-footer-right">
-                        {eventFormData?.values?.id && (
-                            <button type="button" className="btn btn-danger" onClick={() => handleDeleteShow(eventFormData.values)}>
-                                                Delete
+                <div className="modal-footer event-details-footer">
+                    <div className="modal-footer-left">
+                        {isExistingEvent && (
+                            <>
+                                <button type="button" className="btn btn-success" onClick={() => {/* Mark complete logic */}}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                    Mark Complete
+                                </button>
+                                <button type="button" className="btn btn-danger" onClick={() => handleDeleteShow(eventFormData.values)}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </>
+                        )}
+                        {!isExistingEvent && (
+                            <button type="button" className="btn btn-outline" onClick={handleCloseAddSyllabusEvents}>
+                                Cancel
                             </button>
                         )}
-                        <button type="button" className="btn btn-outline" onClick={handleClearData}>
-                                            Clear
-                        </button>
-                        <button type="button" className="btn btn-primary" onClick={handleEventSubmit}>
-                                            Save
-                        </button>
-                                    </div>
-                                </div>
+                    </div>
+                    <div className="modal-footer-right">
+                        {isEditMode && isExistingEvent && (
+                            <button type="button" className="btn btn-outline" onClick={handleCancelEdit}>
+                                Cancel
+                            </button>
+                        )}
+                        {(isEditMode || !isExistingEvent) && (
+                            <button type="button" className="btn btn-primary" onClick={handleEventSubmit}>
+                                {isExistingEvent ? 'Save Changes' : 'Save'}
+                            </button>
+                        )}
+                    </div>
+                </div>
             </Modal>
             {/***** Modal end *****/}
             {/* Delete Modal */}

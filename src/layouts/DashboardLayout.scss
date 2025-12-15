@@ -3,7 +3,8 @@
    ============================================ */
 
 .dashboard-layout {
-  min-height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   display: flex;
   background: var(--white);
   overflow: hidden; /* Prevent layout shifts */
@@ -16,6 +17,8 @@
   flex-direction: column;
   margin-left: 0;
   /* Don't transition margin - causes layout shift during page transitions */
+  min-height: 0;
+  overflow-y: auto; /* Only the main content scrolls (sidebar stays fixed-height) */
 }
 
 @media (min-width: 1024px) {

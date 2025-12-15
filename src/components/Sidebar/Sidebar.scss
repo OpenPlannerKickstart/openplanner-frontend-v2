@@ -199,6 +199,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-height: 0;
+  overflow-y: auto; /* If nav is taller than viewport, scroll inside sidebar only */
 }
 
 .sidebar-link {

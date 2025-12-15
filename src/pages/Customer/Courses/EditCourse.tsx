@@ -6,15 +6,16 @@ import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent'
 import { formatedDate, isNullUndefinedOrBlank } from '../../../Utility/Helper'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
-import { getEventListDataAPI } from '../../../redux/Service/User/Courses/courses'
+import { getEventListDataAPI, getCoursesListDataAPI } from '../../../redux/Service/User/Courses/courses'
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
 import { Viewer } from '@react-pdf-viewer/core'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 const EditCourse = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [selectedSyllabusObj, setSelectedSyllabusObj] = useState<any>({});
 
   // Add body class for responsive styling
@@ -25,11 +26,27 @@ const EditCourse = () => {
     };
   }, []);
 
+  // Load course data from state or fetch if missing (e.g., page refresh)
   useEffect(() => {
-    if (location.state?.syllabusObj) {
-      setSelectedSyllabusObj(location.state.syllabusObj);
-    }
-  }, [location.state]);
+    const loadCourseData = async () => {
+      if (location.state?.syllabusObj) {
+        setSelectedSyllabusObj(location.state.syllabusObj);
+      } else {
+        // Fallback: fetch courses list and find by ID from URL
+        const courseId = searchParams.get('id');
+        if (courseId) {
+          const response = await dispatch(getCoursesListDataAPI({}));
+          if (response?.payload?.length) {
+            const course = response.payload.find((c: any) => c.id === parseInt(courseId));
+            if (course) {
+              setSelectedSyllabusObj(course);
+            }
+          }
+        }
+      }
+    };
+    loadCourseData();
+  }, [location.state, searchParams, dispatch]);
 
   // Tab logic
   const [selectedTab, setSelectedTab] = useState<any>(ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS)
@@ -79,26 +96,30 @@ const EditCourse = () => {
             ShowProperties,
           } = slots
           return (
-            <>
-              <ShowSearchPopover />
-              <GoToPreviousPage />
-              <CurrentPageInput />
-              <NumberOfPages />
-              <GoToNextPage />
-              <ZoomOut />
-              <ZoomIn />
-              <EnterFullScreen />
-              <Download />
-              <ShowProperties />
-            </>
+            <div className="custom-pdf-toolbar">
+              <div className="toolbar-left">
+                <ShowSearchPopover />
+                <GoToPreviousPage />
+                <GoToNextPage />
+                <div className="page-info">
+                  <CurrentPageInput />
+                  <NumberOfPages />
+                </div>
+              </div>
+              <div className="toolbar-right">
+                <ZoomOut />
+                <ZoomIn />
+                <EnterFullScreen />
+                <Download />
+                <ShowProperties />
+              </div>
+            </div>
           )
         }}
       </Toolbar>
     ),
-    sidebarTabs: (defaultTabs) => [
-      defaultTabs[0], // Bookmarks
-      defaultTabs[1], // Thumbnails
-    ],
+    // Hide sidebar completely - no thumbnails or bookmarks
+    sidebarTabs: () => [],
   })
 
   return (
@@ -209,44 +230,27 @@ const EditCourse = () => {
               
               {/* PDF Viewer */}
               {!isNullUndefinedOrBlank(pdfPreviewLink) ? (
-                <div className="preview-content">
-                            <div
-                            style={{
-                      height: 'calc(100vh - 280px)',
-                                width: '100%',
-                      background: 'var(--white)',
-                      borderRadius: 'var(--radius-lg)',
-                      overflow: 'hidden'
-                            }}
-                            >
-                            <Viewer
-                                fileUrl={pdfPreviewLink}
-                                plugins={[defaultLayoutPluginInstance]}
-                            />
-                            </div>
-                        </div>
+                <div className="preview-content pdf-viewer-container">
+                  <Viewer
+                    fileUrl={pdfPreviewLink}
+                    plugins={[defaultLayoutPluginInstance]}
+                  />
+                </div>
               ) : (
                 <div className="preview-content">
-                  <div className="pdf-placeholder">
-                    <div style={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      height: '400px',
-                      color: 'var(--neutral-500)'
-                    }}>
-                      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginBottom: '1rem', opacity: 0.5 }}>
+                  <div className="pdf-placeholder empty-state">
+                    <div className="empty-state-icon">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                         <polyline points="14 2 14 8 20 8"/>
                         <line x1="16" y1="13" x2="8" y2="13"/>
                         <line x1="16" y1="17" x2="8" y2="17"/>
                         <polyline points="10 9 9 9 8 9"/>
                       </svg>
-                      <p style={{ fontSize: '1rem', fontWeight: 500 }}>No syllabus uploaded</p>
-                      <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Upload a syllabus to see the preview here</p>
                     </div>
-                    </div>
+                    <p className="empty-state-title">No syllabus uploaded</p>
+                    <p className="empty-state-text">Upload a syllabus to see the preview here</p>
+                  </div>
                 </div>
               )}
             </div>

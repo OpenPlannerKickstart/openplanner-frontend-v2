@@ -95,8 +95,10 @@ const Courses = () => {
   };
 
   /** -------------------Navigate to course detail-------------------------*/
-  const handleCourseClick = (courseId: number) => {
-    navigate(`${ENUMFORROUTES.EDIT_COURSE}?id=${courseId}`);
+  const handleCourseClick = (course: any) => {
+    navigate(`${ENUMFORROUTES.EDIT_COURSE}?id=${course.id}`, {
+      state: { syllabusObj: course }
+    });
   };
 
   /** -------------------User menu and notification handlers-------------------------*/
@@ -145,21 +147,18 @@ const Courses = () => {
   }, [isUserMenuOpen]);
 
   /** --------------------Map hex colors to CSS class names------------------------*/
+  /** Map hex colors to CSS class names - synced with colorPalette in AddEditSyllabus */
   const getColorClassName = (hexColor: string): string => {
     const colorMap: { [key: string]: string } = {
+      // New design system colors (primary)
       '#F97316': 'orange',
       '#f97316': 'orange',
       '#EAB308': 'yellow',
       '#eab308': 'yellow',
-      '#ffc107': 'yellow',
-      '#FFC107': 'yellow',
       '#22C55E': 'green',
       '#22c55e': 'green',
-      '#4caf50': 'green',
-      '#4CAF50': 'green',
       '#14B8A6': 'teal',
       '#14b8a6': 'teal',
-      '#009688': 'teal',
       '#D97706': 'gold',
       '#d97706': 'gold',
       '#3B82F6': 'blue',
@@ -180,8 +179,39 @@ const Courses = () => {
       '#78716c': 'stone',
       '#6366F1': 'indigo',
       '#6366f1': 'indigo',
+      // Legacy color mappings (backward compatibility)
+      '#ffc107': 'yellow',
+      '#FFC107': 'yellow',
+      '#ffeb3b': 'yellow',
+      '#FFEB3B': 'yellow',
+      '#4caf50': 'green',
+      '#4CAF50': 'green',
+      '#8bc34a': 'lime',
+      '#8BC34A': 'lime',
+      '#009688': 'teal',
+      '#00bcd4': 'cyan',
+      '#00BCD4': 'cyan',
+      '#03a9f4': 'blue',
+      '#03A9F4': 'blue',
+      '#2196f3': 'blue',
+      '#2196F3': 'blue',
+      '#3f51b5': 'indigo',
+      '#3F51B5': 'indigo',
+      '#673ab7': 'purple',
+      '#673AB7': 'purple',
+      '#9c27b0': 'purple',
+      '#9C27B0': 'purple',
+      '#e91e63': 'pink',
+      '#E91E63': 'pink',
+      '#ff9800': 'orange',
+      '#FF9800': 'orange',
+      '#ff5722': 'orange',
+      '#FF5722': 'orange',
+      '#795548': 'stone',
+      '#607d8b': 'gray',
+      '#607D8B': 'gray',
     };
-    return colorMap[hexColor] || 'yellow';
+    return colorMap[hexColor] || 'cyan';
   };
 
   return (
@@ -317,7 +347,7 @@ const Courses = () => {
                 <div
                   key={course.id}
                   className="course-card"
-                  onClick={() => handleCourseClick(course.id)}
+                  onClick={() => handleCourseClick(course)}
                   style={{ cursor: 'pointer' }}
                 >
                   <div className={`course-banner ${colorClass}`}>
