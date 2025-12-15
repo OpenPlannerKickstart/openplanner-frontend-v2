@@ -4,7 +4,6 @@ import { get, post } from '../../../Utility/httpInterceptor';
 import { getUserSubId } from '../../../Utility/Helper';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
 import { te } from '../../../Utility/Toaster';
-import defaultAvatar from '../../../assets/images/avatar-default.svg';
 
 interface StudentData {
   id: string;
@@ -91,16 +90,27 @@ export default function StudentProfile() {
     navigate(-1);
   };
 
+  const Header = (
+    <header className="dashboard-header">
+      <div className="dashboard-header-inner">
+        <div className="dashboard-header-left">
+          <button className="back-btn" onClick={handleBack}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Back
+          </button>
+          <h1 className="dashboard-page-title">Student Profile</h1>
+        </div>
+        <div className="dashboard-header-right" />
+      </div>
+    </header>
+  );
+
   if (loading) {
     return (
       <div className="page-content">
-        <div className="page-title-wrapper">
-          <div className="page-title-left">
-            <div className="page-title">
-              <h4>Student Profile</h4>
-            </div>
-          </div>
-        </div>
+        {Header}
         <div className="content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
           <div className="loader-container inline-loader" style={{ position: 'relative', background: 'transparent' }}>
             <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
@@ -116,21 +126,7 @@ export default function StudentProfile() {
   if (error || !student) {
     return (
       <div className="page-content">
-        <div className="page-title-wrapper">
-          <div className="page-title-left">
-            <button
-              type="button"
-              className="btn btn-icon btn-outline-white"
-              onClick={handleBack}
-              style={{ marginRight: 12 }}
-            >
-              <i className="material-symbols-outlined">arrow_back</i>
-            </button>
-            <div className="page-title">
-              <h4>Student Profile</h4>
-            </div>
-          </div>
-        </div>
+        {Header}
         <div className="content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
           <div style={{ textAlign: 'center', color: '#6B7280' }}>
             <i className="material-symbols-outlined" style={{ fontSize: 48, marginBottom: 12, display: 'block' }}>person_off</i>
@@ -153,21 +149,7 @@ export default function StudentProfile() {
 
   return (
     <div className="page-content">
-      <div className="page-title-wrapper">
-        <div className="page-title-left">
-          <button
-            type="button"
-            className="btn btn-icon btn-outline-white"
-            onClick={handleBack}
-            style={{ marginRight: 12 }}
-          >
-            <i className="material-symbols-outlined">arrow_back</i>
-          </button>
-          <div className="page-title">
-            <h4>Student Profile</h4>
-          </div>
-        </div>
-      </div>
+      {Header}
 
       <div className="content-area">
         <div

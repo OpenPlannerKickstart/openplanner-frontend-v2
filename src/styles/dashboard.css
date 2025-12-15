@@ -807,9 +807,10 @@ input, textarea, select {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.45rem 1rem;
   font-size: 0.875rem;
   font-weight: 600;
+  
   border-radius: var(--radius-lg);
   transition: all var(--transition-base);
   white-space: nowrap;
@@ -859,6 +860,18 @@ input, textarea, select {
 .btn-ghost:hover {
   color: var(--primary);
   background-color: var(--primary-subtle);
+}
+
+/* ============================================
+   Modals: blurred + tinted backdrop
+   ============================================ */
+
+/* React-Bootstrap/Bootstrap backdrop element */
+.modal-backdrop.show {
+  opacity: 1 !important;
+  background: rgba(15, 23, 42, 0.45) !important; /* slate/ink tint */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* ============================================
@@ -2966,6 +2979,26 @@ input, textarea, select {
 
 .task-row.clickable-event:hover {
     background: var(--primary-subtle);
+}
+
+/* Course pill highlighting (My Week) */
+.task-row.course-highlight-dim {
+    opacity: 0.35;
+}
+
+.task-row.course-highlight-match {
+    opacity: 1;
+    /* No colored side accent; filtering already indicates selection */
+    background: rgba(15, 23, 42, 0.02);
+    box-shadow: none;
+}
+
+.task-row.course-highlight-match:hover {
+    background: rgba(15, 23, 42, 0.04);
+}
+
+.task-row.course-highlight-match.completed {
+    opacity: 0.65; /* keep completed look while still being "matched" */
 }
 
 /* Completed Task Row Styles */

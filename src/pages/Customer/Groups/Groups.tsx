@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Modal } from 'react-bootstrap';
 import { useDispatch } from 'react-redux';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import AddEditGroup from '../../../common/Groups/AddEditGroup';
@@ -19,8 +18,6 @@ import { useNotificationPanel } from '../../../components/Notifications/Notifica
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 // Image assets must be bundled; do not rely on absolute "/assets" paths in production
 import bookIcon from '../../../assets/images/book.svg';
-import defaultAvatar from '../../../assets/images/avatar-default.svg';
-import emptyStateImg from '../../../assets/images/not-voucher-found.svg';
 import { ATTACH_ACCEPT_INPUT, ATTACH_MAX_PER_MESSAGE, ATTACH_MAX_MB, isMimeAllowed, isSizeAllowed } from '../../../Utility/attachments';
 import { initiateUpload, uploadToS3, toAttachmentDescriptor, computeCrc32Base64 } from '../../../Utility/uploads';
 import type { AttachmentDescriptor } from '../../../interfaces/groups';
@@ -150,6 +147,8 @@ const Groups: React.FC = () => {
   const [myGroupsCollapsed, setMyGroupsCollapsed] = useState<boolean>(false);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
+  // Sidebar preview cache: last message per group (since /groups/mine doesn't include it)
+  const [groupPreviewById, setGroupPreviewById] = useState<Record<string, { lastMessage: any | null }>>({});
   // Track if we're previewing a suggested group (not yet joined)
   const [previewingSuggestion, setPreviewingSuggestion] = useState<any | null>(null);
   // Group info panel data and UI state
@@ -501,6 +500,60 @@ const Groups: React.FC = () => {
       te('Failed to load your groups');
     }
   };
+
+  const fetchGroupLastMessagePreview = async (groupId: string) => {
+    try {
+      // Fetch a tiny page; backend may return newest-first or oldest-first, so we pick newest by timestamp.
+      const res: any = await get(`groups/${groupId}/messages?limit=5`);
+      const payload = res?.data ?? res;
+      const list: any[] = payload?.messages ?? [];
+      if (!Array.isArray(list) || list.length === 0) {
+        setGroupPreviewById(prev => ({ ...prev, [groupId]: { lastMessage: null } }));
+        return;
+      }
+      const newest = list.reduce((best: any, cur: any) => {
+        const bt = new Date(best?.createdAt || best?.created_on || best?.created_at || 0).getTime();
+        const ct = new Date(cur?.createdAt || cur?.created_on || cur?.created_at || 0).getTime();
+        return ct >= bt ? cur : best;
+      }, list[0]);
+      setGroupPreviewById(prev => ({ ...prev, [groupId]: { lastMessage: newest } }));
+    } catch {
+      // Don't toast; this is best-effort UI sugar
+      setGroupPreviewById(prev => (prev[groupId] ? prev : { ...prev, [groupId]: { lastMessage: null } }));
+    }
+  };
+
+  // Background-load sidebar previews for groups (last message)
+  useEffect(() => {
+    if (!Array.isArray(myGroups) || myGroups.length === 0) return;
+    let cancelled = false;
+
+    const run = async () => {
+      for (const g of myGroups) {
+        if (cancelled) return;
+        const id = g?.id;
+        if (!id) continue;
+        // Skip if BE already provided a lastMessage-ish field OR we already fetched it
+        const alreadyHas =
+          Boolean(
+            g?.lastMessage ||
+              g?.last_message ||
+              g?.latestMessage ||
+              g?.latest_message ||
+              g?.recentMessage ||
+              g?.recent_message
+          ) || Boolean(groupPreviewById[id]);
+        if (alreadyHas) continue;
+        await fetchGroupLastMessagePreview(id);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+    // intentionally include groupPreviewById so we don't refetch already fetched items
+  }, [myGroups, groupPreviewById]); // eslint-disable-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     fetchMyGroups();
   }, []);
@@ -753,7 +806,10 @@ const Groups: React.FC = () => {
         setRateLimitUntil(Date.now() + retrySeconds * 1000);
         te(`You're sending too fast, try again in ${retrySeconds}s`);
       } else {
-        te('Failed to send');
+        // Prefer server error message (avoid duplicate generic toast)
+        const serverMsg = e?.response?.data?.message || e?.response?.data?.error || e?.message;
+        if (serverMsg) te(serverMsg);
+        else te('Failed to send');
       }
       return false;
     }
@@ -1302,7 +1358,10 @@ const Groups: React.FC = () => {
         setRateLimitUntil(Date.now() + retrySeconds * 1000);
         te(`You're sending too fast, try again in ${retrySeconds}s`);
       } else {
-        te('Failed to send');
+        // Prefer server error message (avoid duplicate generic toast)
+        const serverMsg = e?.response?.data?.message || e?.response?.data?.error || e?.message;
+        if (serverMsg) te(serverMsg);
+        else te('Failed to send');
       }
       return false;
     }
@@ -1321,6 +1380,32 @@ const Groups: React.FC = () => {
       fetchSuggestedGroups();
     } catch (err) {
       te('Failed to leave group');
+    }
+  };
+
+  // Exit group confirmation (uses ConfirmDeleteModal variant)
+  const [leaveGroupConfirm, setLeaveGroupConfirm] = useState<{ open: boolean; loading: boolean }>({
+    open: false,
+    loading: false,
+  });
+
+  const openLeaveGroupConfirm = () => {
+    if (!selectedGroupId) return;
+    setLeaveGroupConfirm({ open: true, loading: false });
+  };
+
+  const handleConfirmLeaveGroup = async () => {
+    if (!selectedGroupId) {
+      setLeaveGroupConfirm({ open: false, loading: false });
+      return;
+    }
+    try {
+      setLeaveGroupConfirm({ open: true, loading: true });
+      await handleLeaveGroup();
+      setLeaveGroupConfirm({ open: false, loading: false });
+    } catch {
+      // handleLeaveGroup already toasts; keep dialog open for retry/cancel
+      setLeaveGroupConfirm({ open: true, loading: false });
     }
   };
 
@@ -1458,9 +1543,9 @@ const Groups: React.FC = () => {
                 </svg>
       </div>
               <div className={`user-dropdown ${isUserMenuOpen ? 'active' : ''}`}>
-                <a
-                  href="#"
-                  onClick={(e) => { e.preventDefault(); navigate(ENUMFORROUTES.SETTINGS); setIsUserMenuOpen(false); }}
+                <button
+                  type="button"
+                  onClick={() => { navigate(ENUMFORROUTES.SETTINGS); setIsUserMenuOpen(false); }}
                   className="user-dropdown-item"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1468,7 +1553,7 @@ const Groups: React.FC = () => {
                     <circle cx="12" cy="7" r="4" />
                   </svg>
                   Profile
-                </a>
+                </button>
                 <div className="user-dropdown-divider"></div>
                 <button className="user-dropdown-item logout" onClick={handleLogout}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1600,7 +1685,7 @@ const Groups: React.FC = () => {
                           bottom: -1,
                           width: '50%',
                           height: 3,
-                          background: '#0EA5E9',
+                          background: '#239BC2',
                           borderRadius: 0,
                           pointerEvents: 'none'
                         }}
@@ -1739,7 +1824,6 @@ const Groups: React.FC = () => {
                       </div>
                     ) : (
                       <div className="text-center p-4">
-                        <img src={emptyStateImg} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
                         <h5 className="mt-3 mb-1">No recent chats</h5>
                         <p className="text-muted mb-0" style={{ fontSize: 14 }}>
                           Start a conversation from a group or create a private study group.
@@ -1781,6 +1865,41 @@ const Groups: React.FC = () => {
                               id={g.id}
                               name={g.name}
                               avatarColor={g.avatarColor}
+                              lastMessage={(() => {
+                                const fromBe =
+                                  g.lastMessage ||
+                                  g.last_message ||
+                                  g.latestMessage ||
+                                  g.latest_message ||
+                                  g.recentMessage ||
+                                  g.recent_message ||
+                                  null;
+                                if (fromBe) return fromBe;
+                                const fromCache = groupPreviewById[g.id]?.lastMessage ?? null;
+                                if (fromCache) return fromCache;
+                                const fromLoaded = (messages[g.id] ?? []);
+                                if (Array.isArray(fromLoaded) && fromLoaded.length > 0) return fromLoaded[fromLoaded.length - 1];
+                                return null;
+                              })()}
+                              lastActivityAt={
+                                g.lastActivityAt ||
+                                g.last_activity_at ||
+                                g.updatedAt ||
+                                g.updated_at ||
+                                g.lastMessageAt ||
+                                g.last_message_at ||
+                                null
+                              }
+                              unreadCount={
+                                g.unreadCount ||
+                                g.unread_count ||
+                                g.unreadMessagesCount ||
+                                g.unread_messages_count ||
+                                g.unreadMessages ||
+                                g.unread_messages ||
+                                g.unread ||
+                                0
+                              }
                               variant="mine"
                               isSelected={!activeDmThreadId && selectedGroupId === g.id}
                               onClick={() => applySelection(g.id)}
@@ -2104,6 +2223,31 @@ const Groups: React.FC = () => {
                               const bd = new Date(b?.createdAt || b?.created_on || b?.created_at || 0).getTime();
                               return ad - bd; // oldest first, newest last (bottom)
                             });
+                            if (loadingMessages && list.length === 0) {
+                              return (
+                                <div className="d-flex align-items-center justify-content-center h-100" style={{ minHeight: 200 }}>
+                                  <div className="loader-container inline-loader" style={{ position: 'relative', background: 'transparent' }}>
+                                    <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+                                      <rect className="track" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" />
+                                      <rect className="car" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" pathLength="100" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            if (selectedGroupId && list.length === 0) {
+                              return (
+                                <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
+                                  <div style={{ width: 80, height: 80, borderRadius: 40, background: selectedGroup?.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                                    <img src={bookIcon} alt="group" style={{ width: 48, height: 'auto' }} />
+                                  </div>
+                                  <h5 style={{ color: '#111827', marginBottom: 8 }}>No messages yet</h5>
+                                  <p className="text-muted text-center" style={{ fontSize: 14, maxWidth: 280 }}>
+                                    Be the first to send a message in {selectedGroup?.name || 'this group'}.
+                                  </p>
+                                </div>
+                              );
+                            }
                             if (!list.length) return null;
                             const byDay: { label: string; items: any[] }[] = [];
                             const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -2421,7 +2565,11 @@ const Groups: React.FC = () => {
                                             style={{ cursor: 'pointer' }}
                                             onClick={() => navigate(`/students/${m.id || m.userId}`)}
                                           >
-                                            <img src={m.picture || defaultAvatar} alt={m.displayName || m.name || 'member'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                            <HeaderStyleAvatar
+                                              src={(m.picture || m.avatarUrl || null) as any}
+                                              alt={m.displayName || m.name || 'member'}
+                                              size={28}
+                                            />
                                             <div style={{ color: '#111827' }}>
                                               {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Member'))}
                                             </div>
@@ -2478,7 +2626,7 @@ const Groups: React.FC = () => {
                                     <i className="material-symbols-outlined">person_add</i>
                                     <span>Invite Members</span>
                                   </button>
-                                  <button type="button" className="btn btn-outline-white text-start" onClick={handleLeaveGroup} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                  <button type="button" className="btn btn-outline-white text-start" onClick={openLeaveGroupConfirm} style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
                                     <i className="material-symbols-outlined">logout</i>
                                     <span>Exit Group</span>
                                   </button>
@@ -2542,7 +2690,6 @@ const Groups: React.FC = () => {
                       const recipient = dmThread.participants?.[0];
                       const recipientName = recipient?.displayName || recipient?.username || 'User';
                       const recipientPicture = recipient?.picture || recipient?.avatarUrl;
-                      const initials = (recipientName || 'U').split(' ').map((s: string) => s[0]).join('').slice(0, 2).toUpperCase();
                       return (
                         <>
                           <div
@@ -2552,7 +2699,7 @@ const Groups: React.FC = () => {
                             {recipientPicture ? (
                               <img src={recipientPicture} alt={recipientName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             ) : (
-                              <span style={{ fontSize: 16, fontWeight: 600, color: '#239BC2' }}>{initials}</span>
+                              <HeaderUserIcon size={24} />
                             )}
                           </div>
                           <h5
@@ -2567,7 +2714,9 @@ const Groups: React.FC = () => {
                     })() : (
                       /* DM loading state */
                       <>
-                        <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#E5E7EB' }} />
+                        <div className="user-avatar" style={{ width: 44, height: 44, flex: '0 0 44px' }} aria-label="Loading avatar">
+                          <HeaderUserIcon size={24} />
+                        </div>
                         <h5 className="mb-0" style={{ color: '#9CA3AF', marginLeft: 8 }}>Loading...</h5>
                       </>
                     )
@@ -2582,7 +2731,9 @@ const Groups: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <img src={defaultAvatar} alt="avatar" style={{ width: 44, height: 44, borderRadius: '50%' }} />
+                      <div style={{ width: 44, height: 44, borderRadius: 22, background: '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <img src={bookIcon} alt="avatar" style={{ width: 26, height: 'auto', opacity: 0.9 }} />
+                      </div>
                       <h5 className="mb-0" style={{ color: '#6B7280' }}>{activeTab === 'groups' ? 'Select a group' : 'Select a conversation'}</h5>
                     </>
                   )}
@@ -2802,6 +2953,31 @@ const Groups: React.FC = () => {
                       const bd = new Date(b?.createdAt || b?.created_on || b?.created_at || 0).getTime();
                       return ad - bd; // oldest first, newest last (bottom)
                     });
+                    if (loadingMessages && list.length === 0) {
+                      return (
+                        <div className="d-flex align-items-center justify-content-center h-100" style={{ minHeight: 200 }}>
+                          <div className="loader-container inline-loader" style={{ position: 'relative', background: 'transparent' }}>
+                            <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+                              <rect className="track" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" />
+                              <rect className="car" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" pathLength="100" />
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    }
+                    if (selectedGroupId && list.length === 0) {
+                      return (
+                        <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
+                          <div style={{ width: 80, height: 80, borderRadius: 40, background: selectedGroup?.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                            <img src={bookIcon} alt="group" style={{ width: 48, height: 'auto' }} />
+                          </div>
+                          <h5 style={{ color: '#111827', marginBottom: 8 }}>No messages yet</h5>
+                          <p className="text-muted text-center" style={{ fontSize: 14, maxWidth: 280 }}>
+                            Be the first to send a message in {selectedGroup?.name || 'this group'}.
+                          </p>
+                        </div>
+                      );
+                    }
                     if (!list.length) return null;
 
                     // Group messages by calendar day (local time)
@@ -3099,7 +3275,12 @@ const Groups: React.FC = () => {
                                   style={{ cursor: 'pointer' }}
                                   onClick={() => { if (m.id) navigate(`/students/${m.id}`); }}
                                 >
-                                  <img src={m.picture || defaultAvatar} alt={m.displayName || m.name || 'student'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                  <HeaderStyleAvatar
+                                    src={(m.picture || m.avatarUrl || null) as any}
+                                    alt={m.displayName || m.name || 'student'}
+                                    size={28}
+                                    onClick={() => { if (m.id) navigate(`/students/${m.id}`); }}
+                                  />
                                   <div style={{ color: '#111827' }}>
                                     {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Student'))}
                                   </div>
@@ -3162,7 +3343,12 @@ const Groups: React.FC = () => {
                                     style={{ cursor: 'pointer' }}
                                     onClick={() => navigate(`/students/${m.id || m.userId}`)}
                                   >
-                                    <img src={m.picture || defaultAvatar} alt={m.displayName || m.name || 'member'} style={{ width: 28, height: 28, borderRadius: 14 }} />
+                                    <HeaderStyleAvatar
+                                      src={(m.picture || m.avatarUrl || null) as any}
+                                      alt={m.displayName || m.name || 'member'}
+                                      size={28}
+                                      onClick={() => { if (m?.id || m?.userId) navigate(`/students/${m.id || m.userId}`); }}
+                                    />
                                     <div style={{ color: '#111827' }}>
                                       {(m.displayName || m.name || (m.firstName && m.lastName ? `${m.firstName} ${m.lastName}` : 'Member'))}
                                     </div>
@@ -3243,7 +3429,7 @@ const Groups: React.FC = () => {
                           <button
                             type="button"
                             className="btn btn-outline-white text-start"
-                            onClick={handleLeaveGroup}
+                            onClick={openLeaveGroupConfirm}
                             style={{
                               border: '1px solid #E5E7EB',
                               borderRadius: 12,
@@ -3343,6 +3529,26 @@ const Groups: React.FC = () => {
         loading={deleteGroupConfirm.loading}
       />
 
+      {/* Exit Group Confirmation (variant: green exit button + logout icon) */}
+      <ConfirmDeleteModal
+        show={leaveGroupConfirm.open}
+        onClose={() => {
+          if (leaveGroupConfirm.loading) return;
+          setLeaveGroupConfirm({ open: false, loading: false });
+        }}
+        onConfirm={handleConfirmLeaveGroup}
+        modalClassName="modal-theme modal-confirmation modal-approve"
+        bodyTitle="Exit this group?"
+        message={<>You’ll leave this group and stop receiving messages. You can rejoin later if you’re invited or find it again.</>}
+        cancelText="No, Stay"
+        confirmText="Exit group"
+        confirmVariant="success"
+        confirmIconName="logout"
+        iconName="logout"
+        loadingText="Exiting..."
+        loading={leaveGroupConfirm.loading}
+      />
+
       {/* Delete DM Confirmation Modal (standardized) */}
       <ConfirmDeleteModal
         show={deleteDmConfirm.open}
@@ -3437,7 +3643,7 @@ const Groups: React.FC = () => {
                 <div style={{ maxHeight: 260, overflowY: 'auto', marginTop: 8, scrollbarWidth: 'none' as any }} className="invite-results-scroll">
                   {inviteResults.map(u => (
                     <div key={u.id} className="d-flex align-items-center gap-2 py-2" style={{ cursor: 'pointer', borderBottom: '1px solid #F3F4F6' }} onClick={() => toggleInviteSelect(u.id)}>
-                      <img src={u.picture || defaultAvatar} alt="avatar" style={{ width: 28, height: 28, borderRadius: 14 }} />
+                      <HeaderStyleAvatar src={(u.picture || (u as any).avatarUrl || null) as any} alt={u.displayName || u.username || 'User'} size={28} />
                       <div className="flex-grow-1">
                         <div style={{ color: '#111827', fontWeight: 600 }}>{u.displayName}</div>
                         <div className="text-muted" style={{ fontSize: 12 }}>@{u.username}</div>

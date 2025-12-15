@@ -526,7 +526,7 @@ const SyllabusDetails = (props) => {
           </>
         ) : (
           /* Edit mode (existing form) */
-          <div className="syllabus-details-box">
+        <div className="syllabus-details-box">
           <Form.Group
             className="form-group required"
             controlId="exampleForm.ControlInput1"
@@ -882,7 +882,7 @@ const SyllabusDetails = (props) => {
 
       {/* Bottom buttons: only show in edit mode */}
       {isEditingDetails ? (
-        <div className="bottom-button-group">
+      <div className="bottom-button-group">
         <Button
           type="button"
           className="btn btn-light-white me-auto"
@@ -902,15 +902,15 @@ const SyllabusDetails = (props) => {
           Cancel
         </Button>
         {!isNewSyllabus && (
-          <Button
-            type="button"
-            className="btn btn-light-danger"
-            onClick={() => {
-              handleDeleteShow();
-            }}
-          >
-            Delete Syllabus
-          </Button>
+        <Button
+          type="button"
+          className="btn btn-light-danger"
+          onClick={() => {
+            handleDeleteShow();
+          }}
+        >
+          Delete Syllabus
+        </Button>
         )}
         <Button
           type="button"
@@ -922,7 +922,7 @@ const SyllabusDetails = (props) => {
         >
           Save
         </Button>
-        </div>
+      </div>
       ) : null}
 
       {/* Delete Modal */}

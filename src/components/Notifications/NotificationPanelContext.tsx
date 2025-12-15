@@ -6,6 +6,7 @@ export type NotificationPanelContextValue = {
   close: () => void;
   toggle: () => void;
   unreadCount: number;
+  refresh: () => void;
 };
 
 const NotificationPanelContext = createContext<NotificationPanelContextValue | undefined>(undefined);

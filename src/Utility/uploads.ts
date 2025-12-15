@@ -13,6 +13,22 @@ export type UploadInitResponse = {
 };
 
 /**
+ * Many backends store file names in VARCHAR(255). Ensure we never exceed that,
+ * while preserving the extension when possible.
+ */
+function safeFileName(name: string, maxLen = 255): string {
+  const n = (name || '').trim();
+  if (!n) return 'file';
+  if (n.length <= maxLen) return n;
+  const lastDot = n.lastIndexOf('.');
+  const hasExt = lastDot > 0 && lastDot < n.length - 1;
+  const ext = hasExt ? n.slice(lastDot) : '';
+  const base = hasExt ? n.slice(0, lastDot) : n;
+  const keepBaseLen = Math.max(1, maxLen - ext.length);
+  return `${base.slice(0, keepBaseLen)}${ext}`.slice(0, maxLen);
+}
+
+/**
  * Compute CRC32 (ISO-3309) for an ArrayBuffer.
  */
 function crc32(buffer: ArrayBuffer): number {
@@ -74,7 +90,7 @@ export async function initiateUpload(file: File, options?: InitiateUploadOptions
   const body = {
     mimeType: file.type,
     sizeBytes: file.size,
-    fileName: file.name,
+    fileName: safeFileName(file.name, 255),
     ...(groupId ? { groupId } : {}),
     ...(checksumCrc32 ? { checksumCrc32 } : {}),
     ...(context ? { context } : {}),
@@ -132,7 +148,7 @@ export function toAttachmentDescriptor(
 ): AttachmentDescriptor {
   return {
     fileId,
-    fileName: file.name,
+    fileName: safeFileName(file.name, 255),
     mimeType: file.type,
     sizeBytes: file.size,
     ...(extras || {}),

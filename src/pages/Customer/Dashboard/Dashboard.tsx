@@ -45,6 +45,47 @@ const Dashboard = () => {
   const [todayDate, setTodayDate] = useState<any>(null);
   const [startDate, setStartDate] = useState(moment().startOf('week').format('YYYY-MM-DD'));
   const [endDate, setEndDate] = useState(moment().endOf('week').format('YYYY-MM-DD'));
+  const [activeCourseId, setActiveCourseId] = useState<string | number | null>(null);
+
+  const getCourseIdFromPillItem = (item: any): string | number | null => {
+    return (
+      item?.id ??
+      item?.value ??
+      item?.syllabus_id ??
+      item?.syllabusId ??
+      item?.course_id ??
+      item?.courseId ??
+      item?.other?.id ??
+      item?.other?.value ??
+      item?.other?.syllabus_id ??
+      item?.other?.syllabusId ??
+      item?.other?.course_id ??
+      item?.other?.courseId ??
+      null
+    );
+  };
+
+  const getCourseIdFromEvent = (event: any): string | number | null => {
+    return (
+      event?.syllabus_id ??
+      event?.syllabusId ??
+      event?.course_id ??
+      event?.courseId ??
+      event?.syllabus?.id ??
+      event?.syllabus?._id ??
+      null
+    );
+  };
+
+  const toggleCourseHighlight = (item: any) => {
+    const id = getCourseIdFromPillItem(item);
+    if (id === null || typeof id === 'undefined') {
+      // If we can't determine an id, treat as "clear highlight"
+      setActiveCourseId(null);
+      return;
+    }
+    setActiveCourseId((prev) => (String(prev) === String(id) ? null : id));
+  };
 
   const handleDateChange = (type: string) => {
     let start, end;
@@ -275,6 +316,24 @@ const Dashboard = () => {
     return colorMap[hexColor] || 'cyan';
   };
 
+  const hexToRgba = (hex: string, alpha: number): string | null => {
+    if (!hex || typeof hex !== 'string') return null;
+    const cleaned = hex.trim().replace('#', '');
+    const normalized =
+      cleaned.length === 3
+        ? cleaned
+            .split('')
+            .map((c) => c + c)
+            .join('')
+        : cleaned;
+    if (normalized.length !== 6) return null;
+    const r = parseInt(normalized.slice(0, 2), 16);
+    const g = parseInt(normalized.slice(2, 4), 16);
+    const b = parseInt(normalized.slice(4, 6), 16);
+    if ([r, g, b].some((n) => Number.isNaN(n))) return null;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   /** -------------------Event complete Start-------------------------*/
   const handleEventCompleted = async (id: number | number[], status: string) => {
     let event_id: any = [];
@@ -483,10 +542,27 @@ const Dashboard = () => {
         <div className="course-filters">
           {!isEmptyObjectOrNullUndefiend(syllabusDropDownData) &&
             syllabusDropDownData?.map((item: any, index: number) => {
-              const colorClass = getColorClassName(item?.course_color || item?.other?.course_color);
+              const courseColorHex = item?.course_color || item?.other?.course_color || '#239BC2';
+              const colorClass = getColorClassName(courseColorHex);
+              const pillId = getCourseIdFromPillItem(item);
+              const isActive = pillId !== null && String(activeCourseId) === String(pillId);
               return (
-                <button className={`course-pill ${colorClass}`} key={index}>
-                  <span className="pill-dot"></span>
+                <button
+                  type="button"
+                  className={`course-pill ${colorClass} ${isActive ? 'active' : ''}`}
+                  key={index}
+                  onClick={() => toggleCourseHighlight(item)}
+                  aria-pressed={isActive}
+                  style={
+                    isActive
+                      ? {
+                          borderColor: courseColorHex,
+                          backgroundColor: hexToRgba(courseColorHex, 0.12) || undefined,
+                        }
+                      : undefined
+                  }
+                >
+                  <span className="pill-dot" style={{ backgroundColor: courseColorHex }}></span>
                   {item?.label}
                 </button>
               );
@@ -508,7 +584,20 @@ const Dashboard = () => {
 
             {/* Dynamic Events Container */}
             <div id="dashboardEventsContainer">
-              {eventData?.map((group: any, groupIndex: number) => (
+              {eventData?.map((group: any, groupIndex: number) => {
+                const highlightOn = !isNullUndefinedOrBlank(activeCourseId);
+                const groupEvents: any[] = Array.isArray(group?.eventData) ? group.eventData : [];
+                const filteredEvents = highlightOn
+                  ? groupEvents.filter((event) => {
+                      const eventCourseId = getCourseIdFromEvent(event);
+                      return eventCourseId !== null && String(eventCourseId) === String(activeCourseId);
+                    })
+                  : groupEvents;
+
+                // If a course is selected, hide date sections with no matching events
+                if (highlightOn && filteredEvents.length === 0) return null;
+
+                return (
                 <React.Fragment key={groupIndex}>
                   {/* Due Date Header */}
                   <div className="due-date-header">
@@ -519,12 +608,21 @@ const Dashboard = () => {
                   </div>
 
                   {/* Event Rows */}
-                  {group?.eventData?.map((event: any, eventIndex: number) => (
+                    {filteredEvents.map((event: any, eventIndex: number) => {
+                      const highlightColor =
+                        event?.course_color || event?.syllabus?.course_color || event?.syllabus?.courseColor;
+
+                      return (
                     <div
                       key={eventIndex}
                       className={`task-row clickable-event ${
-                        event?.status === ENUMFORSTATUS.COMPLETED ? 'completed' : ''
-                      }`}
+                            highlightOn ? 'course-highlight-match' : ''
+                          } ${event?.status === ENUMFORSTATUS.COMPLETED ? 'completed' : ''}`}
+                          style={
+                            highlightOn && highlightColor
+                              ? ({ ['--active-course-color' as any]: highlightColor } as any)
+                              : undefined
+                          }
                       onClick={() => handleSelectEvent(event)}
                     >
                       <div className="col-actions">
@@ -577,9 +675,11 @@ const Dashboard = () => {
                         </button>
                       </div>
                     </div>
-                  ))}
+                      );
+                    })}
                 </React.Fragment>
-              ))}
+                );
+              })}
             </div>
           </div>
         ) : (
