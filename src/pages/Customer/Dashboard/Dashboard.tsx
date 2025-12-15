@@ -501,19 +501,16 @@ const Dashboard = () => {
                     >
                       <div className="col-actions">
                         <button
-                          className="action-btn complete-btn"
+                          className={`task-checkbox ${event?.status === ENUMFORSTATUS.COMPLETED ? 'checked' : ''}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEventCompleted([event?.id], event?.status);
                           }}
+                          type="button"
+                          aria-label={event?.status === ENUMFORSTATUS.COMPLETED ? 'Mark as incomplete' : 'Mark as complete'}
                         >
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            {event?.status === ENUMFORSTATUS.COMPLETED ? (
-                              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                            ) : (
-                              <circle cx="12" cy="12" r="10" />
-                            )}
-                            <polyline points="22 4 12 14.01 9 11.01" />
+                          <svg className="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                            <polyline points="20 6 9 17 4 12" />
                           </svg>
                         </button>
                       </div>
@@ -558,8 +555,37 @@ const Dashboard = () => {
             </div>
           </div>
         ) : (
-          <div className="no-tasks-message">
-            <p>No events found for this week</p>
+          <div className="tasks-container">
+            {/* Table Header (show even in empty state) */}
+            <div className="tasks-table-header">
+              <div className="col-actions">Actions</div>
+              <div className="col-time">Time</div>
+              <div className="col-priority">Priority</div>
+              <div className="col-course">Course Name</div>
+              <div className="col-event">Event Name</div>
+              <div className="col-delete">Actions</div>
+            </div>
+
+            {/* Empty state: show an "Add event" row instead of plain text */}
+            <div className="add-event-row" role="button" tabIndex={0} onClick={handleShow}>
+              <button
+                className="add-event-circle"
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShow();
+                }}
+                aria-label="Add event"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </button>
+              <span className="add-event-input" style={{ color: 'var(--neutral-400)', pointerEvents: 'none' }}>
+                Add event
+              </span>
+            </div>
           </div>
         )}
       </div>
