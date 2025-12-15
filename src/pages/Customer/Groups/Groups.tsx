@@ -1685,7 +1685,7 @@ const Groups: React.FC = () => {
                           bottom: -1,
                           width: '50%',
                           height: 3,
-                          background: '#0EA5E9',
+                          background: '#239BC2',
                           borderRadius: 0,
                           pointerEvents: 'none'
                         }}
