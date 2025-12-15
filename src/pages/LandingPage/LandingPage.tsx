@@ -357,17 +357,17 @@ const LandingPage = () => {
             </div>
             <div className="hero-stats">
               <div className="stat">
-                <span className="stat-number" data-target="8000">8K+</span>
+                <span className="stat-number">8K+</span>
                 <span className="stat-label">Students</span>
               </div>
               <div className="stat-divider"></div>
               <div className="stat">
-                <span className="stat-number" data-target="50000">50K+</span>
+                <span className="stat-number">50K+</span>
                 <span className="stat-label">Tasks Created</span>
               </div>
               <div className="stat-divider"></div>
               <div className="stat">
-                <span className="stat-number" data-target="5">5.0</span>
+                <span className="stat-number">5.0</span>
                 <span className="stat-label">App Rating</span>
               </div>
             </div>

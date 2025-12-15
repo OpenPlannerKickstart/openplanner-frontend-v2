@@ -222,7 +222,7 @@ ul {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 72px;
+    padding: 1.25rem 0;
 }
 
 .logo {
