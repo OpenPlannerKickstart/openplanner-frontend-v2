@@ -451,8 +451,8 @@ div.task-item.clickable-event {
     padding: 1rem;
 }
 
-.add-task-modal-wrapper .modal-dialog.add-task-modal-wrapper {
-    max-width: 480px;
+.add-task-modal-wrapper .modal-dialog.add-task-modal {
+    max-width: 560px;
     width: 100%;
     margin: 0;
     max-height: 90vh;

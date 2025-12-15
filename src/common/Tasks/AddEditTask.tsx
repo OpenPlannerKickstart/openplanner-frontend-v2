@@ -8,7 +8,7 @@ import * as yup from 'yup';
 type Props = {
   show: boolean;
   setShow: (v: boolean) => void;
-  onSave?: (payload: { title: string; due_date: Date | null; note: string; is_reminder: boolean }) => Promise<void> | void;
+  onSave?: (payload: { title: string; due_date: Date | null; note: string; is_reminder: boolean }) => Promise<boolean | void> | boolean | void;
 };
 
 const AddEditTask: React.FC<Props> = ({ show, setShow, onSave }) => {
@@ -34,7 +34,7 @@ const AddEditTask: React.FC<Props> = ({ show, setShow, onSave }) => {
 
   const validationSchema = yup.object({
     title: yup.string().trim().required('Task name is required'),
-    due_date: yup.date().nullable().notRequired(),
+    due_date: yup.date().nullable().required('Due date is required'),
     note: yup.string().notRequired(),
     is_reminder: yup.boolean().notRequired(),
   });
@@ -66,7 +66,8 @@ const AddEditTask: React.FC<Props> = ({ show, setShow, onSave }) => {
       note: formik.values.note || '',
       is_reminder: !!formik.values.is_reminder,
     };
-    await onSave?.(payload);
+    const result = await onSave?.(payload);
+    if (result === false) return;
     handleClose();
   };
 
@@ -106,7 +107,7 @@ const AddEditTask: React.FC<Props> = ({ show, setShow, onSave }) => {
         </div>
 
         <div className="form-group">
-          <label className="form-label">Due Date</label>
+          <label className="form-label required">Due Date</label>
           <div className="date-input-wrapper">
             <DatePicker
               selected={formik.values.due_date}
@@ -131,6 +132,9 @@ const AddEditTask: React.FC<Props> = ({ show, setShow, onSave }) => {
               <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
           </div>
+          {formik.touched.due_date && formik.errors.due_date ? (
+            <div style={{ color: '#ef4444', fontSize: 12, marginTop: 6 }}>{String(formik.errors.due_date)}</div>
+          ) : null}
         </div>
 
         <div className="form-group">

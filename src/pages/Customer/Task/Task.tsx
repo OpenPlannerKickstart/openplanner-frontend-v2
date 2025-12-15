@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { dashboardTasksDataAPI } from '../../../redux/Service/User/DashBoard/dashboard';
-import { updateEventStatusDataAPI, deleteEventDataAPI } from '../../../redux/Service/User/Courses/courses';
+import { deleteEventDataAPI } from '../../../redux/Service/User/Courses/courses';
+import { upadteTaskStatusAPI, updateTaskStarAPI, addEditTaskAPI, taskListingAPI } from '../../../redux/Service/task';
 import {
   formatedDate,
+  getDate,
   isEmptyObjectOrNullUndefiend,
   isNullUndefinedOrBlank,
 } from '../../../Utility/Helper';
@@ -37,12 +38,19 @@ const Task = () => {
   /** -------------------Task listing api start-------------------------*/
   const handleTaskListing = async () => {
     try {
-      const response = await dispatch(dashboardTasksDataAPI());
+      // Use /taskListing for the Task List page (supports is_starred + full list)
+      const response = await dispatch(taskListingAPI({}));
       if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        setTaskData(response.payload);
+        const payload: any = response.payload;
+        // taskListing historically returns an object with { tasks, pending_task_count, ... }
+        const tasks = Array.isArray(payload) ? payload : (payload?.tasks ?? []);
+        setTaskData(Array.isArray(tasks) ? tasks : []);
+        return;
       }
+      setTaskData([]);
     } catch (error) {
       console.error('Error fetching task data:', error);
+      setTaskData([]);
     }
   };
 
@@ -58,11 +66,13 @@ const Task = () => {
       ? prev.map((t: any) => (t?.id === taskId ? { ...t, status: newStatus } : t))
       : prev));
     const reqBody = {
-      event_id: [taskId],
+      // backend expects an array id for toggle mode (id: [taskId])
+      id: [taskId],
+      // explicitly set so uncomplete is reliable (BE supports set mode)
       status: newStatus,
     };
     try {
-      const response = await dispatch(updateEventStatusDataAPI(reqBody));
+      const response = await dispatch(upadteTaskStatusAPI(reqBody));
       if (!isNullUndefinedOrBlank(response?.payload)) {
         handleTaskListing();
         return;
@@ -78,11 +88,34 @@ const Task = () => {
     }
   };
 
-  /** -------------------Star/unstar task (UI)-------------------------*/
-  const handleToggleStar = (taskId: number) => {
+  /** -------------------Star/unstar task-------------------------*/
+  const handleToggleStar = async (taskId: number, currentIsStarred: boolean) => {
+    const newIsStarred = !currentIsStarred;
+    // Optimistic UI update
     setTaskData((prev: any[]) => (Array.isArray(prev)
-      ? prev.map((t: any) => (t?.id === taskId ? { ...t, is_starred: !t?.is_starred } : t))
+      ? prev.map((t: any) => (t?.id === taskId ? { ...t, is_starred: newIsStarred } : t))
       : prev));
+    const reqBody = {
+      // backend validators in this env appear to require arrays for IDs
+      // BE supports both scalar and array; use scalar for simplest compatibility
+      task_id: taskId,
+      is_starred: newIsStarred,
+    };
+    try {
+      const response = await dispatch(updateTaskStarAPI(reqBody));
+      if (!isNullUndefinedOrBlank(response?.payload)) {
+        handleTaskListing();
+        return;
+      }
+      // revert if API didn't succeed
+      setTaskData((prev: any[]) => (Array.isArray(prev)
+        ? prev.map((t: any) => (t?.id === taskId ? { ...t, is_starred: currentIsStarred } : t))
+        : prev));
+    } catch {
+      setTaskData((prev: any[]) => (Array.isArray(prev)
+        ? prev.map((t: any) => (t?.id === taskId ? { ...t, is_starred: currentIsStarred } : t))
+        : prev));
+    }
   };
 
   /** -------------------Delete task-------------------------*/
@@ -362,13 +395,13 @@ const Task = () => {
                       </svg>
                     </button>
                     <div className="task-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                      <span className="task-name">{task.title}</span>
-                      <span className="task-due">{formatedDate(task.end_date, 'MMM DD, YYYY')}</span>
+                      <span className="task-name">{task.task_name || task.title}</span>
+                      <span className="task-due">{formatedDate(task.due_date || task.end_date, 'MMM DD, YYYY')}</span>
                     </div>
                     <button
                       className={`task-star ${task.is_starred ? 'starred' : ''}`}
                       aria-label="Mark as important"
-                      onClick={(e) => { e.stopPropagation(); handleToggleStar(task.id); }}
+                      onClick={(e) => { e.stopPropagation(); handleToggleStar(task.id, task.is_starred); }}
                       type="button"
                     >
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -399,10 +432,20 @@ const Task = () => {
       <AddEditTask
         show={show}
         setShow={setShow}
-        onSave={async () => {
-          // BE wiring will be added once addEditTask endpoint is confirmed.
-          // For now, just close the modal.
-          handleGetUpdatedData();
+        onSave={async (payload) => {
+          const reqBody = {
+            task_name: payload.title,
+            due_date: payload.due_date ? getDate(payload.due_date) : null,
+            note: payload.note || '',
+            is_reminder: payload.is_reminder,
+            reminder: [],
+          };
+          const response = await dispatch(addEditTaskAPI(reqBody));
+          if (!isNullUndefinedOrBlank(response?.payload)) {
+            handleGetUpdatedData();
+            return true;
+          }
+          return false;
         }}
       />
     </>

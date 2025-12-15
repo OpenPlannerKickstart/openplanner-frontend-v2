@@ -4,6 +4,7 @@ interface TaskInitializeState {
     addEditTaskData: any;
     taskList: any;
     updateStatusData: any;
+    updateStarData: any;
     deleteTaskData: any;
     loading: boolean;
 }
@@ -12,6 +13,7 @@ const initialState: TaskInitializeState = {
     addEditTaskData: null,
     taskList: null,
     updateStatusData: null,
+    updateStarData: null,
     deleteTaskData: null,
     loading: false,
 };
@@ -56,6 +58,18 @@ const taskSlice: any = createSlice({
             state.loading = false;
         },
 
+        updateStarSuccess: (
+            state: TaskInitializeState = initialState,
+            action: PayloadAction<any>
+        ) => {
+            state.updateStarData = action.payload;
+            state.loading = false;
+        },
+        updateStarFailure: (state) => {
+            state.updateStarData = null;
+            state.loading = false;
+        },
+
         deleteTaskSuccess: (
             state: TaskInitializeState = initialState,
             action: PayloadAction<any>
@@ -73,6 +87,7 @@ const taskSlice: any = createSlice({
 export const { addEditTaskSuccess, addEditTaskFailure,
     getTaskListSuccess, getTaskListFailure,
     updateStatusSuccess, updateStatusFailure,
+    updateStarSuccess, updateStarFailure,
     deleteTaskSuccess, deleteTaskFailure
 } = taskSlice.actions;
 export default taskSlice?.reducer;
