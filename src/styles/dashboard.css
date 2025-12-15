@@ -2694,6 +2694,8 @@ input, textarea, select {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 0.75rem;
     padding: 1rem 1.25rem;
     background: var(--neutral-50);
     border-radius: var(--radius-lg);
@@ -2704,6 +2706,24 @@ input, textarea, select {
     font-size: 0.9375rem;
     font-weight: 500;
     color: var(--neutral-700);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Add Event modal: force reminder row to stay horizontal */
+.add-event-modal-wrapper .form-group.reminder-toggle-group {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+}
+
+.add-event-modal-wrapper .form-group.reminder-toggle-group .reminder-label {
+    text-align: left;
 }
 
 /* Toggle Switch */
