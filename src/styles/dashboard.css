@@ -1939,6 +1939,68 @@ input, textarea, select {
   letter-spacing: 0.025em;
 }
 
+/* Add Event Row (empty-state affordance; match Task List "Add a task" row) */
+.add-event-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--neutral-200);
+  background: var(--neutral-50);
+  cursor: pointer;
+}
+
+.add-event-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px dashed var(--neutral-300);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  color: var(--neutral-400);
+  flex-shrink: 0;
+}
+
+.add-event-circle:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-subtle);
+}
+
+.add-event-input {
+  flex: 1;
+  padding: 0.5rem 0;
+  font-size: 0.9375rem;
+  color: var(--neutral-700);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+[data-theme="dark"] .add-event-row {
+  background: var(--neutral-100);
+  border-top-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .add-event-circle {
+  border-color: var(--neutral-300);
+  color: var(--neutral-400);
+}
+
+[data-theme="dark"] .add-event-circle:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-subtle);
+}
+
+[data-theme="dark"] .add-event-input {
+  color: var(--neutral-700);
+}
+
 /* Due Date Group */
 .due-date-group {
   border-bottom: 1px solid var(--neutral-200);
@@ -1997,6 +2059,22 @@ input, textarea, select {
   background: var(--primary);
   border-color: var(--primary);
   color: var(--white);
+}
+
+/* Ensure checkmark visibility in Dashboard/My Week rows (Task page CSS hides .check-icon by default) */
+.tasks-container .task-checkbox .check-icon {
+  opacity: 0 !important;
+  transition: opacity var(--transition-base);
+  display: block;
+}
+
+.tasks-container .task-checkbox.checked .check-icon {
+  opacity: 1 !important;
+}
+
+/* Ensure this reads as a rounded square (not a circle) */
+.tasks-container .task-checkbox {
+  border-radius: var(--radius-md) !important;
 }
 
 .col-time {
