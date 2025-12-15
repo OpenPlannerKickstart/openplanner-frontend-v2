@@ -2981,6 +2981,26 @@ input, textarea, select {
     background: var(--primary-subtle);
 }
 
+/* Course pill highlighting (My Week) */
+.task-row.course-highlight-dim {
+    opacity: 0.35;
+}
+
+.task-row.course-highlight-match {
+    opacity: 1;
+    /* No colored side accent; filtering already indicates selection */
+    background: rgba(15, 23, 42, 0.02);
+    box-shadow: none;
+}
+
+.task-row.course-highlight-match:hover {
+    background: rgba(15, 23, 42, 0.04);
+}
+
+.task-row.course-highlight-match.completed {
+    opacity: 0.65; /* keep completed look while still being "matched" */
+}
+
 /* Completed Task Row Styles */
 .task-row.completed {
     opacity: 0.6;

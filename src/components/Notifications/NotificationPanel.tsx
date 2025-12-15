@@ -81,7 +81,7 @@ const Icon: React.FC<{ type: string }> = ({ type }) => {
 
 const NotificationPanel: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
-  const { isOpen, close } = useNotificationPanel();
+  const { isOpen, close, refresh } = useNotificationPanel();
   const navigate = useNavigate();
 
   const notificationList: NotificationData[] = useSelector(
@@ -90,6 +90,7 @@ const NotificationPanel: React.FC = () => {
 
   type InviteItem = { id: string; groupId: string; fromUserId?: string; fromUsername?: string; groupName?: string; fromName?: string; message?: string; createdAt?: any; read?: boolean };
   const [invites, setInvites] = useState<Array<InviteItem>>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const getInviteReadSet = () => { try { return new Set<string>(JSON.parse(localStorage.getItem('op_invite_read') || '[]')); } catch { return new Set<string>(); } };
   const setInviteReadSet = (s: Set<string>) => { try { localStorage.setItem('op_invite_read', JSON.stringify(Array.from(s))); } catch {} };
@@ -155,14 +156,32 @@ const NotificationPanel: React.FC = () => {
 
   useEffect(() => {
     if (!isOpen) return;
+    let cancelled = false;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close();
     };
     document.addEventListener('keydown', onKeyDown);
-    // Load invites when panel opens
-    fetchInvites();
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, close]);
+    // Load notifications + invites when panel opens (show spinner while loading)
+    (async () => {
+      try {
+        setLoading(true);
+        // Only block the spinner on data that affects what we render in this panel
+        await Promise.all([
+          dispatch(getAllNotificationAPI()),
+          fetchInvites(),
+        ]);
+        // Count refresh is for the header badge; don't hold spinner for it
+        dispatch(getCountOfUnreadNotificationAPI());
+        refresh();
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOpen, close, refresh]);
 
   return (
     <>
@@ -189,6 +208,17 @@ const NotificationPanel: React.FC = () => {
         </div>
 
         <div className="notification-panel-body">
+          {/* Single loader (body only). While loading, hide the empty state. */}
+          {loading && !hasAny ? (
+            <div className="d-flex align-items-center justify-content-center" style={{ padding: '56px 0' }}>
+              <div className="loader-container inline-loader" style={{ position: 'relative', background: 'transparent' }}>
+                <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+                  <rect className="track" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" />
+                  <rect className="car" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" pathLength="100" />
+                </svg>
+              </div>
+            </div>
+          ) : null}
           {/* Group invites (type: invite) */}
           {invites && invites.length > 0 && invites.map((it) => {
             const created = (it as any).createdAt || (it as any).created_at || Date.now();
@@ -212,6 +242,7 @@ const NotificationPanel: React.FC = () => {
                           try {
                             const res: any = await post(`invites/${it.id}/accept`, {});
                             const data = res?.data ?? res;
+                            refresh();
                             close();
                             if (data?.groupId) navigate(`/groups/${data.groupId}?tab=groups`);
                             else navigate(`/groups?tab=groups`);
@@ -227,6 +258,7 @@ const NotificationPanel: React.FC = () => {
                           try {
                             await post(`invites/${it.id}/decline`, {});
                             fetchInvites();
+                            refresh();
                           } catch {}
                         }}
                         type="button"
@@ -245,6 +277,7 @@ const NotificationPanel: React.FC = () => {
                     r.add(it.id);
                     setInviteReadSet(r);
                     setInvites(prev => prev.map(x => x.id === it.id ? { ...x, read: true } : x));
+                    refresh();
                   }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -297,7 +330,7 @@ const NotificationPanel: React.FC = () => {
             );
           })}
 
-          {(!notificationList || notificationList.length === 0) && (!invites || invites.length === 0) && (
+          {!loading && (!notificationList || notificationList.length === 0) && (!invites || invites.length === 0) && (
             <div className="empty-notifications">
               <div className="empty-notifications-icon">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

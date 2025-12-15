@@ -65,10 +65,43 @@ const AddEditGroup: React.FC<AddEditGroupProps> = (props) => {
     formik.resetForm()
   }
 
+  const getGroupColorName = (hex?: string) => {
+    if (!hex || typeof hex !== 'string') return ''
+    const map: Record<string, string> = {
+      '#239bc2': 'Cyan',
+      '#f97316': 'Orange',
+      '#eab308': 'Yellow',
+      '#22c55e': 'Green',
+      '#14b8a6': 'Teal',
+      '#d97706': 'Gold',
+      '#3b82f6': 'Blue',
+      '#cddc39': 'Lime',
+      '#ef4444': 'Red',
+      '#8b5cf6': 'Purple',
+      '#ec4899': 'Pink',
+      '#6b7280': 'Gray',
+      '#78716c': 'Stone',
+      '#6366f1': 'Indigo',
+    }
+    return map[hex.toLowerCase()] || hex
+  }
+
+  // Match Add Syllabus modal (new design system palette)
   const colorPalette = [
-    '#239BC2', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3',
-    '#03a9f4', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39',
-    '#ffeb3b', '#ffc107', '#ff9800', '#ff5722', '#795548', '#607d8b'
+    '#239BC2', // Cyan (default)
+    '#F97316', // Orange
+    '#EAB308', // Yellow
+    '#22C55E', // Green
+    '#14B8A6', // Teal
+    '#D97706', // Gold
+    '#3B82F6', // Blue
+    '#cddc39', // Lime
+    '#EF4444', // Red
+    '#8B5CF6', // Purple
+    '#EC4899', // Pink
+    '#6B7280', // Gray
+    '#78716C', // Stone
+    '#6366F1', // Indigo
   ]
 
   return (
@@ -123,7 +156,7 @@ const AddEditGroup: React.FC<AddEditGroupProps> = (props) => {
             <div className="group-color-row">
               <div className="group-color-preview">
                 <GroupAvatar color={formik.values.color} size={44} />
-                <div className="group-color-value">{formik.values.color}</div>
+                <div className="group-color-value">{getGroupColorName(formik.values.color)}</div>
               </div>
               <div className="color-picker-container">
                 {colorPalette.map((c) => (
@@ -133,7 +166,7 @@ const AddEditGroup: React.FC<AddEditGroupProps> = (props) => {
                     className={`color-option${formik.values.color === c ? ' selected' : ''}`}
                     style={{ backgroundColor: c }}
                     onClick={() => formik.setFieldValue('color', c)}
-                    aria-label={`Select color ${c}`}
+                    aria-label={`Select color ${getGroupColorName(c)}`}
                   />
                 ))}
               </div>

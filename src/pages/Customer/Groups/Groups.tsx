@@ -18,7 +18,6 @@ import { useNotificationPanel } from '../../../components/Notifications/Notifica
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 // Image assets must be bundled; do not rely on absolute "/assets" paths in production
 import bookIcon from '../../../assets/images/book.svg';
-import emptyStateImg from '../../../assets/images/not-voucher-found.svg';
 import { ATTACH_ACCEPT_INPUT, ATTACH_MAX_PER_MESSAGE, ATTACH_MAX_MB, isMimeAllowed, isSizeAllowed } from '../../../Utility/attachments';
 import { initiateUpload, uploadToS3, toAttachmentDescriptor, computeCrc32Base64 } from '../../../Utility/uploads';
 import type { AttachmentDescriptor } from '../../../interfaces/groups';
@@ -148,6 +147,8 @@ const Groups: React.FC = () => {
   const [myGroupsCollapsed, setMyGroupsCollapsed] = useState<boolean>(false);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [showGroupInfo, setShowGroupInfo] = useState<boolean>(false);
+  // Sidebar preview cache: last message per group (since /groups/mine doesn't include it)
+  const [groupPreviewById, setGroupPreviewById] = useState<Record<string, { lastMessage: any | null }>>({});
   // Track if we're previewing a suggested group (not yet joined)
   const [previewingSuggestion, setPreviewingSuggestion] = useState<any | null>(null);
   // Group info panel data and UI state
@@ -499,6 +500,60 @@ const Groups: React.FC = () => {
       te('Failed to load your groups');
     }
   };
+
+  const fetchGroupLastMessagePreview = async (groupId: string) => {
+    try {
+      // Fetch a tiny page; backend may return newest-first or oldest-first, so we pick newest by timestamp.
+      const res: any = await get(`groups/${groupId}/messages?limit=5`);
+      const payload = res?.data ?? res;
+      const list: any[] = payload?.messages ?? [];
+      if (!Array.isArray(list) || list.length === 0) {
+        setGroupPreviewById(prev => ({ ...prev, [groupId]: { lastMessage: null } }));
+        return;
+      }
+      const newest = list.reduce((best: any, cur: any) => {
+        const bt = new Date(best?.createdAt || best?.created_on || best?.created_at || 0).getTime();
+        const ct = new Date(cur?.createdAt || cur?.created_on || cur?.created_at || 0).getTime();
+        return ct >= bt ? cur : best;
+      }, list[0]);
+      setGroupPreviewById(prev => ({ ...prev, [groupId]: { lastMessage: newest } }));
+    } catch {
+      // Don't toast; this is best-effort UI sugar
+      setGroupPreviewById(prev => (prev[groupId] ? prev : { ...prev, [groupId]: { lastMessage: null } }));
+    }
+  };
+
+  // Background-load sidebar previews for groups (last message)
+  useEffect(() => {
+    if (!Array.isArray(myGroups) || myGroups.length === 0) return;
+    let cancelled = false;
+
+    const run = async () => {
+      for (const g of myGroups) {
+        if (cancelled) return;
+        const id = g?.id;
+        if (!id) continue;
+        // Skip if BE already provided a lastMessage-ish field OR we already fetched it
+        const alreadyHas =
+          Boolean(
+            g?.lastMessage ||
+              g?.last_message ||
+              g?.latestMessage ||
+              g?.latest_message ||
+              g?.recentMessage ||
+              g?.recent_message
+          ) || Boolean(groupPreviewById[id]);
+        if (alreadyHas) continue;
+        await fetchGroupLastMessagePreview(id);
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+    // intentionally include groupPreviewById so we don't refetch already fetched items
+  }, [myGroups, groupPreviewById]); // eslint-disable-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     fetchMyGroups();
   }, []);
@@ -751,7 +806,10 @@ const Groups: React.FC = () => {
         setRateLimitUntil(Date.now() + retrySeconds * 1000);
         te(`You're sending too fast, try again in ${retrySeconds}s`);
       } else {
-        te('Failed to send');
+        // Prefer server error message (avoid duplicate generic toast)
+        const serverMsg = e?.response?.data?.message || e?.response?.data?.error || e?.message;
+        if (serverMsg) te(serverMsg);
+        else te('Failed to send');
       }
       return false;
     }
@@ -1300,7 +1358,10 @@ const Groups: React.FC = () => {
         setRateLimitUntil(Date.now() + retrySeconds * 1000);
         te(`You're sending too fast, try again in ${retrySeconds}s`);
       } else {
-        te('Failed to send');
+        // Prefer server error message (avoid duplicate generic toast)
+        const serverMsg = e?.response?.data?.message || e?.response?.data?.error || e?.message;
+        if (serverMsg) te(serverMsg);
+        else te('Failed to send');
       }
       return false;
     }
@@ -1763,7 +1824,6 @@ const Groups: React.FC = () => {
                       </div>
                     ) : (
                       <div className="text-center p-4">
-                        <img src={emptyStateImg} alt="Empty" style={{ width: 120, height: 'auto', opacity: 0.9 }} />
                         <h5 className="mt-3 mb-1">No recent chats</h5>
                         <p className="text-muted mb-0" style={{ fontSize: 14 }}>
                           Start a conversation from a group or create a private study group.
@@ -1805,6 +1865,41 @@ const Groups: React.FC = () => {
                               id={g.id}
                               name={g.name}
                               avatarColor={g.avatarColor}
+                              lastMessage={(() => {
+                                const fromBe =
+                                  g.lastMessage ||
+                                  g.last_message ||
+                                  g.latestMessage ||
+                                  g.latest_message ||
+                                  g.recentMessage ||
+                                  g.recent_message ||
+                                  null;
+                                if (fromBe) return fromBe;
+                                const fromCache = groupPreviewById[g.id]?.lastMessage ?? null;
+                                if (fromCache) return fromCache;
+                                const fromLoaded = (messages[g.id] ?? []);
+                                if (Array.isArray(fromLoaded) && fromLoaded.length > 0) return fromLoaded[fromLoaded.length - 1];
+                                return null;
+                              })()}
+                              lastActivityAt={
+                                g.lastActivityAt ||
+                                g.last_activity_at ||
+                                g.updatedAt ||
+                                g.updated_at ||
+                                g.lastMessageAt ||
+                                g.last_message_at ||
+                                null
+                              }
+                              unreadCount={
+                                g.unreadCount ||
+                                g.unread_count ||
+                                g.unreadMessagesCount ||
+                                g.unread_messages_count ||
+                                g.unreadMessages ||
+                                g.unread_messages ||
+                                g.unread ||
+                                0
+                              }
                               variant="mine"
                               isSelected={!activeDmThreadId && selectedGroupId === g.id}
                               onClick={() => applySelection(g.id)}
@@ -2128,6 +2223,31 @@ const Groups: React.FC = () => {
                               const bd = new Date(b?.createdAt || b?.created_on || b?.created_at || 0).getTime();
                               return ad - bd; // oldest first, newest last (bottom)
                             });
+                            if (loadingMessages && list.length === 0) {
+                              return (
+                                <div className="d-flex align-items-center justify-content-center h-100" style={{ minHeight: 200 }}>
+                                  <div className="loader-container inline-loader" style={{ position: 'relative', background: 'transparent' }}>
+                                    <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+                                      <rect className="track" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" />
+                                      <rect className="car" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" pathLength="100" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            if (selectedGroupId && list.length === 0) {
+                              return (
+                                <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
+                                  <div style={{ width: 80, height: 80, borderRadius: 40, background: selectedGroup?.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                                    <img src={bookIcon} alt="group" style={{ width: 48, height: 'auto' }} />
+                                  </div>
+                                  <h5 style={{ color: '#111827', marginBottom: 8 }}>No messages yet</h5>
+                                  <p className="text-muted text-center" style={{ fontSize: 14, maxWidth: 280 }}>
+                                    Be the first to send a message in {selectedGroup?.name || 'this group'}.
+                                  </p>
+                                </div>
+                              );
+                            }
                             if (!list.length) return null;
                             const byDay: { label: string; items: any[] }[] = [];
                             const isSameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -2833,6 +2953,31 @@ const Groups: React.FC = () => {
                       const bd = new Date(b?.createdAt || b?.created_on || b?.created_at || 0).getTime();
                       return ad - bd; // oldest first, newest last (bottom)
                     });
+                    if (loadingMessages && list.length === 0) {
+                      return (
+                        <div className="d-flex align-items-center justify-content-center h-100" style={{ minHeight: 200 }}>
+                          <div className="loader-container inline-loader" style={{ position: 'relative', background: 'transparent' }}>
+                            <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
+                              <rect className="track" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" />
+                              <rect className="car" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" pathLength="100" />
+                            </svg>
+                          </div>
+                        </div>
+                      );
+                    }
+                    if (selectedGroupId && list.length === 0) {
+                      return (
+                        <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ minHeight: 300 }}>
+                          <div style={{ width: 80, height: 80, borderRadius: 40, background: selectedGroup?.avatarColor || '#E5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                            <img src={bookIcon} alt="group" style={{ width: 48, height: 'auto' }} />
+                          </div>
+                          <h5 style={{ color: '#111827', marginBottom: 8 }}>No messages yet</h5>
+                          <p className="text-muted text-center" style={{ fontSize: 14, maxWidth: 280 }}>
+                            Be the first to send a message in {selectedGroup?.name || 'this group'}.
+                          </p>
+                        </div>
+                      );
+                    }
                     if (!list.length) return null;
 
                     // Group messages by calendar day (local time)
