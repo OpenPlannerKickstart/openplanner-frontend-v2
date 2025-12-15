@@ -33,20 +33,6 @@ const GroupListItem: React.FC<Props> = ({
         style={{ cursor: onClick ? 'pointer' : 'default', background: isSelected ? '#FFF8EA' : 'transparent', position: 'relative', overflow: 'hidden' }}
         onClick={onClick}
       >
-        {isSelected ? (
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: 6,
-              background: '#239BC2',
-              borderTopRightRadius: 0,
-              borderBottomRightRadius: 0,
-            }}
-          />
-        ) : null}
         <div className="d-flex align-items-center gap-3 flex-grow-1" style={{ minWidth: 0 }}>
           <GroupAvatar color={avatarColor || '#E5F3FF'} size={56} />
           <div>

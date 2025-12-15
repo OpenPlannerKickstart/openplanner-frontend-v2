@@ -112,7 +112,7 @@ const Navbar = (props) => {
 
   const openNotificationModal = async () => {
     // Always show the panel first
-    handleNotificationsShow();
+      handleNotificationsShow();
     
     // Then fetch data in the background
     try {
@@ -508,11 +508,11 @@ const Navbar = (props) => {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6L6 18M6 6l12 12"/>
               </svg>
-            </button>
+          </button>
           </div>
         </div>
         <div className="notification-panel-body">
-          {/* Pending group invites */}
+              {/* Pending group invites */}
           {invites && invites.length > 0 && invites.map((it) => {
             const created = (it as any).createdAt || (it as any).created_at || Date.now();
             return (
@@ -559,7 +559,7 @@ const Navbar = (props) => {
                       Decline
                     </button>
                   </div>
-                </div>
+                          </div>
                 <button 
                   className="notification-dismiss"
                   onClick={() => { 
@@ -573,9 +573,9 @@ const Navbar = (props) => {
                     <path d="M18 6L6 18M6 6l12 12"/>
                   </svg>
                 </button>
-              </div>
-            );
-          })}
+                          </div>
+                      );
+                    })}
           
           {/* Regular notifications */}
           {!isEmptyObjectOrNullUndefiend(notificationList) && notificationList.map((item) => {
@@ -648,7 +648,7 @@ const Navbar = (props) => {
                     <path d="M18 6L6 18M6 6l12 12"/>
                   </svg>
                 </button>
-              </div>
+                  </div>
             );
           })}
           
@@ -660,12 +660,12 @@ const Navbar = (props) => {
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                   <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                 </svg>
-              </div>
+                  </div>
               <p className="notification-empty-text">You have no new notifications</p>
             </div>
           )}
         </div>
-      </div>
+          </div>
     </>
   )
 }

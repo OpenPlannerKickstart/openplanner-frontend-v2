@@ -13,12 +13,14 @@ import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
 import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
-import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
+import AddEditTask from '../../../common/Tasks/AddEditTask';
+import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 
 const Task = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const { toggleSidebar } = useSidebar();
+  const { open: openNotifications, unreadCount } = useNotificationPanel();
 
   const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
 
@@ -30,7 +32,6 @@ const Task = () => {
   /** -----------------Task state---------------------------*/
   const [taskData, setTaskData] = useState<any>([]);
   const [activeTab, setActiveTab] = useState<'todo' | 'completed' | 'starred'>('todo');
-  const [editEventFormData, setEditEventFormData] = useState<any>(null);
   const [show, setShow] = useState(false);
 
   /** -------------------Task listing api start-------------------------*/
@@ -52,14 +53,36 @@ const Task = () => {
   /** -------------------Task complete/incomplete toggle-------------------------*/
   const handleTaskToggle = async (taskId: number, currentStatus: string) => {
     const newStatus = currentStatus === ENUMFORSTATUS.COMPLETED ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED;
+    // Optimistic UI update so tasks move between tabs instantly
+    setTaskData((prev: any[]) => (Array.isArray(prev)
+      ? prev.map((t: any) => (t?.id === taskId ? { ...t, status: newStatus } : t))
+      : prev));
     const reqBody = {
       event_id: [taskId],
       status: newStatus,
     };
-    const response = await dispatch(updateEventStatusDataAPI(reqBody));
-    if (!isNullUndefinedOrBlank(response?.payload)) {
-      handleTaskListing();
+    try {
+      const response = await dispatch(updateEventStatusDataAPI(reqBody));
+      if (!isNullUndefinedOrBlank(response?.payload)) {
+        handleTaskListing();
+        return;
+      }
+      // revert if API didn't succeed
+      setTaskData((prev: any[]) => (Array.isArray(prev)
+        ? prev.map((t: any) => (t?.id === taskId ? { ...t, status: currentStatus } : t))
+        : prev));
+    } catch {
+      setTaskData((prev: any[]) => (Array.isArray(prev)
+        ? prev.map((t: any) => (t?.id === taskId ? { ...t, status: currentStatus } : t))
+        : prev));
     }
+  };
+
+  /** -------------------Star/unstar task (UI)-------------------------*/
+  const handleToggleStar = (taskId: number) => {
+    setTaskData((prev: any[]) => (Array.isArray(prev)
+      ? prev.map((t: any) => (t?.id === taskId ? { ...t, is_starred: !t?.is_starred } : t))
+      : prev));
   };
 
   /** -------------------Delete task-------------------------*/
@@ -88,12 +111,10 @@ const Task = () => {
 
   /** -------------------Add/Edit task modal-------------------------*/
   const handleShow = () => {
-    setEditEventFormData(null);
     setShow(true);
   };
 
   const handleSelectTask = (task: any) => {
-    setEditEventFormData(task);
     setShow(true);
   };
 
@@ -199,21 +220,36 @@ const Task = () => {
               Add Task
             </button>
 
-            <button className="notification-btn">
+            <button className="notification-btn" type="button" onClick={openNotifications} aria-label="Notifications" title="Notifications">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
-              <span className="notification-badge"></span>
+              {unreadCount > 0 && <span className="notification-badge"></span>}
             </button>
 
             <div className="user-menu-container" ref={userMenuRef}>
               <div className="user-menu" onClick={handleUserMenuToggle}>
                 <div className="user-avatar">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
+                  {(() => {
+                    const src =
+                      (userData as any)?.profile_image ||
+                      (userData as any)?.profileImage ||
+                      (userData as any)?.picture ||
+                      (userData as any)?.avatarUrl;
+                    return src ? (
+                      <img
+                        src={src}
+                        alt="Profile"
+                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                      />
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    );
+                  })()}
                 </div>
                 <span className="user-name">
                   {userData?.username || userData?.email?.split('@')[0] || 'User'}
@@ -303,57 +339,71 @@ const Task = () => {
         {/* Tasks List */}
         <div className="tasks-list-container">
           <div className="tasks-list">
-            {filteredTasks && filteredTasks.length > 0 ? (
-              filteredTasks.map((task: any) => (
-                <div
-                  key={task.id}
-                  className="task-item clickable-event"
-                  role="button"
-                  tabIndex={0}
-                  style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px' }}
-                  onClick={() => handleSelectTask(task)}
-                >
-                  <button
-                    className="task-checkbox"
-                    aria-label="Mark as complete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleTaskToggle(task.id, task.status);
-                    }}
+            {filteredTasks && filteredTasks.length > 0
+              ? filteredTasks.map((task: any) => (
+                  <div
+                    key={task.id}
+                    className={`task-item clickable-event ${task.status === ENUMFORSTATUS.COMPLETED ? 'completed' : ''}`}
+                    role="button"
+                    tabIndex={0}
+                    style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px' }}
+                    onClick={() => handleSelectTask(task)}
                   >
-                    {task.status === ENUMFORSTATUS.COMPLETED && (
+                    <button
+                      className="task-checkbox"
+                      aria-label="Mark as complete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTaskToggle(task.id, task.status);
+                      }}
+                    >
                       <svg className="check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
-                    )}
-                  </button>
-                  <div className="task-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                    <span className="task-name">{task.title}</span>
-                    <span className="task-due">{formatedDate(task.end_date, 'MMM DD, YYYY')}</span>
+                    </button>
+                    <div className="task-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                      <span className="task-name">{task.title}</span>
+                      <span className="task-due">{formatedDate(task.end_date, 'MMM DD, YYYY')}</span>
+                    </div>
+                    <button
+                      className={`task-star ${task.is_starred ? 'starred' : ''}`}
+                      aria-label="Mark as important"
+                      onClick={(e) => { e.stopPropagation(); handleToggleStar(task.id); }}
+                      type="button"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    </button>
                   </div>
-                  <button className="task-star" aria-label="Mark as important">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill={task.is_starred ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                  </button>
-                </div>
-              ))
-            ) : (
-              <div className="no-tasks-message">
-                <p>No tasks found</p>
-              </div>
-            )}
+                ))
+              : null}
           </div>
+
+          {/* Add Task Row - always visible (also serves as empty-state affordance) */}
+          <div className="add-task-row" style={{ cursor: 'pointer' }} onClick={handleShow} role="button" tabIndex={0}>
+            <button className="add-task-circle" type="button" onClick={(e) => { e.stopPropagation(); handleShow(); }} aria-label="Add a task">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+            <span className="add-task-input" style={{ color: 'var(--neutral-400)', pointerEvents: 'none' }}>Add a task</span>
+          </div>
+
+          {/* Empty state: show ONLY the "Add a task" row (no illustration/text) */}
         </div>
       </div>
 
       {/* Add/Edit Task Modal */}
-      <AddEditEvent
+      <AddEditTask
         show={show}
         setShow={setShow}
-        handleGetData={handleGetUpdatedData}
-        setEditEventFormData={setEditEventFormData}
-        editEventFormData={editEventFormData}
+        onSave={async () => {
+          // BE wiring will be added once addEditTask endpoint is confirmed.
+          // For now, just close the modal.
+          handleGetUpdatedData();
+        }}
       />
     </>
   );

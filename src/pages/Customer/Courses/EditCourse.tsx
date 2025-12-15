@@ -133,19 +133,19 @@ const EditCourse = () => {
             {/* Tabs */}
             <div className="course-tabs">
               <div className="tabs-left">
-                <button 
+                            <button
                   className={`tab-btn ${selectedTab === ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS ? 'active' : ''}`}
-                  onClick={() => handleTabChange(ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS)}
-                >
-                  Events
-                </button>
-                <button 
+                                onClick={() => handleTabChange(ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS)}
+                            >
+                                Events
+                            </button>
+                            <button
                   className={`tab-btn ${selectedTab === ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS ? 'active' : ''}`}
-                  onClick={() => handleTabChange(ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS)}
-                >
-                  Syllabus Details
-                </button>
-              </div>
+                                onClick={() => handleTabChange(ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS)}
+                            >
+                                Syllabus Details
+                            </button>
+                            </div>
               <div className="tabs-right">
                 {!isShowPdf && (
                   <button 
@@ -169,17 +169,17 @@ const EditCourse = () => {
                   </svg>
                   Add New Event
                 </button>
-              </div>
-            </div>
+                            </div>
+                            </div>
 
             {/* Tab Content */}
             <div className={`tab-content ${selectedTab === ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS ? 'active' : ''}`}>
-              <Events
-                selectedSyllabusObj={selectedSyllabusObj}
-                selectedTab={selectedTab}
-                handleSelectEvent={handleSelectEvent}
-              />
-            </div>
+                            <Events
+                                selectedSyllabusObj={selectedSyllabusObj}
+                                selectedTab={selectedTab}
+                                handleSelectEvent={handleSelectEvent}
+                            />
+                            </div>
 
             <div className={`tab-content ${selectedTab === ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS ? 'active' : ''}`}>
               <div className="syllabus-details-form">
@@ -190,9 +190,9 @@ const EditCourse = () => {
                   setPdfPreviewLink={setPdfPreviewLink}
                   pdfPreviewLink={pdfPreviewLink}
                 />
-              </div>
-            </div>
-          </div>
+                            </div>
+                        </div>
+                        </div>
 
           {/* Right Panel - Syllabus Preview */}
           {isShowPdf && (
@@ -205,26 +205,26 @@ const EditCourse = () => {
                 >
                   Hide Preview
                 </button>
-              </div>
+                    </div>
               
               {/* PDF Viewer */}
               {!isNullUndefinedOrBlank(pdfPreviewLink) ? (
                 <div className="preview-content">
-                  <div
-                    style={{
+                            <div
+                            style={{
                       height: 'calc(100vh - 280px)',
-                      width: '100%',
+                                width: '100%',
                       background: 'var(--white)',
                       borderRadius: 'var(--radius-lg)',
                       overflow: 'hidden'
-                    }}
-                  >
-                    <Viewer
-                      fileUrl={pdfPreviewLink}
-                      plugins={[defaultLayoutPluginInstance]}
-                    />
-                  </div>
-                </div>
+                            }}
+                            >
+                            <Viewer
+                                fileUrl={pdfPreviewLink}
+                                plugins={[defaultLayoutPluginInstance]}
+                            />
+                            </div>
+                        </div>
               ) : (
                 <div className="preview-content">
                   <div className="pdf-placeholder">
@@ -246,23 +246,23 @@ const EditCourse = () => {
                       <p style={{ fontSize: '1rem', fontWeight: 500 }}>No syllabus uploaded</p>
                       <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Upload a syllabus to see the preview here</p>
                     </div>
-                  </div>
+                    </div>
                 </div>
               )}
             </div>
           )}
         </div>
-      </div>
+        </div>
 
-      {/* Add/Edit Event Modal */}
-      <AddEditEvent
-        show={showAddEvent}
-        setShow={setAddEventShow}
-        handleGetData={handleGetEventData}
-        setEditEventFormData={setEditEventFormData}
-        editEventFormData={editEventFormData}
-        selectedCourse={selectedSyllabusObj}
-      />
+        {/* Add/Edit Event Modal */}
+        <AddEditEvent
+          show={showAddEvent}
+          setShow={setAddEventShow}
+          handleGetData={handleGetEventData}
+          setEditEventFormData={setEditEventFormData}
+          editEventFormData={editEventFormData}
+          selectedCourse={selectedSyllabusObj}
+        />
     </>
   )
 }

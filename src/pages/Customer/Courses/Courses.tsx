@@ -16,11 +16,13 @@ import { logoutFromSystem } from '../../../redux/Service/auth/login';
 import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
+import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 
 const Courses = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const { toggleSidebar } = useSidebar();
+  const { open: openNotifications, unreadCount } = useNotificationPanel();
 
   const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
   const coursesData: any = useSelector((state: RootState) => state.CoursesReducer);
@@ -52,7 +54,7 @@ const Courses = () => {
   }, []);
 
   useEffect(() => {
-    if (coursesData.isUpdatedSyllabusData) {
+      if (coursesData.isUpdatedSyllabusData) {
       handleGetCoursesList();
     }
   }, [coursesData.isUpdatedSyllabusData]);
@@ -75,7 +77,7 @@ const Courses = () => {
   const handleDeleteConfirm = async () => {
     if (deleteCourseId) {
       const reqBody = { course_id: deleteCourseId };
-      const response = await dispatch(deleteSyllabusDataAPI(reqBody));
+    const response = await dispatch(deleteSyllabusDataAPI(reqBody));
       if (!isNullUndefinedOrBlank(response?.payload)) {
         handleDeleteClose();
         handleGetCoursesList();
@@ -135,7 +137,7 @@ const Courses = () => {
 
     if (isUserMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
-    }
+      }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -215,21 +217,36 @@ const Courses = () => {
               Add Syllabus
             </button>
 
-            <button className="notification-btn">
+            <button className="notification-btn" type="button" onClick={openNotifications} aria-label="Notifications" title="Notifications">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
-              <span className="notification-badge"></span>
+              {unreadCount > 0 && <span className="notification-badge"></span>}
             </button>
 
             <div className="user-menu-container" ref={userMenuRef}>
               <div className="user-menu" onClick={handleUserMenuToggle}>
                 <div className="user-avatar">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
+                  {(() => {
+                    const src =
+                      (userData as any)?.profile_image ||
+                      (userData as any)?.profileImage ||
+                      (userData as any)?.picture ||
+                      (userData as any)?.avatarUrl;
+                    return src ? (
+                      <img
+                        src={src}
+                        alt="Profile"
+                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                      />
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    );
+                  })()}
                 </div>
                 <span className="user-name">
                   {userData?.username || userData?.email?.split('@')[0] || 'User'}
@@ -273,18 +290,18 @@ const Courses = () => {
                   <line x1="10" y1="11" x2="10" y2="17" />
                   <line x1="14" y1="11" x2="14" y2="17" />
                 </svg>
-              </div>
+                          </div>
               <h3 className="confirm-modal-title">Delete Course</h3>
-            </div>
+                        </div>
             <div className="confirm-modal-body">
               <p className="confirm-modal-message">Are you sure you want to delete this course? This action cannot be undone.</p>
-            </div>
+                                  </div>
             <div className="confirm-modal-footer">
               <button className="btn btn-cancel" onClick={handleDeleteClose}>Cancel</button>
               <button className="btn btn-confirm-delete" onClick={handleDeleteConfirm}>Delete</button>
-            </div>
-          </div>
-        </div>
+                                        </div>
+                                      </div>
+                                    </div>
       )}
 
       {/* Courses Content */}
@@ -311,7 +328,7 @@ const Courses = () => {
                         <line x1="8" y1="7" x2="16" y2="7" />
                         <line x1="8" y1="11" x2="14" y2="11" />
                       </svg>
-                    </div>
+              </div>
                   </div>
                   <div className="course-content">
                     <h3 className="course-name">{course.title || course.course_name}</h3>
@@ -324,12 +341,12 @@ const Courses = () => {
                           <line x1="3" y1="10" x2="21" y2="10" />
                         </svg>
                         <span>{course.course_time || '-'}</span>
-                      </div>
+                  </div>
                       <div className="meta-item color-tag">
                         <span className={`color-swatch ${colorClass}`}></span>
                         <span>{course.course_color}</span>
-                      </div>
-                    </div>
+                  </div>
+                </div>
                     <div className="course-footer">
                       <div className="event-count">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -338,7 +355,7 @@ const Courses = () => {
                         <span>
                           Event: <strong>{eventCount}</strong>
                         </span>
-                      </div>
+                </div>
                       <button
                         className="delete-course-btn"
                         onClick={(e) => handleDeleteShow(e, course.id)}
@@ -347,8 +364,8 @@ const Courses = () => {
                           <polyline points="3 6 5 6 21 6" />
                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                         </svg>
-                      </button>
-                    </div>
+                </button>
+                  </div>
                   </div>
                 </div>
               );
@@ -356,7 +373,7 @@ const Courses = () => {
           ) : (
             <div className="no-courses-message">
               <p>No courses found</p>
-            </div>
+                </div>
           )}
         </div>
       </div>

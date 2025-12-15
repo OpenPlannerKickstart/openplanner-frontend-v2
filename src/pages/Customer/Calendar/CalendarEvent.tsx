@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
 import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
+import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import moment from 'moment';
@@ -28,6 +29,7 @@ const CalendarEvent = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const { toggleSidebar } = useSidebar();
+  const { open: openNotifications, unreadCount } = useNotificationPanel();
 
   const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
   const coursesData: any = useSelector((state: RootState) => state.CoursesReducer);
@@ -373,21 +375,36 @@ const CalendarEvent = () => {
               Add Syllabus
             </button>
 
-            <button className="notification-btn">
+            <button className="notification-btn" type="button" onClick={openNotifications} aria-label="Notifications" title="Notifications">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
-              <span className="notification-badge"></span>
+              {unreadCount > 0 && <span className="notification-badge"></span>}
             </button>
 
             <div className="user-menu-container" ref={userMenuRef}>
               <div className="user-menu" onClick={handleUserMenuToggle}>
                 <div className="user-avatar">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
+                  {(() => {
+                    const src =
+                      (userData as any)?.profile_image ||
+                      (userData as any)?.profileImage ||
+                      (userData as any)?.picture ||
+                      (userData as any)?.avatarUrl;
+                    return src ? (
+                      <img
+                        src={src}
+                        alt="Profile"
+                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                      />
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    );
+                  })()}
                 </div>
                 <span className="user-name">
                   {userData?.username || userData?.email?.split('@')[0] || 'User'}

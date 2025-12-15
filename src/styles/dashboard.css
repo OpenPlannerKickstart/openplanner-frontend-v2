@@ -1469,6 +1469,11 @@ input, textarea, select {
   color: var(--error);
 }
 
+.notification-icon.invite {
+  background: var(--course-purple-light);
+  color: var(--course-purple);
+}
+
 .notification-content {
   flex: 1;
   min-width: 0;
@@ -1492,6 +1497,22 @@ input, textarea, select {
 .notification-time {
   font-size: 0.75rem;
   color: var(--neutral-400);
+}
+
+/* Invite rows: keep time on the left and Join/Decline on the right */
+.notification-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .notification-dismiss {

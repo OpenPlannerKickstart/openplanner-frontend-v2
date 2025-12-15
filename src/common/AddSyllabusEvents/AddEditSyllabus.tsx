@@ -338,8 +338,8 @@ export const AddEditSyllabus = (props) => {
             {/***** Modal start *****/}
             <Modal
                 className="add-syllabus-modal"
-                show={showAddSyllabusEvents}
-                onHide={handleCloseAddSyllabusEvents}
+                    show={showAddSyllabusEvents}
+                    onHide={handleCloseAddSyllabusEvents}
                 centered
                 dialogClassName="syllabus-modal"
             >
@@ -351,7 +351,7 @@ export const AddEditSyllabus = (props) => {
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M18 6L6 18M6 6l12 12"/>
                         </svg>
-                    </button>
+                        </button>
                 </Modal.Header>
                 <Modal.Body>
                     {/* Course Title */}
@@ -364,11 +364,11 @@ export const AddEditSyllabus = (props) => {
                             className="form-input"
                             placeholder="Enter Course Title"
                             {...syllabusFormData.getFieldProps("title")}
-                            maxLength={MAX_50}
-                        />
+                                                            maxLength={MAX_50}
+                                                        />
                         {syllabusFormData.touched.title && syllabusFormData.errors.title
-                            ? renderError(syllabusFormData.errors.title as any)
-                            : null}
+                                                        ? renderError(syllabusFormData.errors.title as any)
+                                                        : null}
                     </div>
                     {/* Upload Syllabus */}
                     <div className="form-group">
@@ -392,17 +392,17 @@ export const AddEditSyllabus = (props) => {
                                     <polyline points="17 8 12 3 7 8"/>
                                     <line x1="12" y1="3" x2="12" y2="15"/>
                                 </svg>
-                            </div>
+                                                        </div>
                             <p className="upload-text">Drag and Drop file here or <span className="upload-link">Choose file</span></p>
                             <input type="file" accept=".pdf,.doc,.docx" disabled={freemiumUploadLocked}
-                                onChange={(e: any) => {
-                                    if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
-                                        syllabusFormData.setFieldValue("syllabus_doc", e.target?.files as any)
-                                        syllabusFormData.setFieldValue("syllabus_doc_name", e.target?.files[0]?.name as any)
-                                    }
-                                }}
+                                                            onChange={(e: any) => {
+                                                                if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
+                                                                    syllabusFormData.setFieldValue("syllabus_doc", e.target?.files as any)
+                                                                    syllabusFormData.setFieldValue("syllabus_doc_name", e.target?.files[0]?.name as any)
+                                                                }
+                                                            }}
                                 onBlur={() => syllabusFormData.setFieldTouched("syllabus_doc", true)}
-                                ref={syllabusDocRef}
+                                                            ref={syllabusDocRef}
                                 hidden
                             />
                             {!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc_name) && (
@@ -416,62 +416,62 @@ export const AddEditSyllabus = (props) => {
                     <div className="form-row">
                         <div className="form-group">
                             <label className="form-label">Class Time <span className="required">*</span></label>
-                            <DatePicker
-                                placeholderText="Select Class Time"
-                                selected={syllabusFormData.values.class_time}
+                                                                <DatePicker
+                                                                    placeholderText="Select Class Time"
+                                                                    selected={syllabusFormData.values.class_time}
                                 onChange={(date) => syllabusFormData.setFieldValue("class_time", date)}
-                                showTimeSelect
-                                showTimeSelectOnly
-                                timeIntervals={15}
-                                timeCaption="Time"
-                                dateFormat="hh:mm aa"
+                                                                    showTimeSelect
+                                                                    showTimeSelectOnly
+                                                                    timeIntervals={15}
+                                                                    timeCaption="Time"
+                                                                    dateFormat="hh:mm aa"
                                 className="form-input"
                                 onBlur={() => syllabusFormData.setFieldTouched("class_time", true)}
                             />
                             {syllabusFormData.touched.class_time && syllabusFormData.errors.class_time
                                 ? renderError(syllabusFormData.errors.class_time) : null}
-                        </div>
+                                                            </div>
                         <div className="form-group">
                             <label className="form-label">Professor Name</label>
                             <input
                                 type="text"
                                 className="form-input"
                                 placeholder="Enter Professor Name"
-                                {...syllabusFormData.getFieldProps("professor_name")}
-                                maxLength={MAX_50}
-                            />
+                                                                    {...syllabusFormData.getFieldProps("professor_name")}
+                                                                    maxLength={MAX_50}
+                                                                />
                             {syllabusFormData.touched.professor_name && syllabusFormData.errors.professor_name
                                 ? renderError(syllabusFormData.errors.professor_name) : null}
                         </div>
-                    </div>
+                                                            </div>
                     {/* Course Color */}
                     <div className="form-group">
                         <label className="form-label">Course Color</label>
                         <div className="color-picker-container">
-                            {colorPalette.map((color) => (
+                                                                        {colorPalette.map((color) => (
                                 <div
-                                    key={color}
+                                                                                key={color}
                                     className={`color-option${syllabusFormData.values.course_color === color ? " selected" : ""}`}
                                     style={{ backgroundColor: color }}
                                     onClick={() => syllabusFormData.setFieldValue("course_color", color)}
                                 />
-                            ))}
-                        </div>
-                    </div>
+                                                                        ))}
+                                                                    </div>
+                                                    </div>
                 </Modal.Body>
                 <div className="syllabus-footer">
                     <button type="button" className="btn btn-outline" onClick={handleCloseAddSyllabusEvents}>
-                        Cancel
+                                            Cancel
                     </button>
                     <div className="modal-footer-right">
                         <button type="button" className="btn btn-outline" onClick={handleClearData}>
-                            Clear
+                                            Clear
                         </button>
                         <button type="button" className="btn btn-primary" disabled={freemiumUploadLocked} onClick={handleSyllabusSubmit}>
-                            Save
+                                            Save
                         </button>
-                    </div>
-                </div>
+                                    </div>
+                                </div>
             </Modal>
             {/***** Modal end *****/}
 

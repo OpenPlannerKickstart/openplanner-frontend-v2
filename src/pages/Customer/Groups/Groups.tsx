@@ -15,6 +15,7 @@ import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
 import type { AppDispatch } from '../../../redux/store';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
+import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 // Image assets must be bundled; do not rely on absolute "/assets" paths in production
 import bookIcon from '../../../assets/images/book.svg';
 import defaultAvatar from '../../../assets/images/avatar-default.svg';
@@ -51,6 +52,7 @@ const Groups: React.FC = () => {
   const isMobile = useIsMobile();
   const [mobileView, setMobileView] = useState<'list' | 'chat'>('list');
   const { toggleSidebar } = useSidebar();
+  const { open: openNotifications, unreadCount } = useNotificationPanel();
 
   // Add body class for viewport-locked layout (removes dashboard-main padding)
   useEffect(() => {
@@ -1362,21 +1364,36 @@ const Groups: React.FC = () => {
             Add Syllabus
           </button>
 
-            <button className="notification-btn" type="button" aria-label="Notifications" title="Notifications">
+            <button className="notification-btn" type="button" onClick={openNotifications} aria-label="Notifications" title="Notifications">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
-              <span className="notification-badge"></span>
+              {unreadCount > 0 && <span className="notification-badge"></span>}
             </button>
 
             <div className="user-menu-container" ref={userMenuRef}>
               <div className="user-menu" onClick={handleUserMenuToggle}>
                 <div className="user-avatar">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
+                  {(() => {
+                    const src =
+                      (userData as any)?.profile_image ||
+                      (userData as any)?.profileImage ||
+                      (userData as any)?.picture ||
+                      (userData as any)?.avatarUrl;
+                    return src ? (
+                      <img
+                        src={src}
+                        alt="Profile"
+                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                      />
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    );
+                  })()}
                 </div>
                 <span className="user-name">
                   {userData?.username || userData?.email?.split('@')[0] || 'User'}
@@ -1469,8 +1486,19 @@ const Groups: React.FC = () => {
                           style={{ borderBottom: 'none', paddingTop: 8, paddingBottom: 8 }}
                         >
                           <div className="d-flex flex-column align-items-center">
-                            <i className="material-symbols-outlined" style={{ fontSize: 40 }}>chat_bubble</i>
-                            <span style={{ fontSize: 12 }}>All Chats</span>
+                            {/* Match new sidebar icon pack (stroke SVG) */}
+                            <svg
+                              width="40"
+                              height="40"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              aria-hidden="true"
+                              style={{ display: 'block' }}
+                            >
+                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
                           </div>
                         </button>
                         <button
@@ -1490,8 +1518,22 @@ const Groups: React.FC = () => {
                           style={{ borderBottom: 'none', paddingTop: 8, paddingBottom: 8 }}
                         >
                           <div className="d-flex flex-column align-items-center">
-                            <i className="material-symbols-outlined" style={{ fontSize: 40 }}>menu_book</i>
-                            <span style={{ fontSize: 12 }}>Groups</span>
+                            {/* Reuse the same Groups icon as the new sidebar */}
+                            <svg
+                              width="40"
+                              height="40"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              aria-hidden="true"
+                              style={{ display: 'block' }}
+                            >
+                              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                              <circle cx="9" cy="7" r="4" />
+                              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
                           </div>
                         </button>
                       </div>
@@ -1609,18 +1651,6 @@ const Groups: React.FC = () => {
                                 overflow: 'hidden'
                               }}
                             >
-                              {isSelected && (
-                                <div
-                                  style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    top: 0,
-                                    bottom: 0,
-                                    width: 6,
-                                    background: '#239BC2',
-                                  }}
-                                />
-                              )}
                               <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#E5F3FF', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                 {recipientPicture ? (
                                   <img src={recipientPicture} alt={recipientName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -3552,7 +3582,7 @@ const Composer: React.FC<{
             </span>
           )}
         </button>
-        <button className="btn btn-primary" type="button" onClick={send} disabled={disabled} style={{ height: 40 }}>
+        <button className="btn btn-primary composer-send-btn" type="button" onClick={send} disabled={disabled} style={{ height: 40 }}>
           {disabled && (countdownSeconds ?? 0) > 0 ? `Send (${Math.max(0, countdownSeconds || 0)}s)` : 'Send'}
         </button>
       </div>

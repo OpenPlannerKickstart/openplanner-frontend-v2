@@ -35,6 +35,20 @@
   .left-list-scroll::-webkit-scrollbar {
     display: none; /* Chrome/Safari */
   }
+
+  /* Composer: attach button border should match the textarea border on all breakpoints */
+  .composer-attach-btn {
+    border-style: solid !important;
+    border-width: 1px !important;
+    border-color: #E5E7EB !important;
+    /* avoid a doubled divider where textarea + button borders touch */
+    border-left-width: 0 !important;
+  }
+
+  /* Composer: Send button should not "lift" on hover (mobile/desktop) */
+  .composer-send-btn:hover {
+    transform: none !important;
+  }
 }
 
 /* Composer UI niceties */
