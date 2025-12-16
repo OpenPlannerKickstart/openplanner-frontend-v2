@@ -47,6 +47,7 @@ import SyllabusGroupSuggestModal from "../../../components/SyllabusGroupSuggestM
 import { useSyllabusGroupSuggest } from "../../../hooks/useSyllabusGroupSuggest";
 import { useSyllabusUpload } from "../../../context/SyllabusUploadContext";
 import { startSyllabusUpload } from "../../../Utility/syllabusUpload";
+import { isGroupsEnabled } from "../../../config/featureFlags";
 const SyllabusDetails = (props) => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
@@ -1268,14 +1269,16 @@ const SyllabusDetails = (props) => {
         </div>
       )}
 
-      <SyllabusGroupSuggestModal
-        open={showSuggestModal}
-        loading={loadingSuggestions || resolvingCanonical}
-        candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
-        canonicalPreview={canonical}
-        onJoin={handleJoinClick}
-        onClose={closeSuggest}
-      />
+      {isGroupsEnabled() && (
+        <SyllabusGroupSuggestModal
+          open={showSuggestModal}
+          loading={loadingSuggestions || resolvingCanonical}
+          candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+          canonicalPreview={canonical}
+          onJoin={handleJoinClick}
+          onClose={closeSuggest}
+        />
+      )}
 
     </>
   );

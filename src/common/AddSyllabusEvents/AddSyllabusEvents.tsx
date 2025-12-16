@@ -25,6 +25,7 @@ import { useSyllabusGroupSuggest } from '../../hooks/useSyllabusGroupSuggest';
 import SyllabusGroupSuggestModal from '../../components/SyllabusGroupSuggestModal/SyllabusGroupSuggestModal';
 import { useSyllabusUpload } from '../../context/SyllabusUploadContext';
 import { startSyllabusUpload } from '../../Utility/syllabusUpload';
+import { isGroupsEnabled } from '../../config/featureFlags';
 const AddSyllabusEvents = (props) => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
@@ -1277,22 +1278,24 @@ const AddSyllabusEvents = (props) => {
         </div>
       )}
 
-      <SyllabusGroupSuggestModal
-        open={showSuggestModal}
-        loading={loadingSuggestions || resolvingCanonical}
-        candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
-        canonicalPreview={canonical}
-        onJoin={async () => {
-          const sid = hookSyllabusId;
-          const result = await createAndJoin(sid);
-          if (result && result.id) {
-            setShowSuggestModal(false);
-            resetSuggest();
-            navigate(`/groups/${result.id}`);
-          }
-        }}
-        onClose={() => { setShowSuggestModal(false); resetSuggest(); }}
-      />
+      {isGroupsEnabled() && (
+        <SyllabusGroupSuggestModal
+          open={showSuggestModal}
+          loading={loadingSuggestions || resolvingCanonical}
+          candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+          canonicalPreview={canonical}
+          onJoin={async () => {
+            const sid = hookSyllabusId;
+            const result = await createAndJoin(sid);
+            if (result && result.id) {
+              setShowSuggestModal(false);
+              resetSuggest();
+              navigate(`/groups/${result.id}`);
+            }
+          }}
+          onClose={() => { setShowSuggestModal(false); resetSuggest(); }}
+        />
+      )}
 
     </>
   )

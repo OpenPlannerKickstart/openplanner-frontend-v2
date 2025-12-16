@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import './Sidebar.scss';
 import logo from '../../assets/images/sidebar-logo-lg.svg';
+import { isGroupsEnabled } from '../../config/featureFlags';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -186,7 +187,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen: externalIsOpen, onTogg
             <span>Task List</span>
           </NavLink>
 
-          {((window as any).FEATURE_GROUPS || process.env.FEATURE_GROUPS === 'true') && (
+          {isGroupsEnabled() && (
             <NavLink
               to="/groups"
               className="sidebar-link"

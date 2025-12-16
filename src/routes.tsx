@@ -41,6 +41,7 @@ import { PaymentPlans } from './pages/auth/Registration/PaymentPlans';
 import Groups from './pages/Customer/Groups/Groups';
 import StudentProfile from './pages/Customer/Students/StudentProfile';
 import GlobalSyllabusUploadModal from './components/GlobalSyllabusUploadModal/GlobalSyllabusUploadModal';
+import { isGroupsEnabled } from './config/featureFlags';
 const ParentsLanding = React.lazy(() => import('./pages/Parents/ParentsLanding'));
 // @ts-ignore - TS resolver can misreport on lazy dynamic imports in some configs
 const ParentsSuccess = React.lazy(() => import('./pages/Parents/ParentsSuccess'));
@@ -89,27 +90,29 @@ const privateRoutes: RouterProps[] = [
     caseSensitive: true,
     url: ENUMFORROUTES.SETTINGS,
   },
-  // Conditionally include Groups route via feature flag later if needed in rendering
-  {
-    path: ENUMFORROUTES.GROUPS,
-    component: <Groups />,
-    caseSensitive: true,
-    url: ENUMFORROUTES.GROUPS,
-  },
-  // Deep-link to a specific group chat: /groups/:groupId
-  {
-    path: "/groups/:groupId",
-    component: <Groups />,
-    caseSensitive: true,
-    url: "/groups/:groupId",
-  },
-  // Student profile page
-  {
-    path: ENUMFORROUTES.STUDENT_PROFILE,
-    component: <StudentProfile />,
-    caseSensitive: true,
-    url: ENUMFORROUTES.STUDENT_PROFILE,
-  },
+  // Groups routes (conditionally included via feature flag)
+  ...(isGroupsEnabled() ? [
+    {
+      path: ENUMFORROUTES.GROUPS,
+      component: <Groups />,
+      caseSensitive: true,
+      url: ENUMFORROUTES.GROUPS,
+    },
+    // Deep-link to a specific group chat: /groups/:groupId
+    {
+      path: "/groups/:groupId",
+      component: <Groups />,
+      caseSensitive: true,
+      url: "/groups/:groupId",
+    },
+    // Student profile page (part of groups feature)
+    {
+      path: ENUMFORROUTES.STUDENT_PROFILE,
+      component: <StudentProfile />,
+      caseSensitive: true,
+      url: ENUMFORROUTES.STUDENT_PROFILE,
+    },
+  ] : []),
   {
     path: ENUMFORROUTES.EDIT_COURSE,
     component: <EditCourse />,

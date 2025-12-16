@@ -1,4 +1,7 @@
-import React, { createContext, useContext, useState, useCallback, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, ReactNode, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../redux/store';
+import { isUpdatedSyllabus } from '../redux/User/Courses/coursesSlice';
 
 export type SyllabusUploadStatus = 'idle' | 'uploading' | 'processing' | 'ready' | 'failed';
 
@@ -40,6 +43,22 @@ const SyllabusUploadContext = createContext<SyllabusUploadContextValue | undefin
 
 export function SyllabusUploadProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<SyllabusUploadState>(initialState);
+  const dispatch: AppDispatch = useDispatch();
+  const prevStatusRef = useRef<SyllabusUploadStatus>(initialState.status);
+
+  // When async processing completes, trigger a global refresh so new courses appear immediately.
+  // We toggle false -> true so listeners fire even if the flag is already true.
+  useEffect(() => {
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = state.status;
+
+    if (prev !== 'ready' && state.status === 'ready') {
+      try {
+        dispatch(isUpdatedSyllabus(false));
+        dispatch(isUpdatedSyllabus(true));
+      } catch {}
+    }
+  }, [state.status, dispatch]);
 
   const startUpload = useCallback((fileName: string) => {
     setState({

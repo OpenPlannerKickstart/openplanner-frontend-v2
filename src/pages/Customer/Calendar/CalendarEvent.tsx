@@ -7,11 +7,9 @@ import {
 } from '../../../redux/Service/User/Calender/calender';
 import {
   deleteEventDataAPI,
-  updateEventStatusDataAPI,
 } from '../../../redux/Service/User/Courses/courses';
 import {
   formatedDate,
-  isEmptyObjectOrNullUndefiend,
   isNullUndefinedOrBlank,
   customJsonInclude,
 } from '../../../Utility/Helper';
@@ -25,6 +23,7 @@ import { useNotificationPanel } from '../../../components/Notifications/Notifica
 import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
+import { isUpdatedSyllabus } from '../../../redux/User/Courses/coursesSlice';
 import moment from 'moment';
 
 const CalendarEvent = () => {
@@ -110,6 +109,12 @@ const CalendarEvent = () => {
   useEffect(() => {
     if (coursesData.isUpdatedSyllabusData) {
       handleGetDropDownData();
+      // Reset flag so future uploads trigger refresh again
+      setTimeout(() => {
+        try {
+          dispatch(isUpdatedSyllabus(false));
+        } catch {}
+      }, 250);
     }
   }, [coursesData.isUpdatedSyllabusData]);
 

@@ -19,6 +19,7 @@ import { useSidebar } from '../../../layouts/DashboardLayout';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
+import { isUpdatedSyllabus } from '../../../redux/User/Courses/coursesSlice';
 
 const Courses = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -58,6 +59,12 @@ const Courses = () => {
   useEffect(() => {
       if (coursesData.isUpdatedSyllabusData) {
       handleGetCoursesList();
+      // Reset flag so future uploads trigger refresh again
+      setTimeout(() => {
+        try {
+          dispatch(isUpdatedSyllabus(false));
+        } catch {}
+      }, 250);
     }
   }, [coursesData.isUpdatedSyllabusData]);
 

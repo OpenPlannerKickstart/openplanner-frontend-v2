@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useSyllabusUpload } from '../../context/SyllabusUploadContext';
 import { ENUMFORROUTES } from '../../interfaces/enum';
 import './GlobalSyllabusUploadModal.scss';
@@ -9,6 +9,7 @@ const VIEWPORT_PADDING = 8; // Minimum distance from viewport edges
 
 export default function GlobalSyllabusUploadModal() {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     isOpen,
     fileName,
@@ -20,6 +21,9 @@ export default function GlobalSyllabusUploadModal() {
     setExpanded,
     close,
   } = useSyllabusUpload();
+
+  const hasAutoClosedRef = useRef(false);
+  const [isAutoClosing, setIsAutoClosing] = useState(false);
 
   // Dragging state
   const [position, setPosition] = useState({ x: 20, y: 20 });
@@ -68,7 +72,7 @@ export default function GlobalSyllabusUploadModal() {
       setPosition(clampPosition(x, y));
       setTimedOut(false);
     }
-  }, [isOpen, clampPosition]);
+  }, [isOpen, expanded, clampPosition]);
 
   // Handle drag start
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -112,6 +116,40 @@ export default function GlobalSyllabusUploadModal() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [clampPosition]);
+
+  // Auto-close when upload completes AND user is already on Courses page
+  useEffect(() => {
+    if (!isOpen) return;
+    if (status !== 'ready') {
+      hasAutoClosedRef.current = false;
+      setIsAutoClosing(false);
+      return;
+    }
+
+    const onCourses =
+      location?.pathname === ENUMFORROUTES.COURSES ||
+      location?.pathname?.startsWith(`${ENUMFORROUTES.COURSES}/`);
+
+    if (!onCourses) return;
+    if (hasAutoClosedRef.current) return;
+    hasAutoClosedRef.current = true;
+
+    // Let the "Upload complete!" state show briefly, then animate out and close.
+    let t2: number | undefined;
+    const t1 = window.setTimeout(() => {
+      setIsAutoClosing(true);
+      t2 = window.setTimeout(() => {
+        try {
+          close();
+        } catch {}
+      }, 200);
+    }, 800);
+
+    return () => {
+      window.clearTimeout(t1);
+      if (t2) window.clearTimeout(t2);
+    };
+  }, [isOpen, status, location?.pathname, close]);
 
   if (!isOpen) return null;
 
@@ -161,7 +199,7 @@ export default function GlobalSyllabusUploadModal() {
   return (
     <div
       ref={modalRef}
-      className={`global-syllabus-upload-modal ${expanded ? 'expanded' : 'collapsed'} status-${status}`}
+      className={`global-syllabus-upload-modal ${expanded ? 'expanded' : 'collapsed'} status-${status} ${isAutoClosing ? 'auto-closing' : ''}`}
       style={{
         left: position.x,
         top: position.y,
