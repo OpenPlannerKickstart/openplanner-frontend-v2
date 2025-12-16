@@ -179,14 +179,16 @@ export const deleteEventDataAPI =
  * @returns API will return Data
  */
 export const updateEventStatusDataAPI =
-  (objBody: any = undefined) =>
+  (objBody: any = undefined, options?: { silent?: boolean }) =>
     async (dispatch: AppDispatch) => {
       dispatch(setLoading(true));
 
       try {
         const response: any = await post(UPDATE_EVENT_STATUS_DATA_API, objBody);
         if (!response.data.error) {
-          ts(response?.data?.message)
+          if (!options?.silent) {
+            ts(response?.data?.message);
+          }
           return dispatch(updateEventStatusDataSuccess(response.data.data));
         } else {
           dispatch(updateEventStatusDataFailure());

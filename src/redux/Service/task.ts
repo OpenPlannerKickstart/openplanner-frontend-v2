@@ -83,7 +83,7 @@ export const upadteTaskStatusAPI =
             try {
                 const response: any = await post(UPDATE_TASK_STATUS_DATA_API, objBody);
                 if (!response.data.error) {
-                    ts(response?.data?.message)
+                    // Intentionally no success toast for complete/uncomplete.
                     return dispatch(updateStatusSuccess(response.data.data));
                 } else {
                     dispatch(updateStatusFailure());

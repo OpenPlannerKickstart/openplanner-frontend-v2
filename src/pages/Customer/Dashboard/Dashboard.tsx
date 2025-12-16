@@ -386,7 +386,8 @@ const Dashboard = () => {
       event_id: event_id,
       status: status === ENUMFORSTATUS.COMPLETED ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED,
     };
-    const response = await dispatch(updateEventStatusDataAPI(reqBody));
+    // My Week: don't show "status updated successfully" toast on complete/uncomplete.
+    const response = await dispatch(updateEventStatusDataAPI(reqBody, { silent: true }));
     if (response && !isNullUndefinedOrBlank(response?.payload)) {
       handleEventListing();
     }
