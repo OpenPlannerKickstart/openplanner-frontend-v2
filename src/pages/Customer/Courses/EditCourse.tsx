@@ -199,6 +199,7 @@ const EditCourse = () => {
                                 selectedSyllabusObj={selectedSyllabusObj}
                                 selectedTab={selectedTab}
                                 handleSelectEvent={handleSelectEvent}
+                                onAddEvent={handleAddEventShow}
                             />
                             </div>
 

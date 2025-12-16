@@ -1460,6 +1460,23 @@
     box-shadow: 0 0 0 4px rgba(35, 155, 194, 0.18) !important;
 }
 
+/* Edit Course Events empty state (button only) */
+.edit-course-empty-state {
+    padding: 1.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Edit Course Events empty state (match Dashboard "Add event" row) */
+.events-panel .add-event-row {
+    /* Flush under header with straight top corners (match Past Events row) */
+    margin: 0;
+    border-radius: 0;
+    border-top: none; /* header already has bottom border */
+    padding: 1rem 1.5rem; /* match .past-events-toggle spacing */
+}
+
 /* Syllabus File Display */
 .syllabus-file-display {
     display: flex;

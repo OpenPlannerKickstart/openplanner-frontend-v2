@@ -15,7 +15,6 @@ import {
   isNullUndefinedOrBlank,
 } from '../../../Utility/Helper'
 import { NO_END_DATE_ADDED, NO_START_DATE_ADDED } from '../../../Utility/Validation_Message'
-import notVoucherFound from '/assets/images/not-voucher-found.svg'
 import { isUpdatedEvent } from '../../../redux/User/Courses/coursesSlice'
 
 const Events = (props: any) => {
@@ -322,13 +321,37 @@ const Events = (props: any) => {
           ) : null}
         </>
       ) : (
-        <div className="no-records-found no-records-found-inner h-100">
-          <div className="no-records-found-image">
-            <img src={notVoucherFound} alt="OpenPlaner" />
-          </div>
-          <div className="no-records-found-text">
-            <h6>No data found!</h6>
-          </div>
+        <div
+          className="add-event-row"
+          role="button"
+          tabIndex={0}
+          onClick={() => {
+            if (typeof props?.onAddEvent === 'function') props.onAddEvent()
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              if (typeof props?.onAddEvent === 'function') props.onAddEvent()
+            }
+          }}
+        >
+          <button
+            className="add-event-circle"
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              if (typeof props?.onAddEvent === 'function') props.onAddEvent()
+            }}
+            aria-label="Add event"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </button>
+          <span className="add-event-input" style={{ color: 'var(--neutral-400)', pointerEvents: 'none' }}>
+            Add event
+          </span>
         </div>
       )}
 

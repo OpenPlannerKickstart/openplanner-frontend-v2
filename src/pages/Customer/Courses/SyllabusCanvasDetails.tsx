@@ -213,6 +213,7 @@ const SyllabusCanvasDetails = (props) => {
                                                             selectedSyllabusObj={selectedCourse || props.selectedSyllabusObj}
                                                             selectedTab={selectedTab}
                                                             handleSelectEvent={handleSelectEvent}
+                                                            onAddEvent={handleAddEventShow}
                                                         />
                                                         <div className="bottom-button-group">
                                                             {/* <Button type="button" className="btn btn-light-white me-auto">
