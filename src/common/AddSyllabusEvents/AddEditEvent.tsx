@@ -8,7 +8,7 @@ import * as yup from 'yup';
 import { MAX_1000, MAX_3, MAX_300, MAX_50, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError } from '../../Utility/Helper';
-import { addEditEventDataAPI, deleteEventDataAPI } from '../../redux/Service/User/Courses/courses';
+import { addEditEventDataAPI, deleteEventDataAPI, updateEventStatusDataAPI } from '../../redux/Service/User/Courses/courses';
 import { addEditTaskAPI, deleteTaskAPI, upadteTaskStatusAPI } from '../../redux/Service/task';
 import { Button, Modal } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
@@ -17,7 +17,7 @@ import { eventPriorityDropDownData, reminderUnitDropDownData } from '../../Utili
 import moment from 'moment';
 import 'add-to-calendar-button';
 import { isUpdatedEvent } from '../../redux/User/Courses/coursesSlice';
-import { ENUM_FOR_EVENT_PRIORITY } from '../../interfaces/enum';
+import { ENUMFORSTATUS, ENUM_FOR_EVENT_PRIORITY } from '../../interfaces/enum';
 
 
 export const AddEditEvent = (props) => {
@@ -455,23 +455,50 @@ export const AddEditEvent = (props) => {
 
     const handleMarkComplete = async () => {
         if (!isExistingEvent) return;
-        if (entityType !== 'task') return;
-        const currentStatus = eventFormData?.values?.status;
-        const nextStatus =
-            currentStatus === 'Completed' ? 'Pending' : 'Completed';
-        const response = await dispatch(upadteTaskStatusAPI({ id: [eventFormData.values.id], status: nextStatus }));
+        const rawId =
+            (eventFormData?.values as any)?.id ??
+            (eventFormData?.values as any)?.event_id ??
+            (eventFormData?.values as any)?.eventData?.id ??
+            (eventFormData?.values as any)?.event_data?.id ??
+            (eventFormData?.values as any)?.event?.id;
+        const idNum =
+            typeof rawId === 'string' ? parseInt(rawId, 10) : rawId;
+        if (!idNum || Number.isNaN(idNum)) return;
+
+        const currentStatus = String((eventFormData?.values as any)?.status || '');
+        const isCompleted =
+            currentStatus.toLowerCase() === String(ENUMFORSTATUS.COMPLETED).toLowerCase();
+        const nextStatus = isCompleted ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED;
+
+        if (entityType === 'task') {
+            const response = await dispatch(upadteTaskStatusAPI({ id: [idNum], status: nextStatus }));
+            if (!isNullUndefinedOrBlank(response?.payload)) {
+                eventFormData.setFieldValue('status', nextStatus);
+                props?.handleGetData?.();
+                handleCloseAddSyllabusEvents();
+            }
+            return;
+        }
+
+        // Event: toggle status via event status endpoint (silent; we don't want the success toast)
+        const response = await dispatch(updateEventStatusDataAPI({ event_id: [idNum], status: nextStatus }, { silent: true }));
         if (!isNullUndefinedOrBlank(response?.payload)) {
-            // Update local form state so the UI stays in sync
             eventFormData.setFieldValue('status', nextStatus);
+            dispatch(isUpdatedEvent(true));
             props?.handleGetData?.();
+            handleCloseAddSyllabusEvents();
         }
     };
+
+    const isCompletedNow =
+        String((eventFormData?.values as any)?.status || '').toLowerCase() ===
+        String(ENUMFORSTATUS.COMPLETED).toLowerCase();
 
     return (
         <>
             {/***** Modal start *****/}
             <Modal
-                className={`add-event-modal-wrapper ${isExistingEvent ? 'event-details-wrapper' : 'add-new-event-wrapper'} ${themedCourseColor ? 'themed' : ''}`}
+                className={`add-event-modal-wrapper ${isExistingEvent ? 'event-details-wrapper' : 'add-new-event-wrapper'} ${themedCourseColor ? 'themed' : ''} ${isExistingEvent && isCompletedNow ? 'completed' : ''}`}
                 show={showAddSyllabusEvents}
                 onHide={handleCloseAddSyllabusEvents}
                 centered
@@ -480,7 +507,14 @@ export const AddEditEvent = (props) => {
             >
                 <Modal.Header style={themedCourseColor ? { background: `linear-gradient(to right, ${getLightColor(themedCourseColor)}, #fff)` } : undefined}>
                     <Modal.Title>
-                        {isExistingEvent ? "Event Details" : "Add New Event"}
+                        {isExistingEvent ? (
+                            <>
+                                Event Details
+                                {isCompletedNow ? <span className="completed-tag">(Completed)</span> : null}
+                            </>
+                        ) : (
+                            "Add New Event"
+                        )}
                     </Modal.Title>
                     <div className="modal-actions">
                         {isExistingEvent && (
@@ -894,14 +928,19 @@ export const AddEditEvent = (props) => {
                                     type="button"
                                     className="btn btn-success"
                                     onClick={handleMarkComplete}
-                                    style={entityType !== 'task' ? { opacity: 0.6, cursor: 'not-allowed' } : undefined}
-                                    disabled={entityType !== 'task'}
-                                    title={entityType !== 'task' ? 'Mark complete is currently supported for tasks only' : undefined}
                                 >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <polyline points="20 6 9 17 4 12"/>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        {isCompletedNow ? (
+                                            <>
+                                                {/* Use slightly inset refresh icon so strokes don't clip */}
+                                                <polyline points="21 3 21 9 15 9" />
+                                                <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+                                            </>
+                                        ) : (
+                                            <polyline points="20 6 9 17 4 12" />
+                                        )}
                                     </svg>
-                                    Mark Complete
+                                    {isCompletedNow ? 'Mark Incomplete' : 'Mark Complete'}
                                 </button>
                                 <button type="button" className="btn btn-danger" onClick={() => handleDeleteShow(eventFormData.values)}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

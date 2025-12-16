@@ -2209,16 +2209,27 @@ $sm_sidebar_home_link_width: 170px;
             font-size: 0.875rem;
         }
 
+        /* "Today" should not look selected unless it actually is selected */
         .react-datepicker__day--today {
-            background: var(--primary);
-            color: var(--white) !important;
+            background: transparent !important;
+            color: var(--primary) !important;
             border-radius: 50%;
             font-weight: 600;
+            box-shadow: 0 0 0 2px rgba(35, 155, 194, 0.35) inset;
         }
 
         .react-datepicker__day--today:hover {
-            background: var(--primary-dark, #1d7a9a);
+            background: rgba(35, 155, 194, 0.10) !important;
+            color: var(--primary) !important;
+        }
+
+        .react-datepicker__day--today.react-datepicker__day--selected,
+        .react-datepicker__day--today.react-datepicker__day--keyboard-selected,
+        .react-datepicker__day--today.react-datepicker__day--in-selecting-range,
+        .react-datepicker__day--today.react-datepicker__day--in-range {
+            background: var(--primary) !important;
             color: var(--white) !important;
+            box-shadow: none;
         }
 
         .react-datepicker__day--selected,
@@ -2229,6 +2240,17 @@ $sm_sidebar_home_link_width: 170px;
             color: var(--white) !important;
             border-radius: 50%;
             font-weight: 600;
+            position: relative;
+            z-index: 2; /* prevent top-row clipping under header/day-names */
+        }
+
+        /* Prevent top-row selected days from getting clipped */
+        .react-datepicker__month {
+            padding-top: 4px;
+        }
+
+        .react-datepicker__week {
+            overflow: visible;
         }
 
         .react-datepicker__day:hover:not(.react-datepicker__day--outside-month) {
@@ -2413,6 +2435,32 @@ $sm_sidebar_home_link_width: 170px;
         .modal-content {
             border: 3px solid var(--event-color, #EAB308);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 60px rgba(234, 179, 8, 0.15);
+        }
+    }
+
+    /* Completed state (Event Details view mode): strike through all fields */
+    &.completed {
+        /* Only apply strike-through in view mode (not while editing) */
+        .modal-dialog:not(.edit-mode) {
+            .modal-title .completed-tag {
+                margin-left: 0.5rem;
+                font-size: 0.95rem;
+                font-weight: 500;
+                color: rgba(100, 116, 139, 0.9);
+                text-transform: none;
+                letter-spacing: 0;
+            }
+
+            .modal-body {
+                .form-input,
+                .form-textarea,
+                .form-select,
+                .react-datepicker-wrapper input,
+                .react-select__single-value {
+                    text-decoration: line-through;
+                    color: rgba(100, 116, 139, 0.9);
+                }
+            }
         }
     }
 

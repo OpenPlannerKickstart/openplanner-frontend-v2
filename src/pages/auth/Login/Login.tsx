@@ -190,7 +190,7 @@ const Login = (props) => {
                                             <Card.Body>
 
                                                 <Form.Group className="form-group required" >
-                                                    <Form.Label>User Name/Email </Form.Label>
+                                                    <Form.Label>Username/Email </Form.Label>
                                                     <div className="form-group-icon-start">
                                                         <i className='material-symbols-outlined'>person</i>
                                                         <Form.Control type="text" placeholder="Enter Your User Name"
