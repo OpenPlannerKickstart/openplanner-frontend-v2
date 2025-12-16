@@ -657,6 +657,7 @@ const Dashboard = () => {
                     {filteredEvents.map((event: any, eventIndex: number) => {
                       const highlightColor =
                         event?.course_color || event?.syllabus?.course_color || event?.syllabus?.courseColor;
+                      const hoverBg = highlightColor ? hexToRgba(String(highlightColor), 0.12) : null;
 
                       return (
                     <div
@@ -664,11 +665,11 @@ const Dashboard = () => {
                       className={`task-row clickable-event ${
                             highlightOn ? 'course-highlight-match' : ''
                           } ${event?.status === ENUMFORSTATUS.COMPLETED ? 'completed' : ''}`}
-                          style={
-                            highlightOn && highlightColor
-                              ? ({ ['--active-course-color' as any]: highlightColor } as any)
-                              : undefined
-                          }
+                          style={{
+                            ...(highlightColor ? ({ ['--row-course-color' as any]: highlightColor } as any) : undefined),
+                            ...(hoverBg ? ({ ['--row-course-hover-bg' as any]: hoverBg } as any) : undefined),
+                            ...(highlightOn && highlightColor ? ({ ['--active-course-color' as any]: highlightColor } as any) : undefined),
+                          }}
                       onClick={() => handleSelectEvent(event)}
                     >
                       <div className="col-actions">

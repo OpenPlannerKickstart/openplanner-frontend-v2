@@ -25,6 +25,47 @@ export const AddEditEvent = (props) => {
     const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const entityType: 'event' | 'task' = props?.entityType === 'task' ? 'task' : 'event';
+
+    /**
+     * react-select inside Bootstrap modal:
+     * Our modals use a scale transform animation. Any ancestor `transform` breaks `position: fixed`
+     * (it becomes relative to the transformed ancestor). We portal menus to `document.body`
+     * so the menu positions correctly under the control.
+     */
+    const selectMenuPortalTarget = typeof document !== 'undefined' ? document.body : null;
+    const selectStyles: any = {
+        menuPortal: (base: any) => ({ ...base, zIndex: 2000 }),
+        control: (base: any, state: any) => ({
+            ...base,
+            borderRadius: 16,
+            overflow: 'hidden',
+            boxShadow: state.isFocused ? '0 0 0 4px rgba(35, 155, 194, 0.18)' : base.boxShadow,
+        }),
+        menu: (base: any) => ({
+            ...base,
+            borderRadius: 16,
+            overflow: 'hidden',
+        }),
+        menuList: (base: any) => ({
+            ...base,
+            paddingTop: 0,
+            paddingBottom: 0,
+        }),
+        option: (base: any, state: any) => {
+            const brand = '#239BC2'; // match Save button / new frontend primary
+            const brandSoft = 'rgba(35, 155, 194, 0.12)';
+            return {
+                ...base,
+                backgroundColor: state.isSelected ? brand : state.isFocused ? brandSoft : base.backgroundColor,
+                color: state.isSelected ? '#ffffff' : base.color,
+                cursor: 'pointer',
+                ':active': {
+                    ...base[':active'],
+                    backgroundColor: state.isSelected ? brand : brandSoft,
+                },
+            };
+        },
+    };
     
     // Get courses list from Redux for color lookup
     const coursesListData = useSelector((state: RootState) => (state.CoursesReducer as any)?.getCoursesListData);
@@ -348,6 +389,7 @@ export const AddEditEvent = (props) => {
     };
 
     const courseColor = getCourseColor();
+    const themedCourseColor = entityType === 'task' ? null : courseColor;
 
     // Helper to lighten a hex color for the gradient
     const getLightColor = (hex: string) => {
@@ -429,14 +471,14 @@ export const AddEditEvent = (props) => {
         <>
             {/***** Modal start *****/}
             <Modal
-                className={`add-event-modal-wrapper ${isExistingEvent ? 'event-details-wrapper' : 'add-new-event-wrapper'}`}
+                className={`add-event-modal-wrapper ${isExistingEvent ? 'event-details-wrapper' : 'add-new-event-wrapper'} ${themedCourseColor ? 'themed' : ''}`}
                 show={showAddSyllabusEvents}
                 onHide={handleCloseAddSyllabusEvents}
                 centered
                 dialogClassName={`add-event-modal ${isExistingEvent ? 'event-details-modal' : ''} ${isEditMode ? 'edit-mode' : ''}`}
-                style={isExistingEvent && courseColor ? { '--event-color': courseColor, '--event-color-light': getLightColor(courseColor) } as React.CSSProperties : undefined}
+                style={themedCourseColor ? { '--event-color': themedCourseColor, '--event-color-light': getLightColor(themedCourseColor) } as React.CSSProperties : undefined}
             >
-                <Modal.Header style={isExistingEvent && courseColor ? { background: `linear-gradient(to right, ${getLightColor(courseColor)}, #fff)` } : undefined}>
+                <Modal.Header style={themedCourseColor ? { background: `linear-gradient(to right, ${getLightColor(themedCourseColor)}, #fff)` } : undefined}>
                     <Modal.Title>
                         {isExistingEvent ? "Event Details" : "Add New Event"}
                     </Modal.Title>
@@ -634,6 +676,8 @@ export const AddEditEvent = (props) => {
                                     onChange={(selectedOption) => eventFormData.setFieldValue("priority", selectedOption?.value || null)}
                                     value={eventPriorityDropDownData?.filter(({ value }) => value === eventFormData.values.priority)}
                                     menuPosition="fixed"
+                                    menuPortalTarget={selectMenuPortalTarget}
+                                    styles={selectStyles}
                                     className="react-select-container"
                                     classNamePrefix="react-select"
                                 />
@@ -661,6 +705,8 @@ export const AddEditEvent = (props) => {
                                     isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse)}
                                     isClearable
                                     menuPosition="fixed"
+                                    menuPortalTarget={selectMenuPortalTarget}
+                                    styles={selectStyles}
                                     className="react-select-container"
                                     classNamePrefix="react-select"
                                 />
@@ -686,6 +732,8 @@ export const AddEditEvent = (props) => {
                                     onChange={(selectedOption) => eventFormData.setFieldValue("priority", selectedOption?.value || null)}
                                     value={eventPriorityDropDownData?.filter(({ value }) => value === eventFormData.values.priority)}
                                     menuPosition="fixed"
+                                    menuPortalTarget={selectMenuPortalTarget}
+                                    styles={selectStyles}
                                     className="react-select-container"
                                     classNamePrefix="react-select"
                                 />
@@ -763,6 +811,8 @@ export const AddEditEvent = (props) => {
                                                             options={reminderUnitDropDownData}
                                                             placeholder="Select Unit"
                                                             menuPosition="fixed"
+                                                            menuPortalTarget={selectMenuPortalTarget}
+                                                            styles={selectStyles}
                                                             className="react-select-container"
                                                             classNamePrefix="react-select"
                                                             onChange={(selectedOption: any) => eventFormData.setFieldValue(`reminder.${index}.unit`, selectedOption.value)}

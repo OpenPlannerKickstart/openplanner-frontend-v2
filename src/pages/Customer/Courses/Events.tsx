@@ -80,7 +80,8 @@ const Events = (props: any) => {
       event_id,
       status: status === ENUMFORSTATUS.COMPLETED ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED,
     }
-    const response = await dispatch(updateEventStatusDataAPI(reqBody))
+    // Edit Course: don't show "status updated successfully" toast on complete/uncomplete
+    const response = await dispatch(updateEventStatusDataAPI(reqBody, { silent: true }))
     if (!isNullUndefinedOrBlank(response?.payload)) {
       await getEventListData()
       await dispatch(isUpdatedEvent(true))
@@ -185,6 +186,24 @@ const Events = (props: any) => {
     const priorityKey = getPriorityKey(event?.priority)
     const courseColorHex = event?.course_color || event?.syllabus?.course_color
     const colorToken = getColorTokenFromHex(courseColorHex)
+    const hexToRgba = (hex: string | undefined | null, alpha: number): string | null => {
+      if (!hex || typeof hex !== 'string') return null
+      const cleaned = hex.trim().replace('#', '')
+      const normalized =
+        cleaned.length === 3
+          ? cleaned
+              .split('')
+              .map((c) => c + c)
+              .join('')
+          : cleaned
+      if (normalized.length !== 6) return null
+      const r = parseInt(normalized.slice(0, 2), 16)
+      const g = parseInt(normalized.slice(2, 4), 16)
+      const b = parseInt(normalized.slice(4, 6), 16)
+      if ([r, g, b].some((n) => Number.isNaN(n))) return null
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`
+    }
+    const hoverBg = hexToRgba(courseColorHex, 0.12)
 
     // Time only (no date). Use `h:mm a` to avoid leading zero (e.g., 7:00 pm not 07:00 pm).
     const start = !isNullUndefinedOrBlank(event?.start_date)
@@ -198,6 +217,7 @@ const Events = (props: any) => {
       <div
         className={`task-row clickable-event ${isCompleted ? 'completed' : ''}`}
         data-color={colorToken}
+        style={hoverBg ? ({ ['--row-course-hover-bg' as any]: hoverBg } as any) : undefined}
         role="button"
         tabIndex={0}
         onClick={() => props.handleSelectEvent(event)}

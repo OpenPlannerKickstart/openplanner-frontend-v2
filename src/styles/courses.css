@@ -1226,7 +1226,8 @@
 
 /* Fallback hover for events without data-color */
 .events-panel .task-row.clickable-event:hover {
-    background: var(--neutral-50);
+    /* Use course hex (set inline) when available; otherwise neutral */
+    background: var(--row-course-hover-bg, var(--neutral-50)) !important;
 }
 
 /* Past Events Section */

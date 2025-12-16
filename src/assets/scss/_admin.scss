@@ -2415,6 +2415,14 @@ $sm_sidebar_home_link_width: 170px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 60px rgba(234, 179, 8, 0.15);
         }
     }
+
+    /* Add Event modal - dynamically themed border when a Calendar is selected */
+    &.themed {
+        .modal-content {
+            border: 3px solid var(--event-color, #E2E8F0);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 60px var(--event-color-light, rgba(35, 155, 194, 0.12));
+        }
+    }
     
     .modal-dialog.event-details-modal {
         .modal-header {

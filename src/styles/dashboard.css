@@ -3007,8 +3007,8 @@ input, textarea, select {
     transition: all var(--transition-base);
 }
 
-.task-row.clickable-event:hover {
-    background: var(--primary-subtle);
+.dashboard-content .task-row.clickable-event:hover {
+    background: var(--row-course-hover-bg, var(--primary-subtle)) !important;
 }
 
 /* Course pill highlighting (My Week) */
@@ -3023,8 +3023,8 @@ input, textarea, select {
     box-shadow: none;
 }
 
-.task-row.course-highlight-match:hover {
-    background: rgba(15, 23, 42, 0.04);
+.dashboard-content .task-row.course-highlight-match:hover {
+    background: var(--row-course-hover-bg, rgba(15, 23, 42, 0.04)) !important;
 }
 
 .task-row.course-highlight-match.completed {
