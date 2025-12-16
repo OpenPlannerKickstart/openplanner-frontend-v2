@@ -45,10 +45,19 @@ const Dashboard = () => {
   const [todayDate, setTodayDate] = useState<any>(null);
   const [startDate, setStartDate] = useState(moment().startOf('week').format('YYYY-MM-DD'));
   const [endDate, setEndDate] = useState(moment().endOf('week').format('YYYY-MM-DD'));
-  const [activeCourseId, setActiveCourseId] = useState<string | number | null>(null);
+  /**
+   * Course pill filter (multi-select)
+   * - null: not initialized yet (treat as "all active")
+   * - []: no courses active (hides course-tied events)
+   * - [ids...]: only show events whose courseId is in the set (course-less events always show)
+   */
+  const [activeCourseIds, setActiveCourseIds] = useState<string[] | null>(null);
   const isOnTodayWeek =
     moment(startDate).isSame(moment().startOf('week'), 'day') &&
     moment(endDate).isSame(moment().endOf('week'), 'day');
+
+  const normalizeId = (id: string | number | null | undefined) =>
+    id === null || typeof id === 'undefined' ? null : String(id);
 
   const getCourseIdFromPillItem = (item: any): string | number | null => {
     return (
@@ -80,14 +89,16 @@ const Dashboard = () => {
     );
   };
 
-  const toggleCourseHighlight = (item: any) => {
-    const id = getCourseIdFromPillItem(item);
-    if (id === null || typeof id === 'undefined') {
-      // If we can't determine an id, treat as "clear highlight"
-      setActiveCourseId(null);
-      return;
-    }
-    setActiveCourseId((prev) => (String(prev) === String(id) ? null : id));
+  const toggleCourseActive = (item: any) => {
+    const id = normalizeId(getCourseIdFromPillItem(item));
+    if (!id) return;
+    setActiveCourseIds((prev) => {
+      // If not initialized yet, start from "all active"
+      const base = new Set((prev ?? allCourseIds) as string[]);
+      if (base.has(id)) base.delete(id);
+      else base.add(id);
+      return Array.from(base);
+    });
   };
 
   const handleDateChange = (type: string) => {
@@ -166,6 +177,32 @@ const Dashboard = () => {
       setSyllabusDropDownData(response?.payload);
     }
   };
+
+  // Derive all course ids from pills (stable, stringified)
+  const allCourseIds = React.useMemo(() => {
+    const ids =
+      (Array.isArray(syllabusDropDownData) ? syllabusDropDownData : [])
+        .map((it: any) => normalizeId(getCourseIdFromPillItem(it)))
+        .filter((v: any): v is string => Boolean(v));
+    return Array.from(new Set(ids));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syllabusDropDownData]);
+
+  // Default: all course pills active once loaded
+  useEffect(() => {
+    if (!Array.isArray(syllabusDropDownData) || syllabusDropDownData.length === 0) {
+      // If we haven't loaded courses yet, keep "all active" (null). If courses were loaded and now empty, clear.
+      setActiveCourseIds((prev) => (prev === null ? null : []));
+      return;
+    }
+    setActiveCourseIds((prev) => {
+      if (prev === null) return allCourseIds; // first-time init: all active
+      // Keep previous selection when the list updates, but auto-add any new courses as active
+      const prevSet = new Set(prev);
+      allCourseIds.forEach((id) => prevSet.add(id));
+      return Array.from(prevSet);
+    });
+  }, [allCourseIds, syllabusDropDownData]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -547,14 +584,14 @@ const Dashboard = () => {
             syllabusDropDownData?.map((item: any, index: number) => {
               const courseColorHex = item?.course_color || item?.other?.course_color || '#239BC2';
               const colorClass = getColorClassName(courseColorHex);
-              const pillId = getCourseIdFromPillItem(item);
-              const isActive = pillId !== null && String(activeCourseId) === String(pillId);
+              const pillId = normalizeId(getCourseIdFromPillItem(item));
+              const isActive = activeCourseIds === null ? true : (pillId ? activeCourseIds.includes(pillId) : true);
               return (
                 <button
                   type="button"
                   className={`course-pill ${colorClass} ${isActive ? 'active' : ''}`}
                   key={index}
-                  onClick={() => toggleCourseHighlight(item)}
+                  onClick={() => toggleCourseActive(item)}
                   aria-pressed={isActive}
                   style={
                     isActive
@@ -588,17 +625,22 @@ const Dashboard = () => {
             {/* Dynamic Events Container */}
             <div id="dashboardEventsContainer">
               {eventData?.map((group: any, groupIndex: number) => {
-                const highlightOn = !isNullUndefinedOrBlank(activeCourseId);
+                const filterOn = activeCourseIds !== null;
+                const highlightOn = filterOn && Array.isArray(activeCourseIds) && activeCourseIds.length !== allCourseIds.length;
                 const groupEvents: any[] = Array.isArray(group?.eventData) ? group.eventData : [];
-                const filteredEvents = highlightOn
+                const filteredEvents = filterOn
                   ? groupEvents.filter((event) => {
-                      const eventCourseId = getCourseIdFromEvent(event);
-                      return eventCourseId !== null && String(eventCourseId) === String(activeCourseId);
+                      const eventCourseId = normalizeId(getCourseIdFromEvent(event));
+                      // If event isn't tied to a course, keep showing it
+                      if (!eventCourseId) return true;
+                      // If no pills are active, hide course-tied events
+                      if (!activeCourseIds || activeCourseIds.length === 0) return false;
+                      return activeCourseIds.includes(eventCourseId);
                     })
                   : groupEvents;
 
                 // If a course is selected, hide date sections with no matching events
-                if (highlightOn && filteredEvents.length === 0) return null;
+                if (filterOn && filteredEvents.length === 0) return null;
 
                 return (
                 <React.Fragment key={groupIndex}>
