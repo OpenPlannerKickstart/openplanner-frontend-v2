@@ -271,8 +271,7 @@ const PendingEvents = (props) => {
                             className="btn-md"
                             onClick={handleDeleteClose}
                         >
-                            {" "}
-                            No, Change My Mind
+                            Cancel
                         </Button>
                         <Button
                             variant="danger"
@@ -368,7 +367,7 @@ const PendingEvents = (props) => {
                                 className="btn-md"
                                 onClick={handleDeleteClose}
                             >
-                                No, Change My Mind
+                                Cancel
                             </Button>
                         }
                         <Button

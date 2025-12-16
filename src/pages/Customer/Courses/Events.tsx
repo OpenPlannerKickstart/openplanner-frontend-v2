@@ -357,7 +357,7 @@ const Events = (props: any) => {
           </div>
           <div className="modal-button-group modal-full-width-btn modal-footer-button">
             <Button variant="light-white" className="btn-md" onClick={handleDeleteClose}>
-              No, Change My Mind
+              Cancel
             </Button>
             <Button
               variant="danger"

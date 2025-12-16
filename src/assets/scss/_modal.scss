@@ -24,6 +24,20 @@
     opacity: 0.5;
 }
 
+/* Stacked confirmation modals (e.g., Delete over Event Details):
+   Put THIS backdrop above the underlying modal and blur it. */
+.modal-backdrop.modal-confirmation-backdrop {
+    z-index: 1055; /* above base modal (1050), below confirmation modal (1060) */
+    background-color: rgba(15, 23, 42, 0.35);
+    opacity: 1;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.modal.modal-theme.modal-confirmation {
+    z-index: 1060;
+}
+
 /* ============================================
    Modal Theme Styles
    ============================================ */
@@ -165,9 +179,17 @@
     }
 
     &.modal-confirmation {
+        /* Universal delete/confirmation modal: no header bar */
+        .modal-header {
+            display: none;
+        }
+
         .modal-dialog {
+            width: 100%;
+            max-width: 360px;
+
             @media only screen and (min-width:1200px) {
-                width: 400px;
+                max-width: 360px; /* tighter desktop width to match mockups */
             }
         }
 
