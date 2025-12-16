@@ -208,6 +208,7 @@ const EditCourse = () => {
                   selectedSyllabusObj={selectedSyllabusObj}
                   handleGetCourseList={() => {}}
                   handleCloseSyllabusDetails={() => {}}
+                  onSyllabusUpdated={(updated: any) => setSelectedSyllabusObj(updated)}
                   setPdfPreviewLink={setPdfPreviewLink}
                   pdfPreviewLink={pdfPreviewLink}
                 />

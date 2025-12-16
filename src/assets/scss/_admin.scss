@@ -1511,6 +1511,18 @@ $sm_sidebar_home_link_width: 170px;
         display: flex;
         flex-direction: column;
     }
+
+    /* Themed variant (used by Edit Course Details modal) */
+    &.themed {
+        .modal-content {
+            border: 3px solid var(--syllabus-color, #239BC2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 60px var(--syllabus-color-light, rgba(35, 155, 194, 0.15));
+        }
+
+        .modal-header {
+            background: linear-gradient(to right, var(--syllabus-color-light, rgba(35, 155, 194, 0.15)), #fff) !important;
+        }
+    }
     
     .modal-header {
         background: #fff;

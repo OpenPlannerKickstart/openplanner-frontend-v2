@@ -193,9 +193,10 @@ const SyllabusCanvasDetails = (props) => {
                                                         aria-labelledby="nav-SyllabusDetails-tab"
                                                     >
                                                         <div className="tab-content-container">
-                                                            <SyllabusDetails selectedSyllabusObj={props.selectedSyllabusObj}
+                                                            <SyllabusDetails selectedSyllabusObj={selectedCourse || props.selectedSyllabusObj}
                                                                 handleGetCourseList={props.handleGetCourseList}
                                                                 handleCloseSyllabusDetails={handleCloseSyllabusDetails}
+                                                                onSyllabusUpdated={(updated) => setSelectedCourse(updated)}
                                                                 setPdfPreviewLink={setPdfPreviewLink}
                                                                 pdfPreviewLink={pdfPreviewLink}
                                                             />
@@ -209,7 +210,7 @@ const SyllabusCanvasDetails = (props) => {
                                                         aria-labelledby="nav-Events-tab"
                                                     >
                                                         <Events
-                                                            selectedSyllabusObj={props.selectedSyllabusObj}
+                                                            selectedSyllabusObj={selectedCourse || props.selectedSyllabusObj}
                                                             selectedTab={selectedTab}
                                                             handleSelectEvent={handleSelectEvent}
                                                         />
@@ -271,7 +272,7 @@ const SyllabusCanvasDetails = (props) => {
                     </Offcanvas>
                 </div>
                 {/* Add/Edit event Start */}
-                <AddEditEvent show={showAddEvent} setShow={setAddEventShow} handleGetData={async () => { handleGetEventData() }} setEditEventFormData={setEditEventFormData} editEventFormData={editEventFormData} selectedCourse={props?.selectedSyllabusObj} />
+                <AddEditEvent show={showAddEvent} setShow={setAddEventShow} handleGetData={async () => { handleGetEventData() }} setEditEventFormData={setEditEventFormData} editEventFormData={editEventFormData} selectedCourse={selectedCourse || props?.selectedSyllabusObj} />
                 {/* Add/Edit event Event */}
 
 

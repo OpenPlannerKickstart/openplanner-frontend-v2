@@ -51,6 +51,7 @@ const SyllabusDetails = (props) => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const [showSuggestModal, setShowSuggestModal] = useState<boolean>(false);
+  const [showEditDetailsModal, setShowEditDetailsModal] = useState<boolean>(false);
   const {
     syllabusId: hookSyllabusId,
     setSyllabusId,
@@ -126,6 +127,15 @@ const SyllabusDetails = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props?.selectedSyllabusObj?.id]);
 
+  const closeEditDetailsModal = () => {
+    setShowEditDetailsModal(false);
+    // Reset any unsaved edits back to the last loaded values
+    try {
+      syllabusFormData.resetForm();
+    } catch {}
+    setIsEditingDetails(false);
+  };
+
   const getSyllabusDocMeta = (obj: any) => {
     const syllabusDocData = obj?.syllabus_doc;
     const url =
@@ -157,6 +167,17 @@ const SyllabusDetails = (props) => {
       return value.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
     }
     return "";
+  };
+
+  const getLightColor = (hex: string) => {
+    if (!hex || typeof hex !== "string" || !hex.startsWith("#") || hex.length < 7) {
+      return "rgba(35, 155, 194, 0.15)";
+    }
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    if ([r, g, b].some((n) => Number.isNaN(n))) return "rgba(35, 155, 194, 0.15)";
+    return `rgba(${r}, ${g}, ${b}, 0.15)`;
   };
 
   const getCourseColorName = (hex?: string) => {
@@ -216,10 +237,10 @@ const SyllabusDetails = (props) => {
     validationSchema,
     enableReinitialize: true,
   });
-  const handleSyllabusSubmit = async () => {
+  const handleSyllabusSubmit = async (): Promise<boolean> => {
     if (freemiumUploadLocked) {
       handleUpgrade();
-      return;
+      return false;
     }
 
     syllabusFormData.handleSubmit();
@@ -231,7 +252,7 @@ const SyllabusDetails = (props) => {
           true
         )
       );
-      return;
+      return false;
     }
 
     const hasNewFile = !isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) &&
@@ -271,7 +292,7 @@ const SyllabusDetails = (props) => {
         // Error is already handled in startSyllabusUpload (toast + modal state)
         console.error('Syllabus upload failed:', error);
       }
-      return;
+      return true;
     }
 
     // Legacy flow for metadata-only updates (no new file)
@@ -308,8 +329,39 @@ const SyllabusDetails = (props) => {
         payload?.data?.syllabus_doc?.url ||
         payload?.result?.syllabus_doc?.url ||
         null;
-      props.handleCloseSyllabusDetails();
-      props.handleGetCourseList();
+
+      // Immediately update the currently selected syllabus object so the details view updates
+      // without requiring navigation away/back.
+      try {
+        const mergedSelected = {
+          ...(props?.selectedSyllabusObj || {}),
+          title: syllabusFormData.values.title,
+          professor_name: syllabusFormData.values.professor_name,
+          course_color: syllabusFormData.values.course_color,
+          class_time: reqBody.class_time,
+          syllabus_doc: returnedUrl || (reqBody as any).url || (props?.selectedSyllabusObj as any)?.syllabus_doc,
+          doc_url: returnedUrl || (props?.selectedSyllabusObj as any)?.doc_url,
+          syllabus_doc_url: returnedUrl || (props?.selectedSyllabusObj as any)?.syllabus_doc_url,
+          doc_name: (props?.selectedSyllabusObj as any)?.doc_name || syllabusFormData?.values?.syllabus_doc_name,
+          syllabus_doc_name: syllabusFormData?.values?.syllabus_doc_name,
+        };
+        if (typeof props?.onSyllabusUpdated === "function") {
+          props.onSyllabusUpdated(mergedSelected);
+        }
+        // Keep local form base data in sync for subsequent opens/resets
+        const { url: nextUrl, name: nextName } = getSyllabusDocMeta(mergedSelected);
+        setSavedSyllabusFormData({
+          ...mergedSelected,
+          class_time: mergedSelected?.class_time ? new Date(`1970-01-01T${String(mergedSelected.class_time).slice(0, 8)}`) : null,
+          syllabus_doc: nextUrl,
+          syllabus_doc_name: nextName,
+        } as any);
+      } catch {}
+
+      // Refresh courses list for any other consumers (course cards, etc.)
+      try {
+        props.handleGetCourseList?.();
+      } catch {}
       if (returnedUrl) {
         try { props?.setPdfPreviewLink(returnedUrl); } catch {}
       }
@@ -322,6 +374,14 @@ const SyllabusDetails = (props) => {
       }
     }
     setloading(false);
+    return !!response;
+  };
+
+  const handleSaveEditDetails = async () => {
+    const ok = await handleSyllabusSubmit();
+    if (ok) {
+      closeEditDetailsModal();
+    }
   };
 
   const handleRemoveSyllabusDoc = () => {
@@ -441,7 +501,7 @@ const SyllabusDetails = (props) => {
               <button
                 type="button"
                 className="btn btn-secondary edit-syllabus-btn"
-                onClick={() => setIsEditingDetails(true)}
+                onClick={() => setShowEditDetailsModal(true)}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -880,6 +940,157 @@ const SyllabusDetails = (props) => {
       )}
       </div>
 
+      {/* New Frontend: Edit Course Details modal (matches Add New Syllabus modal) */}
+      <Modal
+        className={`add-syllabus-modal themed`}
+        show={showEditDetailsModal}
+        onHide={closeEditDetailsModal}
+        centered
+        dialogClassName="syllabus-modal"
+        style={
+          ({
+            "--syllabus-color": syllabusFormData.values.course_color || "#239BC2",
+            "--syllabus-color-light": getLightColor(syllabusFormData.values.course_color || "#239BC2"),
+          } as React.CSSProperties)
+        }
+      >
+        <Modal.Header>
+          <Modal.Title>Edit Course Details</Modal.Title>
+          <button type="button" className="modal-close-btn" onClick={closeEditDetailsModal}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </Modal.Header>
+
+        <Modal.Body>
+          {/* Course Title */}
+          <div className="form-group">
+            <label className="form-label">
+              Course Title <span className="required">*</span>
+            </label>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Enter Course Title"
+              {...syllabusFormData.getFieldProps("title")}
+              maxLength={MAX_50}
+            />
+            {syllabusFormData.touched.title && syllabusFormData.errors.title
+              ? renderError(syllabusFormData.errors.title as any)
+              : null}
+          </div>
+
+          {/* Professor Name + Class Time */}
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Professor Name</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Enter Professor Name"
+                {...syllabusFormData.getFieldProps("professor_name")}
+                maxLength={MAX_50}
+              />
+              {syllabusFormData.touched.professor_name && syllabusFormData.errors.professor_name
+                ? renderError(syllabusFormData.errors.professor_name as any)
+                : null}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                Class Time <span className="required">*</span>
+              </label>
+              <DatePicker
+                placeholderText="Select Class Time"
+                selected={syllabusFormData.values.class_time as any}
+                onChange={(date) => syllabusFormData.setFieldValue("class_time", date)}
+                showTimeSelect
+                showTimeSelectOnly
+                timeIntervals={15}
+                timeCaption="Select Time"
+                dateFormat="h:mm aa"
+                className="form-input"
+                showPopperArrow={false}
+                popperClassName="syllabus-time-popper"
+                calendarClassName="syllabus-time-calendar"
+                onBlur={() => syllabusFormData.setFieldTouched("class_time", true)}
+              />
+              {syllabusFormData.touched.class_time && syllabusFormData.errors.class_time
+                ? renderError(syllabusFormData.errors.class_time as any)
+                : null}
+            </div>
+          </div>
+
+          {/* Upload syllabus */}
+          <div className="form-group">
+            <label className="form-label">Upload Syllabus</label>
+            <div
+              className="file-upload-area"
+              onClick={() => syllabusDocRef.current?.click()}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="upload-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+              </div>
+              <p className="upload-text">
+                Drag and Drop file here or <span className="upload-link">Choose file</span>
+              </p>
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e: any) => {
+                  if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
+                    syllabusFormData.setFieldValue("syllabus_doc", e.target?.files as any);
+                    syllabusFormData.setFieldValue("syllabus_doc_name", e.target?.files?.[0]?.name as any);
+                    const url: any = URL.createObjectURL(e.target?.files?.[0] as any);
+                    props?.setPdfPreviewLink(url);
+                  }
+                }}
+                ref={syllabusDocRef}
+                hidden
+              />
+              {!isEmptyObjectOrNullUndefiend((syllabusFormData as any)?.values?.syllabus_doc_name) ? (
+                <p className="file-name">{(syllabusFormData as any)?.values?.syllabus_doc_name}</p>
+              ) : null}
+            </div>
+            {syllabusFormData.touched.syllabus_doc && syllabusFormData.errors.syllabus_doc
+              ? renderError(syllabusFormData.errors.syllabus_doc as any)
+              : null}
+          </div>
+
+          {/* Course Color */}
+          <div className="form-group">
+            <label className="form-label">Course Color</label>
+            <div className="color-picker-container">
+              {colorPalette.map((color) => (
+                <div
+                  key={color}
+                  className={`color-option${syllabusFormData.values.course_color === color ? " selected" : ""}`}
+                  style={{ backgroundColor: color }}
+                  onClick={() => syllabusFormData.setFieldValue("course_color", color)}
+                />
+              ))}
+            </div>
+          </div>
+        </Modal.Body>
+
+        <div className="syllabus-footer">
+          <button type="button" className="btn btn-outline" onClick={closeEditDetailsModal}>
+            Cancel
+          </button>
+          <div className="modal-footer-right">
+            <button type="button" className="btn btn-primary" disabled={freemiumUploadLocked} onClick={handleSaveEditDetails}>
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Bottom buttons: only show in edit mode */}
       {isEditingDetails ? (
       <div className="bottom-button-group">
@@ -917,7 +1128,7 @@ const SyllabusDetails = (props) => {
           className="btn btn-primary"
           disabled={freemiumUploadLocked}
           onClick={() => {
-            handleSyllabusSubmit();
+            void handleSyllabusSubmit();
           }}
         >
           Save

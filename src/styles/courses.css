@@ -1440,6 +1440,24 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent Bootstrap/legacy secondary active state from flashing yellow on press */
+.edit-syllabus-btn.btn-secondary:active,
+.edit-syllabus-btn.btn-secondary.active,
+.edit-syllabus-btn.btn-secondary.btn:active,
+.edit-syllabus-btn.btn-secondary.btn.active {
+    background-color: var(--primary-subtle) !important;
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+    box-shadow: none !important;
+}
+
+/* Keep an accessible focus ring without changing fill color */
+.edit-syllabus-btn.btn-secondary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(35, 155, 194, 0.18) !important;
 }
 
 /* Syllabus File Display */
