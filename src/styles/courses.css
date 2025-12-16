@@ -762,6 +762,115 @@
 }
 
 /* ============================================
+   Add Syllabus - Class Time (react-datepicker)
+   Match new dropdown design (rounded card + header)
+   NOTE: popper is portaled to <body>, so scope via popper class.
+   ============================================ */
+
+.syllabus-time-popper {
+    z-index: 1060; /* above modal content */
+    width: auto !important; /* don't stretch to input width */
+}
+
+.syllabus-time-popper .syllabus-time-calendar.react-datepicker {
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+    font-family: inherit;
+    width: 200px;
+    max-width: 200px;
+}
+
+/* Header */
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__header {
+    background: var(--primary-subtle);
+    border-bottom: 1px solid var(--neutral-200);
+    padding: 0.6rem 0.5rem;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker-time__header {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-align: center;
+}
+
+/* Time list container */
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-container {
+    width: 100% !important;
+    border-left: none;
+    float: none !important;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time {
+    background: var(--white);
+    width: 100% !important;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-box {
+    width: 100% !important;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list {
+    max-height: 260px;
+    padding: 0; /* span full width like mock */
+    width: 100% !important;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list-item {
+    height: auto;
+    padding: 0.9rem 0.75rem;
+    border-radius: 0; /* list spans full width, no inset pills */
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
+    box-sizing: border-box;
+    transition: background var(--transition-base), color var(--transition-base);
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list-item:hover {
+    background: var(--primary-subtle);
+    color: var(--primary);
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list-item--selected {
+    background: var(--primary-subtle) !important;
+    color: var(--primary) !important;
+    font-weight: 700;
+}
+
+/* scrollbar */
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list::-webkit-scrollbar-thumb {
+    background: var(--neutral-300);
+    border-radius: 6px;
+}
+
+[data-theme="dark"] .syllabus-time-popper .syllabus-time-calendar.react-datepicker {
+    background: var(--white);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .syllabus-time-popper .syllabus-time-calendar .react-datepicker__header {
+    background: var(--primary-subtle);
+    border-bottom-color: var(--neutral-200);
+}
+
+/* ============================================
    Edit Course Page Styles
    ============================================ */
 

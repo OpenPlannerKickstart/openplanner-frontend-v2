@@ -435,9 +435,12 @@ export const AddEditSyllabus = (props) => {
                                                                     showTimeSelect
                                                                     showTimeSelectOnly
                                                                     timeIntervals={15}
-                                                                    timeCaption="Time"
+                                                                    timeCaption="Select Time"
                                                                     dateFormat="hh:mm aa"
                                 className="form-input"
+                                showPopperArrow={false}
+                                popperClassName="syllabus-time-popper"
+                                calendarClassName="syllabus-time-calendar"
                                 onBlur={() => syllabusFormData.setFieldTouched("class_time", true)}
                             />
                             {syllabusFormData.touched.class_time && syllabusFormData.errors.class_time
