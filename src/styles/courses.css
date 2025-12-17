@@ -636,7 +636,8 @@
 }
 
 .syllabus-footer .btn {
-    padding: 0.625rem 1.25rem;
+    /* Slimmer vertical padding to match global buttons */
+    padding: 0.4rem 1.25rem;
     font-size: 0.875rem;
     font-weight: 600;
 }

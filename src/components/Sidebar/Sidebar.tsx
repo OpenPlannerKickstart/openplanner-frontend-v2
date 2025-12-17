@@ -6,7 +6,7 @@ import { isGroupsEnabled } from '../../config/featureFlags';
 
 interface SidebarProps {
   isOpen?: boolean;
-  onToggleOpen?: () => void;
+  onToggleOpen?: (open?: boolean) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen: externalIsOpen, onToggleOpen }) => {
@@ -15,7 +15,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen: externalIsOpen, onTogg
 
   // Use external control if provided, otherwise use internal state
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
-  const setIsOpen = onToggleOpen || setInternalIsOpen;
+  const setIsOpen = (onToggleOpen as any) || setInternalIsOpen;
 
   // Close sidebar on mobile when clicking a link
   const handleLinkClick = () => {
@@ -46,7 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen: externalIsOpen, onTogg
     if (window.innerWidth >= 1024) {
       setIsOpen(true);
     }
-  }, []);
+  }, [setIsOpen]);
 
   const sidebarClasses = [
     'sidebar',

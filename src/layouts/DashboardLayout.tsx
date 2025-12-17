@@ -13,7 +13,7 @@ interface DashboardLayoutProps {
 
 interface SidebarContextType {
   isSidebarOpen: boolean;
-  toggleSidebar: () => void;
+  toggleSidebar: (open?: boolean) => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
@@ -36,9 +36,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  const toggleSidebar = useCallback((open?: boolean) => {
+    setIsSidebarOpen((prev) => (typeof open === 'boolean' ? open : !prev));
+  }, []);
 
   const getInviteReadSet = () => {
     try { return new Set<string>(JSON.parse(localStorage.getItem('op_invite_read') || '[]')); } catch { return new Set<string>(); }
