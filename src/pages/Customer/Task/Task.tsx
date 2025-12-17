@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
 import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
-import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
+import AddEditTask from '../../../common/Task/AddEditTask';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 
 const Task = () => {
@@ -30,8 +30,8 @@ const Task = () => {
   /** -----------------Task state---------------------------*/
   const [taskData, setTaskData] = useState<any>([]);
   const [activeTab, setActiveTab] = useState<'todo' | 'completed' | 'starred'>('todo');
-  const [showEventDetails, setShowEventDetails] = useState(false);
-  const [editEventFormData, setEditEventFormData] = useState<any>(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [editTaskFormData, setEditTaskFormData] = useState<any>(null);
 
   /** -------------------Task listing api start-------------------------*/
   const handleTaskListing = useCallback(async () => {
@@ -118,8 +118,8 @@ const Task = () => {
 
   /** -------------------Add/Edit task modal-------------------------*/
   const handleShow = () => {
-    setEditEventFormData(null);
-    setShowEventDetails(true);
+    setEditTaskFormData(null);
+    setShowTaskModal(true);
   };
 
   const handleSelectTask = (task: any) => {
@@ -127,24 +127,17 @@ const Task = () => {
     const dueDate = !isNullUndefinedOrBlank(rawDue)
       ? new Date(formatedDate(rawDue, 'yyyy-MM-DD HH:mm:ss'))
       : null;
-    const start = dueDate ?? new Date();
-    const end = dueDate ? new Date(dueDate.getTime() + 30 * 60 * 1000) : new Date(start.getTime() + 30 * 60 * 1000);
 
-    // Map Task → AddEditEvent form shape
-    setEditEventFormData({
+    setEditTaskFormData({
       id: task?.id,
-      title: task?.task_name || task?.title || '',
+      task_name: task?.task_name || task?.title || '',
       note: task?.note || '',
-      start_date: start,
-      end_date: end,
+      due_date: dueDate,
       is_reminder: !!task?.is_reminder,
       reminder: task?.reminder || [],
       status: task?.status,
-      // syllabus_id optional for tasks; the modal will show Calendar as N/A if missing
-      syllabus_id: task?.syllabus_id || task?.course_id || undefined,
-      priority: task?.priority || undefined,
     });
-    setShowEventDetails(true);
+    setShowTaskModal(true);
   };
 
   const handleGetUpdatedData = () => {
@@ -402,15 +395,13 @@ const Task = () => {
         </div>
       </div>
 
-      {/* Event Details Modal (used for tasks as a sub-type of events) */}
-      <AddEditEvent
-        show={showEventDetails}
-        setShow={setShowEventDetails}
+      {/* Add/Edit Task Modal */}
+      <AddEditTask
+        show={showTaskModal}
+        setShow={setShowTaskModal}
         handleGetData={handleGetUpdatedData}
-        editEventFormData={editEventFormData}
-        setEditEventFormData={setEditEventFormData}
-        selectedCourse={null}
-        entityType="task"
+        editTaskFormData={editTaskFormData}
+        setEditTaskFormData={setEditTaskFormData}
       />
     </>
   );
