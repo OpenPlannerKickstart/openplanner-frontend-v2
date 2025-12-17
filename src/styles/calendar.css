@@ -415,6 +415,69 @@
     flex: 0 0 auto;
     min-height: 100px;
     box-sizing: border-box;
+    position: relative;
+}
+
+/* Multi-day bars overlay INSIDE month cells (per week) */
+.month-multiday-layer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    /* Start inside the cell, below the date circle */
+    top: calc(0.25rem + 28px + 2px);
+    /* Respect cell padding on x/y */
+    padding: 0 0.5rem 0.25rem;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+    pointer-events: none; /* bars opt-in below */
+    z-index: 2;
+    box-sizing: border-box;
+}
+
+.month-multiday-event {
+    display: flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    border-left: 3px solid;
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+
+.month-multiday-event:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Continuation edges */
+.month-multiday-event:not(.start) {
+    border-left-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.month-multiday-event:not(.end) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.month-multiday-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Push single-day chips down so they don't overlap multi-day rows */
+.calendar-page .calendar-week .cell-events {
+    padding-top: calc(var(--month-multiday-rows, 0) * 24px);
 }
 
 .calendar-page .calendar-cell {
@@ -437,6 +500,13 @@
 
 .calendar-page .calendar-week:last-child .calendar-cell {
     border-bottom: none;
+}
+
+@media (max-width: 480px) {
+    /* Month view event text is hidden on mobile; hide multi-day strip too */
+    .month-multiday-layer {
+        display: none;
+    }
 }
 
 .calendar-page .calendar-cell {
@@ -648,6 +718,12 @@
     border-left-color: var(--course-green);
 }
 
+.calendar-page .month-multiday-event.green {
+    background: var(--course-green-light);
+    color: #166534;
+    border-left-color: var(--course-green);
+}
+
 .event-chip.green-light {
     background: rgba(34, 197, 94, 0.15);
     color: #166534;
@@ -660,7 +736,19 @@
     border-left-color: #3B82F6;
 }
 
+.calendar-page .month-multiday-event.blue {
+    background: #DBEAFE;
+    color: #1E40AF;
+    border-left-color: #3B82F6;
+}
+
 .calendar-page .event-chip.yellow {
+    background: var(--course-yellow-light);
+    color: #92400E;
+    border-left-color: var(--course-yellow);
+}
+
+.calendar-page .month-multiday-event.yellow {
     background: var(--course-yellow-light);
     color: #92400E;
     border-left-color: var(--course-yellow);
@@ -672,13 +760,31 @@
     border-left-color: var(--course-orange);
 }
 
+.calendar-page .month-multiday-event.orange {
+    background: var(--course-orange-light);
+    color: #9A3412;
+    border-left-color: var(--course-orange);
+}
+
 .calendar-page .event-chip.teal {
     background: var(--course-teal-light);
     color: #115E59;
     border-left-color: var(--course-teal);
 }
 
+.calendar-page .month-multiday-event.teal {
+    background: var(--course-teal-light);
+    color: #115E59;
+    border-left-color: var(--course-teal);
+}
+
 .calendar-page .event-chip.lime {
+    background: var(--course-lime-light);
+    color: #827717;
+    border-left-color: var(--course-lime);
+}
+
+.calendar-page .month-multiday-event.lime {
     background: var(--course-lime-light);
     color: #827717;
     border-left-color: var(--course-lime);
@@ -691,7 +797,19 @@
     border-left-color: #239BC2;
 }
 
+.calendar-page .month-multiday-event.cyan {
+    background: rgba(35, 155, 194, 0.15);
+    color: #0C4A6E;
+    border-left-color: #239BC2;
+}
+
 .calendar-page .event-chip.red {
+    background: rgba(239, 68, 68, 0.12);
+    color: #991B1B;
+    border-left-color: #EF4444;
+}
+
+.calendar-page .month-multiday-event.red {
     background: rgba(239, 68, 68, 0.12);
     color: #991B1B;
     border-left-color: #EF4444;
@@ -703,7 +821,19 @@
     border-left-color: #8B5CF6;
 }
 
+.calendar-page .month-multiday-event.purple {
+    background: rgba(139, 92, 246, 0.12);
+    color: #4C1D95;
+    border-left-color: #8B5CF6;
+}
+
 .calendar-page .event-chip.pink {
+    background: rgba(236, 72, 153, 0.12);
+    color: #9D174D;
+    border-left-color: #EC4899;
+}
+
+.calendar-page .month-multiday-event.pink {
     background: rgba(236, 72, 153, 0.12);
     color: #9D174D;
     border-left-color: #EC4899;
@@ -715,7 +845,19 @@
     border-left-color: #6B7280;
 }
 
+.calendar-page .month-multiday-event.gray {
+    background: rgba(107, 114, 128, 0.12);
+    color: #374151;
+    border-left-color: #6B7280;
+}
+
 .calendar-page .event-chip.stone {
+    background: rgba(120, 113, 108, 0.12);
+    color: #44403C;
+    border-left-color: #78716C;
+}
+
+.calendar-page .month-multiday-event.stone {
     background: rgba(120, 113, 108, 0.12);
     color: #44403C;
     border-left-color: #78716C;
@@ -727,7 +869,19 @@
     border-left-color: #D97706;
 }
 
+.calendar-page .month-multiday-event.gold {
+    background: rgba(217, 119, 6, 0.12);
+    color: #92400E;
+    border-left-color: #D97706;
+}
+
 .calendar-page .event-chip.indigo {
+    background: rgba(99, 102, 241, 0.12);
+    color: #312E81;
+    border-left-color: #6366F1;
+}
+
+.calendar-page .month-multiday-event.indigo {
     background: rgba(99, 102, 241, 0.12);
     color: #312E81;
     border-left-color: #6366F1;

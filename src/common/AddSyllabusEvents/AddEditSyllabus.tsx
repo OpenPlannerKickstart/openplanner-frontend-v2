@@ -25,6 +25,7 @@ export const AddEditSyllabus = (props) => {
     const dispatch: AppDispatch = useDispatch();
     const navigate = useNavigate();
     const [showSuggestModal, setShowSuggestModal] = useState(false);
+    const [isSyllabusDragOver, setIsSyllabusDragOver] = useState(false);
     const {
         syllabusId: hookSyllabusId,
         setSyllabusId,
@@ -41,6 +42,13 @@ export const AddEditSyllabus = (props) => {
     // Syllabus upload context for background upload
     const syllabusUploadContext = useSyllabusUpload();
     const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
+
+    const applySyllabusFiles = (files: FileList | null) => {
+        if (isEmptyObjectOrNullUndefiend(files) || !files || files.length === 0) return;
+        syllabusFormData.setFieldValue("syllabus_doc", files as any);
+        syllabusFormData.setFieldValue("syllabus_doc_name", files[0]?.name as any);
+        syllabusFormData.setFieldTouched("syllabus_doc", true, true);
+    };
 
     const handleCloseAddSyllabusEvents = () => {
         setShowAddSyllabusEvents(false);
@@ -395,8 +403,36 @@ export const AddEditSyllabus = (props) => {
                             </div>
                         )}
                         <div 
-                            className="file-upload-area"
+                            className={`file-upload-area${isSyllabusDragOver ? ' dragover' : ''}`}
                             onClick={() => !freemiumUploadLocked && syllabusDocRef.current?.click()}
+                            onDragEnter={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (freemiumUploadLocked) return;
+                                setIsSyllabusDragOver(true);
+                            }}
+                            onDragOver={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (freemiumUploadLocked) return;
+                                setIsSyllabusDragOver(true);
+                            }}
+                            onDragLeave={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const current = e.currentTarget as HTMLElement;
+                                const related = e.relatedTarget as HTMLElement | null;
+                                if (!related || !current.contains(related)) {
+                                    setIsSyllabusDragOver(false);
+                                }
+                            }}
+                            onDrop={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsSyllabusDragOver(false);
+                                if (freemiumUploadLocked) return;
+                                applySyllabusFiles(e.dataTransfer?.files ?? null);
+                            }}
                             style={{ cursor: freemiumUploadLocked ? 'not-allowed' : 'pointer', opacity: freemiumUploadLocked ? 0.6 : 1 }}
                         >
                             <div className="upload-icon">
@@ -408,12 +444,7 @@ export const AddEditSyllabus = (props) => {
                                                         </div>
                             <p className="upload-text">Drag and Drop file here or <span className="upload-link">Choose file</span></p>
                             <input type="file" accept=".pdf,.doc,.docx" disabled={freemiumUploadLocked}
-                                                            onChange={(e: any) => {
-                                                                if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
-                                                                    syllabusFormData.setFieldValue("syllabus_doc", e.target?.files as any)
-                                                                    syllabusFormData.setFieldValue("syllabus_doc_name", e.target?.files[0]?.name as any)
-                                                                }
-                                                            }}
+                                                            onChange={(e: any) => applySyllabusFiles(e.target?.files ?? null)}
                                 onBlur={() => syllabusFormData.setFieldTouched("syllabus_doc", true)}
                                                             ref={syllabusDocRef}
                                 hidden

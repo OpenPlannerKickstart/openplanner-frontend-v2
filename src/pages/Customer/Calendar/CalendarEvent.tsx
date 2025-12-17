@@ -271,11 +271,6 @@ const CalendarEvent = () => {
       .filter(Boolean) as NormalizedCalendarEvent[];
   }, [calendarEvents]);
 
-  const getEventsForDay = (date: moment.Moment) => {
-    const dayKey = date.format('YYYY-MM-DD');
-    return normalizedEvents.filter((event) => moment(event.start).format('YYYY-MM-DD') === dayKey);
-  };
-
   /** Map hex colors to CSS class names - synced with colorPalette in AddEditSyllabus */
   const getColorClassName = (hexColor: string): string => {
     const colorMap: { [key: string]: string } = {
@@ -472,6 +467,34 @@ const CalendarEvent = () => {
     };
   }, [isUserMenuOpen]);
 
+  const getEventDaySpan = (ev: NormalizedCalendarEvent) => {
+    const startDay = moment(ev.start).startOf('day');
+    // Treat end as exclusive; subtract 1 second so 00:00 end doesn't add an extra day.
+    const endDay = moment(ev.end).subtract(1, 'second').startOf('day');
+    return { startDay, endDay };
+  };
+
+  const isMultiDayEvent = (ev: NormalizedCalendarEvent) => {
+    const { startDay, endDay } = getEventDaySpan(ev);
+    return !startDay.isSame(endDay, 'day');
+  };
+
+  const hasAnyEventOnDay = (day: moment.Moment) => {
+    return normalizedEvents.some((ev) => {
+      const { startDay, endDay } = getEventDaySpan(ev);
+      return day.isBetween(startDay, endDay, 'day', '[]');
+    });
+  };
+
+  const getMonthSingleDayEventsForDay = (day: moment.Moment) => {
+    return normalizedEvents
+      .filter((ev) => {
+        const { startDay, endDay } = getEventDaySpan(ev);
+        return startDay.isSame(day, 'day') && endDay.isSame(day, 'day');
+      })
+      .sort((a, b) => a.start.getTime() - b.start.getTime());
+  };
+
   const renderCalendarWeeks = () => {
     const days = getCalendarDays();
     const weeks: moment.Moment[][] = [];
@@ -479,10 +502,95 @@ const CalendarEvent = () => {
       weeks.push(days.slice(i, i + 7));
     }
 
-    return weeks.map((week, weekIndex) => (
-      <div className="calendar-week" key={weekIndex}>
-        {week.map((day, dayIndex) => {
-          const eventsForDay = getEventsForDay(day);
+    const getMultiDaySegmentsForWeek = (week: moment.Moment[]) => {
+      const weekStart = week[0].clone().startOf('day');
+      const weekEnd = week[6].clone().startOf('day');
+
+      const segments = normalizedEvents
+        .filter((ev) => {
+          if (!isMultiDayEvent(ev)) return false;
+          const { startDay, endDay } = getEventDaySpan(ev);
+          return startDay.isSameOrBefore(weekEnd, 'day') && endDay.isSameOrAfter(weekStart, 'day');
+        })
+        .map((ev) => {
+          const { startDay, endDay } = getEventDaySpan(ev);
+          const segStart = moment.max(startDay, weekStart);
+          const segEnd = moment.min(endDay, weekEnd);
+          const startIdx = segStart.diff(weekStart, 'days');
+          const endIdx = segEnd.diff(weekStart, 'days');
+          return {
+            ev,
+            startIdx,
+            endIdx,
+            row: 0,
+            isStart: segStart.isSame(startDay, 'day'),
+            isEnd: segEnd.isSame(endDay, 'day'),
+          };
+        })
+        .sort((a, b) => (a.startIdx - b.startIdx) || ((b.endIdx - b.startIdx) - (a.endIdx - a.startIdx)));
+
+      // Assign rows so overlapping segments stack
+      const rowEnds: number[] = [];
+      segments.forEach((seg) => {
+        let row = rowEnds.findIndex((endIdx) => seg.startIdx > endIdx);
+        if (row === -1) {
+          row = rowEnds.length;
+          rowEnds.push(seg.endIdx);
+        } else {
+          rowEnds[row] = seg.endIdx;
+        }
+        seg.row = row;
+      });
+
+      return { segments, rowCount: Math.max(0, rowEnds.length) };
+    };
+
+    return weeks.map((week, weekIndex) => {
+      const { segments, rowCount } = getMultiDaySegmentsForWeek(week);
+
+      return (
+        <div
+          className="calendar-week"
+          key={weekIndex}
+          // Used to offset per-day chips so multi-day bars sit "inside" cells without overlap
+          style={{ ['--month-multiday-rows' as any]: rowCount } as React.CSSProperties}
+        >
+          {rowCount > 0 ? (
+            <div
+              className="month-multiday-layer"
+              style={{ gridTemplateRows: `repeat(${rowCount}, 24px)` }}
+              aria-label="Multi-day events"
+            >
+              {segments.map((seg) => {
+                const colorClass = getColorClassName(seg.ev.courseColor || '#239BC2');
+                return (
+                  <div
+                    key={`${String(seg.ev.id)}-${week[0].format('YYYY-MM-DD')}-${seg.startIdx}-${seg.endIdx}-${seg.row}`}
+                    className={`month-multiday-event ${colorClass} ${seg.isStart ? 'start' : ''} ${seg.isEnd ? 'end' : ''}`}
+                    style={{
+                      gridColumn: `${seg.startIdx + 1} / ${seg.endIdx + 2}`,
+                      gridRow: `${seg.row + 1}`,
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, seg.ev)}
+                    onDragEnd={handleDragEnd}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEventClick(seg.ev.raw);
+                    }}
+                    title={seg.ev.title}
+                  >
+                    <span className="month-multiday-title">{seg.ev.title}</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
+
+          {week.map((day, dayIndex) => {
+              const eventsForDay = getMonthSingleDayEventsForDay(day);
           const isOtherMonth = !day.isSame(currentDate, 'month');
           const isToday = day.isSame(moment(), 'day');
           const isSelected = day.isSame(selectedDate, 'day');
@@ -497,7 +605,7 @@ const CalendarEvent = () => {
               key={dayIndex}
               onClick={() => {
                 setSelectedDate(day.clone());
-                if (eventsForDay.length === 0) {
+                if (!hasAnyEventOnDay(day)) {
                   handleCreateEventForDay(day);
                 }
               }}
@@ -507,7 +615,7 @@ const CalendarEvent = () => {
             >
               <span className="cell-date">{day.date()}</span>
               <div className="cell-events">
-                {eventsForDay.slice(0, 3).map((event: NormalizedCalendarEvent, eventIndex: number) => {
+                {eventsForDay.slice(0, 2).map((event: NormalizedCalendarEvent, eventIndex: number) => {
                   const colorClass = getColorClassName(event.courseColor || '#239BC2');
                   return (
                     <div
@@ -527,7 +635,7 @@ const CalendarEvent = () => {
                     </div>
                   );
                 })}
-                {eventsForDay.length > 3 ? (
+                {eventsForDay.length > 2 ? (
                   <button
                     type="button"
                     className="events-more-btn"
@@ -545,15 +653,16 @@ const CalendarEvent = () => {
                       <circle cx="12" cy="12" r="1.8" />
                       <circle cx="19" cy="12" r="1.8" />
                     </svg>
-                    <span>+{eventsForDay.length - 3} more</span>
+                    <span>+{eventsForDay.length - 2} more</span>
                   </button>
                 ) : null}
               </div>
             </div>
           );
-        })}
-      </div>
-    ));
+          })}
+        </div>
+      );
+    });
   };
 
   const isCompletedStatus = (status?: string) => {
