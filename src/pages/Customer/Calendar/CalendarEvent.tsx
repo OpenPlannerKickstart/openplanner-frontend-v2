@@ -612,9 +612,17 @@ const CalendarEvent = () => {
   // Auto-scroll to current time indicator (week/day views)
   const weekBodyRef = useRef<HTMLDivElement | null>(null);
   const dayBodyRef = useRef<HTMLDivElement | null>(null);
+  const calendarViewScrollRef = useRef<HTMLDivElement | null>(null);
   const weekNowRef = useRef<HTMLDivElement | null>(null);
   const dayNowRef = useRef<HTMLDivElement | null>(null);
   const pendingDayScrollToFirstEventRef = useRef<string | null>(null);
+
+  const getActiveScrollContainer = useCallback((): HTMLDivElement | null => {
+    const el = calendarViewScrollRef.current;
+    // Only treat it as a scroll container if it can actually scroll
+    if (el && el.scrollHeight > el.clientHeight + 2) return el;
+    return null;
+  }, []);
 
   const scrollContainerToIndicator = useCallback(
     (container: HTMLDivElement | null, indicator: HTMLDivElement | null) => {
@@ -631,10 +639,17 @@ const CalendarEvent = () => {
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => {
+      const scrollContainer = getActiveScrollContainer();
+
       if (currentView === 'week') {
         const isThisWeek = moment().isSame(moment(selectedDate).startOf('week'), 'week');
         if (isThisWeek) {
-          scrollContainerToIndicator(weekBodyRef.current, weekNowRef.current);
+          // On desktop, scroll the right-pane container; on smaller layouts, fall back to scrollIntoView
+          if (scrollContainer) {
+            scrollContainerToIndicator(scrollContainer, weekNowRef.current);
+          } else if (weekNowRef.current) {
+            weekNowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
         }
         return;
       }
@@ -649,13 +664,19 @@ const CalendarEvent = () => {
             .filter((ev) => moment(ev.start).isSame(dayStart, 'day'))
             .sort((a, b) => a.start.getTime() - b.start.getTime());
 
-          if (eventsForDay.length > 0 && dayBodyRef.current) {
+          if (eventsForDay.length > 0) {
             const first = eventsForDay[0];
-            const firstMin = Math.max(0, moment(first.start).diff(dayStart, 'minutes'));
-            const pxPerMin = 70 / 60; // matches ROW_HEIGHT in day view (70px per hour)
-            const topPx = firstMin * pxPerMin;
-            const targetTop = Math.max(0, topPx - dayBodyRef.current.clientHeight * 0.2);
-            dayBodyRef.current.scrollTo({ top: targetTop, behavior: 'smooth' });
+            const firstId = String(first.id ?? '');
+            if (firstId) {
+              const el = document.querySelector(`[data-cal-event-id="${firstId}"]`) as HTMLDivElement | null;
+              if (el) {
+                if (scrollContainer) {
+                  scrollContainerToIndicator(scrollContainer, el);
+                } else {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }
+            }
           }
 
           pendingDayScrollToFirstEventRef.current = null;
@@ -665,13 +686,17 @@ const CalendarEvent = () => {
         // Otherwise, if today, scroll to "now" indicator.
         const isToday = moment(selectedDate).isSame(moment(), 'day');
         if (isToday) {
-          scrollContainerToIndicator(dayBodyRef.current, dayNowRef.current);
+          if (scrollContainer) {
+            scrollContainerToIndicator(scrollContainer, dayNowRef.current);
+          } else if (dayNowRef.current) {
+            dayNowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
         }
       }
     });
 
     return () => cancelAnimationFrame(raf);
-  }, [currentView, selectedDate, scrollContainerToIndicator, normalizedEvents]);
+  }, [currentView, selectedDate, scrollContainerToIndicator, normalizedEvents, getActiveScrollContainer]);
 
   const updateEventDates = useCallback(async (
     calEvent: NormalizedCalendarEvent,
@@ -1070,10 +1095,7 @@ const CalendarEvent = () => {
         <div className="calendar-main">
           {(loadingDropdown || loadingEvents) && (
             <div className="loader-container inline-loader" style={{ background: 'rgba(255, 255, 255, 0.72)' }}>
-              <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
-                <rect className="track" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" />
-                <rect className="car" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" pathLength="100" />
-              </svg>
+              <div className="calendar-round-spinner" aria-label="Loading" />
             </div>
           )}
 
@@ -1117,249 +1139,258 @@ const CalendarEvent = () => {
             </div>
           </div>
 
-          {currentView === 'month' && (
-            <div 
-              className="calendar-grid"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-            >
-              {!loadingDropdown &&
-                !loadingEvents &&
-                hasLoadedEventsOnce &&
-                selectedClasses.length > 0 &&
-                calendarEvents.length === 0 && (
-                  <div className="calendar-empty-overlay">
-                    <div className="calendar-empty-card">
-                      <div className="calendar-empty-title">No events found</div>
-                      <p className="calendar-empty-text">
-                        There aren’t any events for the selected classes in this view.
-                      </p>
+          <div className="calendar-view-scroll" ref={calendarViewScrollRef}>
+            {currentView === 'month' && (
+              <div 
+                className="calendar-grid"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+              >
+                {!loadingDropdown &&
+                  !loadingEvents &&
+                  hasLoadedEventsOnce &&
+                  selectedClasses.length > 0 &&
+                  calendarEvents.length === 0 && (
+                    <div className="calendar-empty-overlay">
+                      <div className="calendar-empty-card">
+                        <div className="calendar-empty-title">No events found</div>
+                        <p className="calendar-empty-text">
+                          There aren’t any events for the selected classes in this view.
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              <div className="calendar-header-row">
-                <div className="calendar-day-header">Sun</div>
-                <div className="calendar-day-header">Mon</div>
-                <div className="calendar-day-header">Tue</div>
-                <div className="calendar-day-header">Wed</div>
-                <div className="calendar-day-header">Thu</div>
-                <div className="calendar-day-header">Fri</div>
-                <div className="calendar-day-header">Sat</div>
+                  )}
+                <div className="calendar-header-row">
+                  <div className="calendar-day-header">Sun</div>
+                  <div className="calendar-day-header">Mon</div>
+                  <div className="calendar-day-header">Tue</div>
+                  <div className="calendar-day-header">Wed</div>
+                  <div className="calendar-day-header">Thu</div>
+                  <div className="calendar-day-header">Fri</div>
+                  <div className="calendar-day-header">Sat</div>
+                </div>
+
+                <div className="calendar-body">{renderCalendarWeeks()}</div>
               </div>
+            )}
 
-              <div className="calendar-body">{renderCalendarWeeks()}</div>
-            </div>
-          )}
+            {currentView === 'week' && (
+              <div 
+                className="week-view"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+              >
+                {(() => {
+                  const days = getWeekDays();
+                  const isThisWeek = moment().isSame(moment(selectedDate).startOf('week'), 'week');
+                  const now = moment();
+                  const nowDayIdx = isThisWeek ? now.diff(moment(selectedDate).startOf('week'), 'days') : -1;
+                  const nowMin = now.hours() * 60 + now.minutes();
 
-          {currentView === 'week' && (
-            <div 
-              className="week-view"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-            >
-              {(() => {
-                const days = getWeekDays();
-                const isThisWeek = moment().isSame(moment(selectedDate).startOf('week'), 'week');
-                const now = moment();
-                const nowDayIdx = isThisWeek ? now.diff(moment(selectedDate).startOf('week'), 'days') : -1;
-                const nowMin = now.hours() * 60 + now.minutes();
+                  const hours = Array.from({ length: 24 }, (_, i) => i);
 
-                const hours = Array.from({ length: 24 }, (_, i) => i);
+                  return (
+                    <>
+                      <div className="week-view-header">
+                        <div className="week-time-column" />
+                        {days.map((d) => {
+                          const isToday = d.isSame(moment(), 'day');
+                          const isSelected = d.isSame(selectedDate, 'day');
+                          return (
+                            <div
+                              key={d.format('YYYY-MM-DD')}
+                              className={`week-day-column ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+                              role="button"
+                              tabIndex={0}
+                              onClick={() => setSelectedDate(d.clone())}
+                            >
+                              <div className="week-day-name">{d.format('ddd')}</div>
+                              <div className="week-day-date">{d.date()}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
 
-                return (
-                  <>
-                    <div className="week-view-header">
-                      <div className="week-time-column" />
-                      {days.map((d) => {
-                        const isToday = d.isSame(moment(), 'day');
-                        return (
-                          <div
-                            key={d.format('YYYY-MM-DD')}
-                            className="week-day-column"
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => setSelectedDate(d.clone())}
-                          >
-                            <div className="week-day-name">{d.format('ddd')}</div>
-                            <div className={`week-day-date ${isToday ? 'today' : ''}`}>{d.date()}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                      <div className="week-view-body" ref={weekBodyRef}>
+                        <div className="week-time-slots">
+                          {hours.map((h) => (
+                            <div className="time-slot-row" key={h}>
+                              <div className="time-label">{moment().hour(h).minute(0).format('h A')}</div>
+                              {days.map((d) => {
+                                const slotKey = `week-${d.format('YYYY-MM-DD')}-${h}`;
+                                const isDragOver = dragOverTarget === slotKey;
+                                return (
+                                  <div
+                                    className={`time-slot ${isDragOver ? 'drag-over' : ''}`}
+                                    key={slotKey}
+                                    onDragOver={(e) => handleDragOver(e, slotKey)}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={handleDrop}
+                                  />
+                                );
+                              })}
+                            </div>
+                          ))}
 
-                    <div className="week-view-body" ref={weekBodyRef}>
-                      <div className="week-time-slots">
-                        {hours.map((h) => (
-                          <div className="time-slot-row" key={h}>
-                            <div className="time-label">{moment().hour(h).minute(0).format('h A')}</div>
-                            {days.map((d) => {
-                              const slotKey = `week-${d.format('YYYY-MM-DD')}-${h}`;
-                              const isDragOver = dragOverTarget === slotKey;
+                          <div className="week-events-container" key={`week-events-${normalizedEvents.reduce((acc, e) => acc + e.start.getTime(), 0)}`}>
+                            {days.map((d, dayIdx) => {
+                              const dayEvents = getWeekEventsForDay(d);
+                              const positioned = layoutDayEvents(d, dayEvents);
                               return (
+                                <div className="week-day-events" key={d.format('YYYY-MM-DD')}>
+                                  {dayIdx === nowDayIdx ? (
+                                    <div
+                                      className="current-time-indicator"
+                                      style={{ top: `${nowMin}px` }}
+                                      ref={weekNowRef}
+                                      aria-hidden
+                                    />
+                                  ) : null}
+
+                                  {positioned.map(({ ev, startMin, endMin, leftPct, widthPct }, idx) => {
+                                    const colorClass = getColorClassName(ev.courseColor || '#239BC2');
+                                    const completed = isCompletedStatus(ev.status);
+                                    const high = isHighPriority(ev.priority);
+                                    const height = Math.max(22, endMin - startMin);
+                                    const startStr = moment(ev.start).format('h:mm A');
+                                    const endStr = moment(ev.end).format('h:mm A');
+
+                                    return (
+                                      <div
+                                        key={`${String(ev.id ?? idx)}-${startMin}-${endMin}`}
+                                        className={`week-event ${colorClass} ${completed ? 'completed' : ''}`}
+                                        style={{
+                                          top: `${startMin}px`,
+                                          height: `${height}px`,
+                                          left: `calc(${leftPct}% + 2px)`,
+                                          width: `calc(${widthPct}% - 4px)`,
+                                        }}
+                                        role="button"
+                                        tabIndex={0}
+                                        draggable
+                                        onDragStart={(e) => handleDragStart(e, ev)}
+                                        onDragEnd={handleDragEnd}
+                                        onClick={() => handleEventClick(ev.raw)}
+                                      >
+                                        {high ? <span className="priority-indicator high" title="High priority" /> : null}
+                                        <span className="week-event-title">{ev.title}</span>
+                                        <span className="week-event-time">{startStr} - {endStr}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+
+            {currentView === 'day' && (
+              <div 
+                className="day-view"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+              >
+                {(() => {
+                  const day = moment(selectedDate);
+                  const isToday = day.isSame(moment(), 'day');
+                  const now = moment();
+                  const nowMin = now.hours() * 60 + now.minutes();
+
+                  const hours = Array.from({ length: 24 }, (_, i) => i);
+                  const ROW_HEIGHT = 70; // matches .day-time-row height in calendar.css
+                  const pxPerMin = ROW_HEIGHT / 60;
+
+                  const dayEvents = getWeekEventsForDay(day);
+                  const positioned = layoutDayEvents(day, dayEvents);
+
+                  return (
+                    <>
+                      <div className="day-view-header">
+                        <div className="day-view-date">
+                          <div className="day-view-weekday">{day.format('ddd')}</div>
+                          <div className={`day-view-number ${isToday ? 'today' : ''}`}>{day.date()}</div>
+                          <div className="day-view-month">{day.format('MMMM YYYY')}</div>
+                        </div>
+                      </div>
+
+                      <div className="day-view-body" ref={dayBodyRef}>
+                        <div className="day-time-slots">
+                          {hours.map((h) => {
+                            const slotKey = `day-${day.format('YYYY-MM-DD')}-${h}`;
+                            const isDragOver = dragOverTarget === slotKey;
+                            return (
+                              <div className="day-time-row" key={h}>
+                                <div className="day-time-label">{moment().hour(h).minute(0).format('h A')}</div>
                                 <div
-                                  className={`time-slot ${isDragOver ? 'drag-over' : ''}`}
-                                  key={slotKey}
+                                  className={`day-time-content ${isDragOver ? 'drag-over' : ''}`}
                                   onDragOver={(e) => handleDragOver(e, slotKey)}
                                   onDragLeave={handleDragLeave}
                                   onDrop={handleDrop}
                                 />
+                              </div>
+                            );
+                          })}
+
+                          <div className="day-events-container" key={`day-events-${normalizedEvents.reduce((acc, e) => acc + e.start.getTime(), 0)}`}>
+                            {isToday ? (
+                              <div
+                                className="current-time-indicator"
+                                style={{ top: `${nowMin * pxPerMin}px` }}
+                                ref={dayNowRef}
+                                aria-hidden
+                              />
+                            ) : null}
+
+                            {positioned.map(({ ev, startMin, endMin, leftPct, widthPct }, idx) => {
+                              const colorClass = getColorClassName(ev.courseColor || '#239BC2');
+                              const completed = isCompletedStatus(ev.status);
+                              const high = isHighPriority(ev.priority);
+                              const height = Math.max(26, (endMin - startMin) * pxPerMin);
+                              const top = startMin * pxPerMin;
+                              const startStr = moment(ev.start).format('h:mm A');
+                              const endStr = moment(ev.end).format('h:mm A');
+
+                              return (
+                                <div
+                                  key={`${String(ev.id ?? idx)}-${startMin}-${endMin}`}
+                                  className={`day-event ${colorClass} ${completed ? 'completed' : ''}`}
+                                data-cal-event-id={String(ev.id ?? '')}
+                                  style={{
+                                    top: `${top}px`,
+                                    height: `${height}px`,
+                                    left: `calc(${leftPct}% + 8px)`,
+                                    width: `calc(${widthPct}% - 16px)`,
+                                  }}
+                                  role="button"
+                                  tabIndex={0}
+                                  draggable
+                                  onDragStart={(e) => handleDragStart(e, ev)}
+                                  onDragEnd={handleDragEnd}
+                                  onClick={() => handleEventClick(ev.raw)}
+                                >
+                                  {high ? <span className="priority-indicator high" title="High priority" /> : null}
+                                  <div className="day-event-content">
+                                    <div className="day-event-time">{startStr} - {endStr}</div>
+                                    <div className="day-event-title">{ev.title}</div>
+                                  </div>
+                                </div>
                               );
                             })}
                           </div>
-                        ))}
-
-                        <div className="week-events-container" key={`week-events-${normalizedEvents.reduce((acc, e) => acc + e.start.getTime(), 0)}`}>
-                          {days.map((d, dayIdx) => {
-                            const dayEvents = getWeekEventsForDay(d);
-                            const positioned = layoutDayEvents(d, dayEvents);
-                            return (
-                              <div className="week-day-events" key={d.format('YYYY-MM-DD')}>
-                                {dayIdx === nowDayIdx ? (
-                                  <div
-                                    className="current-time-indicator"
-                                    style={{ top: `${nowMin}px` }}
-                                    ref={weekNowRef}
-                                    aria-hidden
-                                  />
-                                ) : null}
-
-                                {positioned.map(({ ev, startMin, endMin, leftPct, widthPct }, idx) => {
-                                  const colorClass = getColorClassName(ev.courseColor || '#239BC2');
-                                  const completed = isCompletedStatus(ev.status);
-                                  const high = isHighPriority(ev.priority);
-                                  const height = Math.max(22, endMin - startMin);
-                                  const startStr = moment(ev.start).format('h:mm A');
-                                  const endStr = moment(ev.end).format('h:mm A');
-
-                                  return (
-                                    <div
-                                      key={`${String(ev.id ?? idx)}-${startMin}-${endMin}`}
-                                      className={`week-event ${colorClass} ${completed ? 'completed' : ''}`}
-                                      style={{
-                                        top: `${startMin}px`,
-                                        height: `${height}px`,
-                                        left: `calc(${leftPct}% + 2px)`,
-                                        width: `calc(${widthPct}% - 4px)`,
-                                      }}
-                                      role="button"
-                                      tabIndex={0}
-                                      draggable
-                                      onDragStart={(e) => handleDragStart(e, ev)}
-                                      onDragEnd={handleDragEnd}
-                                      onClick={() => handleEventClick(ev.raw)}
-                                    >
-                                      {high ? <span className="priority-indicator high" title="High priority" /> : null}
-                                      <span className="week-event-title">{ev.title}</span>
-                                      <span className="week-event-time">{startStr} - {endStr}</span>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            );
-                          })}
                         </div>
                       </div>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-          )}
-
-          {currentView === 'day' && (
-            <div 
-              className="day-view"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-            >
-              {(() => {
-                const day = moment(selectedDate);
-                const isToday = day.isSame(moment(), 'day');
-                const now = moment();
-                const nowMin = now.hours() * 60 + now.minutes();
-
-                const hours = Array.from({ length: 24 }, (_, i) => i);
-                const ROW_HEIGHT = 70; // matches .day-time-row height in calendar.css
-                const pxPerMin = ROW_HEIGHT / 60;
-
-                const dayEvents = getWeekEventsForDay(day);
-                const positioned = layoutDayEvents(day, dayEvents);
-
-                return (
-                  <>
-                    <div className="day-view-header">
-                      <div className="day-view-date">
-                        <div className="day-view-weekday">{day.format('ddd')}</div>
-                        <div className={`day-view-number ${isToday ? 'today' : ''}`}>{day.date()}</div>
-                        <div className="day-view-month">{day.format('MMMM YYYY')}</div>
-                      </div>
-                    </div>
-
-                    <div className="day-view-body" ref={dayBodyRef}>
-                      <div className="day-time-slots">
-                        {hours.map((h) => {
-                          const slotKey = `day-${day.format('YYYY-MM-DD')}-${h}`;
-                          const isDragOver = dragOverTarget === slotKey;
-                          return (
-                            <div className="day-time-row" key={h}>
-                              <div className="day-time-label">{moment().hour(h).minute(0).format('h A')}</div>
-                              <div
-                                className={`day-time-content ${isDragOver ? 'drag-over' : ''}`}
-                                onDragOver={(e) => handleDragOver(e, slotKey)}
-                                onDragLeave={handleDragLeave}
-                                onDrop={handleDrop}
-                              />
-                            </div>
-                          );
-                        })}
-
-                        <div className="day-events-container" key={`day-events-${normalizedEvents.reduce((acc, e) => acc + e.start.getTime(), 0)}`}>
-                          {isToday ? (
-                            <div
-                              className="current-time-indicator"
-                              style={{ top: `${nowMin * pxPerMin}px` }}
-                              ref={dayNowRef}
-                              aria-hidden
-                            />
-                          ) : null}
-
-                          {positioned.map(({ ev, startMin, endMin, leftPct, widthPct }, idx) => {
-                            const colorClass = getColorClassName(ev.courseColor || '#239BC2');
-                            const completed = isCompletedStatus(ev.status);
-                            const high = isHighPriority(ev.priority);
-                            const height = Math.max(26, (endMin - startMin) * pxPerMin);
-                            const top = startMin * pxPerMin;
-
-                            return (
-                              <div
-                                key={`${String(ev.id ?? idx)}-${startMin}-${endMin}`}
-                                className={`day-event ${colorClass} ${completed ? 'completed' : ''}`}
-                                style={{
-                                  top: `${top}px`,
-                                  height: `${height}px`,
-                                  left: `calc(${leftPct}% + 8px)`,
-                                  width: `calc(${widthPct}% - 16px)`,
-                                }}
-                                role="button"
-                                tabIndex={0}
-                                draggable
-                                onDragStart={(e) => handleDragStart(e, ev)}
-                                onDragEnd={handleDragEnd}
-                                onClick={() => handleEventClick(ev.raw)}
-                              >
-                                {high ? <span className="priority-indicator high" title="High priority" /> : null}
-                                <div className="day-event-title">{ev.title}</div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-          )}
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

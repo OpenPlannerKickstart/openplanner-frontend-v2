@@ -67,7 +67,7 @@ export const addEditEventDataAPI =
   (objBody: any = undefined, options?: { silent?: boolean }) =>
     async (dispatch: AppDispatch) => {
       if (!options?.silent) {
-        dispatch(setLoading(true));
+      dispatch(setLoading(true));
       }
 
       try {
@@ -84,7 +84,7 @@ export const addEditEventDataAPI =
         dispatch(addEditEventDataFailure());
       } finally {
         if (!options?.silent) {
-          dispatch(setLoading(false));
+        dispatch(setLoading(false));
         }
       }
     };
