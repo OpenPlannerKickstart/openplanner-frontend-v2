@@ -223,8 +223,9 @@ const CalendarEvent = () => {
         const d = new Date(value);
         return Number.isNaN(d.getTime()) ? null : d;
       }
-      // Common backend formats
-      const m = moment.utc(value, ['YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DD'], true);
+      // Common backend formats - parse as local time to avoid timezone shifts
+      // This ensures optimistic updates and backend data are treated consistently
+      const m = moment(value, ['YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DD'], true);
       if (m.isValid()) return m.toDate();
       const fallback = new Date(value);
       return Number.isNaN(fallback.getTime()) ? null : fallback;
@@ -526,6 +527,27 @@ const CalendarEvent = () => {
                     </div>
                   );
                 })}
+                {eventsForDay.length > 3 ? (
+                  <button
+                    type="button"
+                    className="events-more-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      pendingDayScrollToFirstEventRef.current = day.format('YYYY-MM-DD');
+                      setSelectedDate(day.clone());
+                      // Keep mini calendar + header date in sync
+                      setMiniCalendarDate(day.clone());
+                      setCurrentView('day');
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <circle cx="5" cy="12" r="1.8" />
+                      <circle cx="12" cy="12" r="1.8" />
+                      <circle cx="19" cy="12" r="1.8" />
+                    </svg>
+                    <span>+{eventsForDay.length - 3} more</span>
+                  </button>
+                ) : null}
               </div>
             </div>
           );
@@ -586,6 +608,70 @@ const CalendarEvent = () => {
 
   // Use a ref to store the pre-update state for potential rollback
   const rollbackEventsRef = useRef<any[]>([]);
+
+  // Auto-scroll to current time indicator (week/day views)
+  const weekBodyRef = useRef<HTMLDivElement | null>(null);
+  const dayBodyRef = useRef<HTMLDivElement | null>(null);
+  const weekNowRef = useRef<HTMLDivElement | null>(null);
+  const dayNowRef = useRef<HTMLDivElement | null>(null);
+  const pendingDayScrollToFirstEventRef = useRef<string | null>(null);
+
+  const scrollContainerToIndicator = useCallback(
+    (container: HTMLDivElement | null, indicator: HTMLDivElement | null) => {
+      if (!container || !indicator) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const indicatorRect = indicator.getBoundingClientRect();
+      const indicatorTopInContainer = indicatorRect.top - containerRect.top + container.scrollTop;
+      const targetTop = Math.max(0, indicatorTopInContainer - container.clientHeight * 0.35);
+      container.scrollTo({ top: targetTop, behavior: 'smooth' });
+    },
+    []
+  );
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => {
+      if (currentView === 'week') {
+        const isThisWeek = moment().isSame(moment(selectedDate).startOf('week'), 'week');
+        if (isThisWeek) {
+          scrollContainerToIndicator(weekBodyRef.current, weekNowRef.current);
+        }
+        return;
+      }
+
+      if (currentView === 'day') {
+        const dayKey = moment(selectedDate).format('YYYY-MM-DD');
+
+        // If we navigated here from the month "+X more" button, scroll to first event for that day.
+        if (pendingDayScrollToFirstEventRef.current === dayKey) {
+          const dayStart = moment(selectedDate).startOf('day');
+          const eventsForDay = normalizedEvents
+            .filter((ev) => moment(ev.start).isSame(dayStart, 'day'))
+            .sort((a, b) => a.start.getTime() - b.start.getTime());
+
+          if (eventsForDay.length > 0 && dayBodyRef.current) {
+            const first = eventsForDay[0];
+            const firstMin = Math.max(0, moment(first.start).diff(dayStart, 'minutes'));
+            const pxPerMin = 70 / 60; // matches ROW_HEIGHT in day view (70px per hour)
+            const topPx = firstMin * pxPerMin;
+            const targetTop = Math.max(0, topPx - dayBodyRef.current.clientHeight * 0.2);
+            dayBodyRef.current.scrollTo({ top: targetTop, behavior: 'smooth' });
+          }
+
+          pendingDayScrollToFirstEventRef.current = null;
+          return;
+        }
+
+        // Otherwise, if today, scroll to "now" indicator.
+        const isToday = moment(selectedDate).isSame(moment(), 'day');
+        if (isToday) {
+          scrollContainerToIndicator(dayBodyRef.current, dayNowRef.current);
+        }
+      }
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [currentView, selectedDate, scrollContainerToIndicator, normalizedEvents]);
 
   const updateEventDates = useCallback(async (
     calEvent: NormalizedCalendarEvent,
@@ -1101,7 +1187,7 @@ const CalendarEvent = () => {
                       })}
                     </div>
 
-                    <div className="week-view-body">
+                    <div className="week-view-body" ref={weekBodyRef}>
                       <div className="week-time-slots">
                         {hours.map((h) => (
                           <div className="time-slot-row" key={h}>
@@ -1122,7 +1208,7 @@ const CalendarEvent = () => {
                           </div>
                         ))}
 
-                        <div className="week-events-container">
+                        <div className="week-events-container" key={`week-events-${normalizedEvents.reduce((acc, e) => acc + e.start.getTime(), 0)}`}>
                           {days.map((d, dayIdx) => {
                             const dayEvents = getWeekEventsForDay(d);
                             const positioned = layoutDayEvents(d, dayEvents);
@@ -1132,6 +1218,7 @@ const CalendarEvent = () => {
                                   <div
                                     className="current-time-indicator"
                                     style={{ top: `${nowMin}px` }}
+                                    ref={weekNowRef}
                                     aria-hidden
                                   />
                                 ) : null}
@@ -1208,7 +1295,7 @@ const CalendarEvent = () => {
                       </div>
                     </div>
 
-                    <div className="day-view-body">
+                    <div className="day-view-body" ref={dayBodyRef}>
                       <div className="day-time-slots">
                         {hours.map((h) => {
                           const slotKey = `day-${day.format('YYYY-MM-DD')}-${h}`;
@@ -1226,11 +1313,12 @@ const CalendarEvent = () => {
                           );
                         })}
 
-                        <div className="day-events-container">
+                        <div className="day-events-container" key={`day-events-${normalizedEvents.reduce((acc, e) => acc + e.start.getTime(), 0)}`}>
                           {isToday ? (
                             <div
                               className="current-time-indicator"
                               style={{ top: `${nowMin * pxPerMin}px` }}
+                              ref={dayNowRef}
                               aria-hidden
                             />
                           ) : null}
@@ -1241,8 +1329,6 @@ const CalendarEvent = () => {
                             const high = isHighPriority(ev.priority);
                             const height = Math.max(26, (endMin - startMin) * pxPerMin);
                             const top = startMin * pxPerMin;
-                            const startStr = moment(ev.start).format('h:mm A');
-                            const endStr = moment(ev.end).format('h:mm A');
 
                             return (
                               <div
@@ -1262,7 +1348,6 @@ const CalendarEvent = () => {
                                 onClick={() => handleEventClick(ev.raw)}
                               >
                                 {high ? <span className="priority-indicator high" title="High priority" /> : null}
-                                <div className="day-event-time">{startStr} - {endStr}</div>
                                 <div className="day-event-title">{ev.title}</div>
                               </div>
                             );
