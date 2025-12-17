@@ -64,14 +64,18 @@ export const getEventListDataAPI =
  * @returns API will return Data
  */
 export const addEditEventDataAPI =
-  (objBody: any = undefined) =>
+  (objBody: any = undefined, options?: { silent?: boolean }) =>
     async (dispatch: AppDispatch) => {
-      dispatch(setLoading(true));
+      if (!options?.silent) {
+        dispatch(setLoading(true));
+      }
 
       try {
         const response: any = await post(ADD_EDIT_EVENT_DATA_API, objBody);
         if (!response.data.error) {
-          ts(response.data.message)
+          if (!options?.silent) {
+            ts(response.data.message);
+          }
           return dispatch(addEditEventDataSuccess(response.data.data));
         } else {
           dispatch(addEditEventDataFailure());
@@ -79,7 +83,9 @@ export const addEditEventDataAPI =
       } catch (err) {
         dispatch(addEditEventDataFailure());
       } finally {
-        dispatch(setLoading(false));
+        if (!options?.silent) {
+          dispatch(setLoading(false));
+        }
       }
     };
 

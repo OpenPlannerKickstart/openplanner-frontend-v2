@@ -1270,14 +1270,14 @@ const SyllabusDetails = (props) => {
       )}
 
       {isGroupsEnabled() && (
-        <SyllabusGroupSuggestModal
-          open={showSuggestModal}
-          loading={loadingSuggestions || resolvingCanonical}
-          candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
-          canonicalPreview={canonical}
-          onJoin={handleJoinClick}
-          onClose={closeSuggest}
-        />
+      <SyllabusGroupSuggestModal
+        open={showSuggestModal}
+        loading={loadingSuggestions || resolvingCanonical}
+        candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+        canonicalPreview={canonical}
+        onJoin={handleJoinClick}
+        onClose={closeSuggest}
+      />
       )}
 
     </>

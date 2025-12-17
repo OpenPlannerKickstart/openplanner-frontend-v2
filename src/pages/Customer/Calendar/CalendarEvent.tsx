@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -7,6 +7,7 @@ import {
 } from '../../../redux/Service/User/Calender/calender';
 import {
   deleteEventDataAPI,
+  addEditEventDataAPI,
 } from '../../../redux/Service/User/Courses/courses';
 import {
   formatedDate,
@@ -25,6 +26,18 @@ import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 import { isUpdatedSyllabus } from '../../../redux/User/Courses/coursesSlice';
 import moment from 'moment';
+
+// Type for normalized calendar events
+type NormalizedCalendarEvent = {
+  id?: string | number;
+  title: string;
+  start: Date;
+  end: Date;
+  status?: string;
+  priority?: string;
+  courseColor?: string;
+  raw: any;
+};
 
 const CalendarEvent = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -55,6 +68,10 @@ const CalendarEvent = () => {
   const [editEventFormData, setEditEventFormData] = useState<any>(null);
   const [deleteShow, setDeleteShow] = useState(false);
   const [deleteEventData, setDeleteEventData] = useState<any>(null);
+
+  // Drag and drop state
+  const [draggedEvent, setDraggedEvent] = useState<NormalizedCalendarEvent | null>(null);
+  const [dragOverTarget, setDragOverTarget] = useState<string | null>(null);
 
   const handleGetDropDownData = async () => {
     setLoadingDropdown(true);
@@ -213,17 +230,6 @@ const CalendarEvent = () => {
       return Number.isNaN(fallback.getTime()) ? null : fallback;
     }
     return null;
-  };
-
-  type NormalizedCalendarEvent = {
-    id?: string | number;
-    title: string;
-    start: Date;
-    end: Date;
-    status?: string;
-    priority?: string;
-    courseColor?: string;
-    raw: any;
   };
 
   const normalizedEvents: NormalizedCalendarEvent[] = useMemo(() => {
@@ -479,12 +485,14 @@ const CalendarEvent = () => {
           const isOtherMonth = !day.isSame(currentDate, 'month');
           const isToday = day.isSame(moment(), 'day');
           const isSelected = day.isSame(selectedDate, 'day');
+          const dayKey = day.format('YYYY-MM-DD');
+          const isDragOver = dragOverTarget === `month-${dayKey}`;
 
           return (
             <div
               className={`calendar-cell ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${
                 isSelected ? 'selected' : ''
-              }`}
+              } ${isDragOver ? 'drag-over' : ''}`}
               key={dayIndex}
               onClick={() => {
                 setSelectedDate(day.clone());
@@ -492,10 +500,13 @@ const CalendarEvent = () => {
                   handleCreateEventForDay(day);
                 }
               }}
+              onDragOver={(e) => handleDragOver(e, `month-${dayKey}`)}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
             >
               <span className="cell-date">{day.date()}</span>
               <div className="cell-events">
-                {eventsForDay.slice(0, 3).map((event: any, eventIndex: number) => {
+                {eventsForDay.slice(0, 3).map((event: NormalizedCalendarEvent, eventIndex: number) => {
                   const colorClass = getColorClassName(event.courseColor || '#239BC2');
                   return (
                     <div
@@ -503,6 +514,9 @@ const CalendarEvent = () => {
                       className={`event-chip ${colorClass}`}
                       role="button"
                       tabIndex={0}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, event)}
+                      onDragEnd={handleDragEnd}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleEventClick(event.raw);
@@ -526,6 +540,208 @@ const CalendarEvent = () => {
   };
 
   const isHighPriority = (priority?: string) => String(priority).toLowerCase() === 'high';
+
+  // ========================================
+  // Drag and Drop Handlers
+  // ========================================
+
+  const handleDragStart = useCallback((event: React.DragEvent, calEvent: NormalizedCalendarEvent) => {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', JSON.stringify({
+      id: calEvent.id,
+      start: calEvent.start.toISOString(),
+      end: calEvent.end.toISOString(),
+    }));
+    setDraggedEvent(calEvent);
+    // Add dragging class after a small delay to prevent flicker
+    setTimeout(() => {
+      const target = event.target as HTMLElement;
+      target.classList.add('dragging');
+    }, 0);
+  }, []);
+
+  const handleDragEnd = useCallback((event: React.DragEvent) => {
+    const target = event.target as HTMLElement;
+    target.classList.remove('dragging');
+    setDraggedEvent(null);
+    setDragOverTarget(null);
+  }, []);
+
+  const handleDragOver = useCallback((event: React.DragEvent, targetId: string) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    if (dragOverTarget !== targetId) {
+      setDragOverTarget(targetId);
+    }
+  }, [dragOverTarget]);
+
+  const handleDragLeave = useCallback((event: React.DragEvent) => {
+    // Only clear if we're actually leaving (not entering a child)
+    const relatedTarget = event.relatedTarget as HTMLElement;
+    const currentTarget = event.currentTarget as HTMLElement;
+    if (!currentTarget.contains(relatedTarget)) {
+      setDragOverTarget(null);
+    }
+  }, []);
+
+  // Use a ref to store the pre-update state for potential rollback
+  const rollbackEventsRef = useRef<any[]>([]);
+
+  const updateEventDates = useCallback(async (
+    calEvent: NormalizedCalendarEvent,
+    newStart: Date,
+    newEnd: Date
+  ) => {
+    const rawEvent = calEvent.raw?.event_data || calEvent.raw;
+    if (!rawEvent?.id) return;
+
+    const eventId = rawEvent.id;
+    const newStartStr = moment(newStart).format('YYYY-MM-DD HH:mm:ss');
+    const newEndStr = moment(newEnd).format('YYYY-MM-DD HH:mm:ss');
+
+    // ========================================
+    // OPTIMISTIC UPDATE - Update UI immediately
+    // Use functional update to ensure we have the latest state
+    // ========================================
+    setCalendarEvents(prevEvents => {
+      // Store for potential rollback
+      rollbackEventsRef.current = prevEvents;
+      
+      return prevEvents.map((ev: any) => {
+        const eventData = ev?.event_data ?? ev;
+        const evId = eventData?.id ?? ev?.id;
+        
+        if (evId === eventId) {
+          // Create a deep copy with updated dates at all levels
+          const updatedEventData = {
+            ...(ev?.event_data || {}),
+            ...eventData,
+            start_date: newStartStr,
+            end_date: newEndStr,
+            startDate: newStartStr,
+            endDate: newEndStr,
+          };
+          
+          return {
+            ...ev,
+            start: newStartStr,
+            end: newEndStr,
+            event_data: updatedEventData,
+          };
+        }
+        return ev;
+      });
+    });
+
+    // ========================================
+    // BACKGROUND API CALL - Persist to server
+    // ========================================
+    try {
+      const reqBody: any = {
+        event_id: eventId,
+        syllabus_id: rawEvent.syllabus_id,
+        title: rawEvent.title || calEvent.title,
+        note: rawEvent.note || '',
+        start_date: newStartStr,
+        end_date: newEndStr,
+        is_reminder: rawEvent.is_reminder || false,
+        reminder: rawEvent.reminder || [],
+        priority: rawEvent.priority || 'Low',
+        is_all_day_event: rawEvent.is_all_day_event || false,
+      };
+
+      customJsonInclude(reqBody);
+
+      // Call API silently (no toast, no loading spinner)
+      const response = await dispatch(addEditEventDataAPI(reqBody, { silent: true }));
+      
+      if (!response?.payload) {
+        // API failed - revert to original state
+        console.error('Failed to update event, reverting...');
+        setCalendarEvents(rollbackEventsRef.current);
+      }
+    } catch (err) {
+      console.error('Failed to update event dates:', err);
+      // Revert on error
+      setCalendarEvents(rollbackEventsRef.current);
+    }
+  }, [dispatch]);
+
+  // Universal drop handler that uses dragOverTarget to determine the correct drop location
+  const handleDrop = useCallback(async (event: React.DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    // Capture current state immediately and clear drag state
+    const eventToDrop = draggedEvent;
+    const targetToDrop = dragOverTarget;
+    
+    // Clear state immediately to prevent stale state issues on rapid drags
+    setDragOverTarget(null);
+    setDraggedEvent(null);
+
+    if (!eventToDrop || !targetToDrop) {
+      return;
+    }
+
+    // Get the CURRENT start/end from the raw event data (not the normalized cache)
+    // This ensures we use the latest dates if the event was just moved
+    const rawEvent = eventToDrop.raw?.event_data || eventToDrop.raw;
+    const currentStartStr = rawEvent?.start_date || rawEvent?.startDate;
+    const currentEndStr = rawEvent?.end_date || rawEvent?.endDate;
+    
+    const originalStart = currentStartStr ? moment(currentStartStr) : moment(eventToDrop.start);
+    const originalEnd = currentEndStr ? moment(currentEndStr) : moment(eventToDrop.end);
+    const duration = Math.max(30, originalEnd.diff(originalStart, 'minutes')); // Minimum 30 min
+
+    let newStart: moment.Moment;
+
+    // Parse the dragOverTarget to determine where to drop
+    // Format: "month-YYYY-MM-DD" or "week-YYYY-MM-DD-H" or "day-YYYY-MM-DD-H"
+    if (targetToDrop.startsWith('month-')) {
+      // Month view: drop on a day, keep original time
+      const dateStr = targetToDrop.replace('month-', '');
+      newStart = moment(dateStr, 'YYYY-MM-DD')
+        .hour(originalStart.hour())
+        .minute(originalStart.minute())
+        .second(0)
+        .millisecond(0);
+    } else if (targetToDrop.startsWith('week-')) {
+      // Week view: drop on a specific day and hour
+      const parts = targetToDrop.replace('week-', '').split('-');
+      // parts = [YYYY, MM, DD, H]
+      const dateStr = `${parts[0]}-${parts[1]}-${parts[2]}`;
+      const hour = parseInt(parts[3], 10);
+      newStart = moment(dateStr, 'YYYY-MM-DD')
+        .hour(hour)
+        .minute(0)
+        .second(0)
+        .millisecond(0);
+    } else if (targetToDrop.startsWith('day-')) {
+      // Day view: drop on a specific hour
+      const parts = targetToDrop.replace('day-', '').split('-');
+      // parts = [YYYY, MM, DD, H]
+      const dateStr = `${parts[0]}-${parts[1]}-${parts[2]}`;
+      const hour = parseInt(parts[3], 10);
+      newStart = moment(dateStr, 'YYYY-MM-DD')
+        .hour(hour)
+        .minute(0)
+        .second(0)
+        .millisecond(0);
+    } else {
+      // Unknown format, abort
+      return;
+    }
+
+    const newEnd = newStart.clone().add(duration, 'minutes');
+
+    // Skip if dropped at same location (within same minute)
+    if (originalStart.isSame(newStart, 'minute')) {
+      return;
+    }
+
+    await updateEventDates(eventToDrop, newStart.toDate(), newEnd.toDate());
+  }, [draggedEvent, dragOverTarget, updateEventDates]);
 
   const getWeekDays = () => {
     const start = moment(selectedDate).startOf('week');
@@ -816,7 +1032,11 @@ const CalendarEvent = () => {
           </div>
 
           {currentView === 'month' && (
-            <div className="calendar-grid">
+            <div 
+              className="calendar-grid"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+            >
               {!loadingDropdown &&
                 !loadingEvents &&
                 hasLoadedEventsOnce &&
@@ -846,7 +1066,11 @@ const CalendarEvent = () => {
           )}
 
           {currentView === 'week' && (
-            <div className="week-view">
+            <div 
+              className="week-view"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+            >
               {(() => {
                 const days = getWeekDays();
                 const isThisWeek = moment().isSame(moment(selectedDate).startOf('week'), 'week');
@@ -882,9 +1106,19 @@ const CalendarEvent = () => {
                         {hours.map((h) => (
                           <div className="time-slot-row" key={h}>
                             <div className="time-label">{moment().hour(h).minute(0).format('h A')}</div>
-                            {days.map((d) => (
-                              <div className="time-slot" key={`${d.format('YYYY-MM-DD')}-${h}`} />
-                            ))}
+                            {days.map((d) => {
+                              const slotKey = `week-${d.format('YYYY-MM-DD')}-${h}`;
+                              const isDragOver = dragOverTarget === slotKey;
+                              return (
+                                <div
+                                  className={`time-slot ${isDragOver ? 'drag-over' : ''}`}
+                                  key={slotKey}
+                                  onDragOver={(e) => handleDragOver(e, slotKey)}
+                                  onDragLeave={handleDragLeave}
+                                  onDrop={handleDrop}
+                                />
+                              );
+                            })}
                           </div>
                         ))}
 
@@ -922,6 +1156,9 @@ const CalendarEvent = () => {
                                       }}
                                       role="button"
                                       tabIndex={0}
+                                      draggable
+                                      onDragStart={(e) => handleDragStart(e, ev)}
+                                      onDragEnd={handleDragEnd}
                                       onClick={() => handleEventClick(ev.raw)}
                                     >
                                       {high ? <span className="priority-indicator high" title="High priority" /> : null}
@@ -943,7 +1180,11 @@ const CalendarEvent = () => {
           )}
 
           {currentView === 'day' && (
-            <div className="day-view">
+            <div 
+              className="day-view"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+            >
               {(() => {
                 const day = moment(selectedDate);
                 const isToday = day.isSame(moment(), 'day');
@@ -969,12 +1210,21 @@ const CalendarEvent = () => {
 
                     <div className="day-view-body">
                       <div className="day-time-slots">
-                        {hours.map((h) => (
-                          <div className="day-time-row" key={h}>
-                            <div className="day-time-label">{moment().hour(h).minute(0).format('h A')}</div>
-                            <div className="day-time-content" />
-                          </div>
-                        ))}
+                        {hours.map((h) => {
+                          const slotKey = `day-${day.format('YYYY-MM-DD')}-${h}`;
+                          const isDragOver = dragOverTarget === slotKey;
+                          return (
+                            <div className="day-time-row" key={h}>
+                              <div className="day-time-label">{moment().hour(h).minute(0).format('h A')}</div>
+                              <div
+                                className={`day-time-content ${isDragOver ? 'drag-over' : ''}`}
+                                onDragOver={(e) => handleDragOver(e, slotKey)}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                              />
+                            </div>
+                          );
+                        })}
 
                         <div className="day-events-container">
                           {isToday ? (
@@ -1006,6 +1256,9 @@ const CalendarEvent = () => {
                                 }}
                                 role="button"
                                 tabIndex={0}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, ev)}
+                                onDragEnd={handleDragEnd}
                                 onClick={() => handleEventClick(ev.raw)}
                               >
                                 {high ? <span className="priority-indicator high" title="High priority" /> : null}

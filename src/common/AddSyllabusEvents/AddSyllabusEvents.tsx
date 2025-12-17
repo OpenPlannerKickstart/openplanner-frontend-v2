@@ -1279,22 +1279,22 @@ const AddSyllabusEvents = (props) => {
       )}
 
       {isGroupsEnabled() && (
-        <SyllabusGroupSuggestModal
-          open={showSuggestModal}
-          loading={loadingSuggestions || resolvingCanonical}
-          candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
-          canonicalPreview={canonical}
-          onJoin={async () => {
-            const sid = hookSyllabusId;
-            const result = await createAndJoin(sid);
-            if (result && result.id) {
-              setShowSuggestModal(false);
-              resetSuggest();
-              navigate(`/groups/${result.id}`);
-            }
-          }}
-          onClose={() => { setShowSuggestModal(false); resetSuggest(); }}
-        />
+      <SyllabusGroupSuggestModal
+        open={showSuggestModal}
+        loading={loadingSuggestions || resolvingCanonical}
+        candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+        canonicalPreview={canonical}
+        onJoin={async () => {
+          const sid = hookSyllabusId;
+          const result = await createAndJoin(sid);
+          if (result && result.id) {
+            setShowSuggestModal(false);
+            resetSuggest();
+            navigate(`/groups/${result.id}`);
+          }
+        }}
+        onClose={() => { setShowSuggestModal(false); resetSuggest(); }}
+      />
       )}
 
     </>

@@ -92,26 +92,26 @@ const privateRoutes: RouterProps[] = [
   },
   // Groups routes (conditionally included via feature flag)
   ...(isGroupsEnabled() ? [
-    {
-      path: ENUMFORROUTES.GROUPS,
-      component: <Groups />,
-      caseSensitive: true,
-      url: ENUMFORROUTES.GROUPS,
-    },
-    // Deep-link to a specific group chat: /groups/:groupId
-    {
-      path: "/groups/:groupId",
-      component: <Groups />,
-      caseSensitive: true,
-      url: "/groups/:groupId",
-    },
+  {
+    path: ENUMFORROUTES.GROUPS,
+    component: <Groups />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.GROUPS,
+  },
+  // Deep-link to a specific group chat: /groups/:groupId
+  {
+    path: "/groups/:groupId",
+    component: <Groups />,
+    caseSensitive: true,
+    url: "/groups/:groupId",
+  },
     // Student profile page (part of groups feature)
-    {
-      path: ENUMFORROUTES.STUDENT_PROFILE,
-      component: <StudentProfile />,
-      caseSensitive: true,
-      url: ENUMFORROUTES.STUDENT_PROFILE,
-    },
+  {
+    path: ENUMFORROUTES.STUDENT_PROFILE,
+    component: <StudentProfile />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.STUDENT_PROFILE,
+  },
   ] : []),
   {
     path: ENUMFORROUTES.EDIT_COURSE,
