@@ -16,6 +16,9 @@ import Select, { components, ControlProps } from "react-select";
 import { eventPriorityDropDownData, reminderUnitDropDownData } from '../../Utility/staticDropDown';
 import moment from 'moment';
 import 'add-to-calendar-button';
+import appleLogo from '../../assets/images/apple-logo.svg';
+import googleCalendarIcon from '../../assets/images/google-calendar-icon.svg';
+import outlookLogo from '../../assets/images/outlook-logo.svg';
 import { isUpdatedEvent } from '../../redux/User/Courses/coursesSlice';
 import { ENUMFORSTATUS, ENUM_FOR_EVENT_PRIORITY } from '../../interfaces/enum';
 
@@ -69,6 +72,97 @@ export const AddEditEvent = (props) => {
     
     // Get courses list from Redux for color lookup
     const coursesListData = useSelector((state: RootState) => (state.CoursesReducer as any)?.getCoursesListData);
+
+    const safeToDate = (value: any): Date => {
+        if (!value) return new Date();
+        const d = value instanceof Date ? value : new Date(value);
+        return Number.isFinite(d.getTime()) ? d : new Date();
+    };
+
+    const formatUtcForGoogle = (d: Date) => moment(d).utc().format('YYYYMMDDTHHmmss[Z]');
+
+    const buildGoogleCalendarUrl = (args: {
+        title: string;
+        start: Date;
+        end: Date;
+        description?: string;
+    }) => {
+        const text = encodeURIComponent(args.title || 'Event');
+        const dates = `${formatUtcForGoogle(args.start)}/${formatUtcForGoogle(args.end)}`;
+        const details = encodeURIComponent(args.description || '');
+        return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${dates}&details=${details}`;
+    };
+
+    const buildOutlookCalendarUrl = (args: {
+        title: string;
+        start: Date;
+        end: Date;
+        description?: string;
+    }) => {
+        const subject = encodeURIComponent(args.title || 'Event');
+        const startdt = encodeURIComponent(args.start.toISOString());
+        const enddt = encodeURIComponent(args.end.toISOString());
+        const body = encodeURIComponent(args.description || '');
+        return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${subject}&startdt=${startdt}&enddt=${enddt}&body=${body}`;
+    };
+
+    const sanitizeFilename = (name: string) =>
+        (name || 'event')
+            .replace(/[\/\\?%*:|"<>]/g, '-')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .slice(0, 80);
+
+    const buildIcsContent = (args: {
+        uid: string;
+        title: string;
+        start: Date;
+        end: Date;
+        description?: string;
+    }) => {
+        const dtstamp = moment().utc().format('YYYYMMDDTHHmmss[Z]');
+        const dtstart = formatUtcForGoogle(args.start);
+        const dtend = formatUtcForGoogle(args.end);
+        const escapeIcs = (s: string) =>
+            (s || '')
+                .replace(/\\/g, '\\\\')
+                .replace(/\n/g, '\\n')
+                .replace(/,/g, '\\,')
+                .replace(/;/g, '\\;');
+
+        return [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//OpenPlanner//EN',
+            'CALSCALE:GREGORIAN',
+            'METHOD:PUBLISH',
+            'BEGIN:VEVENT',
+            `UID:${escapeIcs(args.uid)}`,
+            `DTSTAMP:${dtstamp}`,
+            `DTSTART:${dtstart}`,
+            `DTEND:${dtend}`,
+            `SUMMARY:${escapeIcs(args.title || 'Event')}`,
+            args.description ? `DESCRIPTION:${escapeIcs(args.description)}` : '',
+            'END:VEVENT',
+            'END:VCALENDAR',
+        ]
+            .filter(Boolean)
+            .join('\r\n');
+    };
+
+    const downloadIcs = (args: { title: string; uid: string; start: Date; end: Date; description?: string }) => {
+        if (typeof window === 'undefined') return;
+        const ics = buildIcsContent(args);
+        const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${sanitizeFilename(args.title)}.ics`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+    };
 
     const handleCloseAddSyllabusEvents = () => {
         setShowAddSyllabusEvents(false);
@@ -902,20 +996,51 @@ export const AddEditEvent = (props) => {
                         <div className="form-group">
                             <label className="form-label">Add to Calendar</label>
                             <div className="calendar-buttons calendar-options">
-                                <add-to-calendar-button
-                                    name={eventFormData?.values?.title}
-                                    startDate={!isNullUndefinedOrBlank(eventFormData?.values?.start_date) ? formatedDate(eventFormData?.values?.start_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
-                                    endDate={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'yyyy-MM-DD') : formatedDate(new Date(), 'DD-MM-yyyy')}
-                                    startTime={!isNullUndefinedOrBlank(eventFormData?.values?.start_date) ? formatedDate(eventFormData?.values?.start_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
-                                    endTime={!isNullUndefinedOrBlank(eventFormData?.values?.end_date) ? formatedDate(eventFormData?.values?.end_date, 'HH:mm') : formatedDate(new Date(), 'HH:mm')}
-                                    timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone}
-                                    description={!isNullUndefinedOrBlank(eventFormData?.values?.note) ? eventFormData?.values?.note : ""}
-                                    options="'Apple','Google','Outlook.com'"
-                                    buttonsList
-                                    hideTextLabelButton
-                                    buttonStyle="round"
-                                    lightMode="bodyScheme"
-                                ></add-to-calendar-button>
+                                {(() => {
+                                    const title = String(eventFormData?.values?.title || 'Event');
+                                    const description = String(eventFormData?.values?.note || '');
+                                    const start = safeToDate(eventFormData?.values?.start_date);
+                                    const end = safeToDate(eventFormData?.values?.end_date);
+                                    const uid = `op-${String(eventFormData?.values?.id || '') || 'event'}@openplanner`;
+                                    const googleHref = buildGoogleCalendarUrl({ title, start, end, description });
+                                    const outlookHref = buildOutlookCalendarUrl({ title, start, end, description });
+
+                                    return (
+                                        <>
+                                            <button
+                                                type="button"
+                                                className="calendar-option-btn"
+                                                onClick={() => downloadIcs({ title, uid, start, end, description })}
+                                                aria-label="Download .ics for Apple Calendar"
+                                                title="Apple Calendar"
+                                            >
+                                                <img src={appleLogo} alt="" className="calendar-icon calendar-icon--apple" />
+                                            </button>
+
+                                            <a
+                                                className="calendar-option-btn"
+                                                href={googleHref}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                aria-label="Add to Google Calendar"
+                                                title="Google Calendar"
+                                            >
+                                                <img src={googleCalendarIcon} alt="" />
+                                            </a>
+
+                                            <a
+                                                className="calendar-option-btn"
+                                                href={outlookHref}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                aria-label="Add to Outlook Calendar"
+                                                title="Outlook"
+                                            >
+                                                <img src={outlookLogo} alt="" className="calendar-icon calendar-icon--outlook" />
+                                            </a>
+                                        </>
+                                    );
+                                })()}
                             </div>
                         </div>
                     )}

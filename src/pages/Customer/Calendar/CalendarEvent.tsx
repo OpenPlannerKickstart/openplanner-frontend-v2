@@ -589,7 +589,7 @@ const CalendarEvent = () => {
             </div>
           ) : null}
 
-          {week.map((day, dayIndex) => {
+        {week.map((day, dayIndex) => {
               const eventsForDay = getMonthSingleDayEventsForDay(day);
           const isOtherMonth = !day.isSame(currentDate, 'month');
           const isToday = day.isSame(moment(), 'day');
@@ -659,8 +659,8 @@ const CalendarEvent = () => {
               </div>
             </div>
           );
-          })}
-        </div>
+        })}
+      </div>
       );
     });
   };
@@ -1249,7 +1249,7 @@ const CalendarEvent = () => {
           </div>
 
           <div className="calendar-view-scroll" ref={calendarViewScrollRef}>
-            {currentView === 'month' && (
+          {currentView === 'month' && (
               <div 
                 className="calendar-grid"
                 onDragOver={(e) => e.preventDefault()}
@@ -1269,21 +1269,21 @@ const CalendarEvent = () => {
                       </div>
                     </div>
                   )}
-                <div className="calendar-header-row">
-                  <div className="calendar-day-header">Sun</div>
-                  <div className="calendar-day-header">Mon</div>
-                  <div className="calendar-day-header">Tue</div>
-                  <div className="calendar-day-header">Wed</div>
-                  <div className="calendar-day-header">Thu</div>
-                  <div className="calendar-day-header">Fri</div>
-                  <div className="calendar-day-header">Sat</div>
-                </div>
-
-                <div className="calendar-body">{renderCalendarWeeks()}</div>
+              <div className="calendar-header-row">
+                <div className="calendar-day-header">Sun</div>
+                <div className="calendar-day-header">Mon</div>
+                <div className="calendar-day-header">Tue</div>
+                <div className="calendar-day-header">Wed</div>
+                <div className="calendar-day-header">Thu</div>
+                <div className="calendar-day-header">Fri</div>
+                <div className="calendar-day-header">Sat</div>
               </div>
-            )}
 
-            {currentView === 'week' && (
+              <div className="calendar-body">{renderCalendarWeeks()}</div>
+            </div>
+          )}
+
+          {currentView === 'week' && (
               <div 
                 className="week-view"
                 onDragOver={(e) => e.preventDefault()}
@@ -1396,10 +1396,10 @@ const CalendarEvent = () => {
                     </>
                   );
                 })()}
-              </div>
-            )}
+            </div>
+          )}
 
-            {currentView === 'day' && (
+          {currentView === 'day' && (
               <div 
                 className="day-view"
                 onDragOver={(e) => e.preventDefault()}
@@ -1497,8 +1497,8 @@ const CalendarEvent = () => {
                     </>
                   );
                 })()}
-              </div>
-            )}
+            </div>
+          )}
           </div>
         </div>
       </div>

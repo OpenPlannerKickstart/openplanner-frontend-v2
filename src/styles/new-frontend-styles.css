@@ -2455,6 +2455,19 @@ input, textarea, select {
     height: 24px;
 }
 
+.calendar-option-btn img {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+/* Apple + Outlook glyphs are visually heavier; scale down to match Google icon */
+.calendar-option-btn img.calendar-icon--apple,
+.calendar-option-btn img.calendar-icon--outlook {
+    width: 20px;
+    height: 20px;
+}
+
 /* Modal Footer */
 .modal-footer {
     padding: 0.75rem 1.5rem;
