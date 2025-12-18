@@ -369,3 +369,187 @@
         min-height: 500px;
     }
 }
+
+/* ============================================
+   Dark Mode Modal Overrides
+   ============================================ */
+
+[data-theme="dark"] .modal-theme {
+    .modal-content {
+        background-color: #0F172A;
+        border: 1px solid #1E293B;
+    }
+
+    .modal-header {
+        background: linear-gradient(to right, rgba(35, 155, 194, 0.15), #0F172A);
+        border-bottom-color: #1E293B;
+    }
+
+    .modal-title,
+    .modal-header h4,
+    .modal-header .modal-title {
+        color: #F8FAFC !important;
+        
+        span {
+            color: #5EBEE8 !important;
+        }
+    }
+
+    .btn-close {
+        color: #94A3B8;
+        
+        &:hover {
+            background-color: #1E293B;
+            color: #F8FAFC;
+        }
+    }
+
+    .modal-body {
+        background-color: #0F172A;
+        color: #E2E8F0;
+    }
+
+    .modal-footer {
+        background-color: #0F172A;
+        border-top-color: #1E293B;
+    }
+
+    /* Form inputs in dark mode modals */
+    .form-input,
+    .form-textarea,
+    .form-select,
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea,
+    select {
+        background-color: #1E293B !important;
+        border-color: #334155 !important;
+        color: #E2E8F0 !important;
+        
+        &::placeholder {
+            color: #64748B !important;
+        }
+        
+        &:focus {
+            background-color: #1E293B !important;
+            border-color: #5EBEE8 !important;
+            box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15);
+        }
+    }
+
+    .form-label {
+        color: #94A3B8;
+    }
+
+    /* File upload area */
+    .file-upload-area {
+        background-color: #1E293B !important;
+        border-color: #5EBEE8 !important;
+    }
+
+    .upload-text {
+        color: #94A3B8;
+    }
+
+    /* Footer buttons area */
+    .add-event-footer,
+    .modal-footer-button {
+        background-color: #0F172A !important;
+        border-top-color: #1E293B !important;
+        
+        .btn-outline,
+        .btn-secondary {
+            background-color: #1E293B !important;
+            border-color: #334155 !important;
+            color: #E2E8F0 !important;
+            
+            &:hover {
+                background-color: #334155 !important;
+            }
+        }
+    }
+
+    /* Reminder toggle */
+    .reminder-toggle-group {
+        background-color: #1E293B !important;
+    }
+
+    .reminder-label {
+        color: #E2E8F0 !important;
+    }
+
+    /* React Select dropdowns */
+    .react-select-container {
+        .react-select__control {
+            background-color: #1E293B !important;
+            border-color: #334155 !important;
+            
+            &:hover {
+                border-color: #475569 !important;
+            }
+            
+            &--is-focused {
+                border-color: #5EBEE8 !important;
+                box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15) !important;
+            }
+        }
+        
+        .react-select__single-value {
+            color: #E2E8F0 !important;
+        }
+        
+        .react-select__placeholder {
+            color: #64748B !important;
+        }
+        
+        .react-select__input-container {
+            color: #E2E8F0 !important;
+        }
+        
+        .react-select__indicator {
+            color: #64748B !important;
+        }
+        
+        .react-select__menu {
+            background-color: #1E293B !important;
+            border-color: #334155 !important;
+        }
+        
+        .react-select__option {
+            background-color: #1E293B !important;
+            color: #E2E8F0 !important;
+            
+            &--is-focused {
+                background-color: #334155 !important;
+            }
+            
+            &--is-selected {
+                background-color: #5EBEE8 !important;
+                color: #0F172A !important;
+            }
+        }
+    }
+
+    &.modal-confirmation {
+        .modal-confirmation-content {
+            color: #E2E8F0;
+            
+            h5 {
+                color: #F8FAFC;
+            }
+            
+            p {
+                color: #94A3B8;
+            }
+        }
+    }
+}
+
+[data-theme="dark"] .modal-backdrop {
+    background-color: #0B1120;
+}
+
+[data-theme="dark"] .modal-backdrop.show {
+    opacity: 0.85;
+}

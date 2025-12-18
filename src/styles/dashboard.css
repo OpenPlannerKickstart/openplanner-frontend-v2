@@ -439,6 +439,188 @@
   border-top-color: var(--neutral-200);
 }
 
+/* Bootstrap Modal Dark Mode */
+[data-theme="dark"] .modal-content {
+  background: var(--white);
+  border: 1px solid var(--neutral-200);
+}
+
+[data-theme="dark"] .modal-body {
+  background: var(--white);
+  color: var(--neutral-800);
+}
+
+[data-theme="dark"] .modal-backdrop {
+  background-color: #0B1120;
+}
+
+[data-theme="dark"] .modal-backdrop.show {
+  opacity: 0.85;
+}
+
+/* Add Event Modal Dark Mode */
+[data-theme="dark"] .add-event-modal .modal-content {
+  background: #0F172A;
+  border: 1px solid #1E293B;
+}
+
+[data-theme="dark"] .add-event-modal .modal-body {
+  background: #0F172A;
+}
+
+[data-theme="dark"] .add-event-modal .modal-header {
+  background: linear-gradient(to right, rgba(35, 155, 194, 0.15), #0F172A);
+  border-bottom-color: #1E293B;
+}
+
+[data-theme="dark"] .add-event-modal .form-label {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .add-event-modal .form-input,
+[data-theme="dark"] .add-event-modal .form-textarea,
+[data-theme="dark"] .add-event-modal input[type="text"],
+[data-theme="dark"] .add-event-modal textarea {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .add-event-modal .form-input:focus,
+[data-theme="dark"] .add-event-modal .form-textarea:focus,
+[data-theme="dark"] .add-event-modal input:focus,
+[data-theme="dark"] .add-event-modal textarea:focus {
+  background: #1E293B !important;
+  border-color: #5EBEE8 !important;
+}
+
+[data-theme="dark"] .add-event-modal .form-input::placeholder,
+[data-theme="dark"] .add-event-modal .form-textarea::placeholder,
+[data-theme="dark"] .add-event-modal input::placeholder,
+[data-theme="dark"] .add-event-modal textarea::placeholder {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .add-event-modal .add-event-footer {
+  background: #0F172A !important;
+  border-top-color: #1E293B !important;
+}
+
+/* Add Event Modal Wrapper Dark Mode (applies to both Add New Event and Event Details modals) */
+[data-theme="dark"] .add-event-modal-wrapper .modal-content {
+  background: #0F172A !important;
+  border: 1px solid #1E293B;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .modal-body {
+  background: #0F172A !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .modal-header {
+  background: linear-gradient(to right, rgba(35, 155, 194, 0.15), #0F172A) !important;
+  border-bottom-color: #1E293B !important;
+}
+
+/* For themed modals with course color, adjust the gradient */
+[data-theme="dark"] .add-event-modal-wrapper.themed .modal-header {
+  background: linear-gradient(to right, var(--event-color-light, rgba(35, 155, 194, 0.15)), #0F172A) !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .modal-title {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .form-label {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .form-input,
+[data-theme="dark"] .add-event-modal-wrapper .form-textarea,
+[data-theme="dark"] .add-event-modal-wrapper input[type="text"],
+[data-theme="dark"] .add-event-modal-wrapper textarea {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .form-input:focus,
+[data-theme="dark"] .add-event-modal-wrapper .form-textarea:focus {
+  background: #1E293B !important;
+  border-color: #5EBEE8 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .form-input::placeholder,
+[data-theme="dark"] .add-event-modal-wrapper .form-textarea::placeholder,
+[data-theme="dark"] .add-event-modal-wrapper input::placeholder,
+[data-theme="dark"] .add-event-modal-wrapper textarea::placeholder {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .form-input[readonly],
+[data-theme="dark"] .add-event-modal-wrapper .form-textarea[readonly],
+[data-theme="dark"] .add-event-modal-wrapper input[readonly],
+[data-theme="dark"] .add-event-modal-wrapper textarea[readonly] {
+  background: #1E293B !important;
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .add-event-footer {
+  background: #0F172A !important;
+  border-top-color: #1E293B !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .add-event-footer .btn-outline,
+[data-theme="dark"] .add-event-modal-wrapper .add-event-footer .btn-secondary {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .reminder-toggle-group {
+  background: #1E293B !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .reminder-label {
+  color: #E2E8F0 !important;
+}
+
+/* Dark Mode React Select in Add Event Modal */
+[data-theme="dark"] .add-event-modal-wrapper .react-select-container .react-select__control {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .react-select-container .react-select__single-value {
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .react-select-container .react-select__placeholder {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .react-select-container .react-select__indicator {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .react-select-container .react-select__menu {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .react-select-container .react-select__option {
+  background: #1E293B !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .react-select-container .react-select__option--is-focused {
+  background: #334155 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .react-select-container .react-select__option--is-selected {
+  background: #5EBEE8 !important;
+  color: #0F172A !important;
+}
+
 /* Dark Mode Form Inputs */
 [data-theme="dark"] .form-input,
 [data-theme="dark"] .form-textarea,

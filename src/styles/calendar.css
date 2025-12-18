@@ -252,6 +252,15 @@
     }
 }
 
+/* Calendar loading overlay */
+.calendar-loading-overlay {
+    background: rgba(255, 255, 255, 0.72);
+}
+
+[data-theme="dark"] .calendar-loading-overlay {
+    background: rgba(15, 23, 42, 0.72);
+}
+
 /* Calendar Controls */
 .calendar-controls {
     display: flex;

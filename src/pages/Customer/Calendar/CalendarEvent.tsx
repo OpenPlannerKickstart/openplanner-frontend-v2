@@ -56,7 +56,7 @@ const CalendarEvent = () => {
   const [miniCalendarDate, setMiniCalendarDate] = useState(moment());
   const [selectedDate, setSelectedDate] = useState(moment());
   const [currentView, setCurrentView] = useState<'month' | 'week' | 'day'>('month');
-  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+  const [allEvents, setAllEvents] = useState<any[]>([]); // All events from all classes
   const [selectedClasses, setSelectedClasses] = useState<number[]>([]);
   const [syllabusDropDownData, setSyllabusDropDownData] = useState<any>([]);
   const [loadingDropdown, setLoadingDropdown] = useState<boolean>(true);
@@ -97,9 +97,9 @@ const CalendarEvent = () => {
     customJsonInclude(reqBody);
     const response = await dispatch(getCalenderDataAPI(reqBody));
     if (response && !isNullUndefinedOrBlank(response?.payload)) {
-      setCalendarEvents(response?.payload || []);
+      setAllEvents(response?.payload || []);
     } else {
-      setCalendarEvents([]);
+      setAllEvents([]);
       }
     } finally {
       setLoadingEvents(false);
@@ -234,7 +234,7 @@ const CalendarEvent = () => {
   };
 
   const normalizedEvents: NormalizedCalendarEvent[] = useMemo(() => {
-    return (calendarEvents || [])
+    return (allEvents || [])
       .map((ev: any) => {
         const raw = ev;
         const eventData = ev?.event_data ?? ev;
@@ -269,7 +269,7 @@ const CalendarEvent = () => {
         } as NormalizedCalendarEvent;
       })
       .filter(Boolean) as NormalizedCalendarEvent[];
-  }, [calendarEvents]);
+  }, [allEvents]);
 
   /** Map hex colors to CSS class names - synced with colorPalette in AddEditSyllabus */
   const getColorClassName = (hexColor: string): string => {
@@ -823,7 +823,7 @@ const CalendarEvent = () => {
     // OPTIMISTIC UPDATE - Update UI immediately
     // Use functional update to ensure we have the latest state
     // ========================================
-    setCalendarEvents(prevEvents => {
+    setAllEvents(prevEvents => {
       // Store for potential rollback
       rollbackEventsRef.current = prevEvents;
       
@@ -878,12 +878,12 @@ const CalendarEvent = () => {
       if (!response?.payload) {
         // API failed - revert to original state
         console.error('Failed to update event, reverting...');
-        setCalendarEvents(rollbackEventsRef.current);
+        setAllEvents(rollbackEventsRef.current);
       }
     } catch (err) {
       console.error('Failed to update event dates:', err);
       // Revert on error
-      setCalendarEvents(rollbackEventsRef.current);
+      setAllEvents(rollbackEventsRef.current);
     }
   }, [dispatch]);
 
@@ -991,24 +991,87 @@ const CalendarEvent = () => {
       })
       .sort((a, b) => (a.startMin - b.startMin) || (a.endMin - b.endMin));
 
-    // simple greedy column assignment
-    const colEnds: number[] = [];
-    const assigned = items.map((it) => {
-      let col = colEnds.findIndex((end) => it.startMin >= end);
-      if (col === -1) {
-        col = colEnds.length;
-        colEnds.push(it.endMin);
+    if (items.length === 0) return [];
+
+    // Find overlapping groups - events that form connected clusters
+    const overlaps = (a: typeof items[0], b: typeof items[0]) => 
+      a.startMin < b.endMin && b.startMin < a.endMin;
+
+    // For each event, find all events it overlaps with
+    const overlapGroups: number[][] = [];
+    const eventToGroup: Map<number, number> = new Map();
+
+    items.forEach((item, idx) => {
+      // Find all existing groups this item overlaps with
+      const overlappingGroupIndices = new Set<number>();
+      items.forEach((other, otherIdx) => {
+        if (idx !== otherIdx && overlaps(item, other) && eventToGroup.has(otherIdx)) {
+          overlappingGroupIndices.add(eventToGroup.get(otherIdx)!);
+        }
+      });
+
+      if (overlappingGroupIndices.size === 0) {
+        // Create new group
+        const groupIdx = overlapGroups.length;
+        overlapGroups.push([idx]);
+        eventToGroup.set(idx, groupIdx);
       } else {
-        colEnds[col] = it.endMin;
+        // Merge all overlapping groups into one
+        const groupIndices = Array.from(overlappingGroupIndices).sort((a, b) => a - b);
+        const targetGroup = groupIndices[0];
+        overlapGroups[targetGroup].push(idx);
+        eventToGroup.set(idx, targetGroup);
+
+        // Merge other groups into the first one
+        for (let i = groupIndices.length - 1; i > 0; i--) {
+          const srcGroup = groupIndices[i];
+          overlapGroups[srcGroup].forEach(evIdx => {
+            overlapGroups[targetGroup].push(evIdx);
+            eventToGroup.set(evIdx, targetGroup);
+          });
+          overlapGroups[srcGroup] = []; // Mark as merged
+        }
       }
-      return { ...it, col };
     });
 
-    const totalCols = Math.max(1, colEnds.length);
-    return assigned.map((it) => {
-      const widthPct = 100 / totalCols;
+    // For each group, do greedy column assignment
+    const result: Array<{ ev: NormalizedCalendarEvent; startMin: number; endMin: number; col: number; totalCols: number; originalIdx: number }> = [];
+    
+    overlapGroups.forEach(group => {
+      if (group.length === 0) return;
+      
+      const groupItems = group.map(idx => ({ ...items[idx], originalIdx: idx }))
+        .sort((a, b) => (a.startMin - b.startMin) || (a.endMin - b.endMin));
+      
+      const colEnds: number[] = [];
+      const groupResults: typeof result = [];
+      
+      groupItems.forEach(it => {
+        let col = colEnds.findIndex(end => it.startMin >= end);
+        if (col === -1) {
+          col = colEnds.length;
+          colEnds.push(it.endMin);
+        } else {
+          colEnds[col] = it.endMin;
+        }
+        groupResults.push({ ...it, col, totalCols: 0 });
+      });
+      
+      const totalCols = Math.max(1, colEnds.length);
+      // Set totalCols for all items in this group
+      groupResults.forEach(r => {
+        r.totalCols = totalCols;
+        result.push(r);
+      });
+    });
+
+    return result.map(it => {
+      const widthPct = 100 / it.totalCols;
       return {
-        ...it,
+        ev: it.ev,
+        startMin: it.startMin,
+        endMin: it.endMin,
+        col: it.col,
         leftPct: it.col * widthPct,
         widthPct,
       };
@@ -1203,7 +1266,7 @@ const CalendarEvent = () => {
 
         <div className="calendar-main">
           {(loadingDropdown || loadingEvents) && (
-            <div className="loader-container inline-loader" style={{ background: 'rgba(255, 255, 255, 0.72)' }}>
+            <div className="loader-container inline-loader calendar-loading-overlay">
               <div className="calendar-round-spinner" aria-label="Loading" />
             </div>
           )}
@@ -1259,7 +1322,7 @@ const CalendarEvent = () => {
                   !loadingEvents &&
                   hasLoadedEventsOnce &&
                   selectedClasses.length > 0 &&
-                  calendarEvents.length === 0 && (
+                  allEvents.length === 0 && (
                     <div className="calendar-empty-overlay">
                       <div className="calendar-empty-card">
                         <div className="calendar-empty-title">No events found</div>

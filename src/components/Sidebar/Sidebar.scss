@@ -282,6 +282,31 @@
   background: linear-gradient(180deg, #1E3A5F 0%, #152A45 100%);
 }
 
+[data-theme="dark"] .sidebar-link {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .sidebar-link svg {
+  stroke: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .sidebar-link:hover {
+  color: #0F172A;
+}
+
+[data-theme="dark"] .sidebar-link:hover svg {
+  stroke: #0F172A;
+}
+
 [data-theme="dark"] .sidebar-link.active {
   background: var(--primary);
+  color: #0F172A;
+}
+
+[data-theme="dark"] .sidebar-link.active svg {
+  stroke: #0F172A;
+}
+
+[data-theme="dark"] .sidebar-footer p {
+  color: rgba(255, 255, 255, 0.5);
 }

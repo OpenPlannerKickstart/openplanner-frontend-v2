@@ -1,13 +1,28 @@
-import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { getUserAPI } from '../../../redux/Service/User/Settings/settings'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { getUserAPI, updateUserAPI } from '../../../redux/Service/User/Settings/settings'
+import { getUniversityListAPI } from '../../../redux/Service/auth/signup'
 import { AppDispatch } from '../../../redux/store'
 import { isNullUndefinedOrBlank } from '../../../Utility/Helper'
+import { useNavigate } from 'react-router-dom'
+import { ENUMFORROUTES } from '../../../interfaces/enum'
+import { logoutFromSystem } from '../../../redux/Service/auth/login'
+import type { RootState } from '../../../redux/store'
+import { useSidebar } from '../../../layouts/DashboardLayout'
+import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext'
+import { te } from '../../../Utility/Toaster'
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal'
+import { useTheme } from '../../../context/ThemeContext'
 import './SettingsVariables.css'
 import './SettingsStatic.css'
 
 const Settings: React.FC = () => {
   const dispatch: AppDispatch = useDispatch()
+  const navigate = useNavigate()
+  const { toggleSidebar } = useSidebar()
+  const { open: openNotifications, unreadCount } = useNotificationPanel()
+  const settingsData: any = useSelector((state: RootState) => state.SettingsReducer)
+  const { theme, setTheme } = useTheme()
   
   // Tab management - using same structure as HTML
   const [selectedTab, setSelectedTab] = useState<string>('profile')
@@ -15,7 +30,36 @@ const Settings: React.FC = () => {
   // User data management
   const [userData, setUserData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [showDeleteAvatarModal, setShowDeleteAvatarModal] = useState<boolean>(false)
+  const avatarFileInputRef = useRef<HTMLInputElement>(null)
+
+  // Profile form state
+  const [profileForm, setProfileForm] = useState({
+    firstname: '',
+    lastname: '',
+    university_name: ''
+  })
+  const [originalProfileForm, setOriginalProfileForm] = useState({
+    firstname: '',
+    lastname: '',
+    university_name: ''
+  })
+  const [isSavingProfile, setIsSavingProfile] = useState(false)
+  const [universityList, setUniversityList] = useState<Array<{value: string, label: string}>>([])
+
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
   
+  const getAvatarSrc = useMemo(() => {
+    return (u: any) =>
+      u?.profile_image ||
+      u?.profileImage ||
+      u?.picture ||
+      u?.avatarUrl ||
+      u?.avatar ||
+      null;
+  }, []);
+
   const getUserData = async () => {
     try {
       setIsLoading(true);
@@ -40,22 +84,359 @@ const Settings: React.FC = () => {
 
   useEffect(() => {
     getUserData();
+    // Fetch university list
+    const fetchUniversities = async () => {
+      const response: any = await dispatch(getUniversityListAPI());
+      if (response?.payload) {
+        // Sort alphabetically by label, then add "Other/Highschool" at the end
+        const sorted = [...response.payload].sort((a: any, b: any) => 
+          a.label.localeCompare(b.label)
+        );
+        const universities = [...sorted, { value: 'Other', label: 'Other/Highschool' }];
+        setUniversityList(universities);
+      }
+    };
+    fetchUniversities();
   }, []);
+
+  // Keep header/user menu in sync with any settings updates
+  useEffect(() => {
+    if (!isNullUndefinedOrBlank(settingsData?.userData)) {
+      setUserData(settingsData.userData)
+    }
+  }, [settingsData?.userData])
+
+  // Sync profile form with userData when it loads
+  useEffect(() => {
+    if (userData) {
+      const formValues = {
+        firstname: userData.firstname || '',
+        lastname: userData.lastname || '',
+        university_name: userData.university_name || ''
+      }
+      setProfileForm(formValues)
+      setOriginalProfileForm(formValues)
+    }
+  }, [userData])
+
+  // Check if profile form has unsaved changes
+  const hasProfileChanges = useMemo(() => {
+    return (
+      profileForm.firstname !== originalProfileForm.firstname ||
+      profileForm.lastname !== originalProfileForm.lastname ||
+      profileForm.university_name !== originalProfileForm.university_name
+    )
+  }, [profileForm, originalProfileForm])
+
+  const handleProfileInputChange = (field: string, value: string) => {
+    setProfileForm(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!hasProfileChanges || isSavingProfile) return
+
+    try {
+      setIsSavingProfile(true)
+      const formData = new FormData()
+      formData.append('firstname', profileForm.firstname)
+      formData.append('lastname', profileForm.lastname)
+      formData.append('university_name', profileForm.university_name)
+      if (!isNullUndefinedOrBlank(userData?.email)) formData.append('email', String(userData.email))
+      if (!isNullUndefinedOrBlank(userData?.mobile)) formData.append('mobile', String(userData.mobile))
+
+      const res: any = await dispatch(updateUserAPI(formData))
+      const updated = res?.payload
+      if (!isNullUndefinedOrBlank(updated)) {
+        setUserData(updated)
+        // Update original to match current (no more unsaved changes)
+        setOriginalProfileForm({
+          firstname: updated.firstname || '',
+          lastname: updated.lastname || '',
+          university_name: updated.university_name || ''
+        })
+      }
+    } catch (err) {
+      // Optionally show error toast
+    } finally {
+      setIsSavingProfile(false)
+    }
+  }
+
+  const handleUserMenuToggle = () => setIsUserMenuOpen((prev) => !prev)
+
+  const handleLogout = async () => {
+    await dispatch(logoutFromSystem())
+    navigate(ENUMFORROUTES.LOGIN)
+  }
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isUserMenuOpen])
+
+  const handleChangeAvatarClick = () => {
+    avatarFileInputRef.current?.click()
+  }
+
+  const handleAvatarFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
+    // allow selecting the same file twice
+    e.target.value = ''
+    if (!file) return
+
+    const isValidType = ['image/png', 'image/jpeg', 'image/jpg'].includes(file.type)
+    const maxBytes = 1024 * 1024 // 1MB
+    if (!isValidType) {
+      te('Please upload a PNG or JPG image.')
+      return
+    }
+    if (file.size > maxBytes) {
+      te('Image must be 1MB or smaller.')
+      return
+    }
+
+    const prevUser = userData
+    const prevSrc = getAvatarSrc(prevUser)
+    const previewUrl = URL.createObjectURL(file)
+
+    // optimistic preview
+    setUserData((prev: any) => ({
+      ...(prev || {}),
+      profile_image: previewUrl,
+    }))
+
+    try {
+      const formData = new FormData()
+      // Try common field names the backend might expect
+      formData.append('image', file)
+      // updateProfile can validate other fields as required; send current values too
+      if (!isNullUndefinedOrBlank(userData?.firstname)) formData.append('firstname', String(userData.firstname))
+      if (!isNullUndefinedOrBlank(userData?.lastname)) formData.append('lastname', String(userData.lastname))
+      if (!isNullUndefinedOrBlank(userData?.mobile)) formData.append('mobile', String(userData.mobile))
+      if (!isNullUndefinedOrBlank(userData?.university_name)) formData.append('university_name', String(userData.university_name))
+      // email is usually immutable, but including it is harmless if BE expects it
+      if (!isNullUndefinedOrBlank(userData?.email)) formData.append('email', String(userData.email))
+
+      const res: any = await dispatch(updateUserAPI(formData))
+      const updated = res?.payload
+      if (!isNullUndefinedOrBlank(updated)) {
+        setUserData(updated)
+        return
+      }
+
+      // rollback if BE didn't return data
+      setUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
+    } catch (err) {
+      // rollback on error
+      setUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
+    } finally {
+      URL.revokeObjectURL(previewUrl)
+    }
+  }
+
+  const handleDeleteAvatarClick = () => {
+    setShowDeleteAvatarModal(true)
+  }
+
+  const handleDeleteAvatarConfirm = async () => {
+    const prevSrc = getAvatarSrc(userData)
+
+    // Close modal immediately and optimistically remove photo
+    setShowDeleteAvatarModal(false)
+    setUserData((prev: any) => ({ ...(prev || {}), profile_image: null }))
+
+    try {
+      const formData = new FormData()
+      formData.append('remove_profile_image', 'true')
+      // Include other profile fields to avoid validation errors
+      if (!isNullUndefinedOrBlank(userData?.firstname)) formData.append('firstname', String(userData.firstname))
+      if (!isNullUndefinedOrBlank(userData?.lastname)) formData.append('lastname', String(userData.lastname))
+      if (!isNullUndefinedOrBlank(userData?.mobile)) formData.append('mobile', String(userData.mobile))
+      if (!isNullUndefinedOrBlank(userData?.university_name)) formData.append('university_name', String(userData.university_name))
+      if (!isNullUndefinedOrBlank(userData?.email)) formData.append('email', String(userData.email))
+
+      const res: any = await dispatch(updateUserAPI(formData))
+      const updated = res?.payload
+      if (!isNullUndefinedOrBlank(updated)) {
+        setUserData(updated)
+        return
+      }
+
+      // Rollback if BE didn't return data
+      setUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
+    } catch (err) {
+      // Rollback on error
+      setUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
+    }
+  }
 
   if (isLoading) {
     return (
-      <main className="dashboard-main">
+      <>
+        <header className="dashboard-header">
+          <div className="dashboard-header-inner">
+            <div className="dashboard-header-left">
+              <button className="mobile-menu-toggle" onClick={() => toggleSidebar()}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+              </button>
+              <h1 className="dashboard-page-title">Settings</h1>
+            </div>
+
+            <div className="dashboard-header-right">
+              <button className="notification-btn" type="button" onClick={openNotifications} aria-label="Notifications" title="Notifications">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+                {unreadCount > 0 && <span className="notification-badge"></span>}
+              </button>
+
+              <div className="user-menu-container" ref={userMenuRef}>
+                <div className="user-menu" onClick={handleUserMenuToggle}>
+                  <div className="user-avatar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                  <span className="user-name">User</span>
+                  <svg className="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </div>
+                <div className={`user-dropdown ${isUserMenuOpen ? 'active' : ''}`}>
+                  <button
+                    type="button"
+                    className="user-dropdown-item"
+                    onClick={() => { setSelectedTab('profile'); setIsUserMenuOpen(false); }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    Profile
+                  </button>
+                  <div className="user-dropdown-divider"></div>
+                  <button className="user-dropdown-item logout" onClick={handleLogout}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
         <div className="settings-page">
           <div style={{ textAlign: 'center', padding: '50px' }}>
             <div>Loading...</div>
           </div>
         </div>
-      </main>
+      </>
     );
   }
 
   return (
-    <main className="dashboard-main">
+    <>
+      <header className="dashboard-header">
+        <div className="dashboard-header-inner">
+          <div className="dashboard-header-left">
+            <button className="mobile-menu-toggle" onClick={() => toggleSidebar()}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+            <h1 className="dashboard-page-title">Settings</h1>
+          </div>
+
+          <div className="dashboard-header-right">
+            <button className="notification-btn" type="button" onClick={openNotifications} aria-label="Notifications" title="Notifications">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              {unreadCount > 0 && <span className="notification-badge"></span>}
+            </button>
+
+            <div className="user-menu-container" ref={userMenuRef}>
+              <div className="user-menu" onClick={handleUserMenuToggle}>
+                <div className="user-avatar">
+                  {(() => {
+                    const src =
+                      (userData as any)?.profile_image ||
+                      (userData as any)?.profileImage ||
+                      (userData as any)?.picture ||
+                      (userData as any)?.avatarUrl;
+                    return src ? (
+                      <img
+                        src={src}
+                        alt="Profile"
+                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                      />
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    );
+                  })()}
+                </div>
+                <span className="user-name">
+                  {userData?.username || userData?.email?.split('@')[0] || 'User'}
+                </span>
+                <svg className="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+              <div className={`user-dropdown ${isUserMenuOpen ? 'active' : ''}`}>
+                <button
+                  type="button"
+                  className="user-dropdown-item"
+                  onClick={() => { setSelectedTab('profile'); setIsUserMenuOpen(false); }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  Profile
+                </button>
+                <div className="user-dropdown-divider"></div>
+                <button className="user-dropdown-item logout" onClick={handleLogout}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
       <div className="settings-page">
         {/* Settings Tabs - Exact match to HTML */}
         <div className="settings-tabs">
@@ -108,10 +489,21 @@ const Settings: React.FC = () => {
                 {/* Profile Avatar - Exact match */}
                 <div className="profile-avatar-section">
                   <div className="profile-avatar">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                    </svg>
+                    {(() => {
+                      const src = getAvatarSrc(userData)
+                      return src ? (
+                        <img
+                          src={src}
+                          alt="Profile"
+                          style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                        />
+                      ) : (
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                          <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                      )
+                    })()}
                   </div>
                   <div className="profile-avatar-info">
                     <span className="profile-username">
@@ -120,7 +512,7 @@ const Settings: React.FC = () => {
                         : userData?.email?.split('@')[0] || 'acmoore5'}
                     </span>
                     <div className="profile-avatar-actions">
-                      <button className="avatar-btn">
+                      <button className="avatar-btn" type="button" onClick={handleChangeAvatarClick}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                           <polyline points="17 8 12 3 7 8"/>
@@ -128,13 +520,27 @@ const Settings: React.FC = () => {
                         </svg>
                         Change
                       </button>
-                      <button className="avatar-btn delete">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <button
+                        className="avatar-btn delete"
+                        type="button"
+                        onClick={handleDeleteAvatarClick}
+                        disabled={!getAvatarSrc(userData)}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="3 6 5 6 21 6"/>
                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                          <line x1="10" y1="11" x2="10" y2="17"/>
+                          <line x1="14" y1="11" x2="14" y2="17"/>
                         </svg>
                         Delete
                       </button>
+                      <input
+                        ref={avatarFileInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg"
+                        style={{ display: 'none' }}
+                        onChange={handleAvatarFileSelected}
+                      />
                     </div>
                   </div>
                 </div>
@@ -144,7 +550,7 @@ const Settings: React.FC = () => {
                 </p>
                 
                 {/* Profile Form - Exact match */}
-                <form className="profile-form">
+                <form className="profile-form" onSubmit={handleSaveProfile}>
                   <div className="form-row">
                     <div className="form-group">
                       <label className="form-label">First Name <span className="required">*</span></label>
@@ -152,7 +558,8 @@ const Settings: React.FC = () => {
                         type="text" 
                         className="form-input" 
                         placeholder="Enter First Name"
-                        defaultValue={userData?.firstname || ''}
+                        value={profileForm.firstname}
+                        onChange={(e) => handleProfileInputChange('firstname', e.target.value)}
                       />
                     </div>
                     <div className="form-group">
@@ -161,7 +568,8 @@ const Settings: React.FC = () => {
                         type="text" 
                         className="form-input" 
                         placeholder="Enter Last Name"
-                        defaultValue={userData?.lastname || ''}
+                        value={profileForm.lastname}
+                        onChange={(e) => handleProfileInputChange('lastname', e.target.value)}
                       />
                     </div>
                   </div>
@@ -171,7 +579,7 @@ const Settings: React.FC = () => {
                     <input 
                       type="email" 
                       className="form-input disabled" 
-                      value={userData?.email || 'acmoore1250@gmail.com'} 
+                      value={userData?.email || ''} 
                       disabled 
                     />
                   </div>
@@ -179,16 +587,17 @@ const Settings: React.FC = () => {
                   <div className="form-group">
                     <label className="form-label">Select University Name <span className="required">*</span></label>
                     <div className="select-wrapper">
-                      <select className="form-select" defaultValue={userData?.university_name || ''}>
+                      <select 
+                        className="form-select" 
+                        value={profileForm.university_name}
+                        onChange={(e) => handleProfileInputChange('university_name', e.target.value)}
+                      >
                         <option value="">Select</option>
-                        <option value="ut">University of Texas</option>
-                        <option value="smu">SMU</option>
-                        <option value="tcu">TCU</option>
-                        <option value="baylor">Baylor University</option>
-                        <option value="stanford">Stanford University</option>
-                        <option value="alabama">University of Alabama</option>
-                        <option value="clemson">Clemson University</option>
-                        <option value="washington">University of Washington</option>
+                        {universityList.map((uni) => (
+                          <option key={uni.value} value={uni.label}>
+                            {uni.label}
+                          </option>
+                        ))}
                       </select>
                       <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="6 9 12 15 18 9"/>
@@ -197,7 +606,13 @@ const Settings: React.FC = () => {
                   </div>
                   
                   <div className="form-actions">
-                    <button type="submit" className="btn btn-primary">Save Changes</button>
+                    <button 
+                      type="submit" 
+                      className={`btn btn-primary${!hasProfileChanges ? ' btn-disabled' : ''}`}
+                      disabled={!hasProfileChanges || isSavingProfile}
+                    >
+                      {isSavingProfile ? 'Saving...' : 'Save Changes'}
+                    </button>
                   </div>
                 </form>
               </div>
@@ -219,7 +634,13 @@ const Settings: React.FC = () => {
                   <div className="theme-options">
                     {/* Light Mode */}
                     <label className="theme-option">
-                      <input type="radio" name="theme" value="light" defaultChecked />
+                      <input 
+                        type="radio" 
+                        name="theme" 
+                        value="light" 
+                        checked={theme === 'light'}
+                        onChange={() => setTheme('light')}
+                      />
                       <div className="theme-preview light-preview">
                         <div className="preview-sidebar"></div>
                         <div className="preview-content">
@@ -249,7 +670,13 @@ const Settings: React.FC = () => {
                     
                     {/* Dark Mode */}
                     <label className="theme-option">
-                      <input type="radio" name="theme" value="dark" />
+                      <input 
+                        type="radio" 
+                        name="theme" 
+                        value="dark" 
+                        checked={theme === 'dark'}
+                        onChange={() => {}}
+                      />
                       <div className="theme-preview dark-preview">
                         <div className="preview-sidebar"></div>
                         <div className="preview-content">
@@ -271,7 +698,13 @@ const Settings: React.FC = () => {
                     
                     {/* System */}
                     <label className="theme-option">
-                      <input type="radio" name="theme" value="system" />
+                      <input 
+                        type="radio" 
+                        name="theme" 
+                        value="system" 
+                        checked={theme === 'system'}
+                        onChange={() => {}}
+                      />
                       <div className="theme-preview system-preview">
                         <div className="preview-sidebar"></div>
                         <div className="preview-content">
@@ -467,7 +900,17 @@ const Settings: React.FC = () => {
           )}
         </div>
       </div>
-    </main>
+
+      {/* Delete Avatar Confirmation Modal */}
+      <ConfirmDeleteModal
+        show={showDeleteAvatarModal}
+        onClose={() => setShowDeleteAvatarModal(false)}
+        onConfirm={handleDeleteAvatarConfirm}
+        bodyTitle="Remove Profile Photo?"
+        message="Are you sure you want to remove your profile photo? This action cannot be undone."
+        confirmText="Remove"
+      />
+    </>
   );
 };
 

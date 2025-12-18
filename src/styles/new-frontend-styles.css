@@ -439,36 +439,55 @@
   border-top-color: var(--neutral-200);
 }
 
+/* Bootstrap Modal Dark Mode */
+[data-theme="dark"] .modal-content {
+  background: var(--white);
+  border: 1px solid var(--neutral-200);
+}
+
+[data-theme="dark"] .modal-body {
+  background: var(--white);
+  color: var(--neutral-800);
+}
+
+[data-theme="dark"] .modal-backdrop {
+  background-color: #0B1120;
+}
+
+[data-theme="dark"] .modal-backdrop.show {
+  opacity: 0.85;
+}
+
 /* Dark Mode Form Inputs */
 [data-theme="dark"] .form-input,
 [data-theme="dark"] .form-textarea,
 [data-theme="dark"] .form-select {
-  background: var(--neutral-100);
-  border-color: var(--neutral-200);
-  color: var(--neutral-800);
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .form-input:focus,
 [data-theme="dark"] .form-textarea:focus,
 [data-theme="dark"] .form-select:focus {
-  background: var(--white);
-  border-color: var(--primary);
+  background: #1E293B !important;
+  border-color: #5EBEE8 !important;
   box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15);
 }
 
 [data-theme="dark"] .form-input::placeholder,
 [data-theme="dark"] .form-textarea::placeholder {
-  color: var(--neutral-400);
+  color: #64748B !important;
 }
 
 [data-theme="dark"] .form-input[readonly],
 [data-theme="dark"] .form-input:disabled {
-  background: var(--neutral-100);
-  color: var(--neutral-600);
+  background: #1E293B !important;
+  color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .form-label {
-  color: var(--neutral-600);
+  color: #94A3B8;
 }
 
 /* Dark Mode Select Arrow */
@@ -538,7 +557,88 @@
 /* Dark Mode Reminder Fields */
 [data-theme="dark"] .reminder-toggle-group,
 [data-theme="dark"] .reminder-fields-row {
-  background: var(--neutral-100);
+  background: #1E293B !important;
+}
+
+[data-theme="dark"] .reminder-label {
+  color: #E2E8F0 !important;
+}
+
+/* Dark Mode React Select Dropdowns */
+[data-theme="dark"] .react-select-container .react-select__control {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__control:hover {
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__control--is-focused {
+  border-color: #5EBEE8 !important;
+  box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15) !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__single-value {
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__placeholder {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__input-container {
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__indicator {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__menu {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__option {
+  background: #1E293B !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__option--is-focused {
+  background: #334155 !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__option--is-selected {
+  background: #5EBEE8 !important;
+  color: #0F172A !important;
+}
+
+/* Dark Mode Add Event Footer */
+[data-theme="dark"] .add-event-footer {
+  background: #0F172A !important;
+  border-top-color: #1E293B !important;
+}
+
+[data-theme="dark"] .add-event-footer .btn-outline,
+[data-theme="dark"] .add-event-footer .btn-secondary {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .add-event-footer .btn-outline:hover,
+[data-theme="dark"] .add-event-footer .btn-secondary:hover {
+  background: #334155 !important;
+}
+
+/* Dark Mode Modal Header Text */
+[data-theme="dark"] .modal-title {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .modal-title span {
+  color: #5EBEE8 !important;
 }
 
 /* Dark Mode Notification Panel */

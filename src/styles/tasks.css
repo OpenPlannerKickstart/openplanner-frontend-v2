@@ -1122,43 +1122,61 @@ div.task-item.clickable-event {
 }
 
 /* Add Task Modal Dark Mode */
+[data-theme="dark"] .add-task-modal-wrapper .modal-content {
+    background: #0F172A !important;
+    border: 1px solid #1E293B;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .modal-body {
+    background: #0F172A !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .modal-header {
+    background: linear-gradient(to right, rgba(35, 155, 194, 0.15), #0F172A) !important;
+    border-bottom-color: #1E293B !important;
+}
+
 [data-theme="dark"] .add-task-modal-wrapper .modal-title {
-    color: var(--neutral-800);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .add-task-modal-wrapper .form-label {
-    color: var(--neutral-700);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .add-task-modal-wrapper .form-input,
-[data-theme="dark"] .add-task-modal-wrapper .form-textarea {
-    background: var(--neutral-100);
-    border-color: var(--neutral-200);
-    color: var(--neutral-700);
+[data-theme="dark"] .add-task-modal-wrapper .form-textarea,
+[data-theme="dark"] .add-task-modal-wrapper input[type="text"],
+[data-theme="dark"] .add-task-modal-wrapper textarea {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .add-task-modal-wrapper .form-input:focus,
 [data-theme="dark"] .add-task-modal-wrapper .form-textarea:focus {
-    background: var(--white);
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-subtle);
+    background: #1E293B !important;
+    border-color: #5EBEE8 !important;
+    box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15);
 }
 
 [data-theme="dark"] .add-task-modal-wrapper .form-input::placeholder,
-[data-theme="dark"] .add-task-modal-wrapper .form-textarea::placeholder {
-    color: var(--neutral-400);
+[data-theme="dark"] .add-task-modal-wrapper .form-textarea::placeholder,
+[data-theme="dark"] .add-task-modal-wrapper input::placeholder,
+[data-theme="dark"] .add-task-modal-wrapper textarea::placeholder {
+    color: #64748B !important;
 }
 
 [data-theme="dark"] .add-task-modal-wrapper .reminder-toggle-group {
-    background: var(--neutral-100);
+    background: #1E293B !important;
 }
 
 [data-theme="dark"] .add-task-modal-wrapper .reminder-label {
-    color: var(--neutral-700);
+    color: #94A3B8 !important;
 }
 
 /* Dark mode footer */
 [data-theme="dark"] .add-task-modal-wrapper .add-event-footer {
-    background: var(--neutral-100);
-    border-top-color: var(--neutral-200);
+    background: #0F172A !important;
+    border-top-color: #1E293B !important;
 }
