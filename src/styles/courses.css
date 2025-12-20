@@ -1279,6 +1279,13 @@
 /* Clickable Event Hover States */
 .events-panel .task-row.clickable-event {
     cursor: pointer;
+    outline: none;
+}
+
+.events-panel .task-row.clickable-event:focus,
+.events-panel .task-row.clickable-event:focus-visible {
+    outline: none;
+    box-shadow: none;
 }
 
 /* Hover state with course color accent - based on data-color attribute */
