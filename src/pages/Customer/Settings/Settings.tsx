@@ -13,6 +13,7 @@ import { useNotificationPanel } from '../../../components/Notifications/Notifica
 import { te } from '../../../Utility/Toaster'
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal'
 import { useTheme } from '../../../context/ThemeContext'
+import Select from 'react-select'
 import './SettingsVariables.css'
 import './SettingsStatic.css'
 
@@ -585,24 +586,19 @@ const Settings: React.FC = () => {
                   </div>
                   
                   <div className="form-group">
-                    <label className="form-label">Select University Name <span className="required">*</span></label>
-                    <div className="select-wrapper">
-                      <select 
-                        className="form-select" 
-                        value={profileForm.university_name}
-                        onChange={(e) => handleProfileInputChange('university_name', e.target.value)}
-                      >
-                        <option value="">Select</option>
-                        {universityList.map((uni) => (
-                          <option key={uni.value} value={uni.label}>
-                            {uni.label}
-                          </option>
-                        ))}
-                      </select>
-                      <svg className="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="6 9 12 15 18 9"/>
-                      </svg>
-                    </div>
+                    <label className="form-label">Select School Name <span className="required">*</span></label>
+                    <Select
+                      options={universityList}
+                      placeholder={<div>Select</div>}
+                      onChange={(selectedOption) => {
+                        handleProfileInputChange('university_name', selectedOption?.label || '')
+                      }}
+                      value={universityList.filter(({ label }) => label === profileForm.university_name)}
+                      isClearable
+                      menuPosition="fixed"
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
                   </div>
                   
                   <div className="form-actions">

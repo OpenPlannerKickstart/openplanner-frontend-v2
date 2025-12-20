@@ -1490,6 +1490,17 @@
     .calendar-main {
         min-height: auto;
         overflow: visible;
+        /* Ensure corners stay rounded even with overflow: visible */
+        border-radius: var(--radius-2xl);
+    }
+    
+    /* Round the bottom corners of the last row of calendar cells */
+    .calendar-page .calendar-week:last-child .calendar-cell:first-child {
+        border-bottom-left-radius: var(--radius-2xl);
+    }
+    
+    .calendar-page .calendar-week:last-child .calendar-cell:last-child {
+        border-bottom-right-radius: var(--radius-2xl);
     }
 
     /* Month grid: allow natural height (page scroll) */

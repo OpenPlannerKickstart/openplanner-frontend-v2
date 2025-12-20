@@ -73,6 +73,9 @@ const CalendarEvent = () => {
   const [draggedEvent, setDraggedEvent] = useState<NormalizedCalendarEvent | null>(null);
   const [dragOverTarget, setDragOverTarget] = useState<string | null>(null);
 
+  // Store all syllabus IDs for fetching all events
+  const [allSyllabusIds, setAllSyllabusIds] = useState<number[]>([]);
+
   const handleGetDropDownData = async () => {
     setLoadingDropdown(true);
     try {
@@ -80,9 +83,11 @@ const CalendarEvent = () => {
     if (response && !isNullUndefinedOrBlank(response?.payload)) {
       setSyllabusDropDownData(response?.payload);
       const syllabusIds = response?.payload?.map((item: any) => item.value);
-      setSelectedClasses(syllabusIds);
+      setAllSyllabusIds(syllabusIds); // Store all IDs
+      setSelectedClasses(syllabusIds); // Initially all selected
       } else {
         setSyllabusDropDownData([]);
+        setAllSyllabusIds([]);
         setSelectedClasses([]);
       }
     } finally {
@@ -90,10 +95,14 @@ const CalendarEvent = () => {
     }
   };
 
-  const handleGetCalendarData = async () => {
+  // Fetch events for ALL classes (not just selected ones)
+  const handleGetCalendarData = async (syllabusIds?: number[]) => {
+    const idsToFetch = syllabusIds || allSyllabusIds;
+    if (idsToFetch.length === 0) return;
+    
     setLoadingEvents(true);
     try {
-    const reqBody: any = { syllabus_id: selectedClasses };
+    const reqBody: any = { syllabus_id: idsToFetch };
     customJsonInclude(reqBody);
     const response = await dispatch(getCalenderDataAPI(reqBody));
     if (response && !isNullUndefinedOrBlank(response?.payload)) {
@@ -111,11 +120,12 @@ const CalendarEvent = () => {
     handleGetDropDownData();
   }, []);
 
+  // Fetch all events once when syllabus data is loaded
   useEffect(() => {
-    if (selectedClasses.length > 0) {
-      handleGetCalendarData();
+    if (allSyllabusIds.length > 0 && !hasLoadedEventsOnce) {
+      handleGetCalendarData(allSyllabusIds);
     }
-  }, [selectedClasses]);
+  }, [allSyllabusIds]);
 
   useEffect(() => {
     if (coursesData.isUpdatedEventData) {
@@ -235,6 +245,11 @@ const CalendarEvent = () => {
 
   const normalizedEvents: NormalizedCalendarEvent[] = useMemo(() => {
     return (allEvents || [])
+      // Filter by selected classes (optimistic filtering - no API call needed)
+      .filter((ev: any) => {
+        const syllabusId = ev?.syllabus_id ?? ev?.event_data?.syllabus_id;
+        return syllabusId ? selectedClasses.includes(syllabusId) : true;
+      })
       .map((ev: any) => {
         const raw = ev;
         const eventData = ev?.event_data ?? ev;
@@ -269,7 +284,7 @@ const CalendarEvent = () => {
         } as NormalizedCalendarEvent;
       })
       .filter(Boolean) as NormalizedCalendarEvent[];
-  }, [allEvents]);
+  }, [allEvents, selectedClasses]);
 
   /** Map hex colors to CSS class names - synced with colorPalette in AddEditSyllabus */
   const getColorClassName = (hexColor: string): string => {
