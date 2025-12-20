@@ -1492,6 +1492,27 @@
         overflow: visible;
         /* Ensure corners stay rounded even with overflow: visible */
         border-radius: var(--radius-2xl);
+        /* Ensure full width on mobile - important for loading state and week/day views */
+        width: 100%;
+        flex: 0 0 auto;
+    }
+    
+    /* Ensure week and day views also take full width */
+    .week-view,
+    .day-view,
+    .calendar-grid,
+    .calendar-view-scroll {
+        width: 100%;
+    }
+    
+    /* Ensure loader overlay respects parent width */
+    .calendar-main .loader-container.inline-loader {
+        width: 100%;
+    }
+    
+    /* Ensure calendar controls take full width */
+    .calendar-controls {
+        width: 100%;
     }
     
     /* Round the bottom corners of the last row of calendar cells */
