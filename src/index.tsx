@@ -1,6 +1,11 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
+import './styles/globals.scss';
 import './index.css';
+import './styles/new-frontend-styles.css';
+import './styles/calendar.css';
+import './styles/courses.css';
+import './styles/tasks.css';
 import App from './App';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import reportWebVitals from './reportWebVitals';

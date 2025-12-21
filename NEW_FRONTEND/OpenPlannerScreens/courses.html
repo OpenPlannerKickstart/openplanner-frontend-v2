@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses - Open Planner</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="courses.css?v=6">
+    
+    <!-- Theme initialization (prevent flash) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('openplanner-theme') || 'light';
+            if (theme === 'dark' || (theme === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-logo">
+                    <img src="assets/logo.png" alt="Open Planner">
+                </a>
+                <button class="sidebar-close" id="sidebarClose">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+                <button class="sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link" data-tooltip="My Week">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <span>My Week</span>
+                </a>
+                <a href="calendar.html" class="sidebar-link" data-tooltip="Calendar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
+                    </svg>
+                    <span>Calendar</span>
+                </a>
+                <a href="courses.html" class="sidebar-link active" data-tooltip="Courses">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    <span>Courses</span>
+                </a>
+                <a href="tasks.html" class="sidebar-link" data-tooltip="Task List">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11l3 3L22 4"/>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                    <span>Task List</span>
+                </a>
+                <a href="settings.html" class="sidebar-link" data-tooltip="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>© 2025 Open Planner</p>
+            </div>
+        </aside>
+        
+        <!-- Sidebar Backdrop (Mobile) -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+        
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Top Header -->
+            <header class="dashboard-header">
+                <div class="dashboard-header-inner">
+                    <div class="dashboard-header-left">
+                        <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="3" y1="12" x2="21" y2="12"/>
+                                <line x1="3" y1="6" x2="21" y2="6"/>
+                                <line x1="3" y1="18" x2="21" y2="18"/>
+                            </svg>
+                        </button>
+                        
+                        <h1 class="dashboard-page-title">All Courses</h1>
+                    </div>
+                    
+                    <div class="dashboard-header-right">
+                        <button class="btn btn-accent">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Add Syllabus
+                        </button>
+                        
+                        <button class="notification-btn" id="notificationBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                            </svg>
+                            <span class="notification-badge" id="notificationBadge"></span>
+                        </button>
+                        
+                        <div class="user-menu-container">
+                            <div class="user-menu" id="userMenuBtn">
+                                <div class="user-avatar">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                </div>
+                                <span class="user-name">acmoore5</span>
+                                <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </div>
+                            <div class="user-dropdown" id="userDropdown">
+                                <a href="settings.html" class="user-dropdown-item">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                    Profile
+                                </a>
+                                <div class="user-dropdown-divider"></div>
+                                <button class="user-dropdown-item logout" id="logoutBtn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                        <polyline points="16 17 21 12 16 7"/>
+                                        <line x1="21" y1="12" x2="9" y2="12"/>
+                                    </svg>
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Courses Content -->
+            <div class="courses-page">
+                <!-- Courses Grid -->
+                <div class="courses-grid">
+                    <!-- Analytics Course -->
+                    <div class="course-card" onclick="window.location.href='edit-course.html?course=analytics'" style="cursor: pointer;">
+                        <div class="course-banner yellow">
+                            <div class="course-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                    <line x1="8" y1="7" x2="16" y2="7"/>
+                                    <line x1="8" y1="11" x2="14" y2="11"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="course-content">
+                            <h3 class="course-name">Analytics</h3>
+                            <div class="course-meta">
+                                <div class="meta-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    <span>12:30 PM</span>
+                                </div>
+                                <div class="meta-item color-tag">
+                                    <span class="color-swatch yellow"></span>
+                                    <span>#ffc107</span>
+                                </div>
+                            </div>
+                            <div class="course-footer">
+                                <div class="event-count">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                    </svg>
+                                    <span>Event: <strong>29</strong></span>
+                                </div>
+                                <button class="delete-course-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Marketing Course -->
+                    <div class="course-card" onclick="window.location.href='edit-course.html?course=marketing'" style="cursor: pointer;">
+                        <div class="course-banner teal">
+                            <div class="course-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                    <line x1="8" y1="7" x2="16" y2="7"/>
+                                    <line x1="8" y1="11" x2="14" y2="11"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="course-content">
+                            <h3 class="course-name">Marketing</h3>
+                            <div class="course-meta">
+                                <div class="meta-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    <span>08:30 PM</span>
+                                </div>
+                                <div class="meta-item color-tag">
+                                    <span class="color-swatch teal"></span>
+                                    <span>#009688</span>
+                                </div>
+                            </div>
+                            <div class="course-footer">
+                                <div class="event-count">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                    </svg>
+                                    <span>Event: <strong>52</strong></span>
+                                </div>
+                                <button class="delete-course-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Finance Course -->
+                    <div class="course-card" onclick="window.location.href='edit-course.html?course=finance'" style="cursor: pointer;">
+                        <div class="course-banner green">
+                            <div class="course-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                    <line x1="8" y1="7" x2="16" y2="7"/>
+                                    <line x1="8" y1="11" x2="14" y2="11"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="course-content">
+                            <h3 class="course-name">Finance</h3>
+                            <div class="course-meta">
+                                <div class="meta-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    <span>09:30 PM</span>
+                                </div>
+                                <div class="meta-item color-tag">
+                                    <span class="color-swatch green"></span>
+                                    <span>#4caf50</span>
+                                </div>
+                            </div>
+                            <div class="course-footer">
+                                <div class="event-count">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                    </svg>
+                                    <span>Event: <strong>34</strong></span>
+                                </div>
+                                <button class="delete-course-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- History Course -->
+                    <div class="course-card" onclick="window.location.href='edit-course.html?course=history'" style="cursor: pointer;">
+                        <div class="course-banner lime">
+                            <div class="course-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                    <line x1="8" y1="7" x2="16" y2="7"/>
+                                    <line x1="8" y1="11" x2="14" y2="11"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="course-content">
+                            <h3 class="course-name">History</h3>
+                            <div class="course-meta">
+                                <div class="meta-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    <span>09:30 PM</span>
+                                </div>
+                                <div class="meta-item color-tag">
+                                    <span class="color-swatch lime"></span>
+                                    <span>#cddc39</span>
+                                </div>
+                            </div>
+                            <div class="course-footer">
+                                <div class="event-count">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                    </svg>
+                                    <span>Event: <strong>0</strong></span>
+                                </div>
+                                <button class="delete-course-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Accounting Course -->
+                    <div class="course-card" onclick="window.location.href='edit-course.html?course=accounting'" style="cursor: pointer;">
+                        <div class="course-banner orange">
+                            <div class="course-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                    <line x1="8" y1="7" x2="16" y2="7"/>
+                                    <line x1="8" y1="11" x2="14" y2="11"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="course-content">
+                            <h3 class="course-name">Accounting</h3>
+                            <div class="course-meta">
+                                <div class="meta-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6"/>
+                                        <line x1="8" y1="2" x2="8" y2="6"/>
+                                        <line x1="3" y1="10" x2="21" y2="10"/>
+                                    </svg>
+                                    <span>09:30 PM</span>
+                                </div>
+                                <div class="meta-item color-tag">
+                                    <span class="color-swatch orange"></span>
+                                    <span>#ff9800</span>
+                                </div>
+                            </div>
+                            <div class="course-footer">
+                                <div class="event-count">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                    </svg>
+                                    <span>Event: <strong>29</strong></span>
+                                </div>
+                                <button class="delete-course-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div class="confirm-modal-overlay" id="deleteConfirmModal">
+        <div class="confirm-modal">
+            <div class="confirm-modal-header">
+                <div class="confirm-modal-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        <line x1="10" y1="11" x2="10" y2="17"/>
+                        <line x1="14" y1="11" x2="14" y2="17"/>
+                    </svg>
+                </div>
+                <h3 class="confirm-modal-title" id="deleteModalTitle">Delete Course</h3>
+            </div>
+            <div class="confirm-modal-body">
+                <p class="confirm-modal-message">Are you sure you want to delete this? This action cannot be undone.</p>
+            </div>
+            <div class="confirm-modal-footer">
+                <button class="btn btn-cancel" id="cancelDeleteBtn">Cancel</button>
+                <button class="btn btn-confirm-delete" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification Panel Backdrop -->
+    <div class="notification-panel-backdrop" id="notificationBackdrop"></div>
+    
+    <!-- Notification Panel -->
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-panel-header">
+            <h3 class="notification-panel-title">Notifications</h3>
+            <div class="notification-panel-actions">
+                <button class="clear-all-btn" id="clearAllNotifications">Clear All</button>
+                <button class="close-panel-btn" id="closeNotificationPanel">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="notification-panel-body" id="notificationList">
+            <!-- Notifications will be rendered here -->
+        </div>
+    </div>
+    
+    <script src="main.js"></script>
+    <script>
+        // Add Syllabus Modal Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // ============================================
+            // Update Course Cards with Colors from Storage
+            // ============================================
+            function updateCourseCardColors() {
+                const courseCards = document.querySelectorAll('.course-card');
+                const courseOrder = ['analytics', 'marketing', 'finance', 'history', 'accounting'];
+                
+                courseCards.forEach((card, index) => {
+                    const courseName = courseOrder[index];
+                    if (courseName && globalCourseDetails[courseName]) {
+                        const courseData = globalCourseDetails[courseName];
+                        const colorClass = courseData.colorClass || 'yellow';
+                        const colorHex = courseData.colorHex || '#EAB308';
+                        
+                        // Update banner color class
+                        const banner = card.querySelector('.course-banner');
+                        if (banner) {
+                            // Remove old color classes
+                            banner.className = 'course-banner ' + colorClass;
+                        }
+                        
+                        // Update color swatch
+                        const swatch = card.querySelector('.color-swatch');
+                        if (swatch) {
+                            swatch.className = 'color-swatch ' + colorClass;
+                            swatch.style.backgroundColor = colorHex;
+                        }
+                        
+                        // Update hex display
+                        const hexSpan = card.querySelector('.color-tag span:last-child');
+                        if (hexSpan) {
+                            hexSpan.textContent = colorHex;
+                        }
+                        
+                        // Update course name if title was changed
+                        const nameEl = card.querySelector('.course-name');
+                        if (nameEl && courseData.title) {
+                            // Show short name for card, not full title
+                            const shortNames = {
+                                'analytics': 'Analytics',
+                                'marketing': 'Marketing',
+                                'finance': 'Finance',
+                                'history': 'History',
+                                'accounting': 'Accounting'
+                            };
+                            nameEl.textContent = shortNames[courseName] || courseName;
+                        }
+                    }
+                });
+            }
+            
+            // Update colors on page load
+            updateCourseCardColors();
+            
+            // Listen for course updates from other pages
+            document.addEventListener('courseDetailsUpdated', updateCourseCardColors);
+            
+            // ============================================
+            // Notification Panel Functionality
+            // ============================================
+            
+            const notificationBtn = document.getElementById('notificationBtn');
+            const notificationPanel = document.getElementById('notificationPanel');
+            const notificationBackdrop = document.getElementById('notificationBackdrop');
+            const closeNotificationPanel = document.getElementById('closeNotificationPanel');
+            const clearAllNotifications = document.getElementById('clearAllNotifications');
+            const notificationList = document.getElementById('notificationList');
+            const notificationBadge = document.getElementById('notificationBadge');
+            
+            // Sample notifications data
+            let notifications = [
+                {
+                    id: 1,
+                    type: 'reminder',
+                    title: 'Assignment Due Tomorrow',
+                    message: 'Your Analytics assignment is due tomorrow at 11:59 PM.',
+                    time: '5 min ago',
+                    unread: true
+                },
+                {
+                    id: 2,
+                    type: 'event',
+                    title: 'Class Starting Soon',
+                    message: 'Marketing class starts in 30 minutes.',
+                    time: '25 min ago',
+                    unread: true
+                },
+                {
+                    id: 3,
+                    type: 'course',
+                    title: 'New Course Material',
+                    message: 'Professor Smith uploaded new lecture notes for Finance.',
+                    time: '1 hour ago',
+                    unread: false
+                },
+                {
+                    id: 4,
+                    type: 'alert',
+                    title: 'Schedule Change',
+                    message: 'History class has been rescheduled to 2:00 PM.',
+                    time: '2 hours ago',
+                    unread: false
+                }
+            ];
+            
+            function renderNotifications() {
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = `
+                        <div class="notification-empty">
+                            <div class="notification-empty-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                                </svg>
+                            </div>
+                            <h4>No notifications</h4>
+                            <p>You're all caught up!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                notificationList.innerHTML = notifications.map(notif => `
+                    <div class="notification-item ${notif.unread ? 'unread' : ''}" data-id="${notif.id}">
+                        <div class="notification-icon ${notif.type}">
+                            ${getNotificationIcon(notif.type)}
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notif.title}</div>
+                            <div class="notification-message">${notif.message}</div>
+                            <div class="notification-time">${notif.time}</div>
+                        </div>
+                        <button class="notification-dismiss" onclick="dismissNotification(${notif.id})">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            function getNotificationIcon(type) {
+                const icons = {
+                    event: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+                    reminder: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+                    course: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+                    alert: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+                };
+                return icons[type] || icons.event;
+            }
+            
+            function updateBadge() {
+                const unreadCount = notifications.filter(n => n.unread).length;
+                if (unreadCount > 0) {
+                    notificationBadge.style.display = 'block';
+                } else {
+                    notificationBadge.style.display = 'none';
+                }
+            }
+            
+            window.dismissNotification = function(id) {
+                notifications = notifications.filter(n => n.id !== id);
+                renderNotifications();
+                updateBadge();
+            };
+            
+            function openNotificationPanel() {
+                notificationPanel.classList.add('active');
+                notificationBackdrop.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                // Mark all as read when opening
+                notifications.forEach(n => n.unread = false);
+                renderNotifications();
+                updateBadge();
+            }
+            
+            function closeNotificationPanelFn() {
+                notificationPanel.classList.remove('active');
+                notificationBackdrop.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            notificationBtn.addEventListener('click', openNotificationPanel);
+            closeNotificationPanel.addEventListener('click', closeNotificationPanelFn);
+            notificationBackdrop.addEventListener('click', closeNotificationPanelFn);
+            
+            clearAllNotifications.addEventListener('click', function() {
+                notifications = [];
+                renderNotifications();
+                updateBadge();
+            });
+            
+            // Initialize
+            renderNotifications();
+            updateBadge();
+            
+            // ============================================
+            // User Dropdown Menu
+            // ============================================
+            
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userDropdown = document.getElementById('userDropdown');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            userMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userMenuBtn.classList.toggle('active');
+                userDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userMenuBtn.classList.remove('active');
+                    userDropdown.classList.remove('active');
+                }
+            });
+            
+            // Logout button
+            logoutBtn.addEventListener('click', function() {
+                // Add logout logic here when sign in page is ready
+                alert('Logging out...');
+                // window.location.href = 'signin.html';
+            });
+            
+            // ============================================
+            // Delete Confirmation Modal
+            // ============================================
+            
+            const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const deleteModalTitle = document.getElementById('deleteModalTitle');
+            let currentDeleteTarget = null;
+            
+            window.showDeleteConfirm = function(title, onConfirm) {
+                deleteModalTitle.textContent = title;
+                deleteConfirmModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                
+                // Store the callback for when user confirms
+                confirmDeleteBtn.onclick = function() {
+                    onConfirm();
+                    closeDeleteConfirm();
+                };
+            };
+            
+            function closeDeleteConfirm() {
+                deleteConfirmModal.classList.remove('active');
+                document.body.style.overflow = '';
+                currentDeleteTarget = null;
+            }
+            
+            cancelDeleteBtn.addEventListener('click', closeDeleteConfirm);
+            
+            deleteConfirmModal.addEventListener('click', function(e) {
+                if (e.target === deleteConfirmModal) {
+                    closeDeleteConfirm();
+                }
+            });
+            
+            // Handle course delete buttons
+            document.querySelectorAll('.delete-course-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const courseCard = this.closest('.course-card');
+                    currentDeleteTarget = courseCard;
+                    
+                    showDeleteConfirm('Delete Course', function() {
+                        // Animate and remove the course card
+                        currentDeleteTarget.style.opacity = '0';
+                        currentDeleteTarget.style.transform = 'scale(0.9)';
+                        setTimeout(() => {
+                            currentDeleteTarget.remove();
+                        }, 200);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

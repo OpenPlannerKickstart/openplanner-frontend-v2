@@ -1,0 +1,178 @@
+/* ============================================
+   Badge Component Styles (Course Pills)
+   Ported from NEW_FRONTEND/OpenPlannerScreens/styles.css
+   ============================================ */
+
+.course-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--neutral-200);
+  background: var(--white);
+  color: var(--neutral-700);
+  transition: all var(--transition-base);
+  cursor: pointer;
+  user-select: none;
+}
+
+.course-pill:hover {
+  border-color: var(--neutral-300);
+  background: var(--neutral-50);
+}
+
+.course-pill.active {
+  border-width: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+/* Pill Dot */
+.pill-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Course Color Variants - Active States */
+.course-pill.active.orange {
+  border-color: var(--course-orange);
+  background: rgba(249, 115, 22, 0.1);
+}
+
+.course-pill.active.yellow {
+  border-color: var(--course-yellow);
+  background: rgba(234, 179, 8, 0.1);
+}
+
+.course-pill.active.green {
+  border-color: var(--course-green);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.course-pill.active.teal {
+  border-color: var(--course-teal);
+  background: rgba(20, 184, 166, 0.1);
+}
+
+.course-pill.active.gold {
+  border-color: var(--course-gold);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.course-pill.active.blue {
+  border-color: var(--course-blue);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.course-pill.active.lime {
+  border-color: var(--course-lime);
+  background: rgba(205, 220, 57, 0.1);
+}
+
+.course-pill.active.cyan {
+  border-color: var(--course-cyan);
+  background: rgba(35, 155, 194, 0.1);
+}
+
+.course-pill.active.red {
+  border-color: var(--course-red);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.course-pill.active.purple {
+  border-color: var(--course-purple);
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.course-pill.active.pink {
+  border-color: var(--course-pink);
+  background: rgba(236, 72, 153, 0.1);
+}
+
+.course-pill.active.gray {
+  border-color: var(--course-gray);
+  background: rgba(107, 114, 128, 0.1);
+}
+
+.course-pill.active.stone {
+  border-color: var(--course-stone);
+  background: rgba(120, 113, 108, 0.1);
+}
+
+.course-pill.active.indigo {
+  border-color: var(--course-indigo);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* Course Color Variants - Dot Colors */
+.course-pill.orange .pill-dot {
+  background: var(--course-orange);
+}
+
+.course-pill.yellow .pill-dot {
+  background: var(--course-yellow);
+}
+
+.course-pill.green .pill-dot {
+  background: var(--course-green);
+}
+
+.course-pill.teal .pill-dot {
+  background: var(--course-teal);
+}
+
+.course-pill.gold .pill-dot {
+  background: var(--course-gold);
+}
+
+.course-pill.blue .pill-dot {
+  background: var(--course-blue);
+}
+
+.course-pill.lime .pill-dot {
+  background: var(--course-lime);
+}
+
+.course-pill.cyan .pill-dot {
+  background: var(--course-cyan);
+}
+
+.course-pill.red .pill-dot {
+  background: var(--course-red);
+}
+
+.course-pill.purple .pill-dot {
+  background: var(--course-purple);
+}
+
+.course-pill.pink .pill-dot {
+  background: var(--course-pink);
+}
+
+.course-pill.gray .pill-dot {
+  background: var(--course-gray);
+}
+
+.course-pill.stone .pill-dot {
+  background: var(--course-stone);
+}
+
+.course-pill.indigo .pill-dot {
+  background: var(--course-indigo);
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] .course-pill {
+  background: var(--neutral-100);
+  border-color: var(--neutral-200);
+  color: var(--neutral-700);
+}
+
+[data-theme="dark"] .course-pill:hover {
+  background: var(--neutral-200);
+  border-color: var(--neutral-300);
+}

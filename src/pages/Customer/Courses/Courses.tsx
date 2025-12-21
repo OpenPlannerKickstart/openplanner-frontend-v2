@@ -1,600 +1,469 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from 'react';
+import { AppDispatch, RootState } from '../../../redux/store';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  Button,
-  Card,
-  Col,
-  Form,
-  Modal,
-  Offcanvas,
-  Row,
-  Table,
-} from "react-bootstrap";
-import gridCardImg from "/assets/images/grid-card-img.svg";
-import DatePicker from "react-datepicker";
-import { connect, useDispatch, useSelector } from "react-redux";
-import SyllabusDetails from "./SyllabusDetails";
-import Events from "./Events";
-import AddSyllabusEvents from "../../../common/AddSyllabusEvents/AddSyllabusEvents";
-import { AppDispatch, RootState } from "../../../redux/store";
-import { deleteSyllabusDataAPI, getCoursesListDataAPI, updateSyllabusStatusDataAPI } from "../../../redux/Service/User/Courses/courses";
-import { addSyllabusData, SyllabusResponseType } from "../../../interfaces/interface";
-import { formatedDate, formatedTime, formatTime, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, NO_RECORD_FOUND_MSG } from "../../../Utility/Helper";
-import { ENUM_FOR_DISPLAY_VIEW, ENUMFORROUTES } from "../../../interfaces/enum";
-import SyllabusCanvasDetails from "./SyllabusCanvasDetails";
-import notVoucherFound from "/assets/images/not-voucher-found.svg";
-import { isUpdatedSyllabus } from "../../../redux/User/Courses/coursesSlice";
-import { useNavigate } from "react-router-dom";
+  getCoursesListDataAPI,
+  deleteSyllabusDataAPI,
+} from '../../../redux/Service/User/Courses/courses';
+import {
+  formatedDate,
+  isEmptyObjectOrNullUndefiend,
+  isNullUndefinedOrBlank,
+} from '../../../Utility/Helper';
+import moment from 'moment';
+import { ENUMFORROUTES } from '../../../interfaces/enum';
+import { useNavigate } from 'react-router-dom';
+import { logoutFromSystem } from '../../../redux/Service/auth/login';
+import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
+import { useSidebar } from '../../../layouts/DashboardLayout';
+import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
+import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
+import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
+import { isUpdatedSyllabus } from '../../../redux/User/Courses/coursesSlice';
 
-const Courses = (props) => {
+const Courses = () => {
   const dispatch: AppDispatch = useDispatch();
-  const coursesData: any = useSelector(
-    (state: RootState) => state.CoursesReducer);
-
-
-
-  const [showCourse, setShowCourse] = useState(false);
-  const [showEvent, setShowEvent] = useState(false);
-
-
-  const handleCloseCourse = () => { setShowCourse(false); setSelectedSyllabusObj({} as addSyllabusData); }
-  const handleShowCourse = () => setShowCourse(true);
-
-  const [selectedSyllabusObj, setSelectedSyllabusObj] = useState<addSyllabusData>({} as addSyllabusData);
-
-  // const handleUpdateCourse = (syllabusObj) => {
-  //   handleShowCourse()
-  //   setSelectedSyllabusObj(syllabusObj);
-
-  // }
-
-
-  // Add syllabus event offcanvas
-  const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
-
-  const handleCloseAddSyllabusEvents = () => setShowAddSyllabusEvents(false);
-  const toggleShowAddSyllabusEvents = () => setShowAddSyllabusEvents((s) => !s);
-
-
-
-  /* ------------------------ Handle Display View start ----------------------- */
-  const [selectedView, setSelectedView] = useState<any>(ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW);
-  const handleChangeView = (view) => {
-    if (selectedView !== view) {
-      setSelectedView(view);
-    }
-
-  }
-  /* ------------------------ Handle Display View End ----------------------- */
-  /* ---------------------- handle Get Course List start ---------------------- */
-  const [searchValue, setSeacrhValue] = useState("");
-  const [syllabusList, setSyllabusList] = useState<Array<SyllabusResponseType>>([]);
-  useEffect(() => {
-
-    const delayDebounceFn = setTimeout(() => {
-      handleGetCourseList();
-
-    }, 300);
-    return () => {
-      clearTimeout(delayDebounceFn);
-    }
-  }, [searchValue]);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (coursesData.isUpdatedSyllabusData) {
-        handleGetCourseList();
-        setTimeout(() => {
-          dispatch(isUpdatedSyllabus(false));
-        }, 400);
-      }
-
-    }, 300);
-    return () => {
-      clearTimeout(delayDebounceFn);
-    }
-  }, [coursesData.isUpdatedSyllabusData])
-
-
-  const handleGetCourseList = async () => {
-    const reqBody = {
-      search: searchValue
-    }
-    const response = await dispatch(getCoursesListDataAPI(reqBody));
-    if (response) {
-      setSyllabusList(response?.payload || [])
-    }
-
-  }
-
-  /* ---------------------- handle Get Course List End ---------------------- */
-  /** -------------------Delete Syllabus start-------------------------*/
-  const [deleteShow, setDeleteShow] = useState(false);
-
-  const handleDeleteClose = () => {
-    setDeleteShow(false);
-    setSelectedSyllabusObj({} as addSyllabusData);
-
-  }
-  const handleDeleteShow = (data) => {
-    if (isEmptyObjectOrNullUndefiend(data)) {
-      return;
-    }
-
-    setDeleteShow(true);
-    setSelectedSyllabusObj(data);
-
-  }
-  const handleDeleteSyllabus = async () => {
-    const reqBody = {
-      id: [selectedSyllabusObj?.id],
-    }
-    const response = await dispatch(deleteSyllabusDataAPI(reqBody));
-    if (response) {
-      handleDeleteClose()
-      handleGetCourseList();
-
-    }
-
-
-  }
-
-  /** -------------------Delete Syllabus end-------------------------*/
-  /** -------------------Complete syllabus start-------------------------*/
-  const [completeConfirmationShow, setCompleteConfirmationShow] = useState(false);
-  const handleConfirmationClose = () => {
-    setCompleteSyllabusData([])
-    setCompleteConfirmationShow(false);
-  }
-  const handleConfirmationShow = (id) => { setCompleteConfirmationShow(true); setCompleteSyllabusData([id]) }
-  const [completeSyllabusData, setCompleteSyllabusData] = useState<any>([])
-
-  const [SuccessShow, setSuccessShow] = useState(false);
-  const handleSuccessClose = () => setSuccessShow(false);
-  const handleSuccessShow = () => setSuccessShow(true);
-
-  const handleSyllabusCompleted = async () => {
-    let payload = {
-      syllabus_id: completeSyllabusData
-    }
-    let response = await dispatch(updateSyllabusStatusDataAPI(payload));
-    if (!isNullUndefinedOrBlank(response?.payload)) {
-      handleGetCourseList();
-      handleConfirmationClose();
-      // setTimeout(() => {
-      //   handleSuccessShow();
-      // }, 300);
-    }
-  }
-  /** -------------------Complete syllabus end-------------------------*/
-
-  /** ----------------------refresh list start----------------------*/
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (coursesData.isUpdatedEventData) {
-        handleGetCourseList();
-        setTimeout(() => {
-          dispatch(isUpdatedSyllabus(false));
-        }, 400);
-      }
-
-    }, 300);
-    return () => {
-      clearTimeout(delayDebounceFn);
-    }
-  }, [coursesData.isUpdatedEventData])
-  const [isAddNewData, setIsAddNewData] = useState(false);
   const navigate = useNavigate();
-  const handleUpdateCourse = (syllabusObj) => {
-    navigate(ENUMFORROUTES.EDIT_COURSE, { state: { syllabusObj } });
+  const { toggleSidebar } = useSidebar();
+  const { open: openNotifications, unreadCount } = useNotificationPanel();
+
+  const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
+  const coursesData: any = useSelector((state: RootState) => state.CoursesReducer);
+
+  /** -----------------User menu and notification state---------------------------*/
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  /** -----------------Courses state---------------------------*/
+  const [courses, setCourses] = useState<any>([]);
+  const [showSyllabus, setShowSyllabus] = useState(false);
+
+  /** -------------------Get courses list-------------------------*/
+  const handleGetCoursesList = async () => {
+    try {
+      const reqBody = {};
+      const response = await dispatch(getCoursesListDataAPI(reqBody));
+      if (response && !isNullUndefinedOrBlank(response?.payload)) {
+        setCourses(response.payload);
+      }
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
   };
 
+  useEffect(() => {
+    handleGetCoursesList();
+  }, []);
+
+  useEffect(() => {
+      if (coursesData.isUpdatedSyllabusData) {
+      handleGetCoursesList();
+      // Reset flag so future uploads trigger refresh again
+      setTimeout(() => {
+        try {
+          dispatch(isUpdatedSyllabus(false));
+        } catch {}
+      }, 250);
+    }
+  }, [coursesData.isUpdatedSyllabusData]);
+
+  // Format class_time coming from backend. We store class_time as "HH:mm:ssZ" (time-only with offset).
+  const formatCourseTime = (value: any): string => {
+    if (isNullUndefinedOrBlank(value)) return '-';
+    if (typeof value === 'string' && value.includes('-')) return value; // already a range string
+    try {
+      // Backend stores SQL TIME as "HH:mm:ss" (no timezone). Also accept legacy "HH:mm:ssZ".
+      if (typeof value === 'string' && /^\d{2}:\d{2}:\d{2}/.test(value)) {
+        const m = moment.parseZone(value, ['HH:mm:ss', 'HH:mm:ssZ'], true);
+        return m.isValid() ? m.format('h:mm a') : '-';
+      }
+      const m = moment(value);
+      return m.isValid() ? m.format('h:mm a') : '-';
+    } catch {
+      return '-';
+    }
+  };
+
+  const getCourseEventCountFromCourse = (course: any): number | null => {
+    const candidates = [
+      course?.no_of_events,
+      course?.events_count,
+      course?.event_count,
+      course?.eventsCount,
+      course?.eventCount,
+      course?.total_events,
+      course?.totalEvents,
+    ];
+    for (const c of candidates) {
+      const n = Number(c);
+      if (Number.isFinite(n)) return n;
+    }
+    return null;
+  };
+
+  /** -------------------Delete course-------------------------*/
+  const [deleteShow, setDeleteShow] = useState(false);
+  const [deleteCourseId, setDeleteCourseId] = useState<number | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const handleDeleteShow = (e: React.MouseEvent, courseId: number) => {
+    e.stopPropagation();
+    setDeleteCourseId(courseId);
+    setDeleteShow(true);
+  };
+
+  const handleDeleteClose = () => {
+    if (deleteLoading) return;
+    setDeleteShow(false);
+    setDeleteCourseId(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteCourseId) {
+      try {
+        setDeleteLoading(true);
+        // Backend expects syllabus id(s), not `course_id`
+        // (matches SyllabusDetails.tsx delete flow)
+        const reqBody = { id: [deleteCourseId] };
+        const response = await dispatch(deleteSyllabusDataAPI(reqBody));
+        if (!isNullUndefinedOrBlank(response?.payload)) {
+          setDeleteShow(false);
+          setDeleteCourseId(null);
+          handleGetCoursesList();
+        }
+      } finally {
+        setDeleteLoading(false);
+      }
+    }
+  };
+
+  /** -------------------Add syllabus modal-------------------------*/
+  const handleSyllabusShow = () => {
+    setShowSyllabus(true);
+  };
+
+  const handleGetUpdatedData = () => {
+    handleGetCoursesList();
+  };
+
+  /** -------------------Navigate to course detail-------------------------*/
+  const handleCourseClick = (course: any) => {
+    navigate(`${ENUMFORROUTES.EDIT_COURSE}?id=${course.id}`, {
+      state: { syllabusObj: course }
+    });
+  };
+
+  /** -------------------User menu and notification handlers-------------------------*/
+  const handleUserMenuToggle = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
+  };
+
+  const handleLogout = async () => {
+    await dispatch(logoutFromSystem());
+    navigate(ENUMFORROUTES.LOGIN);
+  };
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const response = await dispatch(getUserAPI());
+      if (response && !isNullUndefinedOrBlank(response?.payload)) {
+        setUserData(response.payload);
+      }
+    };
+    fetchUserData();
+  }, [dispatch]);
+
+  // Update user data when settings data changes
+  useEffect(() => {
+    if (!isNullUndefinedOrBlank(settingsData?.userData)) {
+      setUserData(settingsData.userData);
+    }
+  }, [settingsData?.userData]);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    if (isUserMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
+
+  /** --------------------Map hex colors to CSS class names------------------------*/
+  /** Map hex colors to CSS class names - synced with colorPalette in AddEditSyllabus */
+  const getColorClassName = (hexColor: string): string => {
+    const colorMap: { [key: string]: string } = {
+      // New design system colors (primary)
+      '#F97316': 'orange',
+      '#f97316': 'orange',
+      '#EAB308': 'yellow',
+      '#eab308': 'yellow',
+      '#22C55E': 'green',
+      '#22c55e': 'green',
+      '#14B8A6': 'teal',
+      '#14b8a6': 'teal',
+      '#D97706': 'gold',
+      '#d97706': 'gold',
+      '#3B82F6': 'blue',
+      '#3b82f6': 'blue',
+      '#cddc39': 'lime',
+      '#CDDC39': 'lime',
+      '#239BC2': 'cyan',
+      '#239bc2': 'cyan',
+      '#EF4444': 'red',
+      '#ef4444': 'red',
+      '#8B5CF6': 'purple',
+      '#8b5cf6': 'purple',
+      '#EC4899': 'pink',
+      '#ec4899': 'pink',
+      '#6B7280': 'gray',
+      '#6b7280': 'gray',
+      '#78716C': 'stone',
+      '#78716c': 'stone',
+      '#6366F1': 'indigo',
+      '#6366f1': 'indigo',
+      // Legacy color mappings (backward compatibility)
+      '#ffc107': 'yellow',
+      '#FFC107': 'yellow',
+      '#ffeb3b': 'yellow',
+      '#FFEB3B': 'yellow',
+      '#4caf50': 'green',
+      '#4CAF50': 'green',
+      '#8bc34a': 'lime',
+      '#8BC34A': 'lime',
+      '#009688': 'teal',
+      '#00bcd4': 'cyan',
+      '#00BCD4': 'cyan',
+      '#03a9f4': 'blue',
+      '#03A9F4': 'blue',
+      '#2196f3': 'blue',
+      '#2196F3': 'blue',
+      '#3f51b5': 'indigo',
+      '#3F51B5': 'indigo',
+      '#673ab7': 'purple',
+      '#673AB7': 'purple',
+      '#9c27b0': 'purple',
+      '#9C27B0': 'purple',
+      '#e91e63': 'pink',
+      '#E91E63': 'pink',
+      '#ff9800': 'orange',
+      '#FF9800': 'orange',
+      '#ff5722': 'orange',
+      '#FF5722': 'orange',
+      '#795548': 'stone',
+      '#607d8b': 'gray',
+      '#607D8B': 'gray',
+    };
+    return colorMap[hexColor] || 'cyan';
+  };
 
   return (
     <>
-      <div className="page-content">
-        <div className="page-title-wrapper">
-          <div className="page-title-left">
-            <div className="page-title">
-              <h4>All Courses</h4>
-            </div>
-          </div>
-          <div className="page-title-right">
-            <button type="button" className="btn btn-primary" onClick={() => { setShowEvent(true) }}>
-              Add Syllabus{" "}
+      {/* Top Header */}
+      <header className="dashboard-header">
+        <div className="dashboard-header-inner">
+          <div className="dashboard-header-left">
+            <button className="mobile-menu-toggle" onClick={() => toggleSidebar()}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
             </button>
-          </div>
-        </div>
-        <div className="page-filters p-3 mb-0">
-          <div className="page-filters-left">
-            {/* <Form.Group className="form-group form-group-sm form-group-inline-control">
-              <div className="form-control-wrapper">
-                <div className="form-group-icon-start">
-                  <i className="material-symbols-outlined">search</i>
-                  <Form.Control type="text" placeholder="Search By course name  "
-                    onChange={(e) => { setSeacrhValue(e.target.value) }}
-                    value={searchValue}
 
-                  />
-                </div>
-              </div>
-            </Form.Group> */}
-            {/* <Form.Group className="form-group form-group-sm">
-              <div className="react-datepicker-container form-group-icon-end">
-                <i className="material-symbols-outlined control-icon">date_range</i>
-                <DatePicker
-                  dropdownMode="select"
-                  isClearable={true}
-                  dateFormat="dd/MM/yyyy"
-                  className="form-control"
-                  popperProps={{ strategy: "fixed" }}
-                  placeholderText="Date Range"
-                />
-              </div>
-            </Form.Group> */}
+            <h1 className="dashboard-page-title">All Courses</h1>
           </div>
-          <div className="page-filters-right">
-            <div className="list-view-group">
-              <ul className="list-view-wrapper">
-                <li className={`${selectedView === ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW ? "active" : ""}`}
-                  onClick={() => { handleChangeView(ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW) }}
-                >
-                  <a className="">
-                    <i className="material-symbols-outlined">grid_on</i>
-                  </a>
-                </li>
-                <li className={`${selectedView === ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW ? "active" : ""}`} onClick={() => { handleChangeView(ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW) }}>
-                  <a className="">
-                    <i className="material-symbols-outlined">menu</i>
-                  </a>
-                </li>
-              </ul>
+
+          <div className="dashboard-header-right">
+            <button className="btn btn-accent" onClick={handleSyllabusShow}>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add Syllabus
+            </button>
+
+            <button className="notification-btn" type="button" onClick={openNotifications} aria-label="Notifications" title="Notifications">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              {unreadCount > 0 && <span className="notification-badge"></span>}
+            </button>
+
+            <div className="user-menu-container" ref={userMenuRef}>
+              <div className="user-menu" onClick={handleUserMenuToggle}>
+                <div className="user-avatar">
+                  {(() => {
+                    const src =
+                      (userData as any)?.profile_image ||
+                      (userData as any)?.profileImage ||
+                      (userData as any)?.picture ||
+                      (userData as any)?.avatarUrl;
+                    return src ? (
+                      <img
+                        src={src}
+                        alt="Profile"
+                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', objectPosition: 'center', display: 'block' }}
+                      />
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    );
+                  })()}
+                </div>
+                <span className="user-name">
+                  {userData?.username || userData?.email?.split('@')[0] || 'User'}
+                </span>
+                <svg className="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+              <div className={`user-dropdown ${isUserMenuOpen ? 'active' : ''}`}>
+                <a href="#" onClick={(e) => { e.preventDefault(); navigate(ENUMFORROUTES.SETTINGS); setIsUserMenuOpen(false); }} className="user-dropdown-item">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  Profile
+                </a>
+                <div className="user-dropdown-divider"></div>
+                <button className="user-dropdown-item logout" onClick={handleLogout}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>
+      </header>
 
-        <div className="content-area  content-area-title-filter">
-          <div className="page-content-wrapper h-100">
-            {
-              selectedView === ENUM_FOR_DISPLAY_VIEW?.LIST_VIEW &&
-              <>
+      <ConfirmDeleteModal
+        show={deleteShow}
+        onClose={handleDeleteClose}
+        onConfirm={handleDeleteConfirm}
+        /* Reuse Delete Conversation modal styling, but no header */
+        message={
+          <>
+            Are you sure you want to delete this? This action cannot be undone.
+          </>
+        }
+        cancelText="Cancel"
+        confirmText="Delete"
+        loading={deleteLoading}
+      />
 
-                <div className="list-view-layout">
-                  <div className="table-responsive mb-3">
-                    <Table className="table-theme">
-                      <thead className="border-less">
-                        <tr>
-                          {/* <th className="">
-                        <div className="d-flex align-items-center gap-2">
-                          <div className=" checkbox checkbox-primary checkbox-small">
-                            <input
-                              type="checkbox"
-                              id="tbl-checkbox"
-                              className="material-inputs filled-in"
-                            />
-                            <label htmlFor="tbl-checkbox"></label>
-                          </div>
-                          #
-                        </div>
-                      </th> */}
-                          <th>Course Name</th>
-                          <th>Course Color</th>
-                          <th>Class Time</th>
-                          <th>No of Events</th>
-                          <th>Last Update Date</th>
-                          <th className="text-center">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {
+      {/* Courses Content */}
+      <div className="courses-page">
+        {/* Courses Grid */}
+        <div className="courses-grid">
+          {courses && courses.length > 0 ? (
+            courses.map((course: any) => {
+              const colorClass = getColorClassName(course?.course_color);
+              const eventCountFromCourse = getCourseEventCountFromCourse(course);
+              const eventCount = eventCountFromCourse ?? 0;
+              const classTimeDisplay =
+                course?.class_time_display ||
+                formatCourseTime(course?.class_time ?? course?.course_time ?? course?.classTime);
 
-                          !isEmptyObjectOrNullUndefiend(syllabusList) ?
-                            syllabusList?.map((item, index) => {
-                              return (
-                                <tr key={index} onClick={() => { handleUpdateCourse(item) }} className="cursor-pointer">
-                                  {/* <td className="tbl-user">
-                                <div className="tbl-user-checkbox-srno">
-                                  <div className="checkbox checkbox-primary checkbox-small">
-                                    <input
-                                      type="checkbox"
-                                      id="tbl-checkbox1"
-                                      className="material-inputs filled-in"
-                                    />
-                                    <label htmlFor="tbl-checkbox1"></label>
-                                  </div>
-                                  <span>01.</span>
-                                </div>
-                              </td> */}
-
-                                  <td>
-                                    {item?.title || "-"}
-                                  </td>
-                                  <td>
-                                    <span className="color-box" style={{ backgroundColor: `${item?.course_color || "#239bc266"}` }}></span>
-                                  </td>
-                                  <td>
-                                    {formatTime(item?.class_time, "hh:mm A")}
-
-                                  </td>
-                                  <td>
-                                    <a>{item?.no_of_events || "0"}</a>
-                                  </td>
-                                  <td>
-                                    {formatedDate(item?.updated_at, " MM/DD/YYYY - hh:mm A")}
-
-                                  </td>
-                                  <td className="tbl-action">
-                                    <div className="tbl-action-group">
-                                      {/* <button
-                                        className="btn btn-xs btn-icon btn-transparent check-icon"
-                                        onClick={() => { handleConfirmationShow(item?.id) }}
-                                      >
-                                        <i className="material-symbols-outlined">check_circle</i>
-                                      </button> */}
-                                      {/* {
-                                        item?.status === "Completed" ?
-                                          <button
-                                            className="btn btn-xs btn-icon btn-transparent check-icon text-success "
-                                          >
-
-                                            <i className="material-symbols-outlined ">check_circle</i>
-                                          </button>
-                                          :
-                                          <button
-                                            className="btn btn-xs btn-icon btn-transparent check-icon " onClick={() => { handleConfirmationShow(item?.id) }}
-                                          >
-                                            <i className="material-symbols-outlined">check_circle</i>
-                                          </button>
-                                      } */}
-                                      {/* <button
-                                        className="btn btn-xs btn-icon btn-transparent"
-                                        onClick={() => { handleUpdateCourse(item) }}
-                                      >
-                                        <i className="material-symbols-outlined">edit</i>
-                                      </button> */}
-                                      <button className="btn btn-xs btn-icon btn-transparent text-danger" onClick={(e) => { e.stopPropagation(); handleDeleteShow(item) }}>
-                                        <i className="material-symbols-outlined">delete</i>
-                                      </button>
-                                    </div>
-                                  </td>
-                                </tr>
-
-                              )
-                            })
-                            : <>
-                              <tr>
-                                <td className='text-center'
-                                  colSpan={35}
-                                >
-                                  {NO_RECORD_FOUND_MSG}
-                                </td>
-                              </tr>
-                            </>
-                        }
-
-                      </tbody>
-                    </Table>
-                  </div>
-                </div>
-
-              </>
-
-            }
-
-            {/***** Grid layout start *****/}
-            {
-              selectedView === ENUM_FOR_DISPLAY_VIEW?.GRID_VIEW &&
-
-              <div className="gird-view-layout">
-                <div className="course-wrapper">
-                  <Row className="course-container">
-                    {
-                      !isEmptyObjectOrNullUndefiend(syllabusList) ? syllabusList?.map((item, index) => {
-                        return (
-                          <Col md={"4"} key={index} >
-                            <Card className="card-style-1 cursor-pointer">
-                              <Card.Body>
-                                <div className="corse-card">
-                                  <div className="card-main-img" style={{ backgroundColor: `${item?.course_color || "#239bc266"}`, opacity: 0.4 }} onClick={() => { handleUpdateCourse(item) }}>
-                                    <img src={gridCardImg} alt="Open Planer" />
-                                  </div>
-                                  <div className="card-details-wrapper" >
-                                    <div className="card-title">
-                                      <h3>{item?.title || ""}</h3>
-                                    </div>
-                                    <div className="selected-date-with-color">
-                                      <div className="selected-date">
-                                        <i className="material-symbols-outlined">calendar_month</i>
-                                        {/* <p> {formatedDate(item?.updated_at, " MM/DD/YYYY - hh:mm A")}</p> */}
-                                        <p> {formatTime(item?.class_time, "hh:mm A")}</p>
-
-
-                                      </div>
-                                      <div className="selected-color">
-                                        <span className="color-code" style={{ backgroundColor: `${item?.course_color || "#239bc266"}` }}></span>
-                                        <p>{item?.course_color || "#239bc266"}</p>
-                                      </div>
-                                    </div>
-                                    <div className="card-bottom">
-                                      <div className="event-with-action">
-                                        <div className="event">
-                                          <p>
-                                            <i className="material-symbols-outlined">trophy</i> Event:{" "}
-                                            <span className="event-nub">{item?.no_of_events || "0"}</span>
-                                          </p>
-                                        </div>
-                                        <div className="action-button">
-                                          {/* {
-                                            item?.status === "Completed" ?
-                                              <button
-                                                className="btn btn-xs btn-icon btn-transparent check-icon text-success"
-                                              >
-
-                                                <i className="material-symbols-outlined">check_circle</i>
-                                              </button>
-                                              :
-                                              <button
-                                                className="btn btn-xs btn-icon btn-transparent check-icon" onClick={() => { handleConfirmationShow(item?.id) }}
-                                              >
-                                                <i className="material-symbols-outlined">check_circle</i>
-                                              </button>
-                                          } */}
-                                          {/* <button
-                                            className="btn-icon btn-light-white btn-icon-text btn btn-white btn-sm"
-                                            onClick={() => { handleUpdateCourse(item) }}
-                                          >
-                                            <i className="material-symbols-outlined">edit</i>
-                                          </button> */}
-                                          <button className="btn-icon btn-light-danger btn-icon-text btn btn-danger btn-sm"
-                                            onClick={(e) => { e.preventDefault(); handleDeleteShow(item) }}
-                                          >
-                                            <i className="material-symbols-outlined">delete</i>
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </Card.Body>
-                            </Card>
-                          </Col>
-                        )
-                      }) :
-                        <>
-                          <div className="no-records-found no-records-found-inner h-100">
-                            <div className="no-records-found-image">
-                              <img src={notVoucherFound} alt="OpenPlaner" />
-                            </div>
-                            <div className="no-records-found-text">
-                              <h6>No data found!</h6>
-                            </div>
-                          </div>
-
-                        </>
-                    }
-
-
-                  </Row>
-                </div>
+              return (
+                <div
+                  key={course.id}
+                  className="course-card"
+                  onClick={() => handleCourseClick(course)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className={`course-banner ${colorClass}`}>
+                    <div className="course-icon">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                        <line x1="8" y1="7" x2="16" y2="7" />
+                        <line x1="8" y1="11" x2="14" y2="11" />
+                      </svg>
               </div>
-            }
-            {/***** Grid layout end *****/}
-
-            {/***** Offcanvas start *****/}
-            <SyllabusCanvasDetails handleCloseCourse={handleCloseCourse}
-              selectedSyllabusObj={selectedSyllabusObj}
-              showCourse={showCourse}
-              handleGetCourseList={handleGetCourseList}
-            />
-            {/***** Offcanvas end *****/}
-
-            <AddSyllabusEvents show={showEvent} setShowEvent={setShowEvent}
-              setIsAddNewData={setIsAddNewData} isAddNewData={isAddNewData}
-            />
-
-
-
-            {/* Delete Modal */}
-            <Modal className='modal-theme modal-confirmation modal-reject' show={deleteShow} onHide={handleDeleteClose} centered>
-              <Modal.Header >
-                <h4 className="modal-title">Delete Syllabus</h4>
-                <button type="button" className="btn-close" onClick={handleDeleteClose}>
-                  <i className='material-symbols-outlined'>close</i>
+                  </div>
+                  <div className="course-content">
+                    <h3 className="course-name">{course.title || course.course_name}</h3>
+                    <div className="course-meta">
+                      <div className="meta-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                          <line x1="16" y1="2" x2="16" y2="6" />
+                          <line x1="8" y1="2" x2="8" y2="6" />
+                          <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                        <span>{classTimeDisplay}</span>
+                  </div>
+                      <div className="meta-item color-tag">
+                        <span className={`color-swatch ${colorClass}`}></span>
+                        <span>{course.course_color}</span>
+                  </div>
+                </div>
+                    <div className="course-footer">
+                      <div className="event-count">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        <span>
+                          Event: <strong>{eventCount}</strong>
+                        </span>
+                </div>
+                      <button
+                        className="delete-course-btn"
+                        onClick={(e) => handleDeleteShow(e, course.id)}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          <line x1="10" y1="11" x2="10" y2="17" />
+                          <line x1="14" y1="11" x2="14" y2="17" />
+                        </svg>
                 </button>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="modal-confirmation-container">
-                  <div className="modal-confirmation-icon">
-                    <i className="material-symbols-outlined">delete</i>
                   </div>
-                  <div className="modal-confirmation-content">
-                    <h5>Are You Sure?</h5>
-                    <p>You want to Delete this Syllabus?</p>
                   </div>
                 </div>
-                <div className="modal-button-group modal-full-width-btn modal-footer-button">
-                  <Button variant='light-white' className="btn-md" onClick={handleDeleteClose}> No, Change My Mind</Button>
-                  <Button variant='danger' className='btn-icon-text btn-md' onClick={() => { handleDeleteSyllabus() }}>
-                    Delete
-                  </Button>
+              );
+            })
+          ) : (
+            <div className="no-courses-message">
+              <p>No courses found</p>
                 </div>
-              </Modal.Body>
-            </Modal>
-            {/* Delete Modal */}
-
-
-
-            {/* complete syllabus confirmation Modal */}
-            <Modal className='modal-theme modal-confirmation modal-approve' show={completeConfirmationShow} onHide={handleConfirmationClose} centered>
-              <Modal.Header >
-                <h4 className="modal-title">Syllabus Completed!</h4>
-                <button type="button" className="btn-close" onClick={handleConfirmationClose}>
-                  <i className="material-symbols-outlined">close</i>
-                </button>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="modal-confirmation-container">
-                  <div className="modal-confirmation-icon">
-                    <i className="material-symbols-outlined">check_circle</i>
-                  </div>
-                  <div className="modal-confirmation-content">
-
-                    <h5>This action will mark only the syllabus for this course as completed.</h5>
-                    <p>Do you want to proceed?</p>
-
-                  </div>
-                </div>
-                <div className="modal-button-group modal-full-width-btn modal-footer-button">
-                  <Button variant="light-white"
-                    className="btn-icon-text btn-md" onClick={handleConfirmationClose}> Cancel
-                  </Button>
-                  <Button variant="success"
-                    className="btn-icon-text btn-md" onClick={() => { handleSyllabusCompleted() }}> Ok
-                  </Button>
-                </div>
-              </Modal.Body>
-            </Modal>
-            {/* complete syllabus confirmation Modal */}
-            {/* Success Modal */}
-            <Modal className='modal-theme modal-confirmation modal-approve' show={SuccessShow} onHide={handleSuccessClose} centered>
-              <Modal.Header >
-                <h4 className="modal-title">Syllabus Completed!</h4>
-                <button type="button" className="btn-close" onClick={handleSuccessClose}>
-                  <i className="material-symbols-outlined">close</i>
-                </button>
-              </Modal.Header>
-              <Modal.Body>
-                <div className="modal-confirmation-container">
-                  <div className="modal-confirmation-icon">
-                    <i className="material-symbols-outlined">check_circle</i>
-                  </div>
-                  <div className="modal-confirmation-content">
-                    <h5>You have successfully
-                      completed  Syllabus!</h5>
-                    <p>Get back to syllabus page to add or complete the other syllabus</p>
-                  </div>
-                </div>
-                <div className="modal-button-group modal-full-width-btn modal-footer-button">
-                  <Button variant="success"
-                    className="btn-icon-text btn-md" onClick={handleSuccessClose}> Done
-                  </Button>
-                </div>
-              </Modal.Body>
-            </Modal>
-            {/* Success Modal */}
-
-          </div>
+          )}
         </div>
       </div>
+
+      {/* Add Syllabus Modal */}
+      <AddEditSyllabus
+        showSyllabus={showSyllabus}
+        setShowSyllabus={setShowSyllabus}
+        handleGetData={handleGetUpdatedData}
+      />
     </>
   );
 };
 
-const mapStateToProps = (state) => ({
-});
-
-const mapDispatchToProps = {
-
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Courses);
+export default Courses;

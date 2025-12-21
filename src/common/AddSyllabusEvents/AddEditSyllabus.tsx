@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Col, Form, Offcanvas, Overlay, Popover, Row } from 'react-bootstrap'
+import { Button, Modal } from 'react-bootstrap'
 import { connect, useDispatch } from 'react-redux'
 import * as yup from 'yup';
 import { addSyllabusData } from '../../interfaces/interface';
@@ -7,16 +7,48 @@ import { CLASS_TIME_IS_REQUIRED, FILE_FORMATE_VALIDATION, PLEASE_ADD_VALID_PROFE
 import { customJsonInclude, formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from '../../Utility/Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import { AppDispatch } from '../../redux/store';
-import { addEditSyllabusDataAPI } from '../../redux/Service/User/Courses/courses';
+import { addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
 import { MAX_50, ONLY_ALPHABETS_AND_DOT } from '../../Utility/Validation_Helper';
 import GetImageIcon from '../GetImageIcon';
 import DatePicker from "react-datepicker";
 import InputColor from 'react-input-color';
 import { isUpdatedSyllabus } from '../../redux/User/Courses/coursesSlice';
+import { useNavigate } from 'react-router-dom';
+import { ENUMFORROUTES } from '../../interfaces/enum';
+import { useSyllabusGroupSuggest } from '../../hooks/useSyllabusGroupSuggest';
+import SyllabusGroupSuggestModal from '../../components/SyllabusGroupSuggestModal/SyllabusGroupSuggestModal';
+import { useSyllabusUpload } from '../../context/SyllabusUploadContext';
+import { startSyllabusUpload } from '../../Utility/syllabusUpload';
+import { isGroupsEnabled } from '../../config/featureFlags';
 
 export const AddEditSyllabus = (props) => {
     const dispatch: AppDispatch = useDispatch();
+    const navigate = useNavigate();
+    const [showSuggestModal, setShowSuggestModal] = useState(false);
+    const [isSyllabusDragOver, setIsSyllabusDragOver] = useState(false);
+    const {
+        syllabusId: hookSyllabusId,
+        setSyllabusId,
+        loadingSuggestions,
+        suggestion,
+        hasCandidate,
+        fetchSuggestions,
+        resolvingCanonical,
+        canonical,
+        createAndJoin,
+        reset: resetSuggest,
+    } = useSyllabusGroupSuggest();
+    
+    // Syllabus upload context for background upload
+    const syllabusUploadContext = useSyllabusUpload();
     const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
+
+    const applySyllabusFiles = (files: FileList | null) => {
+        if (isEmptyObjectOrNullUndefiend(files) || !files || files.length === 0) return;
+        syllabusFormData.setFieldValue("syllabus_doc", files as any);
+        syllabusFormData.setFieldValue("syllabus_doc_name", files[0]?.name as any);
+        syllabusFormData.setFieldTouched("syllabus_doc", true, true);
+    };
 
     const handleCloseAddSyllabusEvents = () => {
         setShowAddSyllabusEvents(false);
@@ -60,6 +92,69 @@ export const AddEditSyllabus = (props) => {
     const [savedSyllabusFormData, setSavedSyllabusFormData] = useState<addSyllabusData>(initSyllabusData);
     const onSubmitForSyllabus = (values) => {
     }
+    const [existingSyllabusCount, setExistingSyllabusCount] = useState<number | null>(
+        typeof props?.existingSyllabusCount === "number" ? props.existingSyllabusCount : null
+    );
+    const localPlanTier = (() => {
+        try {
+            return localStorage.getItem("plan_tier");
+        } catch {
+            return null;
+        }
+    })();
+    const isFreemiumPlan =
+        props?.isFreemiumPlan ??
+        (localPlanTier === "freemium");
+    const hasSubscription = props?.hasSubscription ?? (() => {
+        try {
+            return localStorage.getItem("has_subscription") === "true";
+        } catch {
+            return false;
+        }
+    })();
+    const FREEMIUM_UPLOAD_LIMIT = 3;
+    const effectiveSyllabusCount = typeof props?.existingSyllabusCount === "number"
+        ? props.existingSyllabusCount
+        : existingSyllabusCount;
+    const freemiumUploadLocked =
+        isFreemiumPlan &&
+        !hasSubscription &&
+        (!!props?.freemiumLimitReached ||
+            (typeof effectiveSyllabusCount === "number" &&
+                effectiveSyllabusCount >= FREEMIUM_UPLOAD_LIMIT));
+
+    const fetchExistingSyllabusCount = async () => {
+        try {
+            const response: any = await dispatch(getSyllabusDropDownDataAPI({}));
+            if (Array.isArray(response?.payload)) {
+                setExistingSyllabusCount(response.payload.length);
+            } else {
+                setExistingSyllabusCount(0);
+            }
+        } catch (error) {
+            setExistingSyllabusCount(0);
+        }
+    };
+
+    useEffect(() => {
+        if (typeof props?.existingSyllabusCount === "number") {
+            setExistingSyllabusCount(props.existingSyllabusCount);
+        }
+    }, [props?.existingSyllabusCount]);
+
+    useEffect(() => {
+        if (showAddSyllabusEvents && typeof props?.existingSyllabusCount !== "number") {
+            fetchExistingSyllabusCount();
+        }
+    }, [showAddSyllabusEvents, props?.existingSyllabusCount]);
+
+    const handleUpgrade = () => {
+        if (props?.onUpgradeClick) {
+            props.onUpgradeClick();
+            return;
+        }
+        navigate(ENUMFORROUTES.PLAN_DETAILS);
+    };
     const validationSchemaForSyllabus = yup.object({
         title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
         class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
@@ -87,10 +182,12 @@ export const AddEditSyllabus = (props) => {
         enableReinitialize: true,
     })
     const handleSyllabusSubmit = async () => {
-        syllabusFormData.handleSubmit();
-        if (isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc)) {
-
+        if (freemiumUploadLocked) {
+            handleUpgrade();
+            return;
         }
+
+        syllabusFormData.handleSubmit();
         const syllabusFormDataErrors = await syllabusFormData.validateForm();
         if (Object.keys(syllabusFormDataErrors).length > 0) {
             syllabusFormData.setTouched(
@@ -100,6 +197,47 @@ export const AddEditSyllabus = (props) => {
             return;
         }
 
+        const hasNewFile = !isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) && 
+            typeof syllabusFormData?.values?.syllabus_doc === "object";
+
+        // Use async background upload flow when there's a new file
+        if (hasNewFile) {
+            const file = syllabusFormData?.values?.syllabus_doc[0] as File;
+            const metadata = {
+                title: syllabusFormData.values.title,
+                class_time: formatedDate(syllabusFormData.values.class_time, "HH:mm:ssZ"),
+                course_color: syllabusFormData.values.course_color,
+                professor_name: syllabusFormData.values.professor_name || undefined,
+            };
+
+            // Close the offcanvas immediately - upload will continue in background
+            handleCloseAddSyllabusEvents();
+            props?.handleGetData();
+            dispatch(isUpdatedSyllabus(true));
+
+            try {
+                // Start background upload - this opens the floating modal
+                const result = await startSyllabusUpload(file, metadata, {
+                    startUpload: syllabusUploadContext.startUpload,
+                    setProgress: syllabusUploadContext.setProgress,
+                    setStatus: syllabusUploadContext.setStatus,
+                    setSyllabusId: syllabusUploadContext.setSyllabusId,
+                });
+
+                // Upload complete - show group suggestions
+                if (result.syllabusId) {
+                    setSyllabusId(String(result.syllabusId));
+                    await fetchSuggestions(String(result.syllabusId));
+                    setShowSuggestModal(true);
+                }
+            } catch (error) {
+                // Error is already handled in startSyllabusUpload (toast + modal state)
+                console.error('Syllabus upload failed:', error);
+            }
+            return;
+        }
+
+        // Legacy flow for metadata-only updates (no new file)
         const formData = new FormData();
         const reqBody = {
             title: syllabusFormData.values.title,
@@ -108,22 +246,31 @@ export const AddEditSyllabus = (props) => {
             professor_name: syllabusFormData.values.professor_name,
         }
 
-        // console.log(reqBody, "reqBody");
-
-        if (!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) && typeof syllabusFormData?.values?.syllabus_doc === "object") {
-
-            formData.append("syllabus_doc", syllabusFormData?.values?.syllabus_doc[0]);
-        }
-
         customJsonInclude(reqBody);
         formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
         setloading(true);
-        const response = await dispatch(addEditSyllabusDataAPI(formData));
+        const response: any = await dispatch(addEditSyllabusDataAPI(formData));
         if (response) {
+            const payload = response?.payload ?? null;
+            const sid =
+                payload?.syllabusId ||
+                payload?.syllabus_id ||
+                payload?.id ||
+                payload?.syllabus?.id ||
+                payload?.data?.id ||
+                payload?.result?.id ||
+                payload?.doc_id ||
+                null;
             handleCloseAddSyllabusEvents();
             props?.handleGetData();
             dispatch(isUpdatedSyllabus(true));
-
+            if (sid) {
+                setSyllabusId(String(sid));
+                await fetchSuggestions(String(sid));
+                setShowSuggestModal(true);
+            } else {
+                try { console.log('Syllabus save payload (no syllabusId found):', payload); } catch {}
+            }
         }
         setloading(false);
 
@@ -156,10 +303,22 @@ export const AddEditSyllabus = (props) => {
 
     /* ------------------------- Add Syllabus Data End ------------------------ */
 
+    // Course colors matching the new design system (synced with getColorClassName in Courses.tsx)
     const colorPalette = [
-        "#239BC2", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3",
-        "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39",
-        "#ffeb3b", "#ffc107", "#ff9800", "#ff5722", "#795548", "#607d8b"
+        "#239BC2", // cyan (default)
+        "#F97316", // orange
+        "#EAB308", // yellow
+        "#22C55E", // green
+        "#14B8A6", // teal
+        "#D97706", // gold
+        "#3B82F6", // blue
+        "#cddc39", // lime
+        "#EF4444", // red
+        "#8B5CF6", // purple
+        "#EC4899", // pink
+        "#6B7280", // gray
+        "#78716C", // stone
+        "#6366F1", // indigo
     ];
 
     // const [showColorPopover, setShowColorPopover] = useState(false);
@@ -185,359 +344,183 @@ export const AddEditSyllabus = (props) => {
     // }, [showColorPopover]);
 
 
-    const [showColorPopover, setShowColorPopover] = useState(false);
-    const [popoverTarget, setPopoverTarget] = useState<any>(null);
-    const colorInputRef = useRef(null);
+    const closeSuggest = () => { setShowSuggestModal(false); resetSuggest(); };
+    const handleJoinClick = async () => {
+        const sid = hookSyllabusId;
+        const result = await createAndJoin(sid);
+        if (result && result.id) {
+            closeSuggest();
+            navigate(`/groups/${result.id}`);
+        }
+    };
+
     return (
         <>
-            {/***** Offcanvas start *****/}
-            <div className="add-syllabus-event-wrapper">
-                <Offcanvas
-                    className="edit-course-canvas add-syllabus-event"
+            {/***** Modal start *****/}
+            <Modal
+                className="add-syllabus-modal"
                     show={showAddSyllabusEvents}
-                    placement={"end"}
                     onHide={handleCloseAddSyllabusEvents}
-                >
-                    <Offcanvas.Header>
-                        <Offcanvas.Title>
-                            Add New <span>Syllabus</span>
-                        </Offcanvas.Title>
-                        <button type="button" className="btn-close" onClick={handleCloseAddSyllabusEvents}>
-                            <i className="material-symbols-outlined">close</i>
+                centered
+                dialogClassName="syllabus-modal"
+            >
+                <Modal.Header>
+                    <Modal.Title>
+                        Add New <span className="title-accent">Syllabus</span>
+                    </Modal.Title>
+                    <button type="button" className="modal-close-btn" onClick={handleCloseAddSyllabusEvents}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
                         </button>
-                    </Offcanvas.Header>
-                    <Offcanvas.Body>
-                        <div className="add-syllabus-container">
-
-                            <div className="main-syllabus-container">
-                                <div className="syllabus-details-container">
-
-                                    {
-
-                                        <div className="Add-new-task-container op-offcanvas-body-container">
-                                            <div className="syllabus-detail-body">
-                                                {/* <div className="title-text">
-                                                    <h4>Syllabus Details</h4>
-                                                </div> */}
-                                                <Form.Group
-                                                    className="form-group required"
-
-                                                >
-                                                    <Form.Label>Course Title</Form.Label>
-                                                    <div className="form-group-icon-start">
-                                                        <i className="material-symbols-outlined">menu_book</i>
-                                                        <Form.Control type="text" placeholder="Enter Course Title"  {...syllabusFormData.getFieldProps("title")}
+                </Modal.Header>
+                <Modal.Body>
+                    {/* Course Title */}
+                    <div className="form-group">
+                        <label className="form-label">
+                            Course Title <span className="required">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            placeholder="Enter Course Title"
+                            {...syllabusFormData.getFieldProps("title")}
                                                             maxLength={MAX_50}
                                                         />
-                                                    </div>
-                                                    {syllabusFormData.touched.title &&
-                                                        syllabusFormData.errors.title
+                        {syllabusFormData.touched.title && syllabusFormData.errors.title
                                                         ? renderError(syllabusFormData.errors.title as any)
                                                         : null}
-                                                </Form.Group>
-                                                <Form.Group className="form-group">
-                                                    <Form.Label>Upload Syllabus Here</Form.Label>
-                                                    <div className='attachments-container'>
-                                                        <div className='attachments-content'>
-                                                            <button className='btn btn-attachments'><i className="bi bi-upload"></i></button>
-                                                            <p>Drag and Drop file here or <span className='text-primary'>Choose file</span></p>
+                    </div>
+                    {/* Upload Syllabus */}
+                    <div className="form-group">
+                        <label className="form-label">Upload Syllabus Here</label>
+                        {freemiumUploadLocked && (
+                            <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2 mb-3">
+                                <div>
+                                    <strong>Free plan limit reached.</strong> Upgrade for unlimited uploads.
+                                </div>
+                                <Button size="sm" variant="primary" onClick={handleUpgrade}>View plans</Button>
+                            </div>
+                        )}
+                        <div 
+                            className={`file-upload-area${isSyllabusDragOver ? ' dragover' : ''}`}
+                            onClick={() => !freemiumUploadLocked && syllabusDocRef.current?.click()}
+                            onDragEnter={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (freemiumUploadLocked) return;
+                                setIsSyllabusDragOver(true);
+                            }}
+                            onDragOver={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (freemiumUploadLocked) return;
+                                setIsSyllabusDragOver(true);
+                            }}
+                            onDragLeave={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                const current = e.currentTarget as HTMLElement;
+                                const related = e.relatedTarget as HTMLElement | null;
+                                if (!related || !current.contains(related)) {
+                                    setIsSyllabusDragOver(false);
+                                }
+                            }}
+                            onDrop={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsSyllabusDragOver(false);
+                                if (freemiumUploadLocked) return;
+                                applySyllabusFiles(e.dataTransfer?.files ?? null);
+                            }}
+                            style={{ cursor: freemiumUploadLocked ? 'not-allowed' : 'pointer', opacity: freemiumUploadLocked ? 0.6 : 1 }}
+                        >
+                            <div className="upload-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
                                                         </div>
-                                                        <input className=' ' type="file"
-                                                            accept=".pdf,.doc,.docx"
-
-                                                            onChange={(e: any) => {
-                                                                if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
-                                                                    syllabusFormData.setFieldValue("syllabus_doc", e.target?.files as any)
-                                                                    syllabusFormData.setFieldValue("syllabus_doc_name", e.target?.files[0]?.name as any)
-                                                                }
-                                                            }}
-                                                            onBlur={() => {
-                                                                syllabusFormData.setFieldTouched("syllabus_doc", true);
-                                                            }}
-
+                            <p className="upload-text">Drag and Drop file here or <span className="upload-link">Choose file</span></p>
+                            <input type="file" accept=".pdf,.doc,.docx" disabled={freemiumUploadLocked}
+                                                            onChange={(e: any) => applySyllabusFiles(e.target?.files ?? null)}
+                                onBlur={() => syllabusFormData.setFieldTouched("syllabus_doc", true)}
                                                             ref={syllabusDocRef}
-                                                        />
-                                                    </div>
-                                                    {
-                                                        !isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc_name) && isEmptyObjectOrNullUndefiend(syllabusFormData?.errors?.syllabus_doc) &&
-                                                        <div className='attachments-upload-grid-container'>
-                                                            <div className='attachments-upload-row'>
-                                                                <div className='attachments-upload-col'>
-                                                                    <div className='card-attachments-upload'>
-                                                                        {/* <div className='attachments-image'> */}
-                                                                        {/* <img src={DefaultAvtar} alt="DefaultAvtar" /> */}
-                                                                        {/* <GetImageIcon
-                                                                                image={syllabusFormData?.values?.syllabus_doc_name}
-                                                                            /> */}
-                                                                        {/* </div> */}
-                                                                        {
-                                                                            !isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) &&
-                                                                            <div className="attachments-text">
-                                                                                <p title={!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"} >{!isNullUndefinedOrBlank(syllabusFormData?.values?.syllabus_doc_name) ? syllabusFormData?.values?.syllabus_doc_name : "Open Planner"}</p>
-                                                                            </div>
-                                                                        }
-                                                                        <button className="btn-close"
-                                                                            onClick={() => { handleRemoveSyllabusDoc() }}
-                                                                        ><i className='material-symbols-outlined'>close</i></button>
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-                                                    }
-                                                    {/* <div className="file-notification">
-                          <p>Accepted file types: pdf</p>
-                          <p>Please allow 1 to 2 minutes for the syllabus to be processed.</p>
-                        </div> */}
-                                                    {syllabusFormData.touched.syllabus_doc &&
-                                                        syllabusFormData.errors.syllabus_doc
-                                                        ? renderError(syllabusFormData.errors.syllabus_doc as any)
-                                                        : null}
-                                                </Form.Group>
-                                                {/* <div className="Reminder-box">
-                        <div className="title-with-switch">
-                          <div className="title-text"><h4>Reminder (Notify me before start date)</h4></div>
-                          <div className="switch-box ">
-                            <label className="switch" htmlFor="switch">
-                              <input type="checkbox" id='switch' />
-                              <div className="slider round"></div>
-                            </label>
-                          </div>
-                        </div>
-                        <div className="remider-fields">
-                          <Form.Group className='form-group'>
-                            <Form.Label>Unit</Form.Label>
-                            <Select
-                              placeholder={<div>Days</div>}
-                              menuPosition="fixed"
-                              className="react-select-container"
+                                hidden
                             />
-                          </Form.Group>
-                          <Form.Group className="form-group" controlId="exampleForm.ControlInput1">
-                            <Form.Label>Value</Form.Label>
-                            <Form.Select aria-label="Default select example">
-                              <option>5</option>
-                              <option value="1">1</option>
-                              <option value="2">2</option>
-                              <option value="3">3</option>
-                            </Form.Select>
-                          </Form.Group>
-                          <button type="button" className="btn btn-light-white btn-outline-white">
-                            Clear
-                          </button>
+                            {!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc_name) && (
+                                <p className="file-name">{syllabusFormData?.values?.syllabus_doc_name}</p>
+                            )}
                         </div>
-                      </div> */}
-                                                <Row>
-                                                    <Col md={6}>
-                                                        <Form.Group className="form-group required">
-                                                            <Form.Label>Class Time</Form.Label>
-                                                            <div className="react-datepicker-container form-group-icon-start">
-                                                                <i className="material-symbols-outlined control-icon">schedule</i>
+                        {syllabusFormData.touched.syllabus_doc && syllabusFormData.errors.syllabus_doc
+                            ? renderError(syllabusFormData.errors.syllabus_doc as any) : null}
+                    </div>
+                    {/* Class Time & Professor Name Row */}
+                    <div className="form-row">
+                        <div className="form-group">
+                            <label className="form-label">Class Time <span className="required">*</span></label>
                                                                 <DatePicker
                                                                     placeholderText="Select Class Time"
                                                                     selected={syllabusFormData.values.class_time}
-                                                                    onChange={(date) => {
-                                                                        const sanitize = (s: string) => typeof s === "string" ? s.replace(/[\r\n\u2028\u2029]+/g, " ") : s;
-                                                                        console.log("first", sanitize(String(date)));
-                                                                        syllabusFormData.setFieldValue("class_time", date);
-                                                                    }}
+                                onChange={(date) => syllabusFormData.setFieldValue("class_time", date)}
                                                                     showTimeSelect
                                                                     showTimeSelectOnly
                                                                     timeIntervals={15}
-                                                                    timeCaption="Time"
+                                                                    timeCaption="Select Time"
                                                                     dateFormat="hh:mm aa"
-                                                                    className="form-control"
-                                                                    onBlur={() => {
-                                                                        syllabusFormData.setFieldTouched("class_time", true);
-                                                                    }}
-                                                                // showIcon
-                                                                />
+                                className="form-input"
+                                showPopperArrow={false}
+                                popperClassName="syllabus-time-popper"
+                                calendarClassName="syllabus-time-calendar"
+                                onBlur={() => syllabusFormData.setFieldTouched("class_time", true)}
+                            />
+                            {syllabusFormData.touched.class_time && syllabusFormData.errors.class_time
+                                ? renderError(syllabusFormData.errors.class_time) : null}
                                                             </div>
-                                                            {syllabusFormData.touched.class_time &&
-                                                                syllabusFormData.errors.class_time
-                                                                ? renderError(syllabusFormData.errors.class_time)
-                                                                : null}
-                                                        </Form.Group>
-                                                    </Col>
-                                                    <Col md={6}>
-                                                        <Form.Group
-                                                            className="form-group"
-                                                            controlId="exampleForm.ControlInput1"
-                                                        >
-                                                            <Form.Label>Professor Name</Form.Label>
-                                                            <div className="form-group-icon-start">
-                                                                <i className="material-symbols-outlined">person</i>
-                                                                <Form.Control type="text" placeholder="Enter Professor Name"
+                        <div className="form-group">
+                            <label className="form-label">Professor Name</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Enter Professor Name"
                                                                     {...syllabusFormData.getFieldProps("professor_name")}
                                                                     maxLength={MAX_50}
                                                                 />
+                            {syllabusFormData.touched.professor_name && syllabusFormData.errors.professor_name
+                                ? renderError(syllabusFormData.errors.professor_name) : null}
+                        </div>
                                                             </div>
-                                                            {syllabusFormData.touched.professor_name &&
-                                                                syllabusFormData.errors.professor_name
-                                                                ? renderError(syllabusFormData.errors.professor_name)
-                                                                : null}
-                                                        </Form.Group>
-                                                    </Col>
-                                                </Row>
-                                                {/* <Form.Group className='form-group'>
-                                                    <Form.Label>Course Color</Form.Label>
-                                                    <div className="form-color-picker color-picker-with-box ">
-
-
-                                                        <Form.Control
-                                                            className="course-color-input"
-                                                            type="color"
-                                                            title="Couse Color"
-                                                            {...syllabusFormData.getFieldProps(
-                                                                "course_color"
-                                                            )}
-
-                                                            onChange={(e) => {
-                                                                syllabusFormData.setFieldValue("course_color", e.target.value);
-                                                            }}
-                                                        />
-                                                        {!isNullUndefinedOrBlank(
-                                                            syllabusFormData?.values?.course_color
-                                                        ) && (
-                                                                <p className="color-picker-code">
-                                                                    {syllabusFormData?.values?.course_color}
-                                                                </p>
-                                                            )}
-                                                    </div> */}
-
-                                                <Form.Group className='form-group'>
-                                                    <Form.Label>Course Color</Form.Label>
-                                                    <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 8 }}>
-                                                        {/* Color preview square */}
-                                                        <span
-                                                            className="color-square"
-                                                            style={{
-                                                                background: syllabusFormData.values.course_color,
-                                                                width: 32,
-                                                                height: 32,
-                                                                borderRadius: "9px",
-                                                                border: "2px solid #ccc",
-                                                                cursor: "pointer",
-                                                                display: "inline-block"
-                                                            }}
-                                                            ref={colorInputRef}
-                                                            onClick={e => {
-                                                                setPopoverTarget(e.target);
-                                                                setShowColorPopover(!showColorPopover);
-                                                            }}
-                                                            title="Pick a color"
-                                                        />
-                                                        {/* Input box for hex code */}
-                                                        <input
-                                                            type="text"
-                                                            className="form-control w-100"
-                                                            style={{ width: 120 }}
-                                                            value={syllabusFormData.values.course_color}
-                                                            onChange={e => syllabusFormData.setFieldValue("course_color", e.target.value)}
-                                                            onClick={e => {
-                                                                setPopoverTarget(e.target);
-                                                                setShowColorPopover(true);
-                                                            }}
-                                                            placeholder="#hexcode"
-                                                            readOnly
-                                                        />
-
-                                                        {/* Bootstrap Popover */}
-                                                        <Overlay
-                                                            show={showColorPopover}
-                                                            target={popoverTarget}
-                                                            placement="top"
-                                                            containerPadding={20}
-                                                            rootClose
-                                                            onHide={() => setShowColorPopover(false)}
-                                                        >
-                                                            <Popover id="color-popover">
-                                                                <Popover.Body>
-                                                                    <div style={{
-                                                                        display: "grid",
-                                                                        gridTemplateColumns: "repeat(6, 32px)",
-                                                                        gridTemplateRows: "repeat(3, 32px)",
-                                                                        gap: 8,
-                                                                        marginBottom: 8,
-                                                                    }}>
+                    {/* Course Color */}
+                    <div className="form-group">
+                        <label className="form-label">Course Color</label>
+                        <div className="color-picker-container">
                                                                         {colorPalette.map((color) => (
-                                                                            <span
+                                <div
                                                                                 key={color}
-                                                                                className={`color-square${syllabusFormData.values.course_color === color ? " selected" : ""}`}
-                                                                                style={{
-                                                                                    background: color,
-                                                                                    width: 32,
-                                                                                    height: 32,
-                                                                                    borderRadius: "9px",
-                                                                                    border: syllabusFormData.values.course_color === color ? "3px solid #000" : "2px solid #fff",
-                                                                                    boxShadow: "0 0 2px #aaa",
-                                                                                    cursor: "pointer",
-                                                                                    display: "inline-block",
-                                                                                    position: "relative"
-                                                                                }}
-                                                                                onClick={() => {
-                                                                                    syllabusFormData.setFieldValue("course_color", color);
-                                                                                    setShowColorPopover(false);
-                                                                                }}
-                                                                            >
-                                                                                {syllabusFormData.values.course_color === color && (
-                                                                                    <span
-                                                                                        style={{
-                                                                                            position: "absolute",
-                                                                                            top: 4,
-                                                                                            right: 4,
-                                                                                            color: "#fff",
-                                                                                            background: "#000a",
-                                                                                            borderRadius: "50%",
-                                                                                            width: 18,
-                                                                                            height: 18,
-                                                                                            display: "flex",
-                                                                                            alignItems: "center",
-                                                                                            justifyContent: "center",
-                                                                                            fontSize: 14,
-                                                                                        }}
-                                                                                    >
-                                                                                        <i className="material-symbols-outlined" style={{ fontSize: 16 }}>check</i>
-                                                                                    </span>
-                                                                                )}
-                                                                            </span>
+                                    className={`color-option${syllabusFormData.values.course_color === color ? " selected" : ""}`}
+                                    style={{ backgroundColor: color }}
+                                    onClick={() => syllabusFormData.setFieldValue("course_color", color)}
+                                />
                                                                         ))}
                                                                     </div>
-                                                                </Popover.Body>
-                                                            </Popover>
-                                                        </Overlay>
                                                     </div>
-                                                </Form.Group>
-                                            </div>
-                                        </div>
-                                    }
-
-                                    {/* Add Event Body detail */}
-                                    <div className="bottom-button-group">
-                                        <Button type="button" className="btn btn-light-white me-auto"
-                                            onClick={() => { handleCloseAddSyllabusEvents() }}
-                                        >
+                </Modal.Body>
+                <div className="syllabus-footer">
+                    <button type="button" className="btn btn-outline" onClick={handleCloseAddSyllabusEvents}>
                                             Cancel
-                                        </Button>
-                                        <Button type="button" className="btn btn-light-white"
-                                            onClick={() => { handleClearData() }}
-                                        >
+                    </button>
+                    <div className="modal-footer-right">
+                        <button type="button" className="btn btn-outline" onClick={handleClearData}>
                                             Clear
-                                        </Button>
-                                        <Button type="button" className="btn btn-primary"
-                                            onClick={() => { handleSyllabusSubmit() }}
-                                        >
+                        </button>
+                        <button type="button" className="btn btn-primary" disabled={freemiumUploadLocked} onClick={handleSyllabusSubmit}>
                                             Save
-                                        </Button>
+                        </button>
                                     </div>
                                 </div>
-                            </div>
-
-                        </div>
-                    </Offcanvas.Body>
-                </Offcanvas>
-            </div>
-            {/***** Offcanvas end *****/}
+            </Modal>
+            {/***** Modal end *****/}
 
             {loading && (
                 <div className="loader-container">
@@ -563,6 +546,17 @@ export const AddEditSyllabus = (props) => {
                         />
                     </svg>
                 </div>
+            )}
+
+            {isGroupsEnabled() && (
+            <SyllabusGroupSuggestModal
+                open={showSuggestModal}
+                loading={loadingSuggestions || resolvingCanonical}
+                candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+                canonicalPreview={canonical}
+                onJoin={handleJoinClick}
+                onClose={closeSuggest}
+            />
             )}
 
         </>

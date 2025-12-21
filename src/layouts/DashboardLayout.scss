@@ -1,0 +1,51 @@
+/* ============================================
+   Dashboard Layout
+   ============================================ */
+
+.dashboard-layout {
+  height: 100dvh;
+  min-height: 100dvh;
+  display: flex;
+  background: var(--white);
+  overflow: hidden; /* Prevent layout shifts */
+}
+
+.dashboard-main {
+  flex: 1 1 auto;
+  min-width: 0; /* Allow content to shrink properly in flex */
+  display: flex;
+  flex-direction: column;
+  margin-left: 0;
+  /* Don't transition margin - causes layout shift during page transitions */
+  min-height: 0;
+  overflow-y: auto; /* Only the main content scrolls (sidebar stays fixed-height) */
+}
+
+@media (min-width: 1024px) {
+  /* On desktop, sidebar is position: relative and takes up space in flex layout */
+  /* So we don't need margin-left since the sidebar already takes its width */
+  .dashboard-main {
+    margin-left: 0; /* Sidebar takes its own space in flex */
+  }
+}
+
+.content-area {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .content-area {
+    padding: 1rem;
+  }
+}
+
+/* Dark Mode */
+[data-theme="dark"] .dashboard-layout {
+  background: var(--neutral-50);
+}
+
+[data-theme="dark"] .dashboard-main {
+  background: var(--neutral-50);
+}

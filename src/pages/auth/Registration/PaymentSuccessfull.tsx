@@ -29,7 +29,10 @@ export const PaymentSuccessfull = () => {
                     const resp: any = await (dispatch as any)(getSubscriptionStatusAPI());
                     const payload = resp?.payload || resp;
                     if (payload && payload.isSubscription === true) {
-                        try { localStorage.setItem('has_subscription', 'true'); } catch {}
+                        try {
+                            localStorage.setItem('has_subscription', 'true');
+                            localStorage.removeItem('plan_tier');
+                        } catch {}
                         if (!cancelled) navigate(ENUMFORROUTES.DASHBOARD, { replace: true });
                         return;
                     }

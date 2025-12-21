@@ -49,6 +49,8 @@ export const GET_TASK_LIST_DATA_API = "taskListing";
 export const ADD_EDIT_TASK_DATA_API = "addEditTask";
 /**API endpoint for updating task status */
 export const UPDATE_TASK_STATUS_DATA_API = "updateTaskStatus";
+/**API endpoint for starring/unstarring task */
+export const UPDATE_TASK_STAR_API = "updateTaskStar";
 /**API endpoint for deleting task data */
 export const DELETE_TASK_DATA_API = "deleteTask";
 export const GET_USER_API = "getUserData";

@@ -1,17 +1,24 @@
 .btn {
     outline: 0 !important;
-    box-shadow: none !important;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    border: 1px solid;
     justify-content: center;
-    border-radius: 7px;
+    gap: 0.5rem;
+    /* Slimmer button height (match new frontend) */
+    padding: 0.4rem 1rem;
+    line-height: 1.1;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.75rem;
+    transition: all 200ms ease;
+    white-space: nowrap;
+    cursor: pointer;
 
 
     &:not(.btn-sm, .btn-lg, .btn-xs) {
         font-size: 14px;
         font-weight: 600;
-        min-height:38px;
 
         i {
             line-height: 24px;
@@ -20,11 +27,11 @@
     }
 
     &.btn-lg {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 400;
 
         i {
-            line-height: 30px;
+            line-height: 24px;
         }
     }
 
@@ -65,8 +72,8 @@
     }
 
     &.btn-lg {
-        width: 48px;
-        height: 48px;
+        width: 40px;
+        height: 40px;
     }
 
     &.btn-sm {
@@ -143,30 +150,61 @@
 
 /* --------------------------------- Primary -------------------------------- */
 .btn-primary {
-    background-color: $primary_color;
-    color: $white_color;
-    border-color: $primary_color;
+    background-color: #4AAED4;
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 14px rgba(74, 174, 212, 0.4);
 
     &:hover,
     &.btn.active,
     &.btn:active,
     &:focus-visible,
     &:first-child:active {
-        background-color: $primary_hover_color ;
-        border-color: $primary_hover_color ;
-        color: $white_color ;
+        background-color: #3A9BC4;
+        color: #fff;
         outline: none;
-        box-shadow: unset;
+        box-shadow: 0 6px 20px rgba(74, 174, 212, 0.5);
+        transform: translateY(-2px);
     }
 
     &.disabled,
     &:disabled {
-        background-color: $stock_dark ;
-        border-color: $stock_dark ;
-        color: #535E78;
-        outline: none;
-        box-shadow: unset;
+        background-color: #9ca3af;
+        color: #fff;
+        opacity: 0.6;
+        box-shadow: none;
         pointer-events: none;
+        transform: none;
+    }
+}
+
+/* --------------------------------- Accent (Teal) -------------------------------- */
+.btn-accent {
+    background-color: #14B8A6;
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 14px rgba(20, 184, 166, 0.4);
+
+    &:hover,
+    &.btn.active,
+    &.btn:active,
+    &:focus-visible,
+    &:first-child:active {
+        background-color: #0D9488;
+        color: #fff;
+        outline: none;
+        box-shadow: 0 6px 20px rgba(20, 184, 166, 0.5);
+        transform: translateY(-2px);
+    }
+
+    &.disabled,
+    &:disabled {
+        background-color: #9ca3af;
+        color: #fff;
+        opacity: 0.6;
+        box-shadow: none;
+        pointer-events: none;
+        transform: none;
     }
 }
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Card, Col, Modal, Row } from "react-bootstrap";
+import { Button, Card, Modal } from "react-bootstrap";
 import {
   ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT,
   ENUMFORROUTES,
@@ -22,9 +22,49 @@ const undiscountedMap = {
   "for 1 year": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_YEAR,
 };
 
+const FREEMIUM_PLAN = {
+  product_id: "freemium",
+  title: "Freemium",
+  price: 0,
+  Stripe_id: "freemium",
+  duration: "",
+  features: [
+    "Upload 3 syllabus",
+    "Web and mobile access",
+    "Basic reminders and notifications",
+  ],
+  is_freemium: true,
+};
+
+const isFreemiumPlan = (plan: any): boolean => {
+  const price =
+    typeof plan?.price === "string" ? parseFloat(plan.price) : plan?.price;
+  return (
+    plan?.is_freemium === true ||
+    plan?.product_id === "freemium" ||
+    (typeof price === "number" && !isNaN(price) && price <= 0)
+  );
+};
+
+const ensureFreemiumPlan = (list: any[]) => {
+  const hasFreemium = Array.isArray(list) && list.some(isFreemiumPlan);
+  if (!hasFreemium) {
+    list.unshift({ ...FREEMIUM_PLAN });
+  }
+  return list;
+};
+
 export const PricePlans = (props) => {
   const [userData, setuserData] = useState<any>(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
+  const [showPaidPlanNotice, setShowPaidPlanNotice] = useState(false);
+  const hasSubscriptionFlag = useMemo(() => {
+    try {
+      return localStorage.getItem("has_subscription") === "true";
+    } catch {
+      return false;
+    }
+  }, []);
 
   // rely directly on props.updatePlan instead of local state to avoid initial-render race
   const dispatch: AppDispatch = useDispatch();
@@ -41,6 +81,22 @@ export const PricePlans = (props) => {
       return null;
     }
   }, []);
+
+  const handleFreemiumEntry = useCallback(() => {
+    // If on paid plan, surface notice and avoid sending freemium product_id to BE
+    if (hasSubscriptionFlag) {
+      setShowPaidPlanNotice(true);
+      return;
+    }
+    try {
+      localStorage.setItem("has_subscription", "false");
+      localStorage.setItem("plan_tier", "freemium");
+    } catch {}
+    if (typeof props?.setShowPlans === "function") {
+      props.setShowPlans(false);
+    }
+    navigate(ENUMFORROUTES.DASHBOARD);
+  }, [navigate, props?.setShowPlans]);
 
   const normalizeUserRecord = useCallback(
     (raw: any) => {
@@ -120,6 +176,16 @@ export const PricePlans = (props) => {
     if (!userData && !props?.upgradeNoTrial) {
       te("Please Login First!!");
       navigate(ENUMFORROUTES.LOGIN);
+      return;
+    }
+
+    if (isFreemiumPlan(plan)) {
+      // Block freemium selection when on a paid plan or when in update/upgrade modes
+      if (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial) {
+        setShowPaidPlanNotice(true);
+        return;
+      }
+      handleFreemiumEntry();
       return;
     }
 
@@ -284,9 +350,12 @@ export const PricePlans = (props) => {
           if (list.length === 3) break;
         }
       }
+      list = ensureFreemiumPlan(list);
       // sort by price ascending for consistent order
       list.sort((a: any, b: any) => Number(a.price) - Number(b.price));
       setPlans(list);
+    } else {
+      setPlans(ensureFreemiumPlan([...fallbackPlans]));
     }
   }, [dispatch, fallbackPlans]);
 
@@ -298,41 +367,75 @@ export const PricePlans = (props) => {
 
   return (
     <div className="pricing-wrapper">
-      <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between px-3 px-md-4">
+      <div className="plans-grid__cards">
         {plans.map((plan, index) => {
+          const freemium = isFreemiumPlan(plan);
+          const originalPrice = undiscountedMap[plan.duration];
+          const isPopular = !freemium && plan.duration === "for 1 year";
+          const freemiumBlocked =
+            freemium &&
+            (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial);
+          const displayDuration =
+            freemium ||
+            !fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
+              ? plan.duration || "Free forever"
+              : fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
+                  ?.duration || plan.duration;
+          const isActivePlan = selectedPlan === plan?.product_id;
+          const buttonText = freemium
+            ? isActivePlan
+              ? "Active"
+              : "Start for Free"
+            : isActivePlan
+              ? "Active"
+              : props?.updatePlan
+                ? "Change Plan"
+                : "Get Started";
+
           return (
-            <Col key={index}>
+            <div key={index} className="plans-grid__item">
               <Card
                 className={`pricing-card ${
                   selectedPlan === plan?.product_id ? "active" : ""
                 }`}
               >
-                <Card.Header>
-                  {plan.duration === "for 1 year" && (
-                    <span className="popular-tag">Popular</span>
-                  )}
-                </Card.Header>
                 <Card.Body>
-                  <div className="price-section">
-                    <div>
-                      <span className="original-price">
-                        ${undiscountedMap[plan.duration]}
-                      </span>
+                  <div className="pricing-card__header">
+                    <div className="pill-row">
+                      {freemium && (
+                        <span className="pill pill-free">Free forever</span>
+                      )}
+                      {isPopular && (
+                        <span className="pill pill-popular">Popular</span>
+                      )}
                     </div>
-                    <span className="price">${plan.price}</span>
-                    <span className="duration">
-                      {fallbackPlans.find(
-                        (fb) => fb.Stripe_id === plan.duration
-                      )?.duration || plan.duration}
-                    </span>
+                    <div className="price-section">
+                      {!freemium && originalPrice && (
+                        <div>
+                          <span className="original-price">
+                            ${originalPrice}
+                          </span>
+                        </div>
+                      )}
+                      <div className="price-row">
+                        <span className="price">
+                          {freemium ? "Free" : `$${plan.price}`}
+                        </span>
+                        <span className="duration">{displayDuration}</span>
+                      </div>
+                    </div>
                   </div>
 
                   <Button
                     variant="primary"
-                    // disabled={selectedPlan === plan?.product_id}
+                    disabled={isActivePlan}
                     className="btn-text w-100 mb-4"
                     onClick={() => {
-                      if (selectedPlan === plan?.product_id) return;
+                      if (isActivePlan) return;
+                      if (freemiumBlocked) {
+                        setShowPaidPlanNotice(true);
+                        return;
+                      }
                       if (props?.updatePlan && !props?.upgradeNoTrial) {
                         handleConfirmationShow(plan);
                       } else {
@@ -340,11 +443,7 @@ export const PricePlans = (props) => {
                       }
                     }}
                   >
-                    {selectedPlan === plan?.product_id
-                      ? "Active"
-                      : props?.updatePlan
-                        ? "Change Plan"
-                        : "Get Started"}
+                    {buttonText}
                   </Button>
 
                   {/* <Button variant="primary" disabled={selectedPlan === plan?.product_id} className="btn-text w-100 mb-4" onClick={() => { isUpdatePlan ? handleUpdatePlan(plan?.product_id) : handleGetStarted(plan) }} > Get started */}
@@ -373,10 +472,42 @@ export const PricePlans = (props) => {
                   </div>
                 </Card.Body>
               </Card>
-            </Col>
+            </div>
           );
         })}
-      </Row>
+      </div>
+
+      <Modal
+        className="modal-theme"
+        show={showPaidPlanNotice}
+        onHide={() => setShowPaidPlanNotice(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Already on a paid plan</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="mb-2">
+            You’re currently on a paid subscription. To move to the free tier,
+            cancel your subscription first. Once it expires, you’ll
+            automatically revert to Free.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="light" onClick={() => setShowPaidPlanNotice(false)}>
+            Close
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setShowPaidPlanNotice(false);
+              navigate(ENUMFORROUTES.SETTINGS);
+            }}
+          >
+            Go to Billing
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Modal
         className="modal-theme modal-confirmation modal-approve"

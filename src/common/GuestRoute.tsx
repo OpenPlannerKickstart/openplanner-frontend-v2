@@ -11,6 +11,7 @@ import { ENUMFORROUTES } from "../interfaces/enum";
  */
 const GuestRoute = ({ children }: { children: JSX.Element }) => {
   const location = useLocation();
+  const path = location?.pathname;
 
   //   console.log(children);
   /** Check if the user is authenticated */
@@ -23,10 +24,33 @@ const GuestRoute = ({ children }: { children: JSX.Element }) => {
       return false;
     }
   })();
-  if (isAuthenticated && hasSubscription) {
+  const isFreemium = ((): boolean => {
+    try {
+      return localStorage.getItem('plan_tier') === 'freemium';
+    } catch {
+      return false;
+    }
+  })();
+  const allowAuthenticated = [
+    ENUMFORROUTES.PLAN_DETAILS,
+    ENUMFORROUTES.SUCCESS,
+    ENUMFORROUTES.FAILURE,
+    "/faqs",
+    "/privacy-policy",
+    "/terms",
+    "/login",
+    "/registration",
+    ENUMFORROUTES.PARENTS,
+  ];
+
+  if (
+    isAuthenticated &&
+    (hasSubscription || isFreemium) &&
+    !allowAuthenticated.includes(path)
+  ) {
     console.log("going to dashboard")
     return <Navigate to={ENUMFORROUTES.DASHBOARD} state={{ from: location }} />
-  };
+  }
   return children;
 
 };

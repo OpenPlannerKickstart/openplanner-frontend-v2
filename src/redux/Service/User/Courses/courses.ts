@@ -64,14 +64,18 @@ export const getEventListDataAPI =
  * @returns API will return Data
  */
 export const addEditEventDataAPI =
-  (objBody: any = undefined) =>
+  (objBody: any = undefined, options?: { silent?: boolean }) =>
     async (dispatch: AppDispatch) => {
+      if (!options?.silent) {
       dispatch(setLoading(true));
+      }
 
       try {
         const response: any = await post(ADD_EDIT_EVENT_DATA_API, objBody);
         if (!response.data.error) {
-          ts(response.data.message)
+          if (!options?.silent) {
+            ts(response.data.message);
+          }
           return dispatch(addEditEventDataSuccess(response.data.data));
         } else {
           dispatch(addEditEventDataFailure());
@@ -79,7 +83,9 @@ export const addEditEventDataAPI =
       } catch (err) {
         dispatch(addEditEventDataFailure());
       } finally {
+        if (!options?.silent) {
         dispatch(setLoading(false));
+        }
       }
     };
 
@@ -97,14 +103,24 @@ export const addEditSyllabusDataAPI =
 
       try {
         const response: any = await post(ADD_EDIT_SYLLABUS_DATA_API, objBody);
-        if (!response.data.error) {
-          ts(response.data.message)
+        if (response && response.data && !response.data.error) {
+          ts(response.data.message);
           return dispatch(addEditSyllabusDataSuccess(response.data.data));
-        } else {
-          dispatch(addEditSyllabusDataFailure());
         }
+
+        dispatch(addEditSyllabusDataFailure());
+        return {
+          error: true,
+          message: response?.data?.message,
+        };
       } catch (err) {
         dispatch(addEditSyllabusDataFailure());
+        return {
+          error: true,
+          // Surface server message when available so callers can react (e.g., freemium limit)
+          message:
+            (err as any)?.response?.data?.message || (err as any)?.message,
+        };
       } finally {
         dispatch(setLoading(false));
       }
@@ -169,14 +185,16 @@ export const deleteEventDataAPI =
  * @returns API will return Data
  */
 export const updateEventStatusDataAPI =
-  (objBody: any = undefined) =>
+  (objBody: any = undefined, options?: { silent?: boolean }) =>
     async (dispatch: AppDispatch) => {
       dispatch(setLoading(true));
 
       try {
         const response: any = await post(UPDATE_EVENT_STATUS_DATA_API, objBody);
         if (!response.data.error) {
-          ts(response?.data?.message)
+          if (!options?.silent) {
+            ts(response?.data?.message);
+          }
           return dispatch(updateEventStatusDataSuccess(response.data.data));
         } else {
           dispatch(updateEventStatusDataFailure());

@@ -1,0 +1,139 @@
+/* ============================================
+   Modal Component Styles
+   Ported from NEW_FRONTEND/OpenPlannerScreens/styles.css
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-base);
+  padding: 1rem;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-card {
+  background: var(--white);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl), 0 0 60px rgba(74, 174, 212, 0.15);
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(20px) scale(0.95);
+  transition: transform var(--transition-slow);
+}
+
+/* Modal sizes */
+.modal-sm {
+  max-width: 420px;
+}
+
+.modal-md {
+  max-width: 620px;
+}
+
+.modal-lg {
+  max-width: 820px;
+}
+
+.modal-overlay.active .modal-card {
+  transform: translateY(0) scale(1);
+}
+
+/* Modal Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--neutral-200);
+  background: linear-gradient(to right, var(--primary-subtle), var(--white));
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+}
+
+.modal-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--neutral-500);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-close-btn:hover {
+  color: var(--neutral-900);
+  background: var(--neutral-100);
+}
+
+/* Modal Body */
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid var(--neutral-200);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] .modal-overlay {
+  background: rgba(11, 17, 32, 0.8);
+}
+
+[data-theme="dark"] .modal-card {
+  background: var(--white);
+  border: 1px solid var(--neutral-200);
+}
+
+[data-theme="dark"] .modal-header {
+  border-bottom-color: var(--neutral-200);
+  background: linear-gradient(to right, var(--primary-subtle), var(--white));
+}
+
+[data-theme="dark"] .modal-title {
+  color: var(--neutral-900);
+}
+
+[data-theme="dark"] .modal-close-btn {
+  color: var(--neutral-500);
+}
+
+[data-theme="dark"] .modal-close-btn:hover {
+  color: var(--neutral-900);
+  background: var(--neutral-100);
+}
+
+[data-theme="dark"] .modal-footer {
+  border-top-color: var(--neutral-200);
+}

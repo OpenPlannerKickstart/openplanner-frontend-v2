@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Card, Col, Form, Row } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../redux/store";
 import {
@@ -7,9 +7,8 @@ import {
   parentsCreateSessionAPI,
 } from "../../redux/Service/User/Settings/settings";
 import { te } from "../../Utility/Toaster";
-import authLogo from "/assets/images/auth-logo.svg";
-import { ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT } from "../../interfaces/enum";
-//const __keepEnumsForFuture = [ENUM_FOR_PLAN_AMOUNT, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT, ENUM_FOR_PLAN_ID, ENUMFORROUTES];
+import { ENUMFORROUTES, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT } from "../../interfaces/enum";
+import "./ParentsLanding.css";
 
 type Plan = {
   product_id: string;
@@ -17,50 +16,42 @@ type Plan = {
   price: number;
   duration: string;
   features: string[];
+  is_freemium?: boolean;
 };
-const undiscountedMap = {
+
+const undiscountedMap: Record<string, string> = {
   "for 1 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_MONTH,
   "for 6 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.SIX_MONTH,
   "for 1 year": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_YEAR,
 };
-const fallbackPlans: any[] = [
-  {
-    product_id: "one_month",
-    title: "1 Month",
-    price: 3.99,
-    Stripe_id: "for 1 month",
-    duration: "for 1 month",
-  },
-  {
-    product_id: "six_month",
-    title: "6 Months",
-    price: 14.99,
-    Stripe_id: "for 6 month",
-    duration: "for 6 months",
-  },
-  {
-    product_id: "one_year",
-    title: "1 Year",
-    price: 23.99,
-    Stripe_id: "for 1 year",
-    duration: "for 1 year",
-  },
+
+const fallbackPlans: Plan[] = [
+  { product_id: "one_month", title: "1 Month", price: 3.99, duration: "for 1 month", features: [] },
+  { product_id: "six_month", title: "6 Months", price: 14.99, duration: "for 6 month", features: [] },
+  { product_id: "one_year", title: "1 Year", price: 23.99, duration: "for 1 year", features: [] },
 ];
-// no defaultPlans in testing; we rely on BE response exclusively
+
+const isFreemiumPlan = (plan: Plan) =>
+  plan?.is_freemium === true ||
+  plan?.product_id === "freemium" ||
+  (typeof plan?.price === "number" && plan.price <= 0);
 
 const ParentsLanding = () => {
+  const navigate = useNavigate();
   const dispatch: AppDispatch = useDispatch();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [cart, setCart] = useState<Record<string, number>>({});
-  const [parentEmail, setParentEmail] = useState<string>("");
-  const isValidEmail = (email: string) =>
-    /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
-  // Student emails are collected on success page only
+  const [parentEmail, setParentEmail] = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  const displayPlans = plans.length ? plans : fallbackPlans;
+
+  const isValidEmail = (email: string) => /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
 
   useEffect(() => {
-    let meta: HTMLMetaElement | null = document.querySelector(
-      'meta[name="robots"]'
-    );
+    // robots tag noindex
+    let meta: HTMLMetaElement | null = document.querySelector('meta[name="robots"]');
     const previous = meta?.getAttribute("content") || "";
     if (!meta) {
       meta = document.createElement("meta");
@@ -78,31 +69,25 @@ const ParentsLanding = () => {
 
   useEffect(() => {
     const fetchPlans = async () => {
-      const response: any = await dispatch(
-        getAllPlanAPI({ payment_method: "Stripe" })
-      );
+      const response: any = await dispatch(getAllPlanAPI({ payment_method: "Stripe" }));
       if (response?.payload) {
         const list = (response.payload as Plan[])
           .slice()
-          .sort((a: any, b: any) => Number(a.price) - Number(b.price));
-        // Use ONLY backend plans to avoid sending unknown IDs to BE during testing
+          .filter((p) => !isFreemiumPlan(p))
+          .sort((a, b) => Number(a.price) - Number(b.price));
         setPlans(list);
       }
     };
     fetchPlans();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dispatch]);
 
-  const totalItems = useMemo(
-    () => Object.values(cart).reduce((s, q) => s + q, 0),
-    [cart]
-  );
-  const totalAmount = useMemo(() => {
-    return Object.entries(cart).reduce((sum, [productId, qty]) => {
-      const plan = plans.find((p) => p.product_id === productId);
-      return plan ? sum + plan.price * qty : sum;
-    }, 0);
-  }, [cart, plans]);
+  useEffect(() => {
+    const onScroll = () => {
+      setShowBackToTop(window.pageYOffset > 500);
+    };
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const normalizeDuration = (d: string) => {
     const s = (d || "").toLowerCase();
@@ -112,29 +97,36 @@ const ParentsLanding = () => {
     return s || "other";
   };
 
+  const totalItems = useMemo(() => Object.values(cart).reduce((s, q) => s + q, 0), [cart]);
+
+  const totalAmount = useMemo(
+    () =>
+      Object.entries(cart).reduce((sum, [productId, qty]) => {
+        const plan = displayPlans.find((p) => p.product_id === productId);
+        return plan ? sum + plan.price * qty : sum;
+      }, 0),
+    [cart, displayPlans]
+  );
+
   const increment = (productId: string) => {
-    // Enforce one plan type (duration) at a time
     const currentSelectedDuration = (() => {
       for (const [pid, qty] of Object.entries(cart)) {
         if ((qty as number) > 0) {
-          const plan = plans.find((p) => p.product_id === pid);
+          const plan = displayPlans.find((p) => p.product_id === pid);
           return normalizeDuration(plan?.duration || "");
         }
       }
       return "";
     })();
-    const thisPlan = plans.find((p) => p.product_id === productId);
+    const thisPlan = displayPlans.find((p) => p.product_id === productId);
     const thisDuration = normalizeDuration(thisPlan?.duration || "");
-    if (
-      currentSelectedDuration &&
-      thisDuration &&
-      currentSelectedDuration !== thisDuration
-    ) {
+    if (currentSelectedDuration && thisDuration && currentSelectedDuration !== thisDuration) {
       te("You can only purchase one plan type at a time.");
       return;
     }
     setCart((prev) => ({ ...prev, [productId]: (prev[productId] || 0) + 1 }));
   };
+
   const decrement = (productId: string) => {
     setCart((prev) => {
       const next = { ...prev };
@@ -145,22 +137,18 @@ const ParentsLanding = () => {
     });
   };
 
-  // No student email collection here
-
   const handleProceed = () => {
     const items = Object.entries(cart)
       .map(([key, quantity]) => {
-        const p: any = plans.find((pl) => pl.product_id === key);
+        const p: any = displayPlans.find((pl) => pl.product_id === key);
         const product_id = p?.product_id || key;
         const durationKey = normalizeDuration(p?.duration || "");
         return { product_id, quantity, durationKey };
       })
       .filter((i) => i.quantity > 0);
     if (items.length === 0) return;
-    // Defensive guard: block mixed durations
-    const distinctDurations = Array.from(
-      new Set(items.map((i) => i.durationKey))
-    );
+
+    const distinctDurations = Array.from(new Set(items.map((i) => i.durationKey)));
     if (distinctDurations.length > 1) {
       te("You can purchase one plan type at a time.");
       return;
@@ -170,41 +158,29 @@ const ParentsLanding = () => {
       return;
     }
 
-    // Group by duration; each group will run as a separate checkout
-    const grouped: Record<string, { product_id: string; quantity: number }[]> =
-      {};
+    const grouped: Record<string, { product_id: string; quantity: number }[]> = {};
     for (const it of items) {
       if (!grouped[it.durationKey]) grouped[it.durationKey] = [];
-      grouped[it.durationKey].push({
-        product_id: it.product_id,
-        quantity: it.quantity,
-      });
+      grouped[it.durationKey].push({ product_id: it.product_id, quantity: it.quantity });
     }
     const base = window.location.origin + "/#";
     const successUrlContinue = base + "/parents/continue";
     const successUrlFinal = base + "/parents/success";
     const cancelUrl = base + "/parents/cancel";
     const durations = Object.keys(grouped);
-    const queue = durations.map((key, index) => {
-      const isFinal = index === durations.length - 1;
-      return {
-        items: grouped[key],
-        parent_email: parentEmail.trim(),
-        success_url: isFinal ? successUrlFinal : successUrlContinue,
-        cancel_url: cancelUrl,
-      };
-    });
-    if (queue.length === 0) return;
+    const queue = durations.map((key, index) => ({
+      items: grouped[key],
+      parent_email: parentEmail.trim(),
+      success_url: index === durations.length - 1 ? successUrlFinal : successUrlContinue,
+      cancel_url: cancelUrl,
+    }));
 
     try {
       localStorage.setItem("parent_email", parentEmail.trim());
       localStorage.setItem("parents_checkout_queue", JSON.stringify(queue));
       localStorage.setItem("parents_checkout_idx", "0");
       localStorage.setItem("parents_codes_accum", JSON.stringify([]));
-      localStorage.setItem(
-        "parents_final_success",
-        successUrlFinal.replace(base, "")
-      );
+      localStorage.setItem("parents_final_success", successUrlFinal.replace(base, ""));
     } catch {}
 
     dispatch(parentsCreateSessionAPI(queue[0]))
@@ -221,169 +197,296 @@ const ParentsLanding = () => {
       });
   };
 
+  const navLink = (path: string) => {
+    setMobileOpen(false);
+    if (path.startsWith("http")) {
+      window.location.href = path;
+    } else {
+      navigate(path);
+    }
+  };
+
   return (
-    <div className="payment-plans-container parents-plans">
-      <div className="admin-auth-wrapper admin-auth-side-image">
-        <div className="admin-auth-inner-wrapper">
-          <div className="admin-auth-row">
-            <div className="admin-auth-col admin-auth-left">
-              <div className="admin-auth-logo d-flex align-items-center justify-content-between">
-                <a href="/">
-                  <img src={authLogo} alt="OpenPlanner" />
-                </a>
-                <div></div>
-              </div>
-
-              <div
-                className="subscription-box subscription-plans auth-plans"
-                style={{ maxWidth: 1440, margin: "0 auto" }}
+    <div className="parents-page">
+      <header className="parents-navbar">
+        <nav className="parents-container parents-navbar-inner">
+          <button className="parents-navbar-logo" onClick={() => navLink("/")}>
+            <img src="/assets/logo.png" alt="Open Planner" />
+          </button>
+          <ul className="parents-navbar-menu">
+            <li><a className="parents-navbar-link" href="/#features">Features</a></li>
+            <li><a className="parents-navbar-link" href="/#pricing">Pricing</a></li>
+            <li><a className="parents-navbar-link" href="/#/parents">Parents</a></li>
+            <li>
+              <a
+                className="parents-navbar-link"
+                href="/#/faqs"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navLink("/faqs");
+                }}
               >
-                <div className="plans-header">
-                  <h2>Choose Your Plan</h2>
-                  <p>Start with a 7-day FREE trial!</p>
-                </div>
+                FAQ&apos;s
+              </a>
+            </li>
+            <li><a className="parents-navbar-link" href="/#contact">Contact</a></li>
+          </ul>
+          <div className="parents-navbar-actions">
+            <button className="parents-navbar-login" onClick={() => navLink(ENUMFORROUTES.LOGIN)}>Log in</button>
+            <button className="parents-btn parents-btn-primary" onClick={() => navLink(ENUMFORROUTES.REGISTRATION)}>Sign up</button>
+          </div>
+          <button
+            className={`parents-mobile-menu-btn ${mobileOpen ? "active" : ""}`}
+            aria-label="Toggle menu"
+            onClick={() => setMobileOpen((p) => !p)}
+          >
+            <span></span><span></span><span></span>
+          </button>
+        </nav>
+        <div className={`parents-mobile-menu ${mobileOpen ? "active" : ""}`}>
+          <ul className="parents-mobile-menu-links">
+            <li><a href="/#features" onClick={() => setMobileOpen(false)}>Features</a></li>
+            <li><a href="/#pricing" onClick={() => setMobileOpen(false)}>Pricing</a></li>
+            <li><a href="/#/parents" onClick={() => setMobileOpen(false)}>Parents</a></li>
+            <li>
+              <a
+                href="/#/faqs"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMobileOpen(false);
+                  navLink("/faqs");
+                }}
+              >
+                FAQ&apos;s
+              </a>
+            </li>
+            <li><a href="/#contact" onClick={() => setMobileOpen(false)}>Contact</a></li>
+          </ul>
+          <div className="parents-mobile-menu-actions">
+            <button className="parents-btn parents-btn-secondary" onClick={() => navLink(ENUMFORROUTES.LOGIN)}>Log in</button>
+            <button className="parents-btn parents-btn-primary" onClick={() => navLink(ENUMFORROUTES.REGISTRATION)}>Sign up</button>
+          </div>
+        </div>
+      </header>
 
-                <Row className="g-3 g-lg-4 row-cols-1 row-cols-md-3 justify-content-between">
-                  {plans.map((plan) => (
-                    <Col key={plan.product_id}>
-                      <Card className="pricing-card">
-                        <Card.Header>
-                          {plan.duration === "for 1 year" && (
-                            <span className="popular-tag">Popular</span>
-                          )}
-                        </Card.Header>
-                        <Card.Body>
-                          <div className="price-section">
-                            <div>
-                              <span className="original-price">
-                                ${undiscountedMap[plan.duration]}
-                              </span>
-                            </div>
-                            <span className="price">${plan.price}</span>
-                            <span className="duration">
-                              {fallbackPlans.find(
-                                (fb) => fb.Stripe_id === plan.duration
-                              )?.duration || plan.duration}
-                            </span>
-                          </div>
-                          <div className="divider"></div>
-                          <div className="features-section">
-                            <h4>FEATURES</h4>
-                            <ul>
-                              {(Array.isArray(plan.features) &&
-                              plan.features.length > 0
-                                ? plan.features
-                                : [
-                                    "Unlimited syllabus uploads",
-                                    "Full website access",
-                                    "Full mobile application access",
-                                    "Notifications",
-                                  ]
-                              ).map((f, i) => {
-                                const normalized =
-                                  typeof f === "string" &&
-                                  f.trim().toLowerCase() ===
-                                    "full mobile application access"
-                                    ? "Full mobile application access"
-                                    : f;
-                                return (
-                                  <li key={i}>
-                                    <i className="material-symbols-outlined check-icon">
-                                      check_circle
-                                    </i>{" "}
-                                    {normalized}
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </div>
-                          <div className="d-flex align-items-center justify-content-center gap-3 mt-3">
-                            <Button
-                              aria-label="Decrease"
-                              variant="outline-primary"
-                              className="btn-icon"
-                              onClick={() => decrement(plan.product_id)}
-                            >
-                              -
-                            </Button>
-                            <span
-                              className="btn btn-primary btn-text px-4"
-                              style={{
-                                pointerEvents: "none",
-                                cursor: "default",
-                              }}
-                            >
-                              {cart[plan.product_id] || 0}{" "}
-                              {(cart[plan.product_id] || 0) === 1
-                                ? "student"
-                                : "students"}
-                            </span>
-                            <Button
-                              aria-label="Increase"
-                              variant="outline-primary"
-                              className="btn-icon"
-                              onClick={() => increment(plan.product_id)}
-                            >
-                              +
-                            </Button>
-                          </div>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
+      <main>
+        <section className="parents-hero">
+          <div className="parents-hero-bg"></div>
+          <div className="parents-container">
+            <h1>Choose Your Plan</h1>
 
-                {/* Summary section below cards (not in a Card) */}
-                <div className="mt-2">
-                  <p className="text-muted mb-1">
-                    Student codes will be sent to your email. Your subscription
-                    begins with a 7‑day free trial. Students get access when
-                    they redeem a code. You won’t be charged until the trial
-                    ends, and you can cancel any time before then.
-                  </p>
-                  <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2">
-                    <Form.Control
-                      style={{
-                        maxWidth: 360,
-                        boxShadow: "none",
-                        outline: "none",
-                      }}
-                      type="email"
-                      placeholder="Parent email (required)"
-                      value={parentEmail}
-                      onChange={(e) => setParentEmail(e.target.value)}
-                    />
-                    <div className="ms-md-auto d-flex align-items-center gap-2">
-                      <strong>Total:</strong>
-                      <span>${totalAmount.toFixed(2)}</span>
+            <div className="pricing-cards-grid">
+              {displayPlans.map((plan) => {
+                const oldPrice = undiscountedMap[plan.duration] || "";
+                const perMonth =
+                  plan.duration === "for 6 month"
+                    ? "$2.50/month"
+                    : plan.duration === "for 1 year"
+                    ? "$2.00/month"
+                    : "";
+                const isPopular = plan.duration === "for 1 year";
+                const count = cart[plan.product_id] || 0;
+                return (
+                  <div
+                    key={plan.product_id}
+                    className={`pricing-card ${isPopular ? "pricing-card-popular" : ""}`}
+                  >
+                    {isPopular && <span className="popular-badge">Popular</span>}
+                    <div className="pricing-header">
+                      <span className="pricing-duration">{plan.title}</span>
+                      <div className="pricing-price">
+                        <span className={`price-old ${oldPrice ? "" : "price-old-hidden"}`}>
+                          {oldPrice ? `$${oldPrice}` : "\u00A0"}
+                        </span>
+                        <span className="price-current">${plan.price}</span>
+                        <span className={`price-per-month ${perMonth ? "" : "price-per-month-hidden"}`}>
+                          {perMonth || "\u00A0"}
+                        </span>
+                      </div>
                     </div>
-                    <Button
-                      variant="primary"
-                      disabled={totalItems === 0 || !isValidEmail(parentEmail)}
-                      onClick={handleProceed}
-                    >
-                      Proceed to checkout
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      className="btn-icon-text"
-                      onClick={async () => {
-                        window.location.href =
-                          "https://billing.stripe.com/p/login/bJedR99D8gNU2Qj0iKbfO00";
-                      }}
-                    >
-                      <i className="material-symbols-outlined">
-                        account_balance_wallet
-                      </i>{" "}
-                      Manage existing billing
-                    </Button>
+                    <div className="pricing-features">
+                      <span className="features-label">FEATURES</span>
+                      <ul>
+                        {(Array.isArray(plan.features) && plan.features.length
+                          ? plan.features
+                          : [
+                              "Unlimited syllabus uploads",
+                              "Full website access",
+                              "Full mobile application access",
+                              "Notifications",
+                            ]
+                        ).map((f, i) => (
+                          <li key={i}>
+                            <svg className="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="student-counter">
+                      <button type="button" className="student-btn minus" onClick={() => decrement(plan.product_id)}>
+                        −
+                      </button>
+                      <span className="student-count">
+                        {count} {count === 1 ? "student" : "students"}
+                      </span>
+                      <button type="button" className="student-btn plus" onClick={() => increment(plan.product_id)}>
+                        +
+                      </button>
+                    </div>
                   </div>
-                </div>
+                );
+              })}
+            </div>
+
+            <p className="parents-info">
+              Student codes will be sent to your email. Students get access when they redeem a code.
+              You can cancel anytime.
+            </p>
+
+            <div className="parents-form-wrap">
+              <label htmlFor="parent-email" className="parents-form-label">
+                Parent Email
+              </label>
+              <input
+                type="email"
+                id="parent-email"
+                className="parents-input"
+                placeholder="Enter your email address"
+                value={parentEmail}
+                onChange={(e) => setParentEmail(e.target.value)}
+              />
+              <button
+                type="button"
+                className="checkout-btn-styled"
+                disabled={totalItems === 0 || !isValidEmail(parentEmail)}
+                onClick={handleProceed}
+              >
+                Proceed to checkout
+              </button>
+              <button
+                type="button"
+                className="billing-btn-styled"
+                onClick={() => {
+                  window.location.href = "https://billing.stripe.com/p/login/bJedR99D8gNU2Qj0iKbfO00";
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Manage existing billing
+              </button>
+              <div style={{ marginTop: "0.75rem", color: "var(--neutral-700)", fontWeight: 600 }}>
+                Total: ${totalAmount.toFixed(2)}
               </div>
             </div>
           </div>
+        </section>
+      </main>
+
+      <footer className="parents-footer">
+        <div className="parents-container">
+          <div className="parents-footer-content">
+            <div>
+              <button onClick={() => navLink("/")} aria-label="Open Planner home">
+                <img src="/assets/logo.png" alt="Open Planner" className="parents-footer-logo" />
+              </button>
+              <p>AI-powered scheduling for students</p>
+            </div>
+            <div className="parents-footer-nav">
+              <div>
+                <h4 className="parents-footer-nav-title">Product</h4>
+                <ul className="parents-footer-nav-links">
+                  <li><a href="/#">Home</a></li>
+                  <li><a href="/#features">Features</a></li>
+                  <li><a href="/#pricing">Pricing</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="parents-footer-nav-title">Support</h4>
+                <ul className="parents-footer-nav-links">
+                  <li>
+                    <a
+                      href="/#/faqs"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navLink("/faqs");
+                      }}
+                    >
+                      FAQ&apos;s
+                    </a>
+                  </li>
+                  <li><a href="/#contact">Contact Us</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="parents-footer-nav-title">Legal</h4>
+                <ul className="parents-footer-nav-links">
+                  <li>
+                    <a
+                      href="/#/privacy-policy"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navLink("/privacy-policy");
+                      }}
+                    >
+                      Privacy Policy
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="/#/terms"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navLink("/terms");
+                      }}
+                    >
+                      Terms and Conditions
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h4 className="parents-footer-social-title">Follow Us</h4>
+              <div className="parents-footer-social-links">
+                <a href="#" className="parents-footer-social-link" aria-label="Instagram">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                  </svg>
+                </a>
+                <a href="#" className="parents-footer-social-link" aria-label="Facebook">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="parents-footer-bottom">
+            © 2025 Open Planner. All rights reserved.
+          </div>
         </div>
-      </div>
+      </footer>
+
+      <button
+        className={`parents-back-to-top ${showBackToTop ? "visible" : ""}`}
+        aria-label="Back to top"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M18 15l-6-6-6 6" />
+        </svg>
+      </button>
     </div>
   );
 };

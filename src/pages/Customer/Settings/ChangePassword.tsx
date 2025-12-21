@@ -9,8 +9,9 @@ import { CONFIRM_PASSWORD_NOT_MATCHED, MAX_15, MAX_50, PASSWORD_INVALID, PATTERN
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
 import { changePasswordAPI } from '../../../redux/Service/User/Settings/settings';
+import './Settings.css';
 
-const ChangePassword = () => {
+const ChangePassword: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();
     const [eyeToggle, setEyeToggle] = useState<boolean>(false);
     const [eyeToggleTwo, setEyeToggleTwo] = useState<boolean>(false);
@@ -45,8 +46,21 @@ const ChangePassword = () => {
     });
 
     // onSubmit function
-    const onSubmit = async (values, onSubmitProps) => {
-        // Handle form submission logic
+    const onSubmit = async (values: any, onSubmitProps: any) => {
+        try {
+            const reqBody = { ...values };
+            customJsonInclude(reqBody);
+            
+            const response = await dispatch(changePasswordAPI(reqBody));
+            if (response?.payload) {
+                formData.resetForm();
+                // Handle successful response - maybe show success message
+            }
+        } catch (error) {
+            console.error('Error changing password:', error);
+        } finally {
+            onSubmitProps.setSubmitting(false);
+        }
     };
 
     // useFormik instance
@@ -67,36 +81,23 @@ const ChangePassword = () => {
 
     // Submission handler
     const handleSubmitFormData = async () => {
-        formData.handleSubmit();
         const formDataErrors = await formData.validateForm();
-        console.log(formDataErrors)
         if (Object.keys(formDataErrors).length > 0) {
             formData.setTouched(
                 setNestedObjectValues(formDataErrors, true)
             );
             return;
         }
-
-        const reqBody = { ...formData.values };
-        customJsonInclude(reqBody);
-
-        const response = await dispatch(changePasswordAPI(reqBody))
-        if (response) {
-            formData.resetForm();
-            // Handle successful response
-        }
+        
+        // Trigger formik submit which will call onSubmit
+        formData.handleSubmit();
     };
 
     /** -------------------change password end-------------------------*/
 
     return (
-        <>
-            <div className="profile-main-wrapper">
-                <Card>
-                    <Card.Body>
-                        <div className="setting-main-title">
-                            <h2>Change Password</h2>
-                        </div>
+        <div className="settings-card">
+            <h2 className="settings-card-title">Change Password</h2>
                         <div className="main-form-wrapper">
                             <Form.Group className='form-group'>
                                 <Form.Label>Current Password</Form.Label>
@@ -175,18 +176,16 @@ const ChangePassword = () => {
                                 }
                             </Form.Group>
                         </div>
-                        <div className="button-group">
-                            <Button variant="primary" className="btn-icon-text" onClick={() => { handleSubmitFormData() }}>
-                                <i className="material-symbols-outlined">key</i> Change Password
-                            </Button>
-                            {/* <Button variant="outline-white">
-                                Cancel
-                            </Button> */}
-                        </div>
-                    </Card.Body>
-                </Card>
+            <div className="form-actions">
+                <button 
+                    type="button"
+                    className="btn btn-primary" 
+                    onClick={() => { handleSubmitFormData() }}
+                >
+                    Change Password
+                </button>
             </div>
-        </>
+        </div>
     )
 }
 

@@ -2,6 +2,10 @@ import React from 'react'
 import { Route, HashRouter as Router, Routes, useLocation } from 'react-router-dom';
 import { getToken } from './Utility/Helper';
 import Login from './pages/auth/Login/Login';
+import LandingPage from './pages/LandingPage/LandingPage';
+import FAQPage from './pages/FAQs/FAQPage';
+import PrivacyPolicyPage from './pages/Legal/PrivacyPolicyPage';
+import TermsPage from './pages/Legal/TermsPage';
 
 import { RouterProps } from './interfaces';
 
@@ -13,6 +17,7 @@ import SubscribedRoute from './common/SubscribedRoute';
 import NotFound from './components/NotFound/NotFound';
 
 import Navbar from './components/Navbar/Navbar';
+import DashboardLayout from './layouts/DashboardLayout';
 
 import { ENUMFORROUTES } from './interfaces/enum';
 import Dashboard from './pages/Customer/Dashboard/Dashboard';
@@ -34,6 +39,9 @@ import { PaymentSuccessfull } from './pages/auth/Registration/PaymentSuccessfull
 import { PaymentFailed } from './pages/auth/Registration/PaymentFailed';
 import { PaymentPlans } from './pages/auth/Registration/PaymentPlans';
 import Groups from './pages/Customer/Groups/Groups';
+import StudentProfile from './pages/Customer/Students/StudentProfile';
+import GlobalSyllabusUploadModal from './components/GlobalSyllabusUploadModal/GlobalSyllabusUploadModal';
+import { isGroupsEnabled } from './config/featureFlags';
 const ParentsLanding = React.lazy(() => import('./pages/Parents/ParentsLanding'));
 // @ts-ignore - TS resolver can misreport on lazy dynamic imports in some configs
 const ParentsSuccess = React.lazy(() => import('./pages/Parents/ParentsSuccess'));
@@ -82,7 +90,8 @@ const privateRoutes: RouterProps[] = [
     caseSensitive: true,
     url: ENUMFORROUTES.SETTINGS,
   },
-  // Conditionally include Groups route via feature flag later if needed in rendering
+  // Groups routes (conditionally included via feature flag)
+  ...(isGroupsEnabled() ? [
   {
     path: ENUMFORROUTES.GROUPS,
     component: <Groups />,
@@ -96,6 +105,14 @@ const privateRoutes: RouterProps[] = [
     caseSensitive: true,
     url: "/groups/:groupId",
   },
+    // Student profile page (part of groups feature)
+  {
+    path: ENUMFORROUTES.STUDENT_PROFILE,
+    component: <StudentProfile />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.STUDENT_PROFILE,
+  },
+  ] : []),
   {
     path: ENUMFORROUTES.EDIT_COURSE,
     component: <EditCourse />,
@@ -111,7 +128,43 @@ const privateRoutes: RouterProps[] = [
 const publicRoutes: RouterProps[] = [
   {
     path: "/",
-    component: <Login />,
+    component: <LandingPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/faqs",
+    component: <FAQPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/privacy-policy",
+    component: <PrivacyPolicyPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/terms",
+    component: <TermsPage />,
+    caseSensitive: true,
+  },
+  // Support hash-anchor deep links when using HashRouter (e.g., #pricing, #features)
+  {
+    path: "/pricing",
+    component: <LandingPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/features",
+    component: <LandingPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/testimonials",
+    component: <LandingPage />,
+    caseSensitive: true,
+  },
+  {
+    path: "/contact",
+    component: <LandingPage />,
     caseSensitive: true,
   },
   {
@@ -178,20 +231,33 @@ const Layout = ({ isAuthenticated, children }: { isAuthenticated: boolean, child
       return false;
     }
   })();
-  return (
-    <div className={isAuthenticated && !isParentsRoute && !isPaywallRoute ? 'layout-wrapper' : ''} id={isAuthenticated && !isParentsRoute && !isPaywallRoute ? "layout-wrapper" : ''}>
-      {isAuthenticated && hasSubscription && !isParentsRoute && !isPaywallRoute && (
-        <Navbar />
-      )}
-      {isAuthenticated && hasSubscription && !isParentsRoute && !isPaywallRoute && (
-        <Sidebar />
-      )}
-      <div className={isAuthenticated && hasSubscription && !isParentsRoute && !isPaywallRoute ? 'main-content' : ''}>
+  const isFreemium = ((): boolean => {
+    try {
+      return localStorage.getItem('plan_tier') === 'freemium';
+    } catch {
+      return false;
+    }
+  })();
+  const showChrome =
+    isAuthenticated && (hasSubscription || isFreemium) && !isParentsRoute && !isPaywallRoute;
+
+  // Use new DashboardLayout for authenticated dashboard pages
+  if (showChrome) {
+    return (
+      <DashboardLayout>
         {children}
         {!isParentsRoute && !isPaywallRoute && <NavigationConfirm />}
-      </div>
-    </div>
-  )
+      </DashboardLayout>
+    );
+  }
+
+  // For public pages, just render children without chrome
+  return (
+    <>
+      {children}
+      {!isParentsRoute && !isPaywallRoute && <NavigationConfirm />}
+    </>
+  );
 }
 
 /**
@@ -400,10 +466,11 @@ const AppRouter = (): JSX.Element => {
           </Routes>
         </React.Suspense>
       </Layout>
+      {/* Global syllabus upload modal - floats above everything, inside Router for navigation */}
+      <GlobalSyllabusUploadModal />
     </Router>
   )
 }
 
 
 export default AppRouter;
-

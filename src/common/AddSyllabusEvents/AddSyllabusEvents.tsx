@@ -16,12 +16,35 @@ import * as yup from 'yup';
 import { addEditEventDataAPI, addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
 import { MAX_1000, MAX_3, MAX_300, MAX_50, ONLY_ALPHABETS_AND_DOT, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import InputColor from 'react-input-color';
-import { ENUM_FOR_EVENT_PRIORITY, ENUM_FOR_SYLLABUS_TAB } from '../../interfaces/enum';
+import { ENUM_FOR_EVENT_PRIORITY, ENUM_FOR_SYLLABUS_TAB, ENUMFORROUTES } from '../../interfaces/enum';
 import GetImageIcon from '../GetImageIcon';
 import { eventPriorityDropDownData, reminderUnitDropDownData } from '../../Utility/staticDropDown';
 import { isUpdatedEvent, isUpdatedSyllabus } from '../../redux/User/Courses/coursesSlice';
+import { useNavigate } from 'react-router-dom';
+import { useSyllabusGroupSuggest } from '../../hooks/useSyllabusGroupSuggest';
+import SyllabusGroupSuggestModal from '../../components/SyllabusGroupSuggestModal/SyllabusGroupSuggestModal';
+import { useSyllabusUpload } from '../../context/SyllabusUploadContext';
+import { startSyllabusUpload } from '../../Utility/syllabusUpload';
+import { isGroupsEnabled } from '../../config/featureFlags';
 const AddSyllabusEvents = (props) => {
   const dispatch: AppDispatch = useDispatch();
+  const navigate = useNavigate();
+  const [showSuggestModal, setShowSuggestModal] = useState(false);
+  const {
+    syllabusId: hookSyllabusId,
+    setSyllabusId,
+    loadingSuggestions,
+    suggestion,
+    hasCandidate,
+    fetchSuggestions,
+    resolvingCanonical,
+    canonical,
+    createAndJoin,
+    reset: resetSuggest,
+  } = useSyllabusGroupSuggest();
+  
+  // Syllabus upload context for background upload
+  const syllabusUploadContext = useSyllabusUpload();
 
   const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
 
@@ -79,6 +102,40 @@ const AddSyllabusEvents = (props) => {
   const [loading, setloading] = useState(false)
   const onSubmitForSyllabus = (values) => {
   }
+  const localPlanTier = (() => {
+    try {
+      return localStorage.getItem("plan_tier");
+    } catch {
+      return null;
+    }
+  })();
+  const isFreemiumPlan =
+    props?.isFreemiumPlan ??
+    (localPlanTier === "freemium");
+  const hasSubscription = props?.hasSubscription ?? (() => {
+    try {
+      return localStorage.getItem("has_subscription") === "true";
+    } catch {
+      return false;
+    }
+  })();
+  const existingSyllabusCount =
+    typeof props?.existingSyllabusCount === "number"
+      ? props.existingSyllabusCount
+      : 0;
+  const FREEMIUM_UPLOAD_LIMIT = 3;
+  const freemiumUploadLocked =
+    isFreemiumPlan &&
+    !hasSubscription &&
+    ((!!props?.freemiumLimitReached) || existingSyllabusCount >= FREEMIUM_UPLOAD_LIMIT);
+
+  const handleUpgrade = () => {
+    if (props?.onUpgradeClick) {
+      props.onUpgradeClick();
+      return;
+    }
+    navigate(ENUMFORROUTES.PLAN_DETAILS);
+  };
   const validationSchemaForSyllabus = yup.object({
     title: yup.string().required(SYLLABUS_TITLE_IS_REQUIRED),
     class_time: yup.string().required(CLASS_TIME_IS_REQUIRED),
@@ -105,10 +162,12 @@ const AddSyllabusEvents = (props) => {
     enableReinitialize: true,
   })
   const handleSyllabusSubmit = async () => {
-    syllabusFormData.handleSubmit();
-    if (isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc)) {
-
+    if (freemiumUploadLocked) {
+      handleUpgrade();
+      return;
     }
+
+    syllabusFormData.handleSubmit();
     const syllabusFormDataErrors = await syllabusFormData.validateForm();
     if (Object.keys(syllabusFormDataErrors).length > 0) {
       syllabusFormData.setTouched(
@@ -118,6 +177,46 @@ const AddSyllabusEvents = (props) => {
       return;
     }
 
+    const hasNewFile = !isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) && 
+      typeof syllabusFormData?.values?.syllabus_doc === "object";
+
+    // Use async background upload flow when there's a new file
+    if (hasNewFile) {
+      const file = syllabusFormData?.values?.syllabus_doc[0] as File;
+      const metadata = {
+      title: syllabusFormData.values.title,
+      class_time: formatedDate(syllabusFormData.values.class_time, "HH:mm:ssZ"),
+      course_color: syllabusFormData.values.course_color,
+        professor_name: syllabusFormData.values.professor_name || undefined,
+      };
+
+      // Close the offcanvas immediately - upload will continue in background
+      handleCloseAddSyllabusEvents();
+
+      try {
+        // Start background upload - this opens the floating modal
+        const result = await startSyllabusUpload(file, metadata, {
+          startUpload: syllabusUploadContext.startUpload,
+          setProgress: syllabusUploadContext.setProgress,
+          setStatus: syllabusUploadContext.setStatus,
+          setSyllabusId: syllabusUploadContext.setSyllabusId,
+        });
+
+        // Upload complete - show group suggestions & refresh lists
+        if (result.syllabusId) {
+          setSyllabusId(String(result.syllabusId));
+          await fetchSuggestions(String(result.syllabusId));
+          setShowSuggestModal(true);
+          dispatch(isUpdatedSyllabus(true));
+        }
+      } catch (error) {
+        // Error is already handled in startSyllabusUpload (toast + modal state)
+        console.error('Syllabus upload failed:', error);
+      }
+      return;
+    }
+
+    // Legacy flow for metadata-only updates (no new file)
     const formData = new FormData();
     const reqBody = {
       title: syllabusFormData.values.title,
@@ -126,21 +225,30 @@ const AddSyllabusEvents = (props) => {
       professor_name: syllabusFormData.values.professor_name,
     }
 
-
-
-    if (!isEmptyObjectOrNullUndefiend(syllabusFormData?.values?.syllabus_doc) && typeof syllabusFormData?.values?.syllabus_doc === "object") {
-
-      formData.append("syllabus_doc", syllabusFormData?.values?.syllabus_doc[0]);
-    }
-
     customJsonInclude(reqBody);
     formData.append("syllabusDetail", JSON.stringify(reqBody) as any);
     setloading(true);
-    const response = await dispatch(addEditSyllabusDataAPI(formData));
+    const response: any = await dispatch(addEditSyllabusDataAPI(formData));
     if (response) {
+      const payload = response?.payload ?? null;
+      const sid =
+        payload?.syllabusId ||
+        payload?.syllabus_id ||
+        payload?.id ||
+        payload?.syllabus?.id ||
+        payload?.data?.id ||
+        payload?.result?.id ||
+        payload?.doc_id ||
+        null;
       handleCloseAddSyllabusEvents();
-      dispatch(isUpdatedSyllabus(true));
-
+      if (sid) {
+        setSyllabusId(String(sid));
+        await fetchSuggestions(String(sid));
+        setShowSuggestModal(true);
+        dispatch(isUpdatedSyllabus(true));
+      } else {
+        try { console.log('Syllabus save payload (no syllabusId found):', payload); } catch {}
+      }
     }
     setloading(false);
 
@@ -392,10 +500,22 @@ const AddSyllabusEvents = (props) => {
   }
 
 
+  // Course colors matching the new design system (synced with getColorClassName in Courses.tsx)
   const colorPalette = [
-    "#239BC2", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#2196f3",
-    "#03a9f4", "#00bcd4", "#009688", "#4caf50", "#8bc34a", "#cddc39",
-    "#ffeb3b", "#ffc107", "#ff9800", "#ff5722", "#795548", "#607d8b"
+    "#239BC2", // cyan (default)
+    "#F97316", // orange
+    "#EAB308", // yellow
+    "#22C55E", // green
+    "#14B8A6", // teal
+    "#D97706", // gold
+    "#3B82F6", // blue
+    "#cddc39", // lime
+    "#EF4444", // red
+    "#8B5CF6", // purple
+    "#EC4899", // pink
+    "#6B7280", // gray
+    "#78716C", // stone
+    "#6366F1", // indigo
   ];
 
   // const [showColorPopover, setShowColorPopover] = useState(false);
@@ -499,6 +619,16 @@ const AddSyllabusEvents = (props) => {
                           </Form.Group>
                           <Form.Group className="form-group">
                             <Form.Label>Upload Syllabus Here</Form.Label>
+                            {freemiumUploadLocked && (
+                              <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
+                                <div>
+                                  <strong>Free plan limit reached.</strong> Upload up to 3 syllabi for free, then upgrade for unlimited uploads.
+                                </div>
+                                <Button size="sm" variant="primary" onClick={handleUpgrade}>
+                                  View plans
+                                </Button>
+                              </div>
+                            )}
                             <div className='attachments-container'>
                               <div className='attachments-content'>
                                 <button className='btn btn-attachments'><i className="bi bi-upload"></i></button>
@@ -506,6 +636,7 @@ const AddSyllabusEvents = (props) => {
                               </div>
                               <input className=' ' type="file"
                                 accept=".pdf,.doc,.docx"
+                                disabled={freemiumUploadLocked}
 
                                 onChange={(e: any) => {
                                   if (!isEmptyObjectOrNullUndefiend(e.target?.files)) {
@@ -1106,6 +1237,7 @@ const AddSyllabusEvents = (props) => {
                       Clear
                     </Button>
                     <Button type="button" className="btn btn-primary"
+                      disabled={selectedTab === ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS && freemiumUploadLocked}
                       onClick={() => { handleSubmitData() }}
                     >
                       Save
@@ -1144,6 +1276,25 @@ const AddSyllabusEvents = (props) => {
             />
           </svg>
         </div>
+      )}
+
+      {isGroupsEnabled() && (
+      <SyllabusGroupSuggestModal
+        open={showSuggestModal}
+        loading={loadingSuggestions || resolvingCanonical}
+        candidate={hasCandidate ? (suggestion?.candidates?.[0] || null) : null}
+        canonicalPreview={canonical}
+        onJoin={async () => {
+          const sid = hookSyllabusId;
+          const result = await createAndJoin(sid);
+          if (result && result.id) {
+            setShowSuggestModal(false);
+            resetSuggest();
+            navigate(`/groups/${result.id}`);
+          }
+        }}
+        onClose={() => { setShowSuggestModal(false); resetSuggest(); }}
+      />
       )}
 
     </>

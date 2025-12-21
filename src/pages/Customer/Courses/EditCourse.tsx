@@ -1,43 +1,65 @@
 import React, { useEffect, useState } from 'react'
 import SyllabusDetails from './SyllabusDetails'
 import Events from './Events'
-import { Button } from 'react-bootstrap'
 import { ENUM_FOR_SYLLABUS_TAB, ENUMFORROUTES } from '../../../interfaces/enum'
 import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent'
 import { formatedDate, isNullUndefinedOrBlank } from '../../../Utility/Helper'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
-import { getEventListDataAPI } from '../../../redux/Service/User/Courses/courses'
+import { getEventListDataAPI, getCoursesListDataAPI } from '../../../redux/Service/User/Courses/courses'
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
 import { Viewer } from '@react-pdf-viewer/core'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
-const EditCourse = (props) => {
+const EditCourse = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
-  // You may want to get this from route params or redux
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [selectedSyllabusObj, setSelectedSyllabusObj] = useState<any>({});
 
+  // Add body class for responsive styling
   useEffect(() => {
-    if (location.state?.syllabusObj) {
-      setSelectedSyllabusObj(location.state.syllabusObj);
-    }
-  }, [location.state]);
+    document.body.classList.add('edit-course-body');
+    return () => {
+      document.body.classList.remove('edit-course-body');
+    };
+  }, []);
+
+  // Load course data from state or fetch if missing (e.g., page refresh)
+  useEffect(() => {
+    const loadCourseData = async () => {
+      if (location.state?.syllabusObj) {
+        setSelectedSyllabusObj(location.state.syllabusObj);
+      } else {
+        // Fallback: fetch courses list and find by ID from URL
+        const courseId = searchParams.get('id');
+        if (courseId) {
+          const response = await dispatch(getCoursesListDataAPI({}));
+          if (response?.payload?.length) {
+            const course = response.payload.find((c: any) => c.id === parseInt(courseId));
+            if (course) {
+              setSelectedSyllabusObj(course);
+            }
+          }
+        }
+      }
+    };
+    loadCourseData();
+  }, [location.state, searchParams, dispatch]);
 
   // Tab logic
   const [selectedTab, setSelectedTab] = useState<any>(ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS)
-  const handleTabChange = (tabName) => {
+  const handleTabChange = (tabName: string) => {
     if (selectedTab !== tabName) setSelectedTab(tabName)
   }
 
   // Add/Edit Event logic
   const [showAddEvent, setAddEventShow] = useState(false)
-  const handleAddEventClose = () => setAddEventShow(false)
   const handleAddEventShow = () => setAddEventShow(true)
   const [editEventFormData, setEditEventFormData] = useState<any>(null)
 
-  const handleSelectEvent = (event) => {
+  const handleSelectEvent = (event: any) => {
     handleAddEventShow()
     setEditEventFormData({
       ...event,
@@ -74,153 +96,167 @@ const EditCourse = (props) => {
             ShowProperties,
           } = slots
           return (
-            <>
-              <ShowSearchPopover />
-              <GoToPreviousPage />
-              <CurrentPageInput />
-              <NumberOfPages />
-              <GoToNextPage />
-              <ZoomOut />
-              <ZoomIn />
-              <EnterFullScreen />
-              <Download />
-              <ShowProperties />
-            </>
+            <div className="custom-pdf-toolbar">
+              <div className="toolbar-left">
+                <ShowSearchPopover />
+                <GoToPreviousPage />
+                <GoToNextPage />
+                <div className="page-info">
+                  <CurrentPageInput />
+                  <NumberOfPages />
+                </div>
+              </div>
+              <div className="toolbar-right">
+                <ZoomOut />
+                <ZoomIn />
+                <EnterFullScreen />
+                <Download />
+                <ShowProperties />
+              </div>
+            </div>
           )
         }}
       </Toolbar>
     ),
-    sidebarTabs: (defaultTabs) => [
-      defaultTabs[0], // Bookmarks
-      defaultTabs[1], // Thumbnails
-    ],
+    // Hide sidebar completely - no thumbnails or bookmarks
+    sidebarTabs: () => [],
   })
 
-  // You may want to fetch the course details here if needed
-  useEffect(() => {
-    // Example: setSelectedSyllabusObj(props.location.state?.syllabusObj)
-    // Or fetch from API if you have an ID in the route
-  }, [])
-
   return (
-    <div className="page-content edit-course-canvas-wrapper page-content-wrapper edit-course-box-wrapper">
-      <div className="edit-course-canvas">
-        <div className="edit-course-header page-title-wrapper">
-          <div className="page-title-left">
-            <div className="page-title d-flex align-items-center">
-              <Button variant="primary" size="sm" className="me-3" onClick={() => {
-                navigate(ENUMFORROUTES.COURSES)
-              }}>
-                 <i className="material-symbols-outlined">arrow_back_ios</i> Back
-              </Button>
-              <h4>Edit <span>Course</span></h4>
-            </div>
+    <>
+      {/* Top Header */}
+      <header className="dashboard-header">
+        <div className="dashboard-header-inner">
+          <div className="dashboard-header-left">
+            <button 
+              className="back-btn" 
+              onClick={() => navigate(ENUMFORROUTES.COURSES)}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Back
+            </button>
+            <h1 className="dashboard-page-title">Edit Course</h1>
           </div>
-          <div className="page-title-right">
-            {/* Add any header actions if needed */}
+          
+          <div className="dashboard-header-right">
+            {/* Header right actions can go here */}
           </div>
         </div>
-        <div className="content-area">
-          <div className="page-content-wrapper h-100">
-            <div className={`edit-course-wrapper ${!isShowPdf ? "hide-syllabus-preview" : ""}`}>
-                <div className="course-edit-container">
-                    <div className="syllabus-tab-wrapper">
-                    <div className="course-detail-box">
-                        <div className="nav-tabs-outer nav-tabs-style2">
-                        <nav>
-                            <div className="nav nav-tabs" id="nav-tab" role="tablist">
+      </header>
+
+      {/* Edit Course Content */}
+      <div className="edit-course-page">
+        <div className={`edit-course-content ${!isShowPdf ? 'preview-hidden' : ''}`}>
+          {/* Left Panel - Events */}
+          <div className={`events-panel ${!isShowPdf ? 'full-width' : ''}`}>
+            {/* Tabs */}
+            <div className="course-tabs">
+              <div className="tabs-left">
                             <button
-                                className={`nav-link ${selectedTab === ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS ? "active" : ""}`}
-                                id="nav-Events-tab"
-                                type="button"
-                                role="tab"
+                  className={`tab-btn ${selectedTab === ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS ? 'active' : ''}`}
                                 onClick={() => handleTabChange(ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS)}
                             >
                                 Events
                             </button>
                             <button
-                                className={`nav-link ${selectedTab === ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS ? "active" : ""}`}
-                                id="nav-SyllabusDetails-tab"
-                                type="button"
-                                role="tab"
+                  className={`tab-btn ${selectedTab === ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS ? 'active' : ''}`}
                                 onClick={() => handleTabChange(ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS)}
                             >
                                 Syllabus Details
                             </button>
-                            <Button variant="primary" size="sm" className="ms-auto" onClick={handleAddEventShow}>
-                                Add New Event
-                            </Button>
-                            <a className="hide-btn" onClick={() => setIsShowPdf(!isShowPdf)}>
-                                {isShowPdf ? "Hide Preview" : "View Preview"}
-                            </a>
                             </div>
-                        </nav>
-                        <div className="tab-content" id="nav-tabContent">
-                            <div
-                            className={`tab-pane fade ${selectedTab === ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS ? "show active" : ""}`}
-                            id="nav-SyllabusDetails"
-                            role="tabpanel"
-                            aria-labelledby="nav-SyllabusDetails-tab"
-                            >
-                            <div className="tab-content-container">
-                                <SyllabusDetails
-                                selectedSyllabusObj={selectedSyllabusObj}
-                                handleGetCourseList={() => {}} // Implement as needed
-                                handleCloseSyllabusDetails={() => {}} // Implement as needed
-                                setPdfPreviewLink={setPdfPreviewLink}
-                                pdfPreviewLink={pdfPreviewLink}
-                                />
+              <div className="tabs-right">
+                {!isShowPdf && (
+                  <button 
+                    className="btn btn-secondary show-preview-btn"
+                    onClick={() => setIsShowPdf(true)}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    Show Preview
+                  </button>
+                )}
+                <button 
+                  className="btn btn-accent add-event-btn"
+                  onClick={handleAddEventShow}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  Add New Event
+                </button>
                             </div>
                             </div>
-                            <div
-                            className={`tab-pane fade ${selectedTab === ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS ? "show active" : ""}`}
-                            id="nav-Events"
-                            role="tabpanel"
-                            aria-labelledby="nav-Events-tab"
-                            >
+
+            {/* Tab Content */}
+            <div className={`tab-content ${selectedTab === ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS ? 'active' : ''}`}>
                             <Events
                                 selectedSyllabusObj={selectedSyllabusObj}
                                 selectedTab={selectedTab}
                                 handleSelectEvent={handleSelectEvent}
-                            />
-                            <div className="bottom-button-group">
-                                {/* Add any bottom buttons if needed */}
-                            </div>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-                    </div>
-                    <div className={`syllabus-pdf-container`}>
-                    <div className="syllabus-preview-wrapper">
-                        <div className="title-text">
-                        <h4>Syllabus Preview</h4>
-                        <a className="hide-btn" onClick={() => setIsShowPdf(!isShowPdf)}>
-                            {isShowPdf ? "Hide Preview" : "View Preview"}
-                        </a>
-                        </div>
-                        {/* PDF viewer */}
-                        {!isNullUndefinedOrBlank(pdfPreviewLink) && isShowPdf && (
-                        <div className={`syllabus-view-box ${isShowPdf ? " d-block" : "d-none"}`}>
-                            <div
-                            style={{
-                                border: '1px solid #E6EAEE',
-                                height: 'calc(100vh - 224px)',
-                                width: '100%',
-                                overflowY: 'auto'
-                            }}
-                            >
-                            <Viewer
-                                fileUrl={pdfPreviewLink}
-                                plugins={[defaultLayoutPluginInstance]}
+                                onAddEvent={handleAddEventShow}
                             />
                             </div>
+
+            <div className={`tab-content ${selectedTab === ENUM_FOR_SYLLABUS_TAB.SYLLABUS_DETAILS ? 'active' : ''}`}>
+              <div className="syllabus-details-form">
+                <SyllabusDetails
+                  selectedSyllabusObj={selectedSyllabusObj}
+                  handleGetCourseList={() => {}}
+                  handleCloseSyllabusDetails={() => {}}
+                  onSyllabusUpdated={(updated: any) => setSelectedSyllabusObj(updated)}
+                  setPdfPreviewLink={setPdfPreviewLink}
+                  pdfPreviewLink={pdfPreviewLink}
+                />
+                            </div>
                         </div>
-                        )}
+                        </div>
+
+          {/* Right Panel - Syllabus Preview */}
+          {isShowPdf && (
+            <div className="syllabus-preview-panel">
+              <div className="preview-header">
+                <h2 className="preview-title">Syllabus Preview</h2>
+                <button 
+                  className="hide-preview-btn"
+                  onClick={() => setIsShowPdf(false)}
+                >
+                  Hide Preview
+                </button>
                     </div>
-                    </div>
+              
+              {/* PDF Viewer */}
+              {!isNullUndefinedOrBlank(pdfPreviewLink) ? (
+                <div className="preview-content pdf-viewer-container">
+                  <Viewer
+                    fileUrl={pdfPreviewLink}
+                    plugins={[defaultLayoutPluginInstance]}
+                  />
                 </div>
+              ) : (
+                <div className="preview-content">
+                  <div className="pdf-placeholder empty-state">
+                    <div className="empty-state-icon">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                      </svg>
+                    </div>
+                    <p className="empty-state-title">No syllabus uploaded</p>
+                    <p className="empty-state-text">Upload a syllabus to see the preview here</p>
+                  </div>
+                </div>
+              )}
             </div>
+          )}
         </div>
         </div>
 
@@ -233,8 +269,7 @@ const EditCourse = (props) => {
           editEventFormData={editEventFormData}
           selectedCourse={selectedSyllabusObj}
         />
-      </div>
-    </div>
+    </>
   )
 }
 

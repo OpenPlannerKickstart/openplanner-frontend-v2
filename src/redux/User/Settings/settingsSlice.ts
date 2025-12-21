@@ -48,6 +48,8 @@ const settingsSlice = createSlice({
         // Update User Data
         updateUserSuccess: (state: SettingsInitializeState = initialState, action: PayloadAction<any>) => {
             state.updateUserResponse = action.payload;
+            // keep the canonical user snapshot up-to-date (used in header menus across pages)
+            state.userData = action.payload;
             state.loading = false;
         },
         updateUserFailure: (state) => {

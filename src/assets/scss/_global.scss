@@ -316,86 +316,145 @@ img {
     }
 }
 
-/* Groups page specific overrides */
+/* Groups page specific overrides - viewport-locked layout */
+/* Override the entire layout chain when groups page is active */
+body.groups-page-body {
+  overflow: hidden !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  
+  .dashboard-layout {
+    height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+  
+  .dashboard-main {
+    padding: 0 !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+
 .groups-page {
-    .content-area {
-        padding: 0 !important;
-        overflow: auto !important; /* allow page to scroll again */
-        border-radius: 0 !important; /* keep flat edge */
+  display: flex;
+  flex-direction: column;
+  /* Fill the full height of parent */
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important; /* CRITICAL: prevent page scroll */
+  
+  .dashboard-header {
+    flex: 0 0 auto;
+  }
+  
+  .content-area {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border-radius: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .page-content-wrapper {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .row.gx-0.gy-0 {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    display: flex;
+    overflow: hidden;
+  }
+  
+  /* Left column - search + tabs fixed, list scrolls */
+  .col-lg-4 {
+    display: flex;
+    flex-direction: column;
+    min-height: 0 !important;
+    height: 100%;
+    overflow: hidden;
+    
+    > .d-flex.flex-column {
+      flex: 1 1 auto;
+      min-height: 0 !important;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
+  }
+  
+  /* Right column - header fixed, timeline scrolls, composer fixed */
+  .col-lg-8 {
+    display: flex;
+    flex-direction: column;
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow: hidden;
+    
+    .chat-header {
+      flex: 0 0 auto; /* fixed height */
+    }
+    
+    .chat-timeline-wrapper {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      height: 100%;
+    }
+    
+    .right-timeline-scroll {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .right-timeline-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    
+    /* Composer wrapper at bottom */
+    .desktop-composer-wrapper {
+      flex: 0 0 auto; /* fixed height, doesn't grow */
+      background: #FAFAFA;
+
+      /* Groups composer: keep hover color/shadow, but do NOT "lift" the Send button */
+      .btn.btn-primary:hover {
+        transform: none !important;
+      }
+
+      /* Groups composer: attach button border should match input (avoid thick/double borders) */
+      .composer-attach-btn {
+        border-style: solid !important;
+        border-width: 1px !important;
+        border-color: #E5E7EB !important;
+        /* prevent a "double" divider where textarea + button borders meet */
+        border-left-width: 0 !important;
+      }
+    }
+  }
 }
 
-/* Lock the Groups page frame to the viewport (below topbar) */
-.page-content.groups-page {
-  display: block;
-  height: auto;
-  overflow: visible;
-}
-
-.groups-page .content-area.content-area-title-filter {
-    min-height: auto;
-    max-height: none;
-    overflow: visible;
-}
-
-/* ------------------------- groups page layout fixes ------------------------ */
-/* Ensure the Groups page uses a true flex layout so inner columns can stretch to the viewport
-   and scroll areas can grow/shrink correctly. The important part is `min-height: 0` on flex
-   children so overflow works as expected. */
-.groups-page .page-content-wrapper {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-/* make the row act as a flex container and allow it to grow */
-.groups-page .row.gx-0.gy-0 {
-  flex: 1 1 auto;
-  min-height: 0; /* allow children to shrink so overflow works */
-}
-
-/* ensure the left column's inner wrapper is a flex column filling available height */
-.groups-page .col-12 > .d-flex.flex-column.h-100 {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0; /* essential for overflow to behave */
-  overflow: hidden; /* prevent column from scrolling; inner boxes will scroll */
-}
-
-/* Left column: list area is the only scroller */
-.groups-page .col-12.col-lg-4 .flex-grow-1 {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-}
-
-/* Right column: stack header (fixed), timeline (scroll), composer (fixed) */
-.groups-page .col-12.col-lg-8 {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-.groups-page .col-12.col-lg-8 > .d-flex.flex-column {
-  flex: 1 1 auto;
-  min-height: 0;
-}
-.groups-page .col-12.col-lg-8 .flex-grow-1.d-flex.flex-column {
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-.groups-page .col-12.col-lg-8 .flex-grow-1.d-flex.flex-column > .flex-grow-1 {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto; /* timeline scrolls */
-}
-
-/* make the scrollable list area flex and let overflow:auto operate properly */
-.groups-page .flex-grow-1.overflow-auto {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
+/* Ensure col-12 on mobile also fills height */
+@media (max-width: 991.98px) {
+  .groups-page .col-12 {
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+  }
 }
 
 /* end of inserted block */
@@ -461,112 +520,15 @@ img {
 
 
 
-/* ================= Desktop-only frame lock for Groups ================= */
+/* ================= Desktop-only refinements for Groups ================= */
 @media (min-width: 992px) {
-  /* Lock the Groups frame below the top app bar; stop outer page from scrolling */
-  .page-content.groups-page {
-    height: calc(100vh - 60px); /* 60px = existing top offset */
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* key: prevent browser page scroll */
+  .groups-page .col-lg-4,
+  .groups-page .col-lg-8 { 
+    height: 100%; 
+    min-height: 0; 
   }
-
-  /* Title stays sized by content; content-area occupies the rest */
-  .groups-page .page-title-wrapper {
-    flex: 0 0 auto;
-  }
-  .groups-page .content-area {
-    flex: 1 1 auto;
-    min-height: 0;           /* allow inner children to become scrollers */
-    overflow: hidden;        /* the columns control scrolling */
-    border-radius: 0 !important; /* edge-to-edge look */
-    padding: 0 !important;
-  }
-
-  /* Close the height chain so inner panes can own scroll */
-  .groups-page .content-area.content-area-title-filter {
-    height: 100% !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    overflow: hidden !important;
-  }
-  .groups-page .page-content-wrapper {
-    height: 100%;
-    min-height: 0 !important;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* allow inner scrollers to own overflow */
-  }
-  .groups-page .row.gx-0.gy-0 {
-    flex: 1 1 auto;
-    height: 100%;
-    min-height: 0 !important;
-    overflow: hidden;
-  }
-
-  /* ---------------- Left column: only the list scrolls ---------------- */
-  .groups-page .col-lg-4 > .d-flex.flex-column.h-100 {
-    min-height: 0;
-    overflow: hidden; /* search + tabs can be sticky; list below scrolls */
-    display: grid;                 /* enforce 3-row structure */
-    grid-template-rows: 64px 64px 1fr; /* search, tabs, scrollable list */
-  }
-  .groups-page .col-lg-4 { height: 100%; min-height: 0; }
-  .groups-page .col-lg-4 .search-row { grid-row: 1; }
-  .groups-page .col-lg-4 .tabs-row { grid-row: 2; }
-  .groups-page .col-lg-4 .left-scroll-inner { grid-row: 3; }
-  /* Remove any stray gap under tabs so content meets divider */
+  
+  /* Remove gap under tabs */
   .groups-page .tabs-row .page-filters { margin-bottom: 0 !important; }
   .groups-page .tabs-row { padding-bottom: 0 !important; border-bottom: 1px solid #E5E7EB; }
-  .groups-page .col-lg-4 .flex-grow-1 {
-    min-height: 0;
-    overflow: auto;        /* this is the only scroller on the left */
-    scrollbar-width: none; /* hide scrollbar (Firefox) */
-  }
-  .groups-page .col-lg-4 .flex-grow-1::-webkit-scrollbar { display: none; } /* hide scrollbar (WebKit) */
-
-  /* Named scroll wrapper for clarity */
-  .groups-page .left-list-scroll {
-    flex: 1 1 auto;
-    min-height: 0;         /* allow it to become the scroller */
-    height: 100%;          /* ensure it fills the 1fr track */
-    overflow-y: auto !important; /* own vertical overflow explicitly */
-    display: block;
-    position: relative;
-    pointer-events: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Mirror right column pattern: inner wrapper controls flow */
-  .groups-page .left-scroll-inner {
-    display: flex;
-    flex-direction: column;
-    min-height: 0 !important;
-    height: 100%;
-    overflow: hidden; /* inner scroller owns the overflow */
-  }
-  .groups-page .left-list-scroll { padding-top: 0 !important; margin-top: 0 !important; }
-
-  /* ---------------- Right column: header top, composer bottom --------- */
-  .groups-page .col-lg-8 {
-    display: grid;
-    grid-template-rows: 64px 1fr auto; /* header, timeline, composer */
-    min-height: 0 !important;
-    height: 100%;
-  }
-  .groups-page .col-lg-8 > .d-flex.flex-column {
-    grid-row: 2 / span 2;           /* occupy timeline + composer rows */
-    display: grid;
-    grid-template-rows: 1fr auto;   /* timeline (scroll), composer (fixed) */
-    min-height: 0 !important;
-    overflow: hidden;               /* inner scroller will own overflow */
-  }
-  /* The timeline (middle) is the only scroller on the right */
-  .groups-page .col-lg-8 .flex-grow-1.d-flex.flex-column { min-height: 0 !important; }
-  .groups-page .col-lg-8 .flex-grow-1.d-flex.flex-column > .flex-grow-1 {
-    min-height: 0 !important;
-    overflow: auto !important;
-    scrollbar-width: none;
-  }
-  .groups-page .col-lg-8 .flex-grow-1.d-flex.flex-column > .flex-grow-1::-webkit-scrollbar { display: none; }
 }

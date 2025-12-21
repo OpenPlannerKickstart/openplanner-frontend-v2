@@ -1,0 +1,3141 @@
+/* ============================================
+   Open Planner - Courses Page Styles
+   ============================================ */
+
+/* Courses Page Layout */
+.courses-page {
+    padding: 1.5rem;
+}
+
+/* Toolbar */
+.courses-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.view-toggle {
+    display: flex;
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.view-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 38px;
+    color: var(--neutral-500);
+    background: var(--white);
+    border: none;
+    transition: all var(--transition-base);
+}
+
+.view-toggle-btn:first-child {
+    border-right: 1px solid var(--neutral-200);
+}
+
+.view-toggle-btn:hover {
+    color: var(--neutral-700);
+    background: var(--neutral-50);
+}
+
+.view-toggle-btn.active {
+    color: var(--primary);
+    background: var(--primary-subtle);
+}
+
+/* Courses Grid */
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+/* Course Card */
+.course-card {
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.course-card:hover {
+    border-color: var(--neutral-300);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    cursor: pointer;
+}
+
+.course-card:active {
+    transform: translateY(0);
+}
+
+/* Course Banner */
+.course-banner {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.course-banner.yellow {
+    background: linear-gradient(135deg, #FFF3CD 0%, #FFE69C 100%);
+}
+
+.course-banner.teal {
+    background: linear-gradient(135deg, #CCFBF1 0%, #99F6E4 100%);
+}
+
+.course-banner.green {
+    background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+}
+
+.course-banner.lime {
+    background: linear-gradient(135deg, #ECFCCB 0%, #D9F99D 100%);
+}
+
+.course-banner.orange {
+    background: linear-gradient(135deg, #FFEDD5 0%, #FED7AA 100%);
+}
+
+.course-banner.cyan {
+    background: linear-gradient(135deg, #cceeff 0%, #99ddff 100%);
+}
+
+.course-banner.red {
+    background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+}
+
+.course-banner.blue {
+    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+}
+
+.course-banner.purple {
+    background: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%);
+}
+
+.course-banner.pink {
+    background: linear-gradient(135deg, #FCE7F3 0%, #FBCFE8 100%);
+}
+
+.course-banner.gray {
+    background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+}
+
+.course-banner.stone {
+    background: linear-gradient(135deg, #F5F5F4 0%, #E7E5E4 100%);
+}
+
+.course-banner.indigo {
+    background: linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%);
+}
+
+.course-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neutral-600);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Course Content */
+.course-content {
+    padding: 1.25rem;
+}
+
+.course-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--neutral-900);
+    margin-bottom: 0.75rem;
+}
+
+.course-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--neutral-200);
+    margin-bottom: 1rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--neutral-600);
+}
+
+.meta-item svg {
+    color: var(--neutral-400);
+}
+
+/* Color tag and swatch - Hidden */
+.color-tag {
+    display: none;
+}
+
+.color-swatch {
+    display: none;
+}
+
+/* Course Footer */
+.course-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.event-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--neutral-600);
+}
+
+.event-count svg {
+    color: var(--course-teal);
+}
+
+.event-count strong {
+    color: var(--neutral-900);
+    font-weight: 600;
+}
+
+.delete-course-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: var(--error);
+    background: var(--error-light);
+    border-radius: var(--radius-lg);
+    opacity: 0.7;
+    transition: all var(--transition-base);
+}
+
+.delete-course-btn:hover {
+    opacity: 1;
+    background: #FECACA;
+}
+
+/* ============================================
+   List View Styles
+   ============================================ */
+
+.courses-grid.list-view {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.courses-grid.list-view .course-card {
+    display: flex;
+    flex-direction: row;
+}
+
+.courses-grid.list-view .course-banner {
+    width: 120px;
+    height: auto;
+    min-height: 100px;
+    flex-shrink: 0;
+}
+
+.courses-grid.list-view .course-icon {
+    width: 56px;
+    height: 56px;
+}
+
+.courses-grid.list-view .course-icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.courses-grid.list-view .course-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 1rem 1.5rem;
+}
+
+.courses-grid.list-view .course-name {
+    margin-bottom: 0;
+    min-width: 120px;
+}
+
+.courses-grid.list-view .course-meta {
+    flex: 1;
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    justify-content: flex-start;
+    gap: 2rem;
+}
+
+.courses-grid.list-view .course-footer {
+    flex-shrink: 0;
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+@media (max-width: 1200px) {
+    .courses-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .courses-page {
+        padding: 1rem;
+    }
+    
+    .courses-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .course-banner {
+        height: 120px;
+    }
+    
+    .course-icon {
+        width: 64px;
+        height: 64px;
+    }
+    
+    .course-icon svg {
+        width: 36px;
+        height: 36px;
+    }
+    
+    /* List view on mobile */
+    .courses-grid.list-view .course-card {
+        flex-direction: column;
+    }
+    
+    .courses-grid.list-view .course-banner {
+        width: 100%;
+        height: 100px;
+    }
+    
+    .courses-grid.list-view .course-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .courses-grid.list-view .course-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .course-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.courses-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--white);
+    border: 2px dashed var(--neutral-300);
+    border-radius: var(--radius-2xl);
+}
+
+.courses-empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: var(--primary-subtle);
+    border-radius: var(--radius-2xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.courses-empty-icon svg {
+    width: 40px;
+    height: 40px;
+}
+
+.courses-empty h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--neutral-900);
+    margin-bottom: 0.5rem;
+}
+
+.courses-empty p {
+    color: var(--neutral-500);
+    margin-bottom: 1.5rem;
+}
+
+/* ============================================
+   Add Course Card
+   ============================================ */
+
+.add-course-card {
+    background: var(--neutral-50);
+    border: 2px dashed var(--neutral-300);
+    border-radius: var(--radius-2xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.add-course-card:hover {
+    border-color: var(--primary);
+    background: var(--primary-subtle);
+}
+
+.add-course-card:hover .add-icon {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.add-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neutral-500);
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+}
+
+.add-course-card span {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--neutral-600);
+}
+
+/* ============================================
+   Hover Effects & Polish
+   ============================================ */
+
+.course-card:hover .course-banner {
+    filter: brightness(1.02);
+}
+
+.course-card:hover .course-icon {
+    transform: scale(1.05);
+    transition: transform var(--transition-base);
+}
+
+/* Focus states */
+.course-card:focus-within {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.view-toggle-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}
+
+/* ============================================
+   Add Syllabus Modal
+   ============================================ */
+
+.syllabus-modal {
+    max-width: 580px;
+    width: 100%;
+}
+
+.syllabus-modal .modal-header {
+    background: var(--white);
+    border-bottom: 1px solid var(--neutral-200);
+    padding: 1.25rem 1.5rem;
+}
+
+.syllabus-modal .modal-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--neutral-900);
+}
+
+.syllabus-modal .modal-title .title-accent {
+    color: var(--primary);
+}
+
+.syllabus-modal .modal-body {
+    padding: 1.5rem;
+}
+
+.syllabus-modal .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.syllabus-modal .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+    margin-bottom: 0.5rem;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.syllabus-modal .form-label .required {
+    color: var(--error);
+}
+
+.syllabus-modal .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    border: 1px solid var(--neutral-300);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+    color: var(--neutral-900);
+    transition: all var(--transition-base);
+}
+
+.syllabus-modal .form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.15);
+}
+
+.syllabus-modal .form-input::placeholder {
+    color: var(--neutral-400);
+}
+
+/* File Upload Area */
+.file-upload-area {
+    border: 2px dashed var(--primary);
+    border-radius: var(--radius-xl);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    background: var(--white);
+}
+
+.file-upload-area:hover {
+    background: var(--primary-subtle);
+    border-color: var(--primary-dark);
+}
+
+.file-upload-area.dragover {
+    background: var(--primary-subtle);
+    border-color: var(--primary-dark);
+    border-style: solid;
+}
+
+.upload-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1rem;
+    background: var(--primary-subtle);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+
+.upload-text {
+    font-size: 0.9375rem;
+    color: var(--neutral-600);
+}
+
+.upload-link {
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.upload-link:hover {
+    text-decoration: underline;
+}
+
+.file-name {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--primary-dark);
+}
+
+/* Color Picker Container */
+.color-picker-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+}
+
+.color-preview,
+.color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all var(--transition-base);
+    flex-shrink: 0;
+}
+
+.color-preview:hover,
+.color-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.color-preview.selected,
+.color-option.selected {
+    border-color: var(--neutral-900);
+    box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--neutral-400);
+}
+
+/* Syllabus Modal Footer */
+.syllabus-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
+}
+
+.syllabus-footer .modal-footer-right {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.syllabus-footer .btn {
+    /* Slimmer vertical padding to match global buttons */
+    padding: 0.4rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.syllabus-footer .btn-primary {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.syllabus-footer .btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.syllabus-footer .btn-outline {
+    background: var(--white);
+    color: var(--neutral-600);
+    border: 1px solid var(--neutral-300);
+}
+
+.syllabus-footer .btn-outline:hover {
+    background: var(--neutral-100);
+    border-color: var(--neutral-400);
+}
+
+/* Time Picker for Syllabus Modal */
+.time-picker-wrapper {
+    position: relative;
+}
+
+.time-picker-wrapper .form-input {
+    padding-right: 2.5rem;
+    cursor: pointer;
+}
+
+.time-picker-icon {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--neutral-400);
+    pointer-events: none;
+}
+
+.time-picker-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    max-width: 200px;
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.time-picker-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.time-picker-header {
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+    border-bottom: 1px solid var(--neutral-100);
+    text-align: center;
+    background: var(--primary-subtle);
+}
+
+.time-picker-list {
+    max-height: 240px;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.time-picker-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--neutral-600);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.time-picker-option:hover {
+    background: var(--primary-subtle);
+    color: var(--primary);
+}
+
+.time-picker-option.selected {
+    background: var(--primary);
+    color: var(--white);
+    font-weight: 500;
+}
+
+/* Time picker scrollbar */
+.time-picker-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.time-picker-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.time-picker-list::-webkit-scrollbar-thumb {
+    background: var(--neutral-300);
+    border-radius: 2px;
+}
+
+.time-picker-list::-webkit-scrollbar-thumb:hover {
+    background: var(--neutral-400);
+}
+
+/* ============================================
+   Add Syllabus - Class Time (react-datepicker)
+   Match new dropdown design (rounded card + header)
+   NOTE: popper is portaled to <body>, so scope via popper class.
+   ============================================ */
+
+.syllabus-time-popper {
+    z-index: 1060; /* above modal content */
+    width: auto !important; /* don't stretch to input width */
+}
+
+.syllabus-time-popper .syllabus-time-calendar.react-datepicker {
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+    font-family: inherit;
+    width: 200px;
+    max-width: 200px;
+}
+
+/* Header */
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__header {
+    background: var(--primary-subtle);
+    border-bottom: 1px solid var(--neutral-200);
+    padding: 0.6rem 0.5rem;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker-time__header {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-align: center;
+}
+
+/* Time list container */
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-container {
+    width: 100% !important;
+    border-left: none;
+    float: none !important;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time {
+    background: var(--white);
+    width: 100% !important;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-box {
+    width: 100% !important;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list {
+    max-height: 260px;
+    padding: 0; /* span full width like mock */
+    width: 100% !important;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list-item {
+    height: auto;
+    padding: 0.9rem 0.75rem;
+    border-radius: 0; /* list spans full width, no inset pills */
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100% !important;
+    box-sizing: border-box;
+    transition: background var(--transition-base), color var(--transition-base);
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list-item:hover {
+    background: var(--primary-subtle);
+    color: var(--primary);
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list-item--selected {
+    background: var(--primary-subtle) !important;
+    color: var(--primary) !important;
+    font-weight: 700;
+}
+
+/* scrollbar */
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list::-webkit-scrollbar-thumb {
+    background: var(--neutral-300);
+    border-radius: 6px;
+}
+
+[data-theme="dark"] .syllabus-time-popper .syllabus-time-calendar.react-datepicker {
+    background: var(--white);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .syllabus-time-popper .syllabus-time-calendar .react-datepicker__header {
+    background: var(--primary-subtle);
+    border-bottom-color: var(--neutral-200);
+}
+
+/* ============================================
+   Edit Course Page Styles
+   ============================================ */
+
+.edit-course-page {
+    padding: 1.5rem;
+    min-height: calc(100vh - var(--header-height));
+}
+
+/* Static Field (non-editable) */
+.static-field {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+    background: var(--neutral-100);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+}
+
+.static-field svg {
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+/* Back Button in Header */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--white);
+    background: var(--primary);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+    flex-shrink: 0;
+}
+
+.back-btn:hover {
+    background: var(--primary-dark);
+    transform: translateX(-2px);
+}
+
+/* Edit Course Body - Header Responsive */
+@media (max-width: 768px) {
+    .edit-course-body .dashboard-header-left {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .edit-course-body .dashboard-page-title {
+        font-size: 1.125rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-course-body .dashboard-header-left {
+        gap: 0.375rem;
+    }
+    
+    .edit-course-body .dashboard-page-title {
+        font-size: 1rem;
+    }
+    
+    .edit-course-body .dashboard-header-right {
+        gap: 0.5rem;
+    }
+    
+    .edit-course-body .notification-btn,
+    .edit-course-body .user-menu {
+        transform: scale(0.9);
+    }
+}
+
+/* Main Content Layout */
+.edit-course-content {
+    display: grid;
+    grid-template-columns: 1fr 598px;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.edit-course-content.preview-hidden {
+    grid-template-columns: 1fr;
+}
+
+/* Events Panel */
+.events-panel {
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    transition: all var(--transition-base);
+}
+
+.events-panel.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Tabs */
+.course-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--neutral-200);
+    background: var(--neutral-50);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.tabs-left {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tabs-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.show-preview-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.show-preview-btn svg {
+    flex-shrink: 0;
+}
+
+.tab-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--neutral-600);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.tab-btn:hover {
+    color: var(--primary);
+    background: var(--primary-subtle);
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    font-weight: 600;
+}
+
+.add-event-btn {
+    flex-shrink: 0;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    padding: 0;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ============================================
+   Edit Course - Event Cards (My Week Style)
+   ============================================ */
+
+/* Table Header for Edit Course */
+.edit-course-table-header {
+    display: grid;
+    grid-template-columns: 50px 150px 90px 1fr 50px;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--neutral-50);
+    border-bottom: 1px solid var(--neutral-200);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--neutral-500);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+/* Task Row Styles for Edit Course (inherits from styles.css but without course column) */
+.events-panel .task-row {
+    display: grid;
+    grid-template-columns: 50px 150px 90px 1fr 50px;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    align-items: center;
+    transition: background var(--transition-base);
+    border-bottom: 1px solid var(--neutral-100);
+    /* Square corners inside Edit Course events list */
+    border-radius: 0 !important;
+}
+
+.events-panel .task-row:last-child {
+    border-bottom: none;
+}
+
+.events-panel .task-row:hover {
+    background: var(--neutral-50);
+}
+
+.events-panel .task-row.completed {
+    opacity: 0.6;
+    background: var(--neutral-50);
+}
+
+.events-panel .task-row.completed .col-event {
+    text-decoration: line-through;
+    color: var(--neutral-500);
+}
+
+/* Column Styles */
+.events-panel .col-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.events-panel .task-checkbox {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--neutral-300);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    background: var(--white);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.events-panel .task-checkbox:hover {
+    border-color: var(--primary);
+}
+
+.events-panel .task-checkbox.checked {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--white);
+}
+
+.events-panel .col-time {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--neutral-700);
+}
+
+.events-panel .time-indicator {
+    width: 4px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.events-panel .time-indicator.yellow {
+    background: var(--course-yellow);
+}
+
+.events-panel .time-indicator.orange {
+    background: var(--course-orange);
+}
+
+.events-panel .time-indicator.green {
+    background: var(--course-green);
+}
+
+.events-panel .time-indicator.teal {
+    background: var(--course-teal);
+}
+
+.events-panel .time-indicator.lime {
+    background: var(--course-lime);
+}
+
+.events-panel .time-indicator.cyan {
+    background: #239BC2;
+}
+
+.events-panel .time-indicator.red {
+    background: #EF4444;
+}
+
+.events-panel .time-indicator.blue {
+    background: var(--course-blue);
+}
+
+.events-panel .time-indicator.purple {
+    background: #8B5CF6;
+}
+
+.events-panel .time-indicator.pink {
+    background: #EC4899;
+}
+
+.events-panel .time-indicator.gray {
+    background: #6B7280;
+}
+
+.events-panel .time-indicator.stone {
+    background: #78716C;
+}
+
+.events-panel .time-indicator.indigo {
+    background: #6366F1;
+}
+
+.events-panel .col-priority {
+    display: flex;
+    align-items: center;
+}
+
+.events-panel .priority-badge {
+    display: inline-flex;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+}
+
+.events-panel .priority-badge.low {
+    background: var(--success-light);
+    color: #166534;
+}
+
+.events-panel .priority-badge.medium {
+    background: var(--warning-light);
+    color: #92400E;
+}
+
+.events-panel .priority-badge.high {
+    background: var(--error-light);
+    color: #BE123C;
+}
+
+.events-panel .col-event {
+    font-size: 0.9375rem;
+    color: var(--neutral-600);
+    line-height: 1.5;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.events-panel .col-delete {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.events-panel .delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: var(--error);
+    opacity: 0.6;
+    border-radius: var(--radius-md);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.events-panel .delete-btn:hover {
+    opacity: 1;
+    background: var(--error-light);
+}
+
+/* Due Date Group for Edit Course */
+.events-panel .due-date-group {
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.events-panel .due-date-group:last-of-type {
+    border-bottom: none;
+}
+
+.events-panel .due-date-header {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--neutral-900);
+    background: var(--neutral-50);
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+/* Clickable Event Hover States */
+.events-panel .task-row.clickable-event {
+    cursor: pointer;
+    outline: none;
+}
+
+.events-panel .task-row.clickable-event:focus,
+.events-panel .task-row.clickable-event:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Hover state with course color accent - based on data-color attribute */
+.events-panel .task-row.clickable-event[data-color="yellow"]:hover {
+    background: var(--course-yellow-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="orange"]:hover {
+    background: var(--course-orange-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="green"]:hover {
+    background: var(--course-green-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="teal"]:hover {
+    background: var(--course-teal-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="lime"]:hover {
+    background: var(--course-lime-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="cyan"]:hover {
+    background: var(--course-cyan-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="red"]:hover {
+    background: var(--course-red-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="blue"]:hover {
+    background: var(--course-blue-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="purple"]:hover {
+    background: var(--course-purple-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="pink"]:hover {
+    background: var(--course-pink-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="gray"]:hover {
+    background: var(--course-gray-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="stone"]:hover {
+    background: var(--course-stone-light);
+}
+
+.events-panel .task-row.clickable-event[data-color="indigo"]:hover {
+    background: var(--course-indigo-light);
+}
+
+/* Fallback hover for events without data-color */
+.events-panel .task-row.clickable-event:hover {
+    /* Use course hex (set inline) when available; otherwise neutral */
+    background: var(--row-course-hover-bg, var(--neutral-50)) !important;
+    border-radius: 0 !important;
+}
+
+/* Past Events Section */
+.past-events-section {
+    border-top: 1px solid var(--neutral-200);
+}
+
+.past-events-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--neutral-700);
+    background: var(--neutral-50);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.past-events-toggle:hover {
+    background: var(--neutral-100);
+}
+
+.past-events-toggle svg {
+    transition: transform var(--transition-base);
+}
+
+.past-events-toggle.expanded svg {
+    transform: rotate(90deg);
+}
+
+.past-events-content {
+    display: none;
+}
+
+.past-events-content.expanded {
+    display: block;
+}
+
+.past-events-content .task-row {
+    border-bottom: 1px solid var(--neutral-100);
+}
+
+.past-events-content .task-row:last-child {
+    border-bottom: none;
+}
+
+/* Syllabus Details Form */
+.syllabus-details-form {
+    padding: 1.5rem;
+}
+
+.syllabus-details-form .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.syllabus-details-form .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+    margin-bottom: 0.5rem;
+}
+
+.syllabus-details-form .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    color: var(--neutral-700);
+    background: var(--neutral-50);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+}
+
+.syllabus-details-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.syllabus-details-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.syllabus-details-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--neutral-800);
+    margin: 0;
+}
+
+.edit-syllabus-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent Bootstrap/legacy secondary active state from flashing yellow on press */
+.edit-syllabus-btn.btn-secondary:active,
+.edit-syllabus-btn.btn-secondary.active,
+.edit-syllabus-btn.btn-secondary.btn:active,
+.edit-syllabus-btn.btn-secondary.btn.active {
+    background-color: var(--primary-subtle) !important;
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+    box-shadow: none !important;
+}
+
+/* Keep an accessible focus ring without changing fill color */
+.edit-syllabus-btn.btn-secondary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(35, 155, 194, 0.18) !important;
+}
+
+/* Edit Course Events empty state (button only) */
+.edit-course-empty-state {
+    padding: 1.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Edit Course Events empty state (match Dashboard "Add event" row) */
+.events-panel .add-event-row {
+    /* Flush under header with straight top corners (match Past Events row) */
+    margin: 0;
+    border-radius: 0;
+    border-top: none; /* header already has bottom border */
+    padding: 1rem 1.5rem; /* match .past-events-toggle spacing */
+}
+
+/* Syllabus File Display */
+.syllabus-file-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--neutral-50);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+}
+
+.syllabus-file-display .file-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    border-radius: var(--radius-lg);
+    color: var(--white);
+}
+
+.syllabus-file-display .file-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.syllabus-file-display .file-name {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--neutral-800);
+}
+
+.syllabus-file-display .file-size {
+    font-size: 0.8125rem;
+    color: var(--neutral-500);
+}
+
+.syllabus-file-display .file-view-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+    color: var(--neutral-600);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.syllabus-file-display .file-view-btn:hover {
+    background: var(--neutral-100);
+    color: var(--accent);
+}
+
+/* Course Color Display */
+.course-color-display {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--neutral-50);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+}
+
+.color-swatch-large {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--white);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.course-color-display .color-name {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--neutral-700);
+}
+
+/* Edit Syllabus Modal */
+.edit-syllabus-modal {
+    max-width: 540px;
+}
+
+.edit-syllabus-modal .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.edit-syllabus-modal .file-upload-area {
+    margin-top: 0.5rem;
+}
+
+.edit-syllabus-modal .color-picker-container {
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 640px) {
+    .edit-syllabus-modal .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .syllabus-details-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .edit-syllabus-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================
+   Syllabus Preview Panel
+   ============================================ */
+
+.syllabus-preview-panel {
+    background: var(--white);
+    border: 1px solid var(--neutral-200);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 140px);
+    max-height: calc(100vh - 140px);
+    position: sticky;
+    top: calc(var(--header-height) + 1.5rem);
+}
+
+.syllabus-preview-panel.hidden {
+    display: none;
+}
+
+.preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--neutral-200);
+}
+
+.preview-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--neutral-900);
+}
+
+.hide-preview-btn {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.hide-preview-btn:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* Preview Toolbar */
+.preview-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 1rem;
+    background: var(--neutral-50);
+    border-bottom: 1px solid var(--neutral-200);
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.toolbar-left,
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    color: var(--neutral-500);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.toolbar-btn:hover {
+    color: var(--neutral-700);
+    background: var(--neutral-200);
+}
+
+.page-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.5rem;
+}
+
+.page-input {
+    width: 40px;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8125rem;
+    text-align: center;
+    border: 1px solid var(--neutral-300);
+    border-radius: var(--radius-md);
+    background: var(--white);
+}
+
+.page-select {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8125rem;
+    border: 1px solid var(--neutral-300);
+    border-radius: var(--radius-md);
+    background: var(--white);
+    cursor: pointer;
+}
+
+/* Preview Content */
+.preview-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    background: var(--neutral-100);
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* PDF Viewer Container */
+.preview-content.pdf-viewer-container {
+    padding: 0;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    background: var(--white);
+}
+
+.pdf-placeholder {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    min-height: 500px;
+}
+
+.pdf-placeholder.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--neutral-500);
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--neutral-100);
+    border-radius: var(--radius-xl);
+    margin-bottom: 1.5rem;
+    color: var(--neutral-400);
+}
+
+.empty-state-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--neutral-700);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-text {
+    font-size: 0.875rem;
+    color: var(--neutral-500);
+}
+
+.pdf-document {
+    font-size: 0.875rem;
+    color: var(--neutral-700);
+    line-height: 1.6;
+}
+
+.pdf-document h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--neutral-900);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.pdf-info {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* React PDF Viewer - Fill container and scroll */
+.syllabus-preview-panel .rpv-core__viewer {
+    height: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+}
+
+.syllabus-preview-panel .rpv-default-layout__container {
+    height: 100% !important;
+    width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Hide the default sidebar */
+.syllabus-preview-panel .rpv-default-layout__sidebar,
+.syllabus-preview-panel .rpv-default-layout__sidebar--opened {
+    display: none !important;
+    width: 0 !important;
+}
+
+/* Toolbar - modern styling */
+.syllabus-preview-panel .rpv-default-layout__toolbar {
+    background: var(--white) !important;
+    border-bottom: 1px solid var(--neutral-100) !important;
+    padding: 0.625rem 1rem !important;
+    flex-shrink: 0 !important;
+}
+
+.syllabus-preview-panel .rpv-default-layout__toolbar-slot {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
+}
+
+/* Toolbar sections */
+.syllabus-preview-panel .rpv-toolbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+}
+
+.syllabus-preview-panel .rpv-toolbar__left,
+.syllabus-preview-panel .rpv-toolbar__center,
+.syllabus-preview-panel .rpv-toolbar__right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+}
+
+/* Hide Search + Info buttons in the PDF toolbar (scope: syllabus preview only) */
+.syllabus-preview-panel .rpv-search__button,
+.syllabus-preview-panel .rpv-properties__button,
+.syllabus-preview-panel .rpv-default-layout__toolbar button[aria-label*="Search" i],
+.syllabus-preview-panel .rpv-default-layout__toolbar button[title*="Search" i],
+.syllabus-preview-panel .rpv-default-layout__toolbar button[aria-label*="Find" i],
+.syllabus-preview-panel .rpv-default-layout__toolbar button[title*="Find" i],
+.syllabus-preview-panel .rpv-default-layout__toolbar button[aria-label*="Info" i],
+.syllabus-preview-panel .rpv-default-layout__toolbar button[title*="Info" i],
+.syllabus-preview-panel .rpv-default-layout__toolbar button[aria-label*="Properties" i],
+.syllabus-preview-panel .rpv-default-layout__toolbar button[title*="Properties" i] {
+    display: none !important;
+}
+
+/* Main container */
+.syllabus-preview-panel .rpv-default-layout__main {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Body - contains the scrollable inner-pages */
+.syllabus-preview-panel .rpv-default-layout__body {
+    flex: 1 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+}
+
+/* Inner pages - scrollable container */
+.syllabus-preview-panel .rpv-core__inner-pages {
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    height: 100% !important;
+    width: 100% !important;
+    background: var(--white) !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+/* Center the rendered PDF page(s) within the preview panel */
+.syllabus-preview-panel .rpv-core__inner-page-container {
+    /* rpv positions the actual page absolutely inside this container.
+       Centering the container centers the page. */
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Pages - no shadows, no borders, just content */
+.syllabus-preview-panel .rpv-core__inner-page,
+.syllabus-preview-panel .rpv-core__page-layer,
+.syllabus-preview-panel .rpv-core__canvas-layer,
+.syllabus-preview-panel .rpv-core__text-layer,
+.syllabus-preview-panel .rpv-core__annotation-layer {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.custom-pdf-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 1rem;
+}
+
+.custom-pdf-toolbar .toolbar-left,
+.custom-pdf-toolbar .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.custom-pdf-toolbar .page-info {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.5rem;
+}
+
+/* Page number input */
+.syllabus-preview-panel .rpv-core__textbox {
+    width: 52px !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+    border: 1px solid var(--neutral-200) !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--neutral-50) !important;
+    color: var(--neutral-900) !important;
+    transition: all 0.15s ease !important;
+}
+
+.syllabus-preview-panel .rpv-core__textbox:focus {
+    outline: none !important;
+    border-color: var(--primary) !important;
+    background: var(--white) !important;
+    box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.15) !important;
+}
+
+/* Page count display */
+.syllabus-preview-panel .rpv-page-navigation__current-page-input {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+/* "of X" text styling */
+.syllabus-preview-panel .rpv-page-navigation__current-page-input span {
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: var(--neutral-600) !important;
+}
+
+
+/* Toolbar buttons - simple clean styling */
+.syllabus-preview-panel .rpv-core__minimal-button {
+    width: 36px !important;
+    height: 36px !important;
+    color: var(--neutral-500) !important;
+    border-radius: var(--radius-md) !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.syllabus-preview-panel .rpv-core__minimal-button:hover {
+    background: var(--neutral-100) !important;
+    color: var(--neutral-700) !important;
+}
+
+.syllabus-preview-panel .rpv-core__minimal-button:active {
+    background: var(--neutral-200) !important;
+}
+
+/* Disabled state */
+.syllabus-preview-panel .rpv-core__minimal-button--disabled,
+.syllabus-preview-panel .rpv-core__minimal-button[disabled] {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+}
+
+.syllabus-preview-panel .rpv-core__minimal-button--disabled:hover,
+.syllabus-preview-panel .rpv-core__minimal-button[disabled]:hover {
+    background: transparent !important;
+}
+
+/* Popover/Dropdown styling */
+.syllabus-preview-panel .rpv-core__popover-body {
+    background: var(--white) !important;
+    border: 1px solid var(--neutral-200) !important;
+    border-radius: var(--radius-xl) !important;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+    padding: 1rem !important;
+    min-width: 280px !important;
+}
+
+/* Search popover */
+.syllabus-preview-panel .rpv-search__popover {
+    padding: 0 !important;
+}
+
+.syllabus-preview-panel .rpv-search__popover-input-counter {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid var(--neutral-100) !important;
+}
+
+.syllabus-preview-panel .rpv-search__popover-input {
+    flex: 1 !important;
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.875rem !important;
+    border: 1px solid var(--neutral-200) !important;
+    border-radius: var(--radius-lg) !important;
+    background: var(--neutral-50) !important;
+    color: var(--neutral-900) !important;
+    transition: all 0.15s ease !important;
+}
+
+.syllabus-preview-panel .rpv-search__popover-input:focus {
+    outline: none !important;
+    border-color: var(--primary) !important;
+    background: var(--white) !important;
+    box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.15) !important;
+}
+
+.syllabus-preview-panel .rpv-search__popover-counter {
+    font-size: 0.8125rem !important;
+    color: var(--neutral-500) !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+}
+
+/* Search options */
+.syllabus-preview-panel .rpv-search__popover-label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+    color: var(--neutral-700) !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease !important;
+}
+
+.syllabus-preview-panel .rpv-search__popover-label:hover {
+    background: var(--neutral-50) !important;
+}
+
+.syllabus-preview-panel .rpv-search__popover-label input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    accent-color: var(--primary) !important;
+    cursor: pointer !important;
+}
+
+/* Search navigation buttons */
+.syllabus-preview-panel .rpv-search__popover-footer {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.75rem 1rem !important;
+    border-top: 1px solid var(--neutral-100) !important;
+}
+
+.syllabus-preview-panel .rpv-search__popover-footer button {
+    flex: 1 !important;
+    padding: 0.625rem 1rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-lg) !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+}
+
+/* Close button in search */
+.syllabus-preview-panel .rpv-search__popover-close {
+    background: var(--neutral-100) !important;
+    color: var(--neutral-700) !important;
+    border: none !important;
+}
+
+.syllabus-preview-panel .rpv-search__popover-close:hover {
+    background: var(--neutral-200) !important;
+}
+
+/* Hide custom tooltips - use native browser tooltips */
+.syllabus-preview-panel .rpv-core__tooltip-body,
+.syllabus-preview-panel .rpv-core__tooltip-arrow {
+    display: none !important;
+}
+
+/* Make icons lighter/thinner to match sidebar style */
+.syllabus-preview-panel .rpv-core__minimal-button svg {
+    width: 20px !important;
+    height: 20px !important;
+    stroke-width: 1.5 !important;
+}
+
+
+/* Scrollbar styling */
+.syllabus-preview-panel .rpv-core__inner-pages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.syllabus-preview-panel .rpv-core__inner-pages::-webkit-scrollbar-thumb {
+    background: var(--neutral-300);
+    border-radius: 3px;
+}
+
+.pdf-info p {
+    margin-bottom: 0.25rem;
+}
+
+.pdf-section {
+    margin-bottom: 1.25rem;
+}
+
+.pdf-section h4 {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--neutral-900);
+    margin-bottom: 0.5rem;
+}
+
+.pdf-section p {
+    margin-bottom: 0.5rem;
+}
+
+.pdf-section em {
+    font-style: italic;
+}
+
+/* ============================================
+   Responsive Adjustments for Edit Course
+   ============================================ */
+
+@media (max-width: 1400px) {
+    .edit-course-content {
+        grid-template-columns: 1fr 518px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .edit-course-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .syllabus-preview-panel {
+        position: relative;
+        top: 0;
+        max-height: 700px;
+        min-height: 500px;
+    }
+    
+    .events-panel.full-width {
+        grid-column: auto;
+    }
+    
+    .show-preview-btn {
+        display: none !important;
+    }
+    
+    .edit-course-table-header,
+    .events-panel .task-row {
+        grid-template-columns: 44px 140px 80px 1fr 44px;
+        gap: 0.5rem;
+        padding: 0.875rem 1rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .edit-course-table-header {
+        display: none;
+    }
+    
+    .events-panel .task-row {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1rem;
+        position: relative;
+        padding-left: 3.5rem;
+        padding-right: 3.5rem;
+    }
+    
+    .events-panel .col-actions {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+    }
+    
+    .events-panel .col-delete {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+    }
+    
+    .events-panel .col-time {
+        order: 1;
+    }
+    
+    .events-panel .col-event {
+        order: 2;
+        font-weight: 500;
+        color: var(--neutral-900);
+    }
+    
+    .events-panel .col-priority {
+        order: 3;
+    }
+    
+    .syllabus-preview-panel {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .edit-course-page {
+        padding: 1rem;
+    }
+    
+    .course-tabs {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem;
+    }
+    
+    .tabs-left {
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .tabs-right {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .tabs-right .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .preview-sidebar {
+        display: none;
+    }
+    
+    .preview-content {
+        padding-left: 1rem;
+    }
+    
+    .syllabus-details-form .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .events-panel .task-row {
+        padding-left: 3rem;
+        padding-right: 3rem;
+    }
+    
+    .events-panel .due-date-header {
+        padding: 0.875rem 1rem;
+        font-size: 0.9375rem;
+    }
+    
+    .back-btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.8125rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-course-page {
+        padding: 0.75rem;
+    }
+    
+    .tab-btn {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.875rem;
+    }
+    
+    .pdf-placeholder {
+        padding: 1rem;
+    }
+    
+    .back-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .events-panel .task-row {
+        padding: 0.875rem;
+        padding-left: 2.75rem;
+        padding-right: 2.75rem;
+        gap: 0.5rem;
+    }
+    
+    .events-panel .col-actions {
+        top: 0.875rem;
+        left: 0.75rem;
+    }
+    
+    .events-panel .col-delete {
+        top: 0.875rem;
+        right: 0.75rem;
+    }
+    
+    .events-panel .col-time {
+        font-size: 0.8125rem;
+    }
+    
+    .events-panel .col-event {
+        font-size: 0.875rem;
+    }
+    
+    .events-panel .priority-badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .events-panel .time-indicator {
+        height: 28px;
+    }
+    
+    .events-panel .task-checkbox {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .events-panel .delete-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .course-tabs {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .tabs-left {
+        gap: 0.25rem;
+    }
+    
+    .add-event-btn {
+        font-size: 0.8125rem;
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Responsive adjustments for Syllabus Modal */
+@media (max-width: 640px) {
+    .syllabus-modal {
+        max-height: 95vh;
+    }
+    
+    .syllabus-modal .modal-body {
+        padding: 1.25rem;
+    }
+    
+    .syllabus-modal .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .file-upload-area {
+        padding: 1.5rem 1rem;
+    }
+    
+    .syllabus-footer {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .syllabus-footer .btn,
+    .syllabus-footer .modal-footer-right {
+        width: 100%;
+    }
+    
+    .syllabus-footer .modal-footer-right {
+        flex-direction: row;
+    }
+    
+    .syllabus-footer .modal-footer-right .btn {
+        flex: 1;
+    }
+}
+
+/* ============================================
+   Dark Mode Styles for Courses Page
+   ============================================ */
+
+/* Course Cards Dark Mode */
+[data-theme="dark"] .course-card {
+    background: var(--white);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .course-card:hover {
+    border-color: var(--neutral-300);
+}
+
+[data-theme="dark"] .course-icon {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    color: var(--neutral-100);
+}
+
+[data-theme="dark"] .course-name {
+    color: var(--neutral-900);
+}
+
+[data-theme="dark"] .course-meta {
+    border-bottom-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .meta-item {
+    color: var(--neutral-600);
+}
+
+[data-theme="dark"] .meta-item svg {
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .event-count {
+    color: var(--neutral-600);
+}
+
+[data-theme="dark"] .event-count strong {
+    color: var(--neutral-900);
+}
+
+[data-theme="dark"] .delete-course-btn {
+    background: var(--error-light);
+    color: var(--error);
+}
+
+[data-theme="dark"] .delete-course-btn:hover {
+    background: rgba(248, 113, 113, 0.25);
+}
+
+/* View Toggle Dark Mode */
+[data-theme="dark"] .view-toggle {
+    background: var(--white);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .view-toggle-btn {
+    background: var(--white);
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .view-toggle-btn:first-child {
+    border-right-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .view-toggle-btn:hover {
+    background: var(--neutral-100);
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .view-toggle-btn.active {
+    background: var(--primary-subtle);
+    color: var(--primary);
+}
+
+/* Add Course Card Dark Mode */
+[data-theme="dark"] .add-course-card {
+    background: var(--neutral-100);
+    border-color: var(--neutral-300);
+}
+
+[data-theme="dark"] .add-course-card:hover {
+    background: var(--primary-subtle);
+    border-color: var(--primary);
+}
+
+[data-theme="dark"] .add-icon {
+    background: var(--white);
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .add-course-card:hover .add-icon {
+    background: var(--primary);
+    color: var(--white);
+}
+
+[data-theme="dark"] .add-course-card span {
+    color: var(--neutral-600);
+}
+
+/* Empty State Dark Mode */
+[data-theme="dark"] .courses-empty {
+    background: var(--white);
+    border-color: var(--neutral-300);
+}
+
+[data-theme="dark"] .courses-empty-icon {
+    background: var(--primary-subtle);
+    color: var(--primary);
+}
+
+[data-theme="dark"] .courses-empty h3 {
+    color: var(--neutral-900);
+}
+
+[data-theme="dark"] .courses-empty p {
+    color: var(--neutral-500);
+}
+
+/* Syllabus Modal Dark Mode */
+[data-theme="dark"] .syllabus-modal .modal-header {
+    background: var(--white);
+    border-bottom-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .syllabus-modal .modal-title {
+    color: var(--neutral-900);
+}
+
+[data-theme="dark"] .syllabus-modal .form-label {
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .syllabus-modal .form-input {
+    background: var(--neutral-100);
+    border-color: var(--neutral-200);
+    color: var(--neutral-800);
+}
+
+[data-theme="dark"] .syllabus-modal .form-input:focus {
+    background: var(--white);
+    border-color: var(--primary);
+}
+
+[data-theme="dark"] .syllabus-modal .form-input::placeholder {
+    color: var(--neutral-400);
+}
+
+[data-theme="dark"] .file-upload-area {
+    background: var(--neutral-100);
+    border-color: var(--primary);
+}
+
+[data-theme="dark"] .file-upload-area:hover {
+    background: var(--primary-subtle);
+}
+
+[data-theme="dark"] .upload-icon {
+    background: var(--primary-subtle);
+    color: var(--primary);
+}
+
+[data-theme="dark"] .upload-text {
+    color: var(--neutral-600);
+}
+
+[data-theme="dark"] .upload-link {
+    color: var(--primary);
+}
+
+[data-theme="dark"] .file-name {
+    color: var(--primary);
+}
+
+/* Time Picker Dark Mode */
+[data-theme="dark"] .time-picker-dropdown {
+    background: var(--white);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .time-picker-header {
+    color: var(--primary);
+    border-bottom-color: var(--neutral-200);
+    background: var(--primary-subtle);
+}
+
+[data-theme="dark"] .time-picker-option {
+    color: var(--neutral-600);
+}
+
+[data-theme="dark"] .time-picker-option:hover {
+    background: var(--primary-subtle);
+    color: var(--primary);
+}
+
+[data-theme="dark"] .time-picker-option.selected {
+    background: var(--primary);
+    color: var(--white);
+}
+
+/* Color Picker Dark Mode */
+[data-theme="dark"] .color-preview.selected,
+[data-theme="dark"] .color-option.selected {
+    border-color: var(--neutral-100);
+    box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--neutral-500);
+}
+
+/* Syllabus Footer Dark Mode */
+[data-theme="dark"] .syllabus-footer {
+    background: var(--neutral-100);
+    border-top-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .syllabus-footer .btn-outline {
+    background: var(--neutral-100);
+    border-color: var(--neutral-300);
+    color: var(--neutral-600);
+}
+
+[data-theme="dark"] .syllabus-footer .btn-outline:hover {
+    background: var(--neutral-200);
+    border-color: var(--neutral-400);
+}
+
+/* Edit Course Page Dark Mode */
+[data-theme="dark"] .events-panel {
+    background: var(--white);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .course-tabs {
+    background: var(--neutral-100);
+    border-bottom-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .tab-btn {
+    color: var(--neutral-600);
+}
+
+[data-theme="dark"] .tab-btn:hover {
+    color: var(--primary);
+    background: var(--primary-subtle);
+}
+
+[data-theme="dark"] .tab-btn.active {
+    color: var(--primary);
+    background: var(--white);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .edit-course-table-header {
+    background: var(--neutral-100);
+    border-bottom-color: var(--neutral-200);
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .events-panel .task-row {
+    border-bottom-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .events-panel .task-row:hover {
+    background: var(--neutral-100);
+}
+
+[data-theme="dark"] .events-panel .task-checkbox {
+    background: var(--white);
+    border-color: var(--neutral-300);
+}
+
+[data-theme="dark"] .events-panel .task-checkbox:hover {
+    border-color: var(--primary);
+}
+
+[data-theme="dark"] .events-panel .col-time {
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .events-panel .col-event {
+    color: var(--neutral-600);
+}
+
+[data-theme="dark"] .events-panel .due-date-header {
+    background: var(--neutral-100);
+    border-bottom-color: var(--neutral-200);
+    color: var(--neutral-900);
+}
+
+[data-theme="dark"] .events-panel .due-date-group {
+    border-bottom-color: var(--neutral-200);
+}
+
+/* Priority Badges Dark Mode */
+[data-theme="dark"] .events-panel .priority-badge.low {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+[data-theme="dark"] .events-panel .priority-badge.medium {
+    background: var(--warning-light);
+    color: var(--warning);
+}
+
+[data-theme="dark"] .events-panel .priority-badge.high {
+    background: var(--error-light);
+    color: var(--error);
+}
+
+/* Past Events Dark Mode */
+[data-theme="dark"] .past-events-toggle {
+    background: var(--neutral-100);
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .past-events-toggle:hover {
+    background: var(--neutral-200);
+}
+
+/* Syllabus Details Form Dark Mode */
+[data-theme="dark"] .syllabus-details-form .form-label {
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .syllabus-details-form .form-input {
+    background: var(--neutral-100);
+    border-color: var(--neutral-200);
+    color: var(--neutral-800);
+}
+
+[data-theme="dark"] .syllabus-details-header {
+    border-bottom-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .syllabus-details-title {
+    color: var(--neutral-800);
+}
+
+[data-theme="dark"] .syllabus-file-display {
+    background: var(--neutral-100);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .syllabus-file-display .file-name {
+    color: var(--neutral-800);
+}
+
+[data-theme="dark"] .syllabus-file-display .file-size {
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .syllabus-file-display .file-view-btn {
+    background: var(--white);
+    border-color: var(--neutral-200);
+    color: var(--neutral-600);
+}
+
+[data-theme="dark"] .syllabus-file-display .file-view-btn:hover {
+    background: var(--neutral-100);
+}
+
+[data-theme="dark"] .course-color-display {
+    background: var(--neutral-100);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .course-color-display .color-name {
+    color: var(--neutral-700);
+}
+
+/* Syllabus Preview Panel Dark Mode */
+[data-theme="dark"] .syllabus-preview-panel {
+    background: var(--white);
+    border-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .preview-header {
+    border-bottom-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .preview-title {
+    color: var(--neutral-900);
+}
+
+[data-theme="dark"] .hide-preview-btn {
+    color: var(--primary);
+}
+
+[data-theme="dark"] .preview-toolbar {
+    background: var(--neutral-100);
+    border-bottom-color: var(--neutral-200);
+}
+
+[data-theme="dark"] .toolbar-btn {
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .toolbar-btn:hover {
+    color: var(--neutral-700);
+    background: var(--neutral-200);
+}
+
+[data-theme="dark"] .page-input,
+[data-theme="dark"] .page-select {
+    background: var(--white);
+    border-color: var(--neutral-300);
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .preview-content {
+    background: var(--neutral-100);
+}
+
+[data-theme="dark"] .pdf-placeholder {
+    background: var(--white);
+}
+
+[data-theme="dark"] .pdf-document {
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .pdf-document h3,
+[data-theme="dark"] .pdf-section h4 {
+    color: var(--neutral-900);
+}
+
+/* Back Button Dark Mode */
+[data-theme="dark"] .back-btn {
+    background: var(--primary);
+    color: var(--white);
+}
+
+[data-theme="dark"] .back-btn:hover {
+    background: var(--primary-dark);
+}
+
+/* Static Field Dark Mode */
+[data-theme="dark"] .static-field {
+    background: var(--neutral-100);
+    border-color: var(--neutral-200);
+    color: var(--neutral-700);
+}
+
+[data-theme="dark"] .static-field svg {
+    color: var(--primary);
+}
+
+/* ============================================
+   Upload Progress Notification (Bottom Right)
+   ============================================ */
+
+.upload-progress-overlay {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 10000;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.3s, opacity 0.3s ease;
+}
+
+.upload-progress-overlay.active {
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0s, opacity 0.3s ease;
+}
+
+.upload-progress-card {
+    position: relative;
+    background: #ffffff;
+    padding: 1rem 1.25rem;
+    border-radius: 1rem;
+    text-align: left;
+    width: 320px;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    pointer-events: auto;
+    opacity: 0;
+}
+
+.upload-progress-overlay.active .upload-progress-card {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* Upload Card Header */
+.upload-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Spinner Animation */
+.upload-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #E2E8F0;
+    border-top-color: #239BC2;
+    border-radius: 50%;
+    animation: uploadSpin 1s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes uploadSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Upload Icon (shows on complete) */
+.upload-complete-icon {
+    width: 32px;
+    height: 32px;
+    background: #DCFCE7;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: #22C55E;
+    animation: uploadBounce 0.5s ease;
+    flex-shrink: 0;
+}
+
+.upload-complete-icon.show {
+    display: flex;
+}
+
+.upload-complete-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
+@keyframes uploadBounce {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Progress Card Title & Header Info */
+.upload-header-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.upload-progress-card h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1E293B;
+    margin: 0 0 0.125rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.upload-header-info .file-name-small {
+    font-size: 0.75rem;
+    color: #64748B;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Close button for notification */
+.upload-close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    opacity: 0;
+}
+
+.upload-progress-card:hover .upload-close-btn {
+    opacity: 1;
+}
+
+.upload-close-btn:hover {
+    background: #F1F5F9;
+    color: #475569;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+    background: #E2E8F0;
+    border-radius: 9999px;
+    height: 6px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+    position: relative;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #239BC2, #14B8A6);
+    height: 100%;
+    width: 0%;
+    border-radius: 9999px;
+    transition: width 0.15s ease-out;
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    animation: progressShimmer 1.5s infinite;
+}
+
+@keyframes progressShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Progress Footer */
+.progress-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Progress Text */
+.progress-text {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #64748B;
+    margin: 0;
+}
+
+.progress-percentage {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #239BC2;
+    margin: 0;
+}
+
+/* Hide file info in compact mode */
+.upload-file-info {
+    display: none;
+}
+
+/* Hide processing steps in compact mode */
+.processing-steps {
+    display: none;
+}
+
+/* Mini spinner for active step */
+.step-spinner {
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--primary-subtle);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: uploadSpin 0.8s linear infinite;
+}
+
+/* Upload Progress Dark Mode */
+[data-theme="dark"] .upload-progress-card {
+    background: var(--white);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .upload-progress-card h3 {
+    color: var(--neutral-900);
+}
+
+[data-theme="dark"] .upload-header-info .file-name-small {
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .upload-spinner {
+    border-color: var(--neutral-300);
+    border-top-color: var(--primary);
+}
+
+[data-theme="dark"] .progress-bar-container {
+    background: var(--neutral-200);
+}
+
+[data-theme="dark"] .progress-text {
+    color: var(--neutral-500);
+}
+
+[data-theme="dark"] .upload-close-btn {
+    color: var(--neutral-400);
+}
+
+[data-theme="dark"] .upload-close-btn:hover {
+    background: var(--neutral-200);
+    color: var(--neutral-600);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .upload-progress-overlay {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+    }
+    
+    .upload-progress-card {
+        width: 100%;
+    }
+}

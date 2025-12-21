@@ -228,7 +228,7 @@ const Open = (props) => {
                                 className="btn-md"
                                 onClick={handleDeleteClose}
                             >
-                                No, Change My Mind
+                                Cancel
                             </Button>
                         }
                         <Button

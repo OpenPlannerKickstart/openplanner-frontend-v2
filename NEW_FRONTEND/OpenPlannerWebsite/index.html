@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Planner - AI Scheduling Platform for Students</title>
+    <meta name="description" content="Automatically extract due dates from your syllabus, create tasks, and track progress with Open Planner!">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css?v=3">
+</head>
+<body>
+    <!-- Navigation -->
+    <header class="header">
+        <nav class="nav container">
+            <a href="#" class="logo">
+                <img src="assets/logo.png" alt="Open Planner - AI Scheduling App" class="logo-image">
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="parents.html">Parents</a></li>
+                <li><a href="#testimonials">Reviews</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-ghost">Log in</a>
+                <a href="signup.html" class="btn btn-primary">Sign up</a>
+            </div>
+            
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu">
+            <ul class="mobile-nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="parents.html">Parents</a></li>
+                <li><a href="#testimonials">Reviews</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="mobile-nav-actions">
+                <a href="login.html" class="btn btn-ghost">Log in</a>
+                <a href="signup.html" class="btn btn-primary">Sign up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg">
+            <div class="hero-gradient"></div>
+            <div class="hero-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
+        
+        <div class="container hero-content">
+            <div class="hero-text">
+                <span class="hero-badge">
+                    <span class="badge-dot"></span>
+                    AI-Powered Planning
+                </span>
+                <h1 class="hero-title">
+                    Stay Organized with our <span class="gradient-text">AI</span> <span class="gradient-text">Scheduling</span> Platform!
+                </h1>
+                <p class="hero-description">
+                    Automatically extract due dates from your syllabus, create tasks, and track progress with Open Planner!
+                </p>
+                <div class="hero-cta">
+                    <a href="#" class="btn btn-primary btn-large">
+                        Sign Up Free
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4.16667 10H15.8333M15.8333 10L10 4.16667M15.8333 10L10 15.8333" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    <a href="#contact" class="btn btn-outline-white btn-large">Contact Us</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">8K+</span>
+                        <span class="stat-label">Students</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span class="stat-number">50K+</span>
+                        <span class="stat-label">Tasks Created</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat">
+                        <span class="stat-number">5.0</span>
+                        <span class="stat-label">App Rating</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <img src="assets/Open Planner Your Upcoming Week (5) copy.png" alt="Open Planner - Mobile and Desktop App" class="hero-mockup-image">
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Features</span>
+                <h2 class="section-title">What does Open Planner include?</h2>
+                <p class="section-description">Stay on top of your study routine with effortless planning and organization.</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card feature-card-large" data-aos="fade-up">
+                    <div class="feature-icon">
+                        <span>🗓️</span>
+                    </div>
+                    <h3 class="feature-title">Syllabus Upload Process</h3>
+                    <p class="feature-description">Simply upload your syllabus and we'll extract your due dates automatically. No more manual entry!</p>
+                    <div class="feature-visual">
+                        <div class="video-container">
+                            <iframe 
+                                src="https://www.youtube.com/embed/HgPKD4nKR1Q" 
+                                title="Open Planner - Syllabus Upload"
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <span>📚</span>
+                    </div>
+                    <h3 class="feature-title">General Organization</h3>
+                    <p class="feature-description">Keep all your academic work organized in one place. Manage classes, assignments, and deadlines effortlessly.</p>
+                    <div class="feature-visual">
+                        <div class="video-container">
+                            <iframe 
+                                src="https://www.youtube.com/embed/vhVMB26vNYc" 
+                                title="Open Planner - General Organization"
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <span>📝</span>
+                    </div>
+                    <h3 class="feature-title">Customizable To-Do Lists</h3>
+                    <p class="feature-description">Create tasks, set priorities, and mark them as completed to stay on top of your academic goals.</p>
+                    <div class="feature-visual">
+                        <div class="video-container">
+                            <iframe 
+                                src="https://www.youtube.com/embed/WfDCyfHwACg" 
+                                title="Open Planner - Task Lists"
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Reviews</span>
+                <h2 class="section-title">Don't take our word for it</h2>
+                <p class="section-description">See what students are saying about Open Planner</p>
+            </div>
+            
+            <div class="testimonials-slider">
+                <div class="testimonials-track">
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <p class="testimonial-text">"Open Planner has completely transformed how I manage my coursework. The syllabus scanning feature is a game-changer!"</p>
+                        <div class="testimonial-author">
+                            <img class="author-logo" src="assets/texas-logo.png" alt="University of Texas">
+                            <div class="author-info">
+                                <span class="author-name">Sarah</span>
+                                <span class="author-role">University of Texas</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <p class="testimonial-text">"I used to miss deadlines all the time. Now with the notifications, I'm always prepared and on top of my assignments."</p>
+                        <div class="testimonial-author">
+                            <img class="author-logo" src="assets/smu-logo.png" alt="SMU">
+                            <div class="author-info">
+                                <span class="author-name">James</span>
+                                <span class="author-role">SMU</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <p class="testimonial-text">"The to-do list feature helps me prioritize what's important. Best study app I've ever used!"</p>
+                        <div class="testimonial-author">
+                            <img class="author-logo" src="assets/tcu-logo.png" alt="TCU">
+                            <div class="author-info">
+                                <span class="author-name">Emily</span>
+                                <span class="author-role">TCU</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <p class="testimonial-text">"As a grad student juggling multiple classes, Open Planner keeps everything organized in one place."</p>
+                        <div class="testimonial-author">
+                            <img class="author-logo" src="assets/baylor-logo.png" alt="Baylor">
+                            <div class="author-info">
+                                <span class="author-name">Michael</span>
+                                <span class="author-role">Baylor University</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <p class="testimonial-text">"I love how easy it is to upload my syllabus and have all my due dates automatically added. Saves so much time!"</p>
+                        <div class="testimonial-author">
+                            <img class="author-logo" src="assets/washington-logo.png" alt="Washington">
+                            <div class="author-info">
+                                <span class="author-name">Ashley</span>
+                                <span class="author-role">University of Washington</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <p class="testimonial-text">"The AI syllabus scanning is incredible. It pulled every single date perfectly from my 20-page syllabus!"</p>
+                        <div class="testimonial-author">
+                            <img class="author-logo" src="assets/stanford-logo.png" alt="Stanford">
+                            <div class="author-info">
+                                <span class="author-name">David</span>
+                                <span class="author-role">Stanford University</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <p class="testimonial-text">"Finally an app that understands student life. The notifications keep me on track without being annoying."</p>
+                        <div class="testimonial-author">
+                            <img class="author-logo" src="assets/alabama-logo.png" alt="Alabama">
+                            <div class="author-info">
+                                <span class="author-name">Jessica</span>
+                                <span class="author-role">University of Alabama</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">★★★★★</div>
+                        <p class="testimonial-text">"My GPA went up after I started using Open Planner. I never miss a deadline anymore!"</p>
+                        <div class="testimonial-author">
+                            <img class="author-logo" src="assets/clemson-logo.png" alt="Clemson">
+                            <div class="author-info">
+                                <span class="author-name">Chris</span>
+                                <span class="author-role">Clemson University</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="slider-dots">
+                <button class="dot active" data-index="0"></button>
+                <button class="dot" data-index="1"></button>
+                <button class="dot" data-index="2"></button>
+                <button class="dot" data-index="3"></button>
+                <button class="dot" data-index="4"></button>
+                <button class="dot" data-index="5"></button>
+                <button class="dot" data-index="6"></button>
+                <button class="dot" data-index="7"></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Pricing</span>
+                <h2 class="section-title">Find a plan that's right for you</h2>
+            </div>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card" data-aos="fade-up">
+                    <div class="pricing-header">
+                        <span class="pricing-duration">Free</span>
+                        <div class="pricing-price">
+                            <span class="price-old price-old-hidden">&nbsp;</span>
+                            <span class="price-current">$0</span>
+                            <span class="price-per-month price-per-month-hidden">&nbsp;</span>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-primary btn-full">Get started</a>
+                    <div class="pricing-features">
+                        <span class="features-label">FEATURES</span>
+                        <ul>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                3 syllabus uploads
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Full website access
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Full mobile application access
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Notifications
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="pricing-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="pricing-header">
+                        <span class="pricing-duration">1 Month</span>
+                        <div class="pricing-price">
+                            <span class="price-old">$4.99</span>
+                            <span class="price-current">$3.99</span>
+                            <span class="price-per-month price-per-month-hidden">&nbsp;</span>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-primary btn-full">Get started</a>
+                    <div class="pricing-features">
+                        <span class="features-label">FEATURES</span>
+                        <ul>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Unlimited syllabus uploads
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Full website access
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Full mobile application access
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Notifications
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="pricing-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="pricing-header">
+                        <span class="pricing-duration">6 Months</span>
+                        <div class="pricing-price">
+                            <span class="price-old">$18.99</span>
+                            <span class="price-current">$14.99</span>
+                            <span class="price-per-month">$2.50/month</span>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-primary btn-full">Get started</a>
+                    <div class="pricing-features">
+                        <span class="features-label">FEATURES</span>
+                        <ul>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Unlimited syllabus uploads
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Full website access
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Full mobile application access
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Notifications
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="pricing-card pricing-card-popular" data-aos="fade-up" data-aos-delay="300">
+                    <span class="popular-badge">Popular</span>
+                    <div class="pricing-header">
+                        <span class="pricing-duration">1 Year</span>
+                        <div class="pricing-price">
+                            <span class="price-old">$29.99</span>
+                            <span class="price-current">$23.99</span>
+                            <span class="price-per-month">$2.00/month</span>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-primary btn-full">Get started</a>
+                    <div class="pricing-features">
+                        <span class="features-label">FEATURES</span>
+                        <ul>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Unlimited syllabus uploads
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Full website access
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Full mobile application access
+                            </li>
+                            <li>
+                                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                Notifications
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Parent & Enterprise Cards -->
+            <div class="special-pricing-grid">
+                <div class="special-card parent-card" data-aos="fade-up">
+                    <div class="special-card-icon">👨‍👩‍👧‍👦</div>
+                    <h3>For Parents</h3>
+                    <p>Purchase a subscription for your student and help them stay organized.</p>
+                    <a href="parents.html" class="btn btn-primary btn-full parent-btn">
+                        Parent Checkout
+                        <svg class="arrow-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4.16667 10H15.8333M15.8333 10L10 4.16667M15.8333 10L10 15.8333" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                </div>
+                
+                <div class="special-card enterprise-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="special-card-icon">🏫</div>
+                    <h3>For Schools</h3>
+                    <p>Looking for multi-user licenses or institutional pricing? We've got you covered.</p>
+                    <a href="#contact" class="btn btn-outline btn-full">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- App Download Section -->
+    <section class="app-download">
+        <div class="container">
+            <div class="download-content">
+                <h2>Get Open Planner on your device</h2>
+                <p>Available on iOS and Android</p>
+                <div class="store-buttons">
+                    <a href="#" class="store-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                        </svg>
+                        <div class="store-text">
+                            <span>Download on the</span>
+                            <strong>App Store</strong>
+                        </div>
+                    </a>
+                    <a href="#" class="store-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.6 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
+                        </svg>
+                        <div class="store-text">
+                            <span>Get it on</span>
+                            <strong>Google Play</strong>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="contact-content">
+                <h2>Have questions?</h2>
+                <p>Please contact us at <a href="mailto:admin@open-planner.com">admin@open-planner.com</a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <img src="assets/logo.png" alt="Open Planner - AI Scheduling App" class="logo-image footer-logo">
+                    </a>
+                    <p class="footer-tagline">AI-powered scheduling for students</p>
+                </div>
+                
+                <nav class="footer-nav">
+                    <div class="footer-nav-group">
+                        <h4>Product</h4>
+                        <ul>
+                            <li><a href="#">Home</a></li>
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#pricing">Pricing</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-nav-group">
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="faqs.html">FAQ's</a></li>
+                            <li><a href="#contact">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-nav-group">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+                            <li><a href="terms.html">Terms and Conditions</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                
+                <div class="footer-social">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Facebook">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Open Planner. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to top button -->
+    <button class="back-to-top" aria-label="Back to top">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
