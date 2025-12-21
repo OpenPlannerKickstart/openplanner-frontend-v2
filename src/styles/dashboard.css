@@ -3228,6 +3228,7 @@ input, textarea, select {
 
 .dashboard-content .task-row.clickable-event:hover {
     background: var(--row-course-hover-bg, var(--primary-subtle)) !important;
+    border-radius: 0 !important;
 }
 
 /* Course pill highlighting (My Week) */
@@ -3243,6 +3244,7 @@ input, textarea, select {
 
 .dashboard-content .task-row.course-highlight-match:hover {
     background: var(--row-course-hover-bg, var(--primary-subtle)) !important;
+    border-radius: 0 !important;
 }
 
 .task-row.course-highlight-match.completed {

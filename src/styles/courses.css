@@ -1074,6 +1074,8 @@
     align-items: center;
     transition: background var(--transition-base);
     border-bottom: 1px solid var(--neutral-100);
+    /* Square corners inside Edit Course events list */
+    border-radius: 0 !important;
 }
 
 .events-panel .task-row:last-child {
@@ -1345,6 +1347,7 @@
 .events-panel .task-row.clickable-event:hover {
     /* Use course hex (set inline) when available; otherwise neutral */
     background: var(--row-course-hover-bg, var(--neutral-50)) !important;
+    border-radius: 0 !important;
 }
 
 /* Past Events Section */

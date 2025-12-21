@@ -3075,6 +3075,7 @@ input, textarea, select {
 
 .task-row.clickable-event:hover {
     background: var(--primary-subtle);
+    border-radius: 0;
 }
 
 /* Completed Task Row Styles */
