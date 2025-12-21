@@ -616,6 +616,7 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  z-index: 9999;
 }
 
 .auth-select__option {

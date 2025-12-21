@@ -441,9 +441,9 @@ const Registeration = (props) => {
                       value={univercityData?.filter(({ label }) => {
                         return label === signUpFormData.values.university_name;
                       })}
-                      isDisabled={!isNullUndefinedOrBlank(props?.selectedCourse) ? true : false}
                       isClearable
                       menuPosition="fixed"
+                      menuPortalTarget={document.body}
                       classNamePrefix="auth-select"
                     />
                   </div>
