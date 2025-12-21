@@ -1,26 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, Form } from "react-bootstrap";
-import authLogo from '/assets/images/auth-logo.svg'
-import authBGLogo from '/assets/images/auth-bg-logo.svg'
-import bgShapeOne from '/assets/images/bg-shape-one.png'
-import bgShapeTwo from '/assets/images/bg-shape-two.png'
-
 import { connect, useDispatch } from "react-redux";
+import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from "formik";
+import { NavLink, useNavigate } from "react-router-dom";
+import * as yup from "yup";
+
+import "../AuthPage.css";
+
 import { AppDispatch } from "../../../redux/store";
 import { loginToSystem } from "../../../redux/Service/auth/login";
-import { customJsonInclude, isEmptyObjectOrNullUndefiend, renderError, setCookieByName } from "../../../Utility/Helper";
-
-
-import { NavLink, useNavigate } from "react-router-dom";
+import { customJsonInclude, isEmptyObjectOrNullUndefiend, renderError } from "../../../Utility/Helper";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { LoginData } from "../../../interfaces";
-import { MAX_15, MAX_50, PASSWORD_INVALID, PATTERN_EMAIL, PATTERN_FOR_EMAIL_OR_USERNAME, PATTERN_FOR_PASSWORD_NEW } from "../../../Utility/Validation_Helper";
-import { EMAIL_INVALID, EMAIL_REQUIRED, PASSWORD_REQUIRED, USERNAME_EMAIL_IS_REQUIRED, USERNAME_EMAIL_VALIDATION } from "../../../Utility/Validation_Message";
-import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from "formik";
+import {
+  MAX_15,
+  MAX_50,
+  PASSWORD_INVALID,
+  PATTERN_FOR_EMAIL_OR_USERNAME,
+  PATTERN_FOR_PASSWORD_NEW,
+} from "../../../Utility/Validation_Helper";
+import {
+  PASSWORD_REQUIRED,
+  USERNAME_EMAIL_IS_REQUIRED,
+  USERNAME_EMAIL_VALIDATION,
+} from "../../../Utility/Validation_Message";
 import { sendSignupEmailOtp } from "../../../redux/Service/auth/signup";
-import * as yup from "yup";
 import VerifySignupOtp from "../Registration/VerifySignupOtp";
 import { savedLoginDataSuccess } from "../../../redux/auth/Signup/signupSlice";
+
 /**
  * Login Component
  * @param {object} props - Props passed to the component
@@ -28,247 +34,303 @@ import { savedLoginDataSuccess } from "../../../redux/auth/Signup/signupSlice";
  */
 
 const Login = (props) => {
-    const navigate = useNavigate();
-    const [eyeToggle, setEyeToggle] = useState<boolean>(false);
-    const dispatch: AppDispatch = useDispatch();
-    const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
-    /* ------------------------- Login Form Validation ------------------------- */
-    const initLoginValues: LoginData = {
-        identifier: "",
-        password: "",
+  const navigate = useNavigate();
+  const [eyeToggle, setEyeToggle] = useState<boolean>(false);
+  const dispatch: AppDispatch = useDispatch();
+  const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
+
+  const initLoginValues: LoginData = {
+    identifier: "",
+    password: "",
+  };
+  const [savedLoginFormData, setSavedLoginFormData] = useState(initLoginValues);
+  const onSubmitForLogin = async (values, onSubmitProps) => {};
+
+  const validationSchemaForLogin = yup.object({
+    identifier: yup
+      .string()
+      .trim()
+      .matches(PATTERN_FOR_EMAIL_OR_USERNAME, USERNAME_EMAIL_VALIDATION)
+      .required(USERNAME_EMAIL_IS_REQUIRED),
+
+    password: yup
+      .string()
+      .matches(PATTERN_FOR_PASSWORD_NEW, PASSWORD_INVALID)
+      .required(PASSWORD_REQUIRED),
+  });
+
+  const loginFormData = useFormik({
+    initialValues: savedLoginFormData || initLoginValues,
+    onSubmit: onSubmitForLogin,
+    validationSchema: validationSchemaForLogin,
+  });
+
+  const handleBlurValueUpdate = (key) => {
+    loginFormData.setFieldValue(key, loginFormData.values[key].trim());
+    setTimeout(() => {
+      loginFormData.setFieldTouched(key, true);
+    }, 100);
+  };
+
+  const handleLoginData = async () => {
+    loginFormData.handleSubmit();
+    const loginFormDataErrors = await loginFormData.validateForm();
+    if (Object.keys(loginFormDataErrors).length > 0) {
+      loginFormData.setTouched(
+        setNestedObjectValues<FormikTouched<FormikValues>>(loginFormDataErrors, true)
+      );
+      return;
     }
-    const [savedLoginFormData, setSavedLoginFormData] = useState(initLoginValues);
-    const onSubmitForLogin = async (values, onSubmitProps) => { };
 
-
-    const validationSchemaForLogin = yup.object({
-        identifier: yup.string()
-            .trim()
-            .matches(PATTERN_FOR_EMAIL_OR_USERNAME, USERNAME_EMAIL_VALIDATION)
-            // .email("Please Enter a valid Email.")
-            .required(USERNAME_EMAIL_IS_REQUIRED),
-
-        password: yup
-            .string()
-            .matches(PATTERN_FOR_PASSWORD_NEW, PASSWORD_INVALID)
-            .required(PASSWORD_REQUIRED),
-    });
-    const loginFormData = useFormik({
-        initialValues: savedLoginFormData || initLoginValues,
-        // onubmit:onSubmitForLogin,
-        onSubmit: onSubmitForLogin,
-        validationSchema: validationSchemaForLogin,
-    });
-    const handleBlurValueUpdate = (key) => {
-        loginFormData.setFieldValue(key, loginFormData.values[key].trim());
-        setTimeout(() => {
-            loginFormData.setFieldTouched(key, true);
-        }, 100);
-
-    }
-
-    // const handleKeyPress = (event) => {
-
-    //     if (event.keyCode === 13) {
-    //         event.preventDefault();
-    //         signUpFormData.handleSubmit();
-
-    //     }
-
-    // };
-
-
-    const handleLoginData = async () => {
-        loginFormData.handleSubmit();
-        const loginFormDataErrors = await loginFormData.validateForm();
-        if (Object.keys(loginFormDataErrors).length > 0) {
-            loginFormData.setTouched(
-                setNestedObjectValues<
-                    FormikTouched<FormikValues>
-                >(loginFormDataErrors, true))
-            return;
-        }
-
-
-        const reqBody = {
-            identifier: loginFormData.values.identifier,
-            password: loginFormData.values.password,
-        }
-        customJsonInclude(reqBody);
-        const response = await dispatch(loginToSystem(reqBody));
-
-        if (response) {
-            // console.log(response)
-            if (!response?.payload?.isVerify) {
-                const sendEmailOtpReqBody = {
-                    username: `${response?.payload?.username}`
-                }
-                const sendEmailOtpResponse = await dispatch(sendSignupEmailOtp(sendEmailOtpReqBody));
-                if (sendEmailOtpResponse) {
-
-                    setOtpDetailsObj(
-                        {
-                            isFromLogin: true,
-                            detailsObj: {
-                                ...reqBody,
-                                username: `${response?.payload?.username}`
-                            }
-
-                        }
-                    )
-
-                }
-                return;
-            }
-
-            if (!response?.payload?.isSubscription) {
-                // Not subscribed → go to plan details (paywall)
-                if (response?.payload) {
-                    dispatch(savedLoginDataSuccess(response.payload));
-                }
-                navigate(ENUMFORROUTES.PLAN_DETAILS, { state: response?.payload });
-                return;
-            } else {
-                // Subscribed → send to dashboard explicitly
-                navigate(ENUMFORROUTES.DASHBOARD);
-                return;
-            }
-        }
-    }
-    useEffect(() => {
-        if (!isEmptyObjectOrNullUndefiend(otpDetailsObj?.detailsObj)) {
-            setSavedLoginFormData(otpDetailsObj?.detailsObj);
-        }
-
-
-        return () => {
-
-        }
-    }, [otpDetailsObj])
-
-    const handleKeyPress = (event) => {
-
-        if (event.keyCode === 13) {
-            event.preventDefault();
-            handleLoginData();
-
-        }
-
+    const reqBody = {
+      identifier: loginFormData.values.identifier,
+      password: loginFormData.values.password,
     };
-    /* ------------------------- Login Form Validation ------------------------- */
+    customJsonInclude(reqBody);
+    const response = await dispatch(loginToSystem(reqBody));
 
-    return (
-        <>
-            {
-                isEmptyObjectOrNullUndefiend(otpDetailsObj) ?
+    if (response) {
+      if (!response?.payload?.isVerify) {
+        const sendEmailOtpReqBody = {
+          username: `${response?.payload?.username}`,
+        };
+        const sendEmailOtpResponse = await dispatch(sendSignupEmailOtp(sendEmailOtpReqBody));
+        if (sendEmailOtpResponse) {
+          setOtpDetailsObj({
+            isFromLogin: true,
+            detailsObj: {
+              ...reqBody,
+              username: `${response?.payload?.username}`,
+            },
+          });
+        }
+        return;
+      }
 
-                    <div className="admin-auth-wrapper admin-auth-side-image">
-                        <div className="admin-auth-inner-wrapper">
-                            <div className="admin-auth-row">
-                                <div className="admin-auth-col admin-auth-left">
-                                    <a href="https://open-planner.com/" target='_blank' >
-                                        <div className="admin-auth-logo cursor">
-                                            <img src={authLogo} alt="OpenPlanner" />
-                                        </div>
-                                    </a>
-                                    <a href="https://open-planner.com/" target='_blank' >
-                                        <div className="auth-image cursor">
-                                            <img src={authBGLogo} alt="OpenPlanner" />
-                                        </div>
-                                    </a>
-                                </div>
-                                <div className="admin-auth-col admin-auth-right">
+      if (!response?.payload?.isSubscription) {
+        if (response?.payload) {
+          dispatch(savedLoginDataSuccess(response.payload));
+        }
+        navigate(ENUMFORROUTES.PLAN_DETAILS, { state: response?.payload });
+        return;
+      }
+      navigate(ENUMFORROUTES.DASHBOARD);
+    }
+  };
 
-                                    <div className="admin-auth-from">
-                                        <div className="admin-auth-card-title">
-                                            <div className="box-icon box-light-primary wh-70px">
-                                                <i className='material-symbols-outlined'>person</i>
-                                            </div>
-                                            <h2 className='mb-0'>Log in to Open Planner</h2>
-                                        </div>
-                                        <Card className='admin-auth-card'>
-                                            <Card.Body>
+  useEffect(() => {
+    if (!isEmptyObjectOrNullUndefiend(otpDetailsObj?.detailsObj)) {
+      setSavedLoginFormData(otpDetailsObj?.detailsObj);
+    }
+  }, [otpDetailsObj]);
 
-                                                <Form.Group className="form-group required" >
-                                                    <Form.Label>Username/Email </Form.Label>
-                                                    <div className="form-group-icon-start">
-                                                        <i className='material-symbols-outlined'>person</i>
-                                                        <Form.Control type="text" placeholder="Enter Your User Name"
-                                                            {...loginFormData.getFieldProps("identifier")}
-                                                            maxLength={MAX_50}
-                                                            onKeyDown={(event) => { handleKeyPress(event) }}
-                                                            onBlur={() => {
-                                                                handleBlurValueUpdate("identifier");
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    {loginFormData.touched.identifier &&
-                                                        loginFormData.errors.identifier
-                                                        ? renderError(loginFormData.errors.identifier)
-                                                        : null}
-                                                </Form.Group>
+  const handleKeyPress = (event) => {
+    if (event.keyCode === 13) {
+      event.preventDefault();
+      handleLoginData();
+    }
+  };
 
+  const brandLogo = "/assets/logo.png";
 
-                                                <Form.Group className='form-group required'>
-                                                    <Form.Label>Password</Form.Label>
-                                                    <div className="form-group-icon-start form-group-password">
-                                                        <i className="material-symbols-outlined">lock</i>
-                                                        <Form.Control type={eyeToggle ? "text" : "password"} placeholder='Enter Password'
-                                                            {...loginFormData.getFieldProps("password")}
-                                                            maxLength={MAX_15}
-                                                            onKeyDown={(event) => { handleKeyPress(event) }}
-                                                        />
-                                                        <button onClick={() => setEyeToggle(!eyeToggle)} className='btn-password'>
-                                                            {/* <i className={` ${eyeToggle ? "th-outline-eye" : "th-outline-eye-slash"}`}></i> */}
+  return (
+    <>
+      {isEmptyObjectOrNullUndefiend(otpDetailsObj) ? (
+        <div className="auth-page">
+          <div className="auth-left-features">
+            <a href="https://open-planner.com/" className="auth-logo-left" target="_blank" rel="noreferrer">
+              <img src={brandLogo} alt="Open Planner" />
+            </a>
 
-                                                            <i className="material-symbols-outlined">{eyeToggle ? "visibility" : "visibility_off"}</i>
-                                                        </button>
-                                                    </div>
-                                                    {loginFormData.touched.password &&
-                                                        loginFormData.errors.password
-                                                        ? renderError(loginFormData.errors.password)
-                                                        : null}
+            <h2 className="auth-left-title">Get Started With Us</h2>
 
-                                                </Form.Group>
+            <div className="feature-list">
+              <div className="feature-item">
+                <div className="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div className="feature-content">
+                  <h3>Effortless Scheduling</h3>
+                  <p>Upload your syllabi for the semester, and let Open Planner do the heavy lifting.</p>
+                </div>
+              </div>
 
+              <div className="feature-item">
+                <div className="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div className="feature-content">
+                  <h3>Customizable Calendar</h3>
+                  <p>Review your generated schedule and make adjustments to suit your needs.</p>
+                </div>
+              </div>
 
+              <div className="feature-item">
+                <div className="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div className="feature-content">
+                  <h3>Stay Connected Anywhere</h3>
+                  <p>Download the Open Planner App to get push notifications and keep track of your upcoming assignments on the go.</p>
+                </div>
+              </div>
+            </div>
 
-                                                <div className="btn-full-group">
+            <div className="auth-calendar-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z" />
+              </svg>
+            </div>
 
-                                                    <NavLink className="auth-top-text-link text-link text-primary fw-500 ms-auto" to={ENUMFORROUTES.FORGOTPASSWORD}>Forgot Password?</NavLink>
-                                                    <Button variant='primary' className='w-100 mt-4' onClick={() => {
+            <p className="auth-legal-footer">
+              By creating an account, you agree to our{" "}
+              <a href="https://open-planner.com/terms-and-conditions/" target="_blank" rel="noreferrer">
+                Terms and Conditions
+              </a>{" "}
+              and{" "}
+              <a href="https://open-planner.com/privacy-policy/" target="_blank" rel="noreferrer">
+                Services Agreement
+              </a>.
+            </p>
+          </div>
 
-                                                        handleLoginData()
-                                                    }}>Log in</Button>
+          <div className="auth-right-form">
+            <div className="auth-form-container">
+              <a href="https://open-planner.com/" className="auth-mobile-logo" target="_blank" rel="noreferrer">
+                <img src={brandLogo} alt="Open Planner" />
+              </a>
 
-                                                </div>
+              <div className="auth-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              </div>
 
-                                                <div className="auth-bottom-text-link">
-                                                    <p>Don’t have an account? <NavLink to={ENUMFORROUTES.REGISTRATION}>Register Here</NavLink></p>
-                                                </div>
+              <div className="auth-header">
+                <h1>Log in to Open Planner</h1>
+              </div>
 
-                                            </Card.Body>
-                                        </Card>
-
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div> :
-                    <VerifySignupOtp
-                        otpDetailsObj={otpDetailsObj}
-                        setOtpDetailsObj={setOtpDetailsObj}
-                        handleLoginData={handleLoginData}
+              <form
+                className="auth-form"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  handleLoginData();
+                }}
+              >
+                <div className="form-group">
+                  <label className="form-label">
+                    Username/Email <span>*</span>
+                  </label>
+                  <div className="form-input-wrapper">
+                    <span className="form-input-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    </span>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Enter Your User Name"
+                      {...loginFormData.getFieldProps("identifier")}
+                      maxLength={MAX_50}
+                      onKeyDown={(event) => {
+                        handleKeyPress(event);
+                      }}
+                      onBlur={() => {
+                        handleBlurValueUpdate("identifier");
+                      }}
                     />
-            }
-        </>
-    );
+                  </div>
+                  {loginFormData.touched.identifier && loginFormData.errors.identifier
+                    ? renderError(loginFormData.errors.identifier)
+                    : null}
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">
+                    Password <span>*</span>
+                  </label>
+                  <div className="form-input-wrapper">
+                    <span className="form-input-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    </span>
+                    <input
+                      type={eyeToggle ? "text" : "password"}
+                      className="form-input"
+                      placeholder="Enter Password"
+                      {...loginFormData.getFieldProps("password")}
+                      maxLength={MAX_15}
+                      onKeyDown={(event) => {
+                        handleKeyPress(event);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="form-input-toggle"
+                      onClick={() => setEyeToggle(!eyeToggle)}
+                      aria-label={eyeToggle ? "Hide password" : "Show password"}
+                    >
+                      <svg
+                        className="eye-icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ color: eyeToggle ? "var(--primary)" : "var(--neutral-400)" }}
+                      >
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    </button>
+                  </div>
+                  {loginFormData.touched.password && loginFormData.errors.password
+                    ? renderError(loginFormData.errors.password)
+                    : null}
+                </div>
+
+                <div className="form-forgot">
+                  <NavLink to={ENUMFORROUTES.FORGOTPASSWORD}>Forgot Password?</NavLink>
+                </div>
+
+                <button type="submit" className="login-btn">
+                  Log in
+                </button>
+              </form>
+
+              <p className="auth-footer">
+                Don't have an account? <NavLink to={ENUMFORROUTES.REGISTRATION}>Register Here</NavLink>
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <VerifySignupOtp
+          otpDetailsObj={otpDetailsObj}
+          setOtpDetailsObj={setOtpDetailsObj}
+          handleLoginData={handleLoginData}
+        />
+      )}
+    </>
+  );
 };
-const mapStateToProps = (state) => ({})
+
+const mapStateToProps = (state) => ({});
 
 const mapDispatchToProps = {
-    loginToSystem
-}
+  loginToSystem,
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login)
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
