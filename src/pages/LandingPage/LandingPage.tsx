@@ -23,6 +23,7 @@ const LandingPage = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [visibleCards, setVisibleCards] = useState(3);
   const [cardWidth, setCardWidth] = useState(0);
+  const [trackGap, setTrackGap] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
 
   // Scroll effects (header shadow, shapes parallax, back-to-top)
@@ -87,9 +88,14 @@ const LandingPage = () => {
       const container = trackRef.current?.parentElement;
       if (!container) return;
       const width = container.offsetWidth;
+      const computedGap = trackRef.current
+        ? parseFloat(window.getComputedStyle(trackRef.current).gap || '0') || 0
+        : 0;
       const nextVisible = window.innerWidth <= 768 ? 1 : window.innerWidth <= 1024 ? 2 : 3;
       setVisibleCards(nextVisible);
-      setCardWidth(width / nextVisible);
+      setTrackGap(computedGap);
+      const available = width - computedGap * Math.max(0, nextVisible - 1);
+      setCardWidth(available / nextVisible);
     };
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
@@ -215,11 +221,12 @@ const LandingPage = () => {
   }, []);
 
   const trackStyle = {
-    transform: `translateX(-${currentSlide * cardWidth}px)`,
+    transform: `translateX(-${currentSlide * (cardWidth + trackGap)}px)`,
   };
 
-  const cardStyle = {
-    minWidth: cardWidth ? `${cardWidth}px` : undefined,
+  const cardStyle: React.CSSProperties = {
+    width: cardWidth ? `${cardWidth}px` : undefined,
+    flex: '0 0 auto',
   };
 
   const scrollToTop = () => {

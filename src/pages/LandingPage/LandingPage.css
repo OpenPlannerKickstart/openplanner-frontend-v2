@@ -793,9 +793,13 @@ ul {
 }
 
 .testimonials-slider {
+    /* Full-bleed carousel while keeping the section text constrained */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    /* Keep shadows from being clipped (especially bottom + hover lift) */
     overflow: hidden;
-    margin: 0 calc(-1 * var(--space-lg));
-    padding: 0 var(--space-lg);
+    padding: var(--space-xl) var(--space-2xl) var(--space-3xl);
 }
 
 .testimonials-track {
@@ -805,7 +809,8 @@ ul {
 }
 
 .testimonial-card {
-    flex: 0 0 calc(33.333% - var(--space-lg));
+    /* Width is controlled by JS so sliding math stays correct */
+    flex: 0 0 auto;
     background: var(--white);
     border-radius: var(--radius-2xl);
     padding: var(--space-xl);
@@ -1464,9 +1469,7 @@ ul {
     }
     
     
-    .testimonial-card {
-        flex: 0 0 calc(100% - var(--space-lg));
-    }
+    /* Card width is JS-controlled now */
     
     .store-buttons {
         flex-direction: column;
