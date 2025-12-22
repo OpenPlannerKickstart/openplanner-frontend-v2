@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ENUMFORROUTES } from '../../interfaces/enum';
+import MarketingHeader from '../../components/MarketingHeader/MarketingHeader';
+import MarketingFooter from '../../components/MarketingFooter/MarketingFooter';
 import './LandingPage.css';
 
 const testimonials = [
@@ -17,9 +19,7 @@ const testimonials = [
 const LandingPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [headerScrolled, setHeaderScrolled] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [visibleCards, setVisibleCards] = useState(3);
   const [cardWidth, setCardWidth] = useState(0);
@@ -35,7 +35,6 @@ const LandingPage = () => {
     const handleScroll = () => {
       const offset = window.pageYOffset;
       setShowBackToTop(offset > 500);
-      setHeaderScrolled(offset > 50);
       const shapes = document.querySelectorAll('.shape');
       shapes.forEach((shape, index) => {
         const speed = 0.1 + index * 0.05;
@@ -289,99 +288,7 @@ const LandingPage = () => {
   return (
     <div className="landing-page">
       {/* Navigation */}
-      <header className={`header ${headerScrolled ? 'scrolled' : ''}`}>
-        <nav className="nav container">
-          <a href="#" className="logo">
-            <img src="/assets/logo.png" alt="Open Planner - AI Scheduling App" className="logo-image" />
-          </a>
-
-          <ul className="nav-links">
-            <li><a href="#features">Features</a></li>
-            <li><a href="#pricing">Pricing</a></li>
-            <li>
-              <a
-                href={ENUMFORROUTES.PARENTS}
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate(ENUMFORROUTES.PARENTS);
-                }}
-              >
-                Parents
-              </a>
-            </li>
-                        <li><a href="#testimonials">Reviews</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                        <li>
-                            <a
-                                href="/#/faqs"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    navigate("/faqs");
-                                }}
-                            >
-                                FAQ&apos;s
-                            </a>
-                        </li>
-          </ul>
-
-          <div className="nav-actions">
-            <button onClick={() => navigate(ENUMFORROUTES.LOGIN)} className="btn btn-ghost">Log in</button>
-            <button onClick={() => navigate(ENUMFORROUTES.REGISTRATION)} className="btn btn-primary">Sign up</button>
-          </div>
-
-          <button
-            className={`mobile-menu-btn ${mobileMenuOpen ? 'active' : ''}`}
-            aria-label="Toggle menu"
-            onClick={() => setMobileMenuOpen((prev) => !prev)}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-        </nav>
-
-        {/* Mobile Menu */}
-        <div className={`mobile-menu ${mobileMenuOpen ? 'active' : ''}`}>
-          <ul className="mobile-nav-links">
-            <li><a href="#features" onClick={() => setMobileMenuOpen(false)}>Features</a></li>
-            <li><a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a></li>
-            <li>
-              <a
-                href={ENUMFORROUTES.PARENTS}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setMobileMenuOpen(false);
-                  navigate(ENUMFORROUTES.PARENTS);
-                }}
-              >
-                Parents
-              </a>
-            </li>
-            <li><a href="#testimonials" onClick={() => setMobileMenuOpen(false)}>Reviews</a></li>
-                        <li><a href="#contact" onClick={() => setMobileMenuOpen(false)}>Contact</a></li>
-                        <li>
-                            <a
-                                href="/#/faqs"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setMobileMenuOpen(false);
-                                    navigate("/faqs");
-                                }}
-                            >
-                                FAQ&apos;s
-                            </a>
-                        </li>
-          </ul>
-          <div className="mobile-nav-actions">
-            <button onClick={() => navigate(ENUMFORROUTES.LOGIN)} className="btn btn-ghost">
-              Log in
-            </button>
-            <button onClick={() => navigate(ENUMFORROUTES.REGISTRATION)} className="btn btn-primary">
-              Sign up
-            </button>
-          </div>
-        </div>
-      </header>
+      <MarketingHeader />
 
       {/* Hero Section */}
       <section className="hero">
@@ -648,7 +555,8 @@ const LandingPage = () => {
               </div>
             </div>
 
-            <div className="pricing-card" data-aos="fade-up" data-aos-delay="200">
+            <div className="pricing-card pricing-card-popular" data-aos="fade-up" data-aos-delay="200">
+              <span className="popular-badge">Popular</span>
               <div className="pricing-header">
                 <span className="pricing-duration">6 Months</span>
                 <div className="pricing-price">
@@ -689,8 +597,8 @@ const LandingPage = () => {
               </div>
             </div>
 
-            <div className="pricing-card pricing-card-popular" data-aos="fade-up" data-aos-delay="300">
-              <span className="popular-badge">Popular</span>
+            <div className="pricing-card pricing-card-best-value" data-aos="fade-up" data-aos-delay="300">
+              <span className="best-value-badge">Best Value</span>
               <div className="pricing-header">
                 <span className="pricing-duration">1 Year</span>
                 <div className="pricing-price">
@@ -800,115 +708,7 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-main">
-            <div className="footer-brand">
-              <a href="#" className="logo">
-                <img src="/assets/logo.png" alt="Open Planner - AI Scheduling App" className="logo-image footer-logo" />
-              </a>
-              <p className="footer-tagline">AI-powered scheduling for students</p>
-            </div>
-
-            <nav className="footer-nav">
-              <div className="footer-nav-group">
-                <h4>Product</h4>
-                                <ul>
-                                    <li><a href="#">Home</a></li>
-                                    <li><a href="#features">Features</a></li>
-                                    <li><a href="#pricing">Pricing</a></li>
-                                </ul>
-              </div>
-              <div className="footer-nav-group">
-                <h4>Support</h4>
-                                <ul>
-                                    <li>
-                                        <a
-                                            href="/#/faqs"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                navigate("/faqs");
-                                            }}
-                                        >
-                                            FAQ&apos;s
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/#/privacy-policy"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                navigate("/privacy-policy");
-                                            }}
-                                        >
-                                            Privacy Policy
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/#/terms"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                navigate("/terms");
-                                            }}
-                                        >
-                                            Terms and Conditions
-                                        </a>
-                                    </li>
-                                    <li><a href="#contact">Contact Us</a></li>
-                                </ul>
-              </div>
-              <div className="footer-nav-group">
-                                <h4>Legal</h4>
-                                <ul>
-                                    <li>
-                                        <a
-                                            href="/#/privacy-policy"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                navigate("/privacy-policy");
-                                            }}
-                                        >
-                                            Privacy Policy
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/#/terms"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                navigate("/terms");
-                                            }}
-                                        >
-                                            Terms and Conditions
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </nav>
-
-            <div className="footer-social">
-              <h4>Follow Us</h4>
-              <div className="social-links">
-                <a href="#" className="social-link" aria-label="Instagram">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                  </svg>
-                </a>
-                <a href="#" className="social-link" aria-label="Facebook">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="footer-bottom">
-            <p>&copy; 2025 Open Planner. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <MarketingFooter />
 
       {/* Back to top button */}
       <button className={`back-to-top ${showBackToTop ? 'visible' : ''}`} aria-label="Back to top" onClick={scrollToTop}>

@@ -221,6 +221,7 @@
 .parents-hero {
   position: relative;
   padding: 6rem 0 4rem;
+  padding-top: calc(72px + 4rem); /* Account for fixed header */
   overflow: hidden;
 }
 
@@ -255,7 +256,13 @@
 
 .pricing-card-popular {
   border-color: var(--primary);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.pricing-card-popular:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  transform: translateY(-4px);
 }
 
 .popular-badge {
@@ -269,6 +276,31 @@
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
+}
+
+.pricing-card-best-value {
+  border-color: #10B981;
+  box-shadow: var(--shadow-lg), 0 0 40px rgb(16 185 129 / 0.3);
+}
+
+.pricing-card-best-value:hover {
+  border-color: #10B981;
+  box-shadow: var(--shadow-lg), 0 0 40px rgb(16 185 129 / 0.3);
+  transform: translateY(-4px);
+}
+
+.best-value-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: var(--white);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .pricing-header {
@@ -558,8 +590,9 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: var(--primary);
-  color: var(--white);
+  background: none;
+  color: var(--primary);
+  border: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -576,8 +609,17 @@
 }
 
 .parents-back-to-top:hover {
-  background: var(--primary-dark);
-  transform: translateY(-3px);
+  background: var(--primary);
+  color: var(--white);
+  transform: translateY(-4px);
+}
+
+.parents-back-to-top svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
 }
 
 @media (max-width: 1024px) {

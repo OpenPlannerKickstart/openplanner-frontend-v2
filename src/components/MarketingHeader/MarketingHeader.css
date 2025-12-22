@@ -1,0 +1,274 @@
+/* ============================================
+   Shared Marketing Header Styles
+   ============================================ */
+
+.marketing-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  /* Glass header (matches FAQ look) */
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.marketing-header.scrolled {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.marketing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 72px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  gap: 1.5rem;
+}
+
+/* Logo */
+.marketing-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.marketing-logo img {
+  height: 48px !important;
+  width: auto !important;
+  max-width: none !important;
+  object-fit: contain;
+}
+
+/* Nav Links (center) */
+.marketing-nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.marketing-nav-links li {
+  margin: 0;
+}
+
+.marketing-nav-links a {
+  font-weight: 500;
+  font-size: 0.9375rem;
+  color: #475569;
+  position: relative;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.marketing-nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #4AAED4;
+  border-radius: 9999px;
+  transition: width 0.2s ease;
+}
+
+.marketing-nav-links a:hover {
+  color: #4AAED4;
+}
+
+.marketing-nav-links a:hover::after {
+  width: 100%;
+}
+
+/* Nav Actions (right) */
+.marketing-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.marketing-login-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #475569 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.marketing-login-btn:hover {
+  color: #4AAED4 !important;
+  background: #E8F4F8 !important;
+}
+
+.marketing-signup-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #FFFFFF !important;
+  background: #4AAED4 !important;
+  border: none !important;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgb(74 174 212 / 0.4);
+  transition: all 0.2s ease;
+}
+
+.marketing-signup-btn:hover {
+  background: #3A9BC4 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgb(74 174 212 / 0.5);
+}
+
+/* Mobile Menu Button */
+.marketing-mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.marketing-mobile-menu-btn span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: #334155;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+.marketing-mobile-menu-btn.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.marketing-mobile-menu-btn.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.marketing-mobile-menu-btn.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Mobile Menu Dropdown */
+.marketing-mobile-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  border-top: 1px solid #E2E8F0;
+}
+
+.marketing-mobile-menu.active {
+  display: block;
+}
+
+.marketing-mobile-nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0 0 1.5rem 0;
+  padding: 0;
+}
+
+.marketing-mobile-nav-links li {
+  margin: 0;
+}
+
+.marketing-mobile-nav-links a {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #334155;
+  padding: 0.75rem 0;
+  display: block;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.marketing-mobile-nav-links a:hover {
+  color: #4AAED4;
+}
+
+.marketing-mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.marketing-mobile-login-btn {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #475569;
+  background: #FFFFFF;
+  border: 2px solid #CBD5E1;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.marketing-mobile-login-btn:hover {
+  border-color: #4AAED4;
+  color: #4AAED4;
+  background: #E8F4F8;
+}
+
+.marketing-mobile-signup-btn {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #4AAED4;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgb(74 174 212 / 0.4);
+  transition: all 0.2s ease;
+}
+
+.marketing-mobile-signup-btn:hover {
+  background: #3A9BC4;
+}
+
+/* ============================================
+   Responsive: Switch to hamburger at 1024px
+   ============================================ */
+@media (max-width: 1024px) {
+  .marketing-nav-links,
+  .marketing-nav-actions {
+    display: none;
+  }
+
+  .marketing-mobile-menu-btn {
+    display: flex;
+  }
+}
