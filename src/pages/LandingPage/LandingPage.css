@@ -800,12 +800,16 @@ ul {
     /* Keep shadows from being clipped (especially bottom + hover lift) */
     overflow: hidden;
     padding: var(--space-xl) var(--space-2xl) var(--space-3xl);
+    /* Mobile swipe UX: keep vertical scroll, prevent horizontal page pull */
+    touch-action: pan-y;
+    overscroll-behavior-x: contain;
 }
 
 .testimonials-track {
     display: flex;
     gap: var(--space-xl);
     transition: transform 0.5s ease;
+    will-change: transform;
 }
 
 .testimonial-card {
@@ -1466,6 +1470,14 @@ ul {
     .stat-divider {
         width: 1px;
         height: 30px;
+    }
+    
+    /* Testimonials: avoid full-bleed 100vw on mobile (prevents page "pull") */
+    .testimonials-slider {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        padding: var(--space-lg) var(--space-lg) var(--space-2xl);
     }
     
     

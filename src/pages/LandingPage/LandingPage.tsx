@@ -25,6 +25,10 @@ const LandingPage = () => {
   const [cardWidth, setCardWidth] = useState(0);
   const [trackGap, setTrackGap] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const swipeStartXRef = useRef<number | null>(null);
+  const swipeStartYRef = useRef<number | null>(null);
+  const swipeStartedRef = useRef(false);
 
   // Scroll effects (header shadow, shapes parallax, back-to-top)
   useEffect(() => {
@@ -87,14 +91,17 @@ const LandingPage = () => {
     const updateDimensions = () => {
       const container = trackRef.current?.parentElement;
       if (!container) return;
-      const width = container.offsetWidth;
+      const containerStyles = window.getComputedStyle(container);
+      const paddingLeft = parseFloat(containerStyles.paddingLeft || '0') || 0;
+      const paddingRight = parseFloat(containerStyles.paddingRight || '0') || 0;
+      const innerWidth = Math.max(0, container.clientWidth - paddingLeft - paddingRight);
       const computedGap = trackRef.current
         ? parseFloat(window.getComputedStyle(trackRef.current).gap || '0') || 0
         : 0;
       const nextVisible = window.innerWidth <= 768 ? 1 : window.innerWidth <= 1024 ? 2 : 3;
       setVisibleCards(nextVisible);
       setTrackGap(computedGap);
-      const available = width - computedGap * Math.max(0, nextVisible - 1);
+      const available = innerWidth - computedGap * Math.max(0, nextVisible - 1);
       setCardWidth(available / nextVisible);
     };
     updateDimensions();
@@ -227,6 +234,52 @@ const LandingPage = () => {
   const cardStyle: React.CSSProperties = {
     width: cardWidth ? `${cardWidth}px` : undefined,
     flex: '0 0 auto',
+  };
+
+  const handleSwipeStart = (e: React.PointerEvent) => {
+    // Only care about primary pointer/touch
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    swipeStartXRef.current = e.clientX;
+    swipeStartYRef.current = e.clientY;
+    swipeStartedRef.current = false;
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+  };
+
+  const handleSwipeMove = (e: React.PointerEvent) => {
+    if (swipeStartXRef.current === null || swipeStartYRef.current === null) return;
+    const dx = e.clientX - swipeStartXRef.current;
+    const dy = e.clientY - swipeStartYRef.current;
+
+    // Only treat as a swipe once it's clearly horizontal
+    if (!swipeStartedRef.current) {
+      if (Math.abs(dx) < 8) return;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        // vertical scroll gesture
+        swipeStartXRef.current = null;
+        swipeStartYRef.current = null;
+        return;
+      }
+      swipeStartedRef.current = true;
+    }
+
+    // Prevent "page pull" while swiping horizontally
+    e.preventDefault();
+  };
+
+  const handleSwipeEnd = (e: React.PointerEvent) => {
+    if (swipeStartXRef.current === null || swipeStartYRef.current === null) return;
+    const dx = e.clientX - swipeStartXRef.current;
+    const threshold = 40;
+
+    if (Math.abs(dx) >= threshold) {
+      const next = dx < 0 ? currentSlide + 1 : currentSlide - 1;
+      const clamped = Math.max(0, Math.min(maxIndex, next));
+      if (clamped !== currentSlide) setCurrentSlide(clamped);
+    }
+
+    swipeStartXRef.current = null;
+    swipeStartYRef.current = null;
+    swipeStartedRef.current = false;
   };
 
   const scrollToTop = () => {
@@ -465,7 +518,14 @@ const LandingPage = () => {
             <p className="section-description">See what students are saying about Open Planner</p>
           </div>
 
-          <div className="testimonials-slider">
+          <div
+            className="testimonials-slider"
+            ref={sliderRef}
+            onPointerDown={handleSwipeStart}
+            onPointerMove={handleSwipeMove}
+            onPointerUp={handleSwipeEnd}
+            onPointerCancel={handleSwipeEnd}
+          >
             <div className="testimonials-track" ref={trackRef} style={trackStyle}>
               {testimonials.map((testimonial, index) => (
                 <div className="testimonial-card" key={index} style={cardStyle}>
