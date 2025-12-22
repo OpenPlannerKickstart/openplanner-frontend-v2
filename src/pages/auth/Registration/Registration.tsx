@@ -452,9 +452,10 @@ const Registeration = (props) => {
                         return label === signUpFormData.values.university_name;
                       })}
                       isClearable
-                      menuPosition="fixed"
+                      menuPosition={isMobile ? "absolute" : "fixed"}
                       menuPlacement={isMobile ? "top" : "auto"}
-                      menuPortalTarget={document.body}
+                      menuPortalTarget={isMobile ? undefined : document.body}
+                      menuShouldScrollIntoView={isMobile}
                       classNamePrefix="auth-select"
                     />
                   </div>
