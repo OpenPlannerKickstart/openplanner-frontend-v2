@@ -572,7 +572,7 @@ ul {
    Features Section
    ============================================ */
 .features {
-    padding: var(--space-4xl) 0;
+    padding: var(--space-xl) 0 var(--space-xl);
     background: var(--white);
 }
 

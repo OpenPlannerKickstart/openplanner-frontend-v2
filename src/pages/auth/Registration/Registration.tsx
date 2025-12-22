@@ -33,10 +33,21 @@ import { customJsonInclude, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank
 import { addUniversityAPI, getUniversityListAPI, signupToSystem } from "../../../redux/Service/auth/signup";
 import VerifySignupOtp from "./VerifySignupOtp";
 
+// TODO: Uncomment when backend supports "year" field in registration
+// const yearOptions = [
+//   { value: "first_year", label: "First Year" },
+//   { value: "second_year", label: "Second Year" },
+//   { value: "third_year", label: "Third Year" },
+//   { value: "senior", label: "Senior" },
+//   { value: "post_graduate", label: "Post Graduate" },
+// ];
+
 const Registeration = (props) => {
   const [eyeToggle, setEyeToggle] = useState<boolean>(false);
   const dispatch: AppDispatch = useDispatch();
   const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
+  // TODO: Uncomment when backend supports "year" field
+  // const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
   const initSignUpValues: SignUpData = {
     first_name: "",
@@ -434,7 +445,7 @@ const Registeration = (props) => {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Select School Name</label>
+                  <label className="form-label">Select School Name <span>*</span></label>
                   <div className="form-input-wrapper">
                     <span className="form-input-icon">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -462,6 +473,38 @@ const Registeration = (props) => {
                   {signUpFormData.touched.university_name && signUpFormData.errors.university_name
                     ? renderError(signUpFormData.errors.university_name)
                     : null}
+
+                  {/* TODO: Uncomment when backend supports "year" field in registration
+                  {signUpFormData.values.university_name && signUpFormData.values.university_name !== "Other/Highschool" && (
+                    <div className="form-group" style={{ marginTop: '1rem' }}>
+                      <label className="form-label">Select Year (Optional)</label>
+                      <div className="form-input-wrapper">
+                        <span className="form-input-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                          </svg>
+                        </span>
+                        <Select
+                          options={yearOptions}
+                          placeholder={<div>Select your year</div>}
+                          onChange={(selectedOption) => {
+                            setSelectedYear(selectedOption?.value || null);
+                          }}
+                          value={yearOptions.filter(({ value }) => value === selectedYear)}
+                          isClearable
+                          menuPosition={isMobile ? "absolute" : "fixed"}
+                          menuPlacement={isMobile ? "top" : "auto"}
+                          menuPortalTarget={isMobile ? undefined : document.body}
+                          menuShouldScrollIntoView={isMobile}
+                          classNamePrefix="auth-select"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  */}
 
                   {signUpFormData.values.university_name === "Other/Highschool" && (
                     <div className="auth-inline-row">
