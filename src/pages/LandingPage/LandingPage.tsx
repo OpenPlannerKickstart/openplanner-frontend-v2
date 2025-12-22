@@ -661,7 +661,7 @@ const LandingPage = () => {
               <div className="special-card-icon">🏫</div>
               <h3>For Schools</h3>
               <p>Looking for multi-user licenses or institutional pricing? We've got you covered.</p>
-              <a href="#contact" className="btn btn-outline btn-full">Contact Sales</a>
+              <a href="mailto:admin@open-planner.com?subject=School%20%2F%20Institutional%20Pricing%20Inquiry" className="btn btn-outline btn-full">Contact Sales</a>
             </div>
           </div>
         </div>

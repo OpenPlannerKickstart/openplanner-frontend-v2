@@ -47,6 +47,7 @@
   min-height: 100vh;
   margin: 0;
   padding: 0;
+  color-scheme: light;
 }
 
 .parents-page img {
@@ -446,6 +447,13 @@
   border: 1px solid var(--neutral-200);
   font-size: 1rem;
   margin-bottom: 1rem;
+  background-color: #FFFFFF !important;
+  color: #1E293B !important;
+  color-scheme: light;
+}
+
+.parents-input::placeholder {
+  color: #94A3B8 !important;
 }
 
 .checkout-btn-styled {

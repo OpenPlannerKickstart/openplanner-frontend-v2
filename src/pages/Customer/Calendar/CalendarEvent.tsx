@@ -711,7 +711,13 @@ const CalendarEvent = () => {
     target.classList.remove('dragging');
     setDraggedEvent(null);
     setDragOverTarget(null);
+    setDragMinuteOffset(0);
+    dropMinuteOffsetRef.current = 0;
   }, []);
+
+  // State to store the minute offset within the hour slot (for 15-min snapping)
+  const dropMinuteOffsetRef = useRef<number>(0);
+  const [dragMinuteOffset, setDragMinuteOffset] = useState<number>(0);
 
   const handleDragOver = useCallback((event: React.DragEvent, targetId: string) => {
     event.preventDefault();
@@ -719,7 +725,22 @@ const CalendarEvent = () => {
     if (dragOverTarget !== targetId) {
       setDragOverTarget(targetId);
     }
-  }, [dragOverTarget]);
+    
+    // Calculate minute offset within the slot for 15-minute snapping (week/day view)
+    if (targetId.startsWith('week-') || targetId.startsWith('day-')) {
+      const target = event.currentTarget as HTMLElement;
+      const rect = target.getBoundingClientRect();
+      const relativeY = event.clientY - rect.top;
+      const slotHeight = rect.height;
+      // Calculate which 15-minute segment we're in (0, 15, 30, or 45)
+      const minuteOffset = Math.floor((relativeY / slotHeight) * 4) * 15;
+      const clampedOffset = Math.min(45, Math.max(0, minuteOffset));
+      dropMinuteOffsetRef.current = clampedOffset;
+      if (dragMinuteOffset !== clampedOffset) {
+        setDragMinuteOffset(clampedOffset);
+      }
+    }
+  }, [dragOverTarget, dragMinuteOffset]);
 
   const handleDragLeave = useCallback((event: React.DragEvent) => {
     // Only clear if we're actually leaving (not entering a child)
@@ -942,25 +963,25 @@ const CalendarEvent = () => {
         .second(0)
         .millisecond(0);
     } else if (targetToDrop.startsWith('week-')) {
-      // Week view: drop on a specific day and hour
+      // Week view: drop on a specific day and hour with 15-minute snapping
       const parts = targetToDrop.replace('week-', '').split('-');
       // parts = [YYYY, MM, DD, H]
       const dateStr = `${parts[0]}-${parts[1]}-${parts[2]}`;
       const hour = parseInt(parts[3], 10);
       newStart = moment(dateStr, 'YYYY-MM-DD')
         .hour(hour)
-        .minute(0)
+        .minute(dropMinuteOffsetRef.current)
         .second(0)
         .millisecond(0);
     } else if (targetToDrop.startsWith('day-')) {
-      // Day view: drop on a specific hour
+      // Day view: drop on a specific hour with 15-minute snapping
       const parts = targetToDrop.replace('day-', '').split('-');
       // parts = [YYYY, MM, DD, H]
       const dateStr = `${parts[0]}-${parts[1]}-${parts[2]}`;
       const hour = parseInt(parts[3], 10);
       newStart = moment(dateStr, 'YYYY-MM-DD')
         .hour(hour)
-        .minute(0)
+        .minute(dropMinuteOffsetRef.current)
         .second(0)
         .millisecond(0);
     } else {
@@ -1413,7 +1434,14 @@ const CalendarEvent = () => {
                                     onDragOver={(e) => handleDragOver(e, slotKey)}
                                     onDragLeave={handleDragLeave}
                                     onDrop={handleDrop}
-                                  />
+                                  >
+                                    {isDragOver && (
+                                      <div 
+                                        className="drop-indicator" 
+                                        style={{ top: `${(dragMinuteOffset / 60) * 100}%` }}
+                                      />
+                                    )}
+                                  </div>
                                 );
                               })}
                             </div>
@@ -1519,7 +1547,14 @@ const CalendarEvent = () => {
                                   onDragOver={(e) => handleDragOver(e, slotKey)}
                                   onDragLeave={handleDragLeave}
                                   onDrop={handleDrop}
-                                />
+                                >
+                                  {isDragOver && (
+                                    <div 
+                                      className="drop-indicator" 
+                                      style={{ top: `${(dragMinuteOffset / 60) * 100}%` }}
+                                    />
+                                  )}
+                                </div>
                               </div>
                             );
                           })}

@@ -157,15 +157,15 @@ ul {
 }
 
 .btn-outline {
-    background: transparent;
-    color: var(--neutral-700);
-    border: 2px solid var(--neutral-300);
+    background: transparent !important;
+    color: #4AAED4 !important;
+    border: 2px solid #4AAED4 !important;
 }
 
 .btn-outline:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-    background: var(--primary-subtle);
+    border-color: var(--primary) !important;
+    color: var(--primary) !important;
+    background: var(--primary-subtle) !important;
 }
 
 .btn-outline-white {
