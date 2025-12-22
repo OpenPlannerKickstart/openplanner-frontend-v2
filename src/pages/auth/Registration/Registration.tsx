@@ -120,6 +120,7 @@ const Registeration = (props) => {
   }, [otpDetailsObj]);
 
   const [univercityData, setUnivercityData] = useState<any>([]);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   const handleGetUniversityData = async () => {
     const data = await dispatch(getUniversityListAPI());
     if (data || data?.payload) {
@@ -139,6 +140,15 @@ const Registeration = (props) => {
     return () => {
       setUnivercityData([]);
     };
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const initFormValues = {
@@ -443,6 +453,7 @@ const Registeration = (props) => {
                       })}
                       isClearable
                       menuPosition="fixed"
+                      menuPlacement={isMobile ? "top" : "auto"}
                       menuPortalTarget={document.body}
                       classNamePrefix="auth-select"
                     />
