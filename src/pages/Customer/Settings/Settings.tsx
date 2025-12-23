@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { getUserAPI, updateUserAPI } from '../../../redux/Service/User/Settings/settings'
+import { getUserAPI, updateUserAPI, getTransactionAPI, getSubscriptionStatusAPI } from '../../../redux/Service/User/Settings/settings'
 import { getUniversityListAPI } from '../../../redux/Service/auth/signup'
 import { AppDispatch } from '../../../redux/store'
-import { isNullUndefinedOrBlank } from '../../../Utility/Helper'
+import { isNullUndefinedOrBlank, isEmptyObjectOrNullUndefiend, formatedDate } from '../../../Utility/Helper'
 import { useNavigate } from 'react-router-dom'
 import { ENUMFORROUTES } from '../../../interfaces/enum'
 import { logoutFromSystem } from '../../../redux/Service/auth/login'
@@ -51,11 +51,54 @@ const Settings: React.FC = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
 
+  // Subscription data
+  const transactionDataRedux: any = useSelector((state: RootState) => state.SettingsReducer.billingData)
+  const [transactionData, setTransactionData] = useState<any>()
+  const [statusPlan, setStatusPlan] = useState<any | null>(null)
+
   const handleManageBilling = () => {
     window.location.assign(
       'https://billing.stripe.com/p/login/bJedR99D8gNU2Qj0iKbfO00'
     )
   }
+
+  // Subscription helper functions
+  const normalizePlanLabel = (label?: string): string => {
+    const raw = (label || '').toString().trim().toLowerCase()
+    if (!raw) return '-'
+    if (raw.includes('freemium') || raw === 'free') return 'Free'
+    if (raw.includes('1 month')) return 'One Month'
+    if (raw.includes('6 month')) return 'Six Month'
+    if (raw.includes('12 month') || raw.includes('1 year') || raw.includes('one year') || raw.includes('annual')) return 'Annual'
+    return label as string
+  }
+
+  const subscriptionComputed = useMemo(() => ({
+    planLabel: (() => {
+      const localTier = (() => {
+        try { return localStorage.getItem('plan_tier') } catch { return null }
+      })()
+      if (statusPlan?.plan_tier === 'freemium' || localTier === 'freemium') return 'Free'
+      if (typeof statusPlan?.display_label === 'string' && statusPlan.display_label.trim()) return statusPlan.display_label
+      return normalizePlanLabel(transactionData?.currentPlan?.plan_type)
+    })(),
+    paymentAmount: (() => {
+      const localTier = (() => {
+        try { return localStorage.getItem('plan_tier') } catch { return null }
+      })()
+      if (statusPlan?.plan_tier === 'freemium' || localTier === 'freemium') return 0
+      if (statusPlan && typeof statusPlan.payment_amount === 'number') return statusPlan.payment_amount
+      return !isNullUndefinedOrBlank(transactionData?.currentPlan?.amount) ? transactionData?.currentPlan?.amount : '-'
+    })(),
+    nextInvoiceDate: (() => {
+      const next = statusPlan?.next_invoice_date || transactionData?.currentPlan?.next_billing_date
+      return !isNullUndefinedOrBlank(next) ? formatedDate(next, 'DD MMM, YYYY') : '-'
+    })(),
+    totalBilling: !isNullUndefinedOrBlank(transactionData?.currentPlan?.total_amount_paid)
+      ? transactionData?.currentPlan?.total_amount_paid
+      : 0,
+    subscriptionStatus: statusPlan?.subscription_status || transactionData?.currentPlan?.subscription_status || '-',
+  }), [statusPlan, transactionData])
   
   const getAvatarSrc = useMemo(() => {
     return (u: any) =>
@@ -112,6 +155,33 @@ const Settings: React.FC = () => {
       setUserData(settingsData.userData)
     }
   }, [settingsData?.userData])
+
+  // Sync transaction data from Redux
+  useEffect(() => {
+    if (!isEmptyObjectOrNullUndefiend(transactionDataRedux)) {
+      setTransactionData(JSON.parse(JSON.stringify(transactionDataRedux)))
+    }
+  }, [transactionDataRedux])
+
+  // Fetch subscription data when subscription tab is selected
+  useEffect(() => {
+    if (selectedTab === 'subscription') {
+      // Fetch transaction list
+      dispatch(getTransactionAPI())
+      // Fetch subscription status
+      ;(async () => {
+        try {
+          const resp: any = await (dispatch as any)(getSubscriptionStatusAPI())
+          const payload = resp?.payload || resp
+          const plan = payload?.plan || payload
+          if (plan && typeof plan === 'object') setStatusPlan(plan)
+          else setStatusPlan(null)
+        } catch {
+          setStatusPlan(null)
+        }
+      })()
+    }
+  }, [selectedTab, dispatch])
 
   // Sync profile form with userData when it loads
   useEffect(() => {
@@ -743,23 +813,23 @@ const Settings: React.FC = () => {
                 <div className="subscription-stats">
                   <div className="subscription-stat">
                     <span className="stat-label">Plan Tenure</span>
-                    <span className="stat-value">One Month</span>
+                    <span className="stat-value">{subscriptionComputed.planLabel}</span>
                   </div>
                   <div className="subscription-stat">
                     <span className="stat-label">Payment Amount</span>
-                    <span className="stat-value">$3.99</span>
+                    <span className="stat-value">${subscriptionComputed.paymentAmount}</span>
                   </div>
                   <div className="subscription-stat">
                     <span className="stat-label">Next invoice issue date</span>
-                    <span className="stat-value">17 Dec, 2025</span>
+                    <span className="stat-value">{subscriptionComputed.nextInvoiceDate}</span>
                   </div>
                   <div className="subscription-stat">
                     <span className="stat-label">Total Billing</span>
-                    <span className="stat-value">$0.00</span>
+                    <span className="stat-value">${subscriptionComputed.totalBilling}</span>
                   </div>
                   <div className="subscription-stat">
                     <span className="stat-label">Subscription Status</span>
-                    <span className="stat-value status-ongoing">Ongoing</span>
+                    <span className="stat-value status-ongoing">{subscriptionComputed.subscriptionStatus}</span>
                   </div>
                 </div>
                 
@@ -797,23 +867,53 @@ const Settings: React.FC = () => {
                         <th>Payment Date</th>
                         <th>Status</th>
                         <th>Plan Price</th>
-                        <th>Action</th>
+                        {transactionData?.currentPlan?.payment_method === 'Stripe' && <th>Action</th>}
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>One Month Plan</td>
-                        <td>15 Dec, 2025</td>
-                        <td><span className="badge badge-success">Paid</span></td>
-                        <td>$3.99</td>
-                        <td><button className="btn-link">View</button></td>
-                      </tr>
+                      {!isEmptyObjectOrNullUndefiend(transactionData?.transactions) ? (
+                        transactionData?.transactions?.map((transaction: any, index: number) => (
+                          <tr key={index}>
+                            <td>{!isNullUndefinedOrBlank(transaction.plan_type) ? transaction.plan_type : '-'}</td>
+                            <td>
+                              {transactionData?.currentPlan?.payment_method === 'Stripe'
+                                ? (!isNullUndefinedOrBlank(transaction?.processed_at)
+                                    ? formatedDate(transaction?.processed_at, 'DD MMM, YYYY')
+                                    : '-')
+                                : (!isNullUndefinedOrBlank(transaction?.iap_processed_at)
+                                    ? formatedDate(transaction?.iap_processed_at, 'DD MMM, YYYY')
+                                    : '-')
+                              }
+                            </td>
+                            <td>
+                              <span className={
+                                transaction?.transaction_status === 'paid' || transaction?.transaction_status === 'completed'
+                                  ? 'badge badge-success'
+                                  : 'badge badge-danger'
+                              }>
+                                {!isNullUndefinedOrBlank(transaction?.transaction_status) ? transaction?.transaction_status : '-'}
+                              </span>
+                            </td>
+                            <td>${!isNullUndefinedOrBlank(transaction?.amount_paid) ? transaction?.amount_paid : 0}</td>
+                            {transaction?.invoice_pdf && (
+                              <td>
+                                <button
+                                  className="btn-link"
+                                  onClick={() => window.open(transaction?.invoice_pdf, '_blank')}
+                                >
+                                  View
+                                </button>
+                              </td>
+                            )}
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} style={{ textAlign: 'center' }}>No Transaction Found</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
-                  
-                  <div className="billing-empty" style={{ display: 'none' }}>
-                    <p>No Transaction Found</p>
-                  </div>
                 </div>
               </div>
             </div>
