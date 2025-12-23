@@ -50,12 +50,6 @@ const Settings: React.FC = () => {
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
-
-  const handleManageBilling = () => {
-    window.location.assign(
-      'https://billing.stripe.com/p/login/bJedR99D8gNU2Qj0iKbfO00'
-    )
-  }
   
   const getAvatarSrc = useMemo(() => {
     return (u: any) =>
@@ -765,14 +759,7 @@ const Settings: React.FC = () => {
                 
                 {/* Subscription Actions */}
                 <div className="subscription-actions">
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      window.location.assign(
-                        'https://billing.stripe.com/p/login/bJedR99D8gNU2Qj0iKbfO00'
-                      )
-                    }}
-                  >
+                  <button className="btn btn-primary">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M23 4v6h-6"/>
                       <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
