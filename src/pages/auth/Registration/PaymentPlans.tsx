@@ -132,13 +132,6 @@ export const PaymentPlans = () => {
           <div className="plans-hero">
             <div className="plans-hero__brand">
               <img src={authLogo} alt="OpenPlanner" className="plans-hero__logo" />
-              <div>
-                <p className="plans-hero__eyebrow">Subscription Plans</p>
-                <h1>Choose the plan that fits you</h1>
-                <p className="plans-hero__sub">
-                  Start with a 7‑day free trial. Switch or cancel anytime.
-                </p>
-              </div>
             </div>
             <div className="plans-actions">
               <Button variant="outline-primary" onClick={() => setShowRedeem(true)}>

@@ -1023,7 +1023,7 @@ const Settings: React.FC = () => {
                 <div className="subscription-actions">
                   <button
                     className="btn btn-primary"
-                    onClick={() => navigate(ENUMFORROUTES.PLAN_DETAILS)}
+                    onClick={() => navigate(ENUMFORROUTES.CHANGE_PLAN)}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M23 4v6h-6"/>

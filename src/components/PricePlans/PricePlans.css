@@ -1,0 +1,306 @@
+/* PricePlans - Matching Landing Page Design */
+
+.price-plans-wrapper {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.price-plans-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.price-plans-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary, #1e293b);
+    margin-bottom: 0.5rem;
+}
+
+.price-plans-header p {
+    color: var(--text-secondary, #64748b);
+    font-size: 1rem;
+}
+
+.price-plans-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    align-items: stretch;
+}
+
+.price-plan-card {
+    background: var(--white, #ffffff);
+    border: 1px solid var(--neutral-200, #e2e8f0);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.price-plan-card:hover {
+    border-color: var(--primary, #4AAED4);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-4px);
+}
+
+.price-plan-card.active {
+    border-color: var(--primary, #4AAED4);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.price-plan-card.popular {
+    border-color: var(--primary, #4AAED4);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 0 40px rgba(74, 174, 212, 0.3);
+}
+
+.price-plan-card.popular:hover {
+    border-color: var(--primary, #4AAED4);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 0 40px rgba(74, 174, 212, 0.3);
+    transform: translateY(-4px);
+}
+
+.price-plan-card.best-value {
+    border-color: #10B981;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 0 40px rgba(16, 185, 129, 0.3);
+}
+
+.price-plan-card.best-value:hover {
+    border-color: #10B981;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 0 40px rgba(16, 185, 129, 0.3);
+    transform: translateY(-4px);
+}
+
+.plan-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.25rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+}
+
+.plan-badge.popular-badge {
+    background: linear-gradient(135deg, #4AAED4, #8B5CF6);
+}
+
+.plan-badge.best-value-badge {
+    background: linear-gradient(135deg, #10B981, #059669);
+}
+
+.plan-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.plan-duration {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--neutral-500, #64748b);
+}
+
+.plan-price {
+    margin-top: 0.5rem;
+}
+
+.plan-price-old {
+    font-size: 0.9375rem;
+    color: var(--neutral-400, #94a3b8);
+    text-decoration: line-through;
+    text-decoration-color: #EF4444;
+    text-decoration-thickness: 2px;
+    display: block;
+}
+
+.plan-price-old-hidden {
+    visibility: hidden;
+}
+
+.plan-price-current {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary, #1e293b);
+}
+
+.plan-price-per-month {
+    font-size: 0.875rem;
+    color: var(--neutral-500, #64748b);
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.plan-price-per-month-hidden {
+    visibility: hidden;
+}
+
+.plan-btn {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--primary, #4AAED4);
+    color: #ffffff;
+}
+
+.plan-btn:hover:not(:disabled) {
+    background: #3a9bc4;
+    transform: translateY(-1px);
+}
+
+.plan-btn:disabled {
+    background: var(--neutral-300, #cbd5e1);
+    color: var(--neutral-500, #64748b);
+    cursor: not-allowed;
+}
+
+.plan-btn.active-plan {
+    background: var(--neutral-200, #e2e8f0);
+    color: var(--neutral-600, #475569);
+}
+
+.plan-features {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--neutral-200, #e2e8f0);
+    text-align: left;
+    width: 100%;
+    flex: 1;
+}
+
+.plan-features-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--neutral-500, #64748b);
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.plan-features ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.plan-features li {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--neutral-700, #334155);
+    text-align: left;
+    width: 100%;
+}
+
+.plan-features .check-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--primary, #4AAED4);
+}
+
+/* Loading Overlay */
+.price-plans-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.price-plans-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--neutral-200, #e2e8f0);
+    border-top-color: var(--primary, #4AAED4);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .price-plans-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .price-plans-wrapper {
+        padding: 1rem;
+    }
+    
+    .price-plans-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+    }
+    
+    .plan-price-current {
+        font-size: 2rem;
+    }
+}
+
+/* Dark Mode Support */
+[data-theme="dark"] .price-plan-card {
+    background: var(--bg-secondary, #1e293b);
+    border-color: var(--neutral-700, #334155);
+}
+
+[data-theme="dark"] .price-plan-card:hover {
+    border-color: var(--primary, #4AAED4);
+}
+
+[data-theme="dark"] .plan-duration {
+    color: var(--neutral-400, #94a3b8);
+}
+
+[data-theme="dark"] .plan-price-current {
+    color: var(--white, #ffffff);
+}
+
+[data-theme="dark"] .plan-features {
+    border-top-color: var(--neutral-700, #334155);
+}
+
+[data-theme="dark"] .plan-features li {
+    color: var(--neutral-300, #cbd5e1);
+}
+
+[data-theme="dark"] .price-plans-header h2 {
+    color: var(--white, #ffffff);
+}
+
+[data-theme="dark"] .price-plans-header p {
+    color: var(--neutral-400, #94a3b8);
+}

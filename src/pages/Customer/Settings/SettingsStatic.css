@@ -1389,3 +1389,34 @@
     background: var(--neutral-200);
     color: var(--neutral-400);
 }
+
+/* ============================================
+   Change Plan Page
+   ============================================ */
+
+.change-plan-content {
+    padding: 1rem 1.5rem 2rem;
+    max-width: 1200px;
+}
+
+.change-plan-content .price-plans-wrapper {
+    padding: 0;
+}
+
+.change-plan-content .price-plans-header {
+    margin-bottom: 1.5rem;
+}
+
+.redeem-btn {
+    border-radius: 0.75rem;
+    font-weight: 500;
+    background: var(--primary, #4AAED4) !important;
+    color: #ffffff !important;
+    border: none !important;
+    transition: all 0.2s ease;
+}
+
+.redeem-btn:hover {
+    background: #3a9bc4 !important;
+    transform: translateY(-2px);
+}
