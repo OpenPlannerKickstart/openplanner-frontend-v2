@@ -276,8 +276,9 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
                         variant="primary"
                         className="btn-icon-text"
                         onClick={() => {
-                          setPlansMode("update");
-                          setShowPlans(true);
+                          window.location.assign(
+                            "https://billing.stripe.com/p/login/bJedR99D8gNU2Qj0iKbfO00"
+                          );
                         }}
                       >
                         <i className="material-symbols-outlined">refresh</i>{" "}
