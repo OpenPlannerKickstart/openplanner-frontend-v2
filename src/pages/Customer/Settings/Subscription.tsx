@@ -286,19 +286,10 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
                       <Button
                         variant="secondary"
                         className="btn-icon-text btn-manage-billing"
-                        onClick={async () => {
-                          try {
-                            const base = window.location.origin + "/#";
-                            const data: any = await (dispatch as any)(
-                              studentBillingPortalAPI(base + "settings")
-                            );
-                            const url = data?.url;
-                            if (url) {
-                              window.location.assign(url);
-                            }
-                          } catch (e) {
-                            // noop; Toaster already in interceptor if needed
-                          }
+                        onClick={() => {
+                          window.location.assign(
+                            "https://billing.stripe.com/p/login/bJedR99D8gNU2Qj0iKbfO00"
+                          );
                         }}
                       >
                         <i className="material-symbols-outlined">
