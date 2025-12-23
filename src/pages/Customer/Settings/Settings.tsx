@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { getUserAPI, updateUserAPI } from '../../../redux/Service/User/Settings/settings'
+import { getUserAPI, updateUserAPI, studentBillingPortalAPI } from '../../../redux/Service/User/Settings/settings'
 import { getUniversityListAPI } from '../../../redux/Service/auth/signup'
 import { AppDispatch } from '../../../redux/store'
 import { isNullUndefinedOrBlank } from '../../../Utility/Helper'
@@ -766,7 +766,23 @@ const Settings: React.FC = () => {
                     </svg>
                     Change Plan
                   </button>
-                  <button className="btn btn-violet">
+                  <button 
+                    className="btn btn-violet"
+                    onClick={async () => {
+                      try {
+                        const returnUrl = window.location.origin + '/#/settings';
+                        const data: any = await (dispatch as any)(studentBillingPortalAPI(returnUrl));
+                        const url = data?.url;
+                        if (url) {
+                          window.location.assign(url);
+                        } else {
+                          te('Unable to open billing portal');
+                        }
+                      } catch (e) {
+                        te('Failed to open billing portal');
+                      }
+                    }}
+                  >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="2" y="5" width="20" height="14" rx="2"/>
                       <line x1="2" y1="10" x2="22" y2="10"/>
