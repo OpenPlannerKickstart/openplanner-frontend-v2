@@ -131,13 +131,29 @@ const Dashboard = () => {
     const reqBody = { start_date, end_date };
     customJsonInclude(reqBody);
 
+    console.log('[Dashboard] Fetching events with:', { start_date, end_date, reqBody });
+
     try {
       const response = await dispatch(dashboardEventListingAPI(reqBody));
+      console.log('[Dashboard] API response:', response);
+      
       if (response && !isNullUndefinedOrBlank(response)) {
-        setEventData(response?.payload?.dueEventData);
+        // Try multiple possible response structures
+        const eventList = 
+          response?.payload?.dueEventData ||
+          response?.payload?.data?.dueEventData ||
+          response?.payload ||
+          [];
+        
+        console.log('[Dashboard] Setting eventData to:', eventList);
+        setEventData(Array.isArray(eventList) ? eventList : []);
+      } else {
+        console.log('[Dashboard] Empty or invalid response, setting empty array');
+        setEventData([]);
       }
     } catch (error) {
-      console.error('Error fetching event data:', error);
+      console.error('[Dashboard] Error fetching event data:', error);
+      setEventData([]);
     }
   };
 

@@ -122,14 +122,21 @@ export const dashboardEventsDataAPI = (objBody: any = undefined) => async (dispa
  */
 export const dashboardEventListingAPI = (objBody: any = undefined) => async (dispatch: AppDispatch) => {
     dispatch(setLoading(true));
+    console.log('[dashboardEventListingAPI] Request body:', objBody);
     try {
         const response: any = await post(DASHBOARD_EVENT_LISTING_API, objBody);
+        console.log('[dashboardEventListingAPI] Full response:', response);
+        console.log('[dashboardEventListingAPI] response.data:', response?.data);
+        console.log('[dashboardEventListingAPI] response.data.data:', response?.data?.data);
+        
         if (!response.data.error) {
             return dispatch(dashboardEventListingSuccess(response.data.data));
         } else {
+            console.log('[dashboardEventListingAPI] API returned error:', response.data);
             dispatch(dashboardEventListingFailure());
         }
     } catch (err) {
+        console.error('[dashboardEventListingAPI] Exception:', err);
         dispatch(dashboardEventListingFailure());
     } finally {
         dispatch(setLoading(false));
