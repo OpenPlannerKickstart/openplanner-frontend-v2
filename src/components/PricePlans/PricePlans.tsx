@@ -184,33 +184,64 @@ export const PricePlans = (props) => {
   useEffect(() => {
     const fetchSubscriptionStatus = async () => {
       const token = getToken();
-      if (token && !selectedPlan && hasSubscriptionFlag) {
+      // Always fetch if logged in and no plan selected yet
+      if (token && !selectedPlan) {
         try {
           const resp: any = await dispatch<any>(getSubscriptionStatusAPI());
           const payload = resp?.payload || resp;
-          const plan = payload?.plan || payload;
-          if (plan?.product_id) {
-            setSelectedPlan(plan.product_id);
+          const isSubscription = payload?.isSubscription === true;
+          const plan = payload?.plan || {};
+          const planCode = plan?.plan_code || '';
+          
+          console.log('[PricePlans] Subscription status:', { isSubscription, planCode, plan });
+          
+          // Determine the correct product_id to select
+          let productIdToSelect: string | null = null;
+          
+          if (!isSubscription || planCode === 'freemium') {
+            // User is on free plan
+            productIdToSelect = 'freemium';
+          } else if (plan?.product_id) {
+            productIdToSelect = plan.product_id;
+          } else if (planCode === '1m') {
+            productIdToSelect = 'one_month';
+          } else if (planCode === '6m') {
+            productIdToSelect = 'six_month';
+          } else if (planCode === '1y') {
+            productIdToSelect = 'one_year';
           } else if (plan?.plan_type) {
-            // Try to match plan_type to product_id
+            // Fallback: try to match plan_type to product_id
             const planType = plan.plan_type?.toLowerCase() || '';
             if (planType.includes('6 month') || planType.includes('six month')) {
-              setSelectedPlan('six_month');
+              productIdToSelect = 'six_month';
             } else if (planType.includes('1 year') || planType.includes('annual') || planType.includes('one year')) {
-              setSelectedPlan('one_year');
+              productIdToSelect = 'one_year';
             } else if (planType.includes('1 month') || planType.includes('one month')) {
-              setSelectedPlan('one_month');
+              productIdToSelect = 'one_month';
             } else if (planType.includes('free') || planType.includes('freemium')) {
-              setSelectedPlan('freemium');
+              productIdToSelect = 'freemium';
             }
+          }
+          
+          console.log('[PricePlans] Setting selectedPlan to:', productIdToSelect);
+          
+          if (productIdToSelect) {
+            setSelectedPlan(productIdToSelect);
           }
         } catch (error) {
           console.error("Failed to fetch subscription status:", error);
+          // Fallback: check localStorage
+          try {
+            const hasSub = localStorage.getItem('has_subscription') === 'true';
+            if (!hasSub) {
+              setSelectedPlan('freemium');
+            }
+          } catch {}
         }
       }
     };
     fetchSubscriptionStatus();
-  }, [dispatch, selectedPlan, hasSubscriptionFlag]);
+  }, [dispatch, selectedPlan]);
 
   // no need to mirror updatePlan into local state
   // console.log("userData", userData)
@@ -258,9 +289,13 @@ export const PricePlans = (props) => {
 
   const processGetStarted = async (plan: any, currentUserData: any) => {
     if (isFreemiumPlan(plan)) {
-      // Block freemium selection when on a paid plan or when in update/upgrade modes
-      if (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial) {
+      // Only block freemium selection if user is on a PAID plan
+      if (hasSubscriptionFlag) {
         setShowPaidPlanNotice(true);
+        return;
+      }
+      // If already on freemium, don't do anything (button should be disabled anyway)
+      if (selectedPlan === 'freemium' || selectedPlan === plan?.product_id) {
         return;
       }
       handleFreemiumEntry();
@@ -479,18 +514,15 @@ export const PricePlans = (props) => {
           const originalPrice = undiscountedMap[plan.duration];
           const isPopular = !freemium && plan.duration === "for 6 month";
           const isBestValue = !freemium && plan.duration === "for 1 year";
-          const freemiumBlocked =
-            freemium &&
-            (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial);
+          // Only block freemium selection if user is on a PAID plan
+          const freemiumBlocked = freemium && hasSubscriptionFlag;
           const isActivePlan = selectedPlan === plan?.product_id;
           // Show "Change Plan" if user has subscription (either via prop or localStorage flag)
           const isChangeMode = props?.updatePlan || hasSubscriptionFlag;
-          const buttonText = freemium
-            ? isActivePlan
-              ? "Active"
-              : "Start for Free"
-            : isActivePlan
-              ? "Active"
+          const buttonText = isActivePlan
+            ? "Current"
+            : freemium
+              ? "Start for Free"
               : isChangeMode
                 ? "Change Plan"
                 : "Get Started";
