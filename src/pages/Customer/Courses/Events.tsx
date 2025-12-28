@@ -289,16 +289,21 @@ const Events = (props: any) => {
 
       {hasAnyEvents ? (
         <>
-          {eventListData?.dueEventData?.map((group: any, idx: number) => (
-            <div className="due-date-group" key={`due-${idx}`}>
-              <div className="due-date-header">
-                Due on {formatedDate(group?.due_date, 'DD, MMMM YYYY')}
+          {eventListData?.dueEventData?.map((group: any, idx: number) => {
+            // Use first event's start_date for header (more reliable than group.due_date)
+            const firstEvent = group?.eventData?.[0];
+            const displayDate = firstEvent?.start_date || group?.due_date;
+            return (
+              <div className="due-date-group" key={`due-${idx}`}>
+                <div className="due-date-header">
+                  Due on {formatedDate(displayDate, 'DD, MMMM YYYY')}
+                </div>
+                {group?.eventData?.map((evt: any) => (
+                  <EventRow key={evt?.id} event={evt} />
+                ))}
               </div>
-              {group?.eventData?.map((evt: any) => (
-                <EventRow key={evt?.id} event={evt} />
-              ))}
-            </div>
-          ))}
+            );
+          })}
 
           {!isEmptyObjectOrNullUndefiend(eventListData?.pastEventData) ? (
             <div className="past-events-section">

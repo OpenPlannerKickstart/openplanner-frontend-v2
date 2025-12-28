@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
+import { Modal, Button } from 'react-bootstrap';
 import {
   getCoursesListDataAPI,
   deleteSyllabusDataAPI,
@@ -138,8 +139,41 @@ const Courses = () => {
     }
   };
 
+  /** -------------------Freemium limit logic-------------------------*/
+  const { hasSubscription, isFreemiumPlan } = (() => {
+    try {
+      const tier = localStorage.getItem('plan_tier');
+      const subscriptionFlag = localStorage.getItem('has_subscription') === 'true';
+      return {
+        hasSubscription: subscriptionFlag,
+        isFreemiumPlan: tier === 'freemium' || !subscriptionFlag,
+      };
+    } catch {
+      return {
+        hasSubscription: false,
+        isFreemiumPlan: true,
+      };
+    }
+  })();
+
+  const FREEMIUM_UPLOAD_LIMIT = 3;
+  const freemiumLimitReached =
+    isFreemiumPlan && !hasSubscription && courses.length >= FREEMIUM_UPLOAD_LIMIT;
+
+  // Upgrade modal state for freemium limit
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const handleUpgradeClick = () => {
+    setShowUpgradeModal(false);
+    navigate(ENUMFORROUTES.CHANGE_PLAN);
+  };
+
   /** -------------------Add syllabus modal-------------------------*/
   const handleSyllabusShow = () => {
+    if (freemiumLimitReached) {
+      setShowUpgradeModal(true);
+      return;
+    }
     setShowSyllabus(true);
   };
 
@@ -461,7 +495,68 @@ const Courses = () => {
         showSyllabus={showSyllabus}
         setShowSyllabus={setShowSyllabus}
         handleGetData={handleGetUpdatedData}
+        freemiumLimitReached={freemiumLimitReached}
+        hasSubscription={hasSubscription}
+        isFreemiumPlan={isFreemiumPlan}
+        onUpgradeClick={handleUpgradeClick}
+        existingSyllabusCount={courses.length}
       />
+
+      {/* Freemium Upgrade Modal */}
+      <Modal
+        className="modal-theme modal-confirmation"
+        show={showUpgradeModal}
+        onHide={() => setShowUpgradeModal(false)}
+        centered
+        backdrop
+        keyboard
+      >
+        <Modal.Body>
+          <div className="modal-confirmation-container">
+            <div 
+              style={{ 
+                width: '54px',
+                height: '54px',
+                borderRadius: '50%',
+                background: '#e8f4f8', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                margin: '0 auto',
+                color: '#4AAED4'
+              }}
+            >
+              <svg 
+                width="28" 
+                height="28" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <div className="modal-confirmation-content">
+              <h5>Free Plan Limit Reached</h5>
+              <p>You've used all 3 free syllabus uploads. Upgrade to Premium for unlimited uploads and full access to all features.</p>
+            </div>
+          </div>
+
+          <div className="modal-button-group modal-full-width-btn modal-footer-button">
+            <Button variant="light-white" className="btn-md" onClick={() => setShowUpgradeModal(false)}>
+              No thanks
+            </Button>
+            <Button variant="primary" className="btn-md" onClick={handleUpgradeClick}>
+              View plans
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   );
 };
