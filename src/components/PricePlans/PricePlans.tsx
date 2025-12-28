@@ -13,8 +13,6 @@ import {
   getAllPlanAPI,
   updatePlanAPI,
   getUserAPI,
-  registerFreemiumPlanAPI,
-  getSubscriptionStatusAPI,
 } from "../../redux/Service/User/Settings/settings";
 import { te } from "../../Utility/Toaster";
 
@@ -58,7 +56,7 @@ const ensureFreemiumPlan = (list: any[]) => {
 
 export const PricePlans = (props) => {
   const [userData, setuserData] = useState<any>(null);
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const [showPaidPlanNotice, setShowPaidPlanNotice] = useState(false);
   const hasSubscriptionFlag = useMemo(() => {
     try {
@@ -84,29 +82,21 @@ export const PricePlans = (props) => {
     }
   }, []);
 
-  const handleFreemiumEntry = useCallback(async () => {
+  const handleFreemiumEntry = useCallback(() => {
     // If on paid plan, surface notice and avoid sending freemium product_id to BE
     if (hasSubscriptionFlag) {
       setShowPaidPlanNotice(true);
       return;
     }
-    
     try {
-      // Call the backend to register for freemium plan
-      await dispatch(registerFreemiumPlanAPI());
-    } catch (err) {
-      // Fallback: set localStorage manually if API fails (e.g., already on freemium)
-      try {
-        localStorage.setItem("has_subscription", "false");
-        localStorage.setItem("plan_tier", "freemium");
-      } catch {}
-    }
-    
+      localStorage.setItem("has_subscription", "false");
+      localStorage.setItem("plan_tier", "freemium");
+    } catch {}
     if (typeof props?.setShowPlans === "function") {
       props.setShowPlans(false);
     }
     navigate(ENUMFORROUTES.DASHBOARD);
-  }, [dispatch, navigate, hasSubscriptionFlag, props?.setShowPlans]);
+  }, [navigate, props?.setShowPlans]);
 
   const normalizeUserRecord = useCallback(
     (raw: any) => {
@@ -167,53 +157,6 @@ export const PricePlans = (props) => {
       setSelectedPlan(props?.currentProductId);
     }
   }, [props?.currentProductId]);
-
-  // Fetch subscription status to determine current plan
-  useEffect(() => {
-    const fetchCurrentPlan = async () => {
-      try {
-        const resp: any = await dispatch(getSubscriptionStatusAPI());
-        if (resp) {
-          const isSubscription = resp.isSubscription === true;
-          const plan = resp.plan || {};
-          const planCode = plan.plan_code || '';
-          
-          // Map plan_code to product_id for matching with plan cards
-          // Freemium users: plan_code = "freemium" -> product_id = "freemium"
-          // Paid users: plan_code = "1m", "6m", "1y" -> need to match with product_id
-          let productIdToSelect: string | null = null;
-          
-          if (!isSubscription || planCode === 'freemium') {
-            productIdToSelect = 'freemium';
-          } else if (planCode === '1m') {
-            productIdToSelect = 'one_month';
-          } else if (planCode === '6m') {
-            productIdToSelect = 'six_month';
-          } else if (planCode === '1y') {
-            productIdToSelect = 'one_year';
-          }
-          
-          // Only set if not already set by props
-          if (productIdToSelect && !props?.currentProductId) {
-            setSelectedPlan(productIdToSelect);
-          }
-        }
-      } catch (err) {
-        // Fallback: check localStorage for freemium
-        try {
-          const tier = localStorage.getItem('plan_tier');
-          const hasSub = localStorage.getItem('has_subscription') === 'true';
-          if (!hasSub && (tier === 'freemium' || !hasSub)) {
-            if (!props?.currentProductId) {
-              setSelectedPlan('freemium');
-            }
-          }
-        } catch {}
-      }
-    };
-    
-    fetchCurrentPlan();
-  }, [dispatch, props?.currentProductId]);
 
   // no need to mirror updatePlan into local state
   // console.log("userData", userData)
@@ -439,10 +382,12 @@ export const PricePlans = (props) => {
               : fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
                   ?.duration || plan.duration;
           const isActivePlan = selectedPlan === plan?.product_id;
-          const buttonText = isActivePlan
-            ? "Current"
-            : freemium
-              ? "Start for Free"
+          const buttonText = freemium
+            ? isActivePlan
+              ? "Active"
+              : "Start for Free"
+            : isActivePlan
+              ? "Active"
               : props?.updatePlan
                 ? "Change Plan"
                 : "Get Started";

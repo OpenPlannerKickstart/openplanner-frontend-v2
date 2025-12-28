@@ -115,15 +115,11 @@ export const addEditSyllabusDataAPI =
         };
       } catch (err) {
         dispatch(addEditSyllabusDataFailure());
-        const errorMessage = (err as any)?.response?.data?.message || (err as any)?.message || '';
-        const isFreemiumLimitError = errorMessage.toLowerCase().includes('free upload limit') || 
-                                     errorMessage.toLowerCase().includes('syllabus limit') ||
-                                     (err as any)?.response?.status === 400;
         return {
           error: true,
           // Surface server message when available so callers can react (e.g., freemium limit)
-          message: errorMessage,
-          isFreemiumLimitError,
+          message:
+            (err as any)?.response?.data?.message || (err as any)?.message,
         };
       } finally {
         dispatch(setLoading(false));
