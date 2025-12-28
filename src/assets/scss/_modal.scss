@@ -396,11 +396,12 @@
     }
 
     .btn-close {
-        color: #94A3B8;
+        color: #94A3B8 !important;
+        background-color: transparent !important;
         
         &:hover {
-            background-color: #1E293B;
-            color: #F8FAFC;
+            background-color: #1E293B !important;
+            color: #F8FAFC !important;
         }
     }
 
@@ -450,6 +451,13 @@
 
     .upload-text {
         color: #94A3B8;
+    }
+
+    /* Modal footer dark mode */
+    .modal-footer,
+    .syllabus-footer {
+        background-color: #0F172A !important;
+        border-top-color: #1E293B !important;
     }
 
     /* Footer buttons area */
@@ -514,6 +522,11 @@
         .react-select__menu {
             background-color: #1E293B !important;
             border-color: #334155 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        .react-select__menu-list {
+            background-color: #1E293B !important;
         }
         
         .react-select__option {
@@ -528,6 +541,43 @@
                 background-color: #5EBEE8 !important;
                 color: #0F172A !important;
             }
+        }
+    }
+
+    /* Native select elements */
+    select,
+    .form-select {
+        background-color: #1E293B !important;
+        border-color: #334155 !important;
+        color: #E2E8F0 !important;
+
+        option {
+            background-color: #1E293B !important;
+            color: #E2E8F0 !important;
+        }
+
+        &:disabled {
+            background-color: #1E293B !important;
+            color: #94A3B8 !important;
+            opacity: 1;
+        }
+    }
+
+    .form-select-wrapper {
+        select,
+        .form-select {
+            background-color: #1E293B !important;
+            border-color: #334155 !important;
+            color: #E2E8F0 !important;
+
+            &:disabled {
+                background-color: #1E293B !important;
+                color: #94A3B8 !important;
+            }
+        }
+
+        .select-arrow {
+            color: #64748B !important;
         }
     }
 

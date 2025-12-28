@@ -426,12 +426,13 @@
 }
 
 [data-theme="dark"] .modal-close-btn {
-  color: var(--neutral-500);
+  color: #94A3B8 !important;
+  background: transparent !important;
 }
 
 [data-theme="dark"] .modal-close-btn:hover {
-  background: var(--neutral-100);
-  color: var(--neutral-700);
+  background: #1E293B !important;
+  color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .modal-footer {
@@ -619,6 +620,20 @@
 [data-theme="dark"] .add-event-modal-wrapper .react-select-container .react-select__option--is-selected {
   background: #5EBEE8 !important;
   color: #0F172A !important;
+}
+
+/* Dark Mode Native Select in Event Details Modal */
+[data-theme="dark"] .add-event-modal-wrapper .form-select,
+[data-theme="dark"] .add-event-modal-wrapper select.form-input,
+[data-theme="dark"] .add-event-modal-wrapper .form-select-wrapper select {
+  background: #1E293B !important;
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .add-event-modal-wrapper .form-select-wrapper .select-arrow {
+  color: #64748B !important;
 }
 
 /* Dark Mode Form Inputs */
@@ -883,25 +898,30 @@
 
 /* Dark Mode File Upload Area */
 [data-theme="dark"] .file-upload-area {
-  background: var(--neutral-100);
-  border-color: var(--primary);
+  background: #1E293B !important;
+  border-color: #5EBEE8 !important;
 }
 
 [data-theme="dark"] .file-upload-area:hover {
-  background: var(--primary-subtle);
+  background: #334155 !important;
+}
+
+[data-theme="dark"] .file-upload-area.dragover {
+  background: #334155 !important;
 }
 
 [data-theme="dark"] .upload-icon {
-  background: var(--primary-subtle);
+  background: rgba(94, 190, 232, 0.15) !important;
+  color: #5EBEE8 !important;
   color: var(--primary);
 }
 
 [data-theme="dark"] .upload-text {
-  color: var(--neutral-600);
+  color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .file-name {
-  color: var(--primary);
+  color: #5EBEE8 !important;
 }
 
 /* Dark Mode Color Picker */

@@ -1140,6 +1140,16 @@ div.task-item.clickable-event {
     color: #F8FAFC !important;
 }
 
+[data-theme="dark"] .add-task-modal-wrapper .modal-close-btn {
+    color: #94A3B8 !important;
+    background: transparent !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .modal-close-btn:hover {
+    background: #1E293B !important;
+    color: #F8FAFC !important;
+}
+
 [data-theme="dark"] .add-task-modal-wrapper .form-label {
     color: #94A3B8 !important;
 }
