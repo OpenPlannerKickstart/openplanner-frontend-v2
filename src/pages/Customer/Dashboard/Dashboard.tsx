@@ -659,13 +659,17 @@ const Dashboard = () => {
                 // If a course is selected, hide date sections with no matching events
                 if (filterOn && filteredEvents.length === 0) return null;
 
+                // Use the first event's start_date for the header (more reliable than group.due_date)
+                const firstEvent = filteredEvents[0];
+                const displayDate = firstEvent?.start_date || group?.due_date;
+
                 return (
                 <React.Fragment key={groupIndex}>
                   {/* Due Date Header */}
                   <div className="due-date-header">
                     Due on{' '}
-                    {!isNullUndefinedOrBlank(group?.due_date)
-                      ? formatedDate(group?.due_date, 'dddd, MMM DD')
+                    {!isNullUndefinedOrBlank(displayDate)
+                      ? formatedDate(displayDate, 'dddd, MMM DD')
                       : '-'}
                   </div>
 
