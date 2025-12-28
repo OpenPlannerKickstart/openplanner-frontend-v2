@@ -123,11 +123,17 @@ const AddSyllabusEvents = (props) => {
     typeof props?.existingSyllabusCount === "number"
       ? props.existingSyllabusCount
       : 0;
-  const FREEMIUM_UPLOAD_LIMIT = 3;
+  // Use API-provided limit if available, otherwise fall back to hardcoded default
+  const syllabusLimit = typeof props?.syllabusLimit === "number" ? props.syllabusLimit : 3;
+  const remainingUploads = typeof props?.remainingUploads === "number" ? props.remainingUploads : null;
+  
+  // Use API-provided remainingUploads if available, otherwise calculate from count
   const freemiumUploadLocked =
     isFreemiumPlan &&
     !hasSubscription &&
-    ((!!props?.freemiumLimitReached) || existingSyllabusCount >= FREEMIUM_UPLOAD_LIMIT);
+    (!!props?.freemiumLimitReached ||
+      (remainingUploads !== null && remainingUploads <= 0) ||
+      (remainingUploads === null && existingSyllabusCount >= syllabusLimit));
 
   const handleUpgrade = () => {
     if (props?.onUpgradeClick) {

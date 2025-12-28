@@ -95,5 +95,7 @@ export const SUBSCRIPTION_STATUS = 'api/subscription/status'
 export const REDEEM_CODE = 'api/redeem'
 // Student billing portal
 export const STUDENT_BILLING_PORTAL = 'api/billing/portal'
+// Freemium plan registration
+export const SUBSCRIPTION_FREEMIUM = 'api/subscription/freemium'
 
 

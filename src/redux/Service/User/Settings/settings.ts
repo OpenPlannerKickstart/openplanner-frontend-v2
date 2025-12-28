@@ -16,6 +16,7 @@ import {
     REDEEM_CODE,
     SUBSCRIPTION_STATUS,
     STUDENT_BILLING_PORTAL,
+    SUBSCRIPTION_FREEMIUM,
 } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
 import {
@@ -237,6 +238,27 @@ export const getSubscriptionStatusAPI = () => async (dispatch: AppDispatch) => {
         return response.data.data; // { isSubscription: boolean, plan?: {...} }
     } catch (err) {
         throw err;
+    }
+};
+
+// Register for freemium plan
+export const registerFreemiumPlanAPI = () => async (dispatch: AppDispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const response: any = await post(SUBSCRIPTION_FREEMIUM, {});
+        if (!response.data.error) {
+            // Update localStorage with freemium status
+            try {
+                localStorage.setItem('has_subscription', 'false');
+                localStorage.setItem('plan_tier', 'freemium');
+            } catch {}
+            return response.data.data; // { plan_type, plan_code, display_label, syllabus_limit, current_syllabus_count, remaining_uploads }
+        }
+        throw new Error(response.data.message || 'Failed to register for free plan');
+    } catch (err) {
+        throw err;
+    } finally {
+        dispatch(setLoading(false));
     }
 };
 

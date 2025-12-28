@@ -22,9 +22,18 @@ import { ENUMFORROUTES, ENUMFORSTATUS } from '../../../interfaces/enum';
 import { updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses';
 import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
-import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
+import { getUserAPI, getSubscriptionStatusAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
+
+// Freemium plan info from subscription status API
+interface FreemiumPlanInfo {
+  isFreemiumPlan: boolean;
+  hasSubscription: boolean;
+  syllabusLimit: number;
+  currentSyllabusCount: number;
+  remainingUploads: number;
+}
 
 const Dashboard = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -246,25 +255,64 @@ const Dashboard = () => {
   const [showSyllabus, setShowSyllabus] = useState(false);
   const handleSyllabusShow = () => setShowSyllabus(true);
 
-  const { hasSubscription, isFreemiumPlan } = (() => {
-    try {
-      const tier = localStorage.getItem('plan_tier');
-      const subscriptionFlag = localStorage.getItem('has_subscription') === 'true';
-      return {
-        hasSubscription: subscriptionFlag,
-        isFreemiumPlan: tier === 'freemium',
-      };
-    } catch {
-      return {
-        hasSubscription: false,
-        isFreemiumPlan: false,
-      };
-    }
-  })();
+  // Freemium plan state from subscription status API
+  const [freemiumPlanInfo, setFreemiumPlanInfo] = useState<FreemiumPlanInfo>({
+    isFreemiumPlan: false,
+    hasSubscription: false,
+    syllabusLimit: 3,
+    currentSyllabusCount: 0,
+    remainingUploads: 3,
+  });
 
-  const FREEMIUM_UPLOAD_LIMIT = 3;
-  const freemiumLimitReached =
-    isFreemiumPlan && !hasSubscription && syllabusDropDownData.length >= FREEMIUM_UPLOAD_LIMIT;
+  // Fetch subscription status on mount
+  useEffect(() => {
+    const fetchSubscriptionStatus = async () => {
+      try {
+        const resp: any = await dispatch(getSubscriptionStatusAPI());
+        if (resp) {
+          const isSubscription = resp.isSubscription === true;
+          const plan = resp.plan || {};
+          const planCode = plan.plan_code || '';
+          
+          // Update localStorage for route guards and other components
+          try {
+            localStorage.setItem('has_subscription', String(isSubscription));
+            if (!isSubscription) {
+              localStorage.setItem('plan_tier', planCode || 'freemium');
+            } else {
+              localStorage.removeItem('plan_tier');
+            }
+          } catch {}
+          
+          setFreemiumPlanInfo({
+            isFreemiumPlan: planCode === 'freemium' || !isSubscription,
+            hasSubscription: isSubscription,
+            syllabusLimit: plan.syllabus_limit ?? 3,
+            currentSyllabusCount: plan.current_syllabus_count ?? 0,
+            remainingUploads: plan.remaining_uploads ?? 3,
+          });
+        }
+      } catch (err) {
+        // Fallback to localStorage if API fails
+        try {
+          const tier = localStorage.getItem('plan_tier');
+          const subscriptionFlag = localStorage.getItem('has_subscription') === 'true';
+          setFreemiumPlanInfo({
+            isFreemiumPlan: tier === 'freemium',
+            hasSubscription: subscriptionFlag,
+            syllabusLimit: 3,
+            currentSyllabusCount: syllabusDropDownData.length,
+            remainingUploads: Math.max(0, 3 - syllabusDropDownData.length),
+          });
+        } catch {}
+      }
+    };
+    fetchSubscriptionStatus();
+  }, [dispatch]);
+
+  // Derived values for freemium limit
+  const { isFreemiumPlan, hasSubscription, syllabusLimit, remainingUploads } = freemiumPlanInfo;
+  const freemiumLimitReached = isFreemiumPlan && !hasSubscription && remainingUploads <= 0;
 
   const handleUpgradeClick = () => {
     navigate(ENUMFORROUTES.PLAN_DETAILS);
@@ -793,6 +841,8 @@ const Dashboard = () => {
         isFreemiumPlan={isFreemiumPlan}
         onUpgradeClick={handleUpgradeClick}
         existingSyllabusCount={syllabusDropDownData.length}
+        syllabusLimit={syllabusLimit}
+        remainingUploads={remainingUploads}
       />
     </>
   );

@@ -112,16 +112,22 @@ export const AddEditSyllabus = (props) => {
             return false;
         }
     })();
-    const FREEMIUM_UPLOAD_LIMIT = 3;
+    // Use API-provided limit if available, otherwise fall back to hardcoded default
+    const syllabusLimit = typeof props?.syllabusLimit === "number" ? props.syllabusLimit : 3;
+    const remainingUploads = typeof props?.remainingUploads === "number" ? props.remainingUploads : null;
+    
     const effectiveSyllabusCount = typeof props?.existingSyllabusCount === "number"
         ? props.existingSyllabusCount
         : existingSyllabusCount;
+    
+    // Use API-provided remainingUploads if available, otherwise calculate from count
     const freemiumUploadLocked =
         isFreemiumPlan &&
         !hasSubscription &&
         (!!props?.freemiumLimitReached ||
-            (typeof effectiveSyllabusCount === "number" &&
-                effectiveSyllabusCount >= FREEMIUM_UPLOAD_LIMIT));
+            (remainingUploads !== null && remainingUploads <= 0) ||
+            (remainingUploads === null && typeof effectiveSyllabusCount === "number" &&
+                effectiveSyllabusCount >= syllabusLimit));
 
     const fetchExistingSyllabusCount = async () => {
         try {
