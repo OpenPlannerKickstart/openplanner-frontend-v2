@@ -12,6 +12,7 @@ import { logoutFromSystem } from '../../../redux/Service/auth/login';
 import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
 import AddEditTask from '../../../common/Task/AddEditTask';
+import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 
 const Task = () => {
@@ -32,6 +33,10 @@ const Task = () => {
   const [activeTab, setActiveTab] = useState<'todo' | 'completed' | 'starred'>('todo');
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editTaskFormData, setEditTaskFormData] = useState<any>(null);
+  
+  /** -----------------Task Details Modal state (for viewing existing tasks)---------------------------*/
+  const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);
+  const [viewTaskFormData, setViewTaskFormData] = useState<any>(null);
 
   /** -------------------Task listing api start-------------------------*/
   const handleTaskListing = useCallback(async () => {
@@ -127,17 +132,23 @@ const Task = () => {
     const dueDate = !isNullUndefinedOrBlank(rawDue)
       ? new Date(formatedDate(rawDue, 'yyyy-MM-DD HH:mm:ss'))
       : null;
+    
+    // For the start_date, use the same as due_date or a time 30 mins before
+    const startDate = dueDate ? new Date(dueDate.getTime() - 30 * 60 * 1000) : null;
 
-    setEditTaskFormData({
+    // Open the Task Details modal (AddEditEvent in task mode) instead of AddEditTask
+    setViewTaskFormData({
       id: task?.id,
-      task_name: task?.task_name || task?.title || '',
+      title: task?.task_name || task?.title || '',
       note: task?.note || '',
-      due_date: dueDate,
+      start_date: startDate,
+      end_date: dueDate,
       is_reminder: !!task?.is_reminder,
       reminder: task?.reminder || [],
       status: task?.status,
+      priority: task?.priority || 'Low',
     });
-    setShowTaskModal(true);
+    setShowTaskDetailsModal(true);
   };
 
   const handleGetUpdatedData = () => {
@@ -395,7 +406,7 @@ const Task = () => {
         </div>
       </div>
 
-      {/* Add/Edit Task Modal */}
+      {/* Add Task Modal (for creating new tasks) */}
       <AddEditTask
         show={showTaskModal}
         setShow={setShowTaskModal}
@@ -403,8 +414,19 @@ const Task = () => {
         editTaskFormData={editTaskFormData}
         setEditTaskFormData={setEditTaskFormData}
       />
+
+      {/* Task Details Modal (for viewing/editing existing tasks) */}
+      <AddEditEvent
+        show={showTaskDetailsModal}
+        setShow={setShowTaskDetailsModal}
+        handleGetData={handleGetUpdatedData}
+        editEventFormData={viewTaskFormData}
+        setEditEventFormData={setViewTaskFormData}
+        entityType="task"
+      />
     </>
   );
 };
 
 export default Task;
+

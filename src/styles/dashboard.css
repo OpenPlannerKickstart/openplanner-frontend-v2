@@ -2057,9 +2057,14 @@ input, textarea, select {
   align-items: center;
   gap: 0.875rem;
   padding: 1rem 1.25rem;
-  border-top: 1px solid var(--neutral-200);
   background: var(--neutral-50);
   cursor: pointer;
+}
+
+/* Only add top border when add-event-row follows other content (not immediately after header) */
+.due-date-group + .add-event-row,
+.task-row + .add-event-row {
+  border-top: 1px solid var(--neutral-200);
 }
 
 .add-event-circle {
@@ -2095,6 +2100,10 @@ input, textarea, select {
 
 [data-theme="dark"] .add-event-row {
   background: var(--neutral-100);
+}
+
+[data-theme="dark"] .due-date-group + .add-event-row,
+[data-theme="dark"] .task-row + .add-event-row {
   border-top-color: var(--neutral-200);
 }
 

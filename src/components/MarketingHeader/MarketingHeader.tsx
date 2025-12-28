@@ -2,11 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ENUMFORROUTES } from '../../interfaces/enum';
 import './MarketingHeader.css';
+import sidebarLogoLg from '../../assets/images/sidebar-logo-lg.svg';
 
 const MarketingHeader: React.FC = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [headerScrolled, setHeaderScrolled] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Detect theme changes
+  useEffect(() => {
+    const checkTheme = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      setIsDarkMode(theme === 'dark');
+    };
+    
+    // Initial check
+    checkTheme();
+    
+    // Watch for theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          checkTheme();
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+    
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -41,7 +67,10 @@ const MarketingHeader: React.FC = () => {
             navLink('/');
           }}
         >
-          <img src="/assets/logo.png" alt="Open Planner - AI Scheduling App" />
+          <img 
+            src={isDarkMode ? sidebarLogoLg : "/assets/logo.png"} 
+            alt="Open Planner - AI Scheduling App" 
+          />
         </a>
 
         <ul className="marketing-nav-links">
@@ -173,3 +202,4 @@ const MarketingHeader: React.FC = () => {
 };
 
 export default MarketingHeader;
+

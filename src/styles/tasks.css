@@ -1185,6 +1185,184 @@ div.task-item.clickable-event {
     color: #94A3B8 !important;
 }
 
+/* React Select Control - Match form-input styling */
+.add-task-modal-wrapper .react-select-container .react-select__control {
+    min-height: 48px;
+    padding: 0 0.25rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem !important;
+    background: #f8fafc;
+    transition: all 0.2s;
+}
+
+.add-task-modal-wrapper .react-select-container .react-select__control:hover {
+    border-color: #cbd5e1;
+}
+
+.add-task-modal-wrapper .react-select-container .react-select__control--is-focused {
+    border-color: #239BC2;
+    box-shadow: 0 0 0 3px rgba(35, 155, 194, 0.15);
+    background: #fff;
+}
+
+.add-task-modal-wrapper .react-select-container .react-select__value-container {
+    padding: 0.5rem 0.75rem;
+}
+
+.add-task-modal-wrapper .react-select-container .react-select__placeholder {
+    color: #9ca3af;
+}
+
+.add-task-modal-wrapper .react-select-container .react-select__single-value {
+    color: #1e293b;
+}
+
+.add-task-modal-wrapper .react-select-container .react-select__indicator-separator {
+    display: none;
+}
+
+.add-task-modal-wrapper .react-select-container .react-select__dropdown-indicator {
+    color: #64748b;
+    padding: 0.5rem;
+}
+
+.add-task-modal-wrapper .react-select-container .react-select__menu {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode React Select in Add Task Modal */
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__control {
+    background: #1E293B !important;
+    border-color: #334155 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__control:hover {
+    border-color: #475569 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__control--is-focused {
+    border-color: #5EBEE8 !important;
+    box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15) !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__single-value {
+    color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__placeholder {
+    color: #64748B !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__indicator-separator {
+    background-color: #334155 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__dropdown-indicator {
+    color: #64748B !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__dropdown-indicator:hover {
+    color: #94A3B8 !important;
+}
+
+/* Dark mode notification row */
+[data-theme="dark"] .add-task-modal-wrapper .notification-row {
+    background: #1E293B !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .reminder-field-label {
+    color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .remove-notification-btn {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .remove-notification-btn:hover {
+    background: #ef4444 !important;
+    color: #fff !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .add-notification-btn {
+    border-color: #475569 !important;
+    color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .add-notification-btn:hover {
+    border-color: #5EBEE8 !important;
+    color: #5EBEE8 !important;
+    background: rgba(94, 190, 232, 0.1) !important;
+}
+
+/* Dark mode footer */
+[data-theme="dark"] .add-task-modal-wrapper .add-event-footer {
+    background: #0F172A !important;
+    border-top-color: #1E293B !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__control:hover {
+    border-color: #475569 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__control--is-focused {
+    border-color: #5EBEE8 !important;
+    box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15) !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__single-value {
+    color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__placeholder {
+    color: #64748B !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__indicator-separator {
+    background-color: #334155 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__dropdown-indicator {
+    color: #64748B !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__dropdown-indicator:hover {
+    color: #94A3B8 !important;
+}
+
+/* Dark mode notification row */
+[data-theme="dark"] .add-task-modal-wrapper .notification-row {
+    background: #1E293B !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .reminder-field-label {
+    color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .remove-notification-btn {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .remove-notification-btn:hover {
+    background: #ef4444 !important;
+    color: #fff !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .add-notification-btn {
+    border-color: #475569 !important;
+    color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .add-task-modal-wrapper .add-notification-btn:hover {
+    border-color: #5EBEE8 !important;
+    color: #5EBEE8 !important;
+    background: rgba(94, 190, 232, 0.1) !important;
+}
+
 /* Dark mode footer */
 [data-theme="dark"] .add-task-modal-wrapper .add-event-footer {
     background: #0F172A !important;

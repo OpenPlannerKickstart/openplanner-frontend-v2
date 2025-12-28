@@ -272,3 +272,127 @@
     display: flex;
   }
 }
+
+/* ============================================
+   Dark Mode Styles
+   ============================================ */
+
+[data-theme="dark"] .marketing-header {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .marketing-header.scrolled {
+  background: rgba(15, 23, 42, 0.98) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .marketing-nav-links a {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .marketing-nav-links a:hover {
+  color: #5EBEE8;
+}
+
+[data-theme="dark"] .marketing-login-btn {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .marketing-login-btn:hover {
+  color: #5EBEE8 !important;
+  background: rgba(94, 190, 232, 0.1) !important;
+}
+
+/* Mobile Menu Dark Mode */
+[data-theme="dark"] .marketing-mobile-menu-btn span {
+  background: #F8FAFC;
+}
+
+[data-theme="dark"] .marketing-mobile-menu {
+  background: rgba(15, 23, 42, 0.98) !important;
+  border-top-color: #1E293B !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .marketing-mobile-nav-links a {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .marketing-mobile-nav-links a:hover {
+  color: #5EBEE8;
+}
+
+[data-theme="dark"] .marketing-mobile-login-btn {
+  color: #F8FAFC;
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .marketing-mobile-login-btn:hover {
+  color: #5EBEE8;
+  border-color: #5EBEE8;
+  background: rgba(94, 190, 232, 0.1);
+}
+
+/* ============================================
+   Dark Mode Styles
+   ============================================ */
+
+[data-theme="dark"] .marketing-header {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .marketing-header.scrolled {
+  background: rgba(15, 23, 42, 0.98) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .marketing-nav-links a {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .marketing-nav-links a:hover {
+  color: #5EBEE8;
+}
+
+[data-theme="dark"] .marketing-login-btn {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .marketing-login-btn:hover {
+  color: #5EBEE8 !important;
+  background: rgba(94, 190, 232, 0.1) !important;
+}
+
+/* Mobile Menu Dark Mode */
+[data-theme="dark"] .marketing-mobile-menu-btn span {
+  background: #F8FAFC;
+}
+
+[data-theme="dark"] .marketing-mobile-menu {
+  background: rgba(15, 23, 42, 0.98) !important;
+  border-top-color: #1E293B !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .marketing-mobile-nav-links a {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .marketing-mobile-nav-links a:hover {
+  color: #5EBEE8;
+}
+
+[data-theme="dark"] .marketing-mobile-login-btn {
+  color: #F8FAFC;
+  background: #1E293B;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .marketing-mobile-login-btn:hover {
+  color: #5EBEE8;
+  border-color: #5EBEE8;
+  background: rgba(94, 190, 232, 0.1);
+}

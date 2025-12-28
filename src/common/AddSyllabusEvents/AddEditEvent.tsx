@@ -592,7 +592,7 @@ export const AddEditEvent = (props) => {
         <>
             {/***** Modal start *****/}
             <Modal
-                className={`add-event-modal-wrapper ${isExistingEvent ? 'event-details-wrapper' : 'add-new-event-wrapper'} ${themedCourseColor ? 'themed' : ''} ${isExistingEvent && isCompletedNow ? 'completed' : ''}`}
+                className={`add-event-modal-wrapper ${isExistingEvent && entityType !== 'task' ? 'event-details-wrapper' : ''} ${!isExistingEvent ? 'add-new-event-wrapper' : ''} ${themedCourseColor ? 'themed' : ''} ${isExistingEvent && isCompletedNow ? 'completed' : ''}`}
                 show={showAddSyllabusEvents}
                 onHide={handleCloseAddSyllabusEvents}
                 centered

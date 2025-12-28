@@ -283,7 +283,7 @@ export const PricePlans = (props) => {
       navigate(ENUMFORROUTES.LOGIN);
       return;
     }
-    
+
     await processGetStarted(plan, userData);
   };
 
@@ -532,13 +532,13 @@ export const PricePlans = (props) => {
             <div
               key={index}
               className={`price-plan-card ${isActivePlan ? "active" : ""} ${isPopular ? "popular" : ""} ${isBestValue ? "best-value" : ""}`}
-            >
+              >
               {isPopular && (
                 <span className="plan-badge popular-badge">Popular</span>
               )}
               {isBestValue && (
                 <span className="plan-badge best-value-badge">Best Value</span>
-              )}
+                      )}
 
               <div className="plan-header">
                 <span className="plan-duration">{getDurationLabel(plan, freemium)}</span>
@@ -551,19 +551,19 @@ export const PricePlans = (props) => {
                   </span>
                   <span className={`plan-price-per-month ${!pricePerMonth ? "plan-price-per-month-hidden" : ""}`}>
                     {pricePerMonth || "\u00A0"}
-                  </span>
-                </div>
-              </div>
+                          </span>
+                    </div>
+                  </div>
 
               <button
                 className={`plan-btn ${isActivePlan ? "active-plan" : ""}`}
-                disabled={isActivePlan}
-                onClick={() => {
-                  if (isActivePlan) return;
-                  if (freemiumBlocked) {
-                    setShowPaidPlanNotice(true);
-                    return;
-                  }
+                    disabled={isActivePlan}
+                    onClick={() => {
+                      if (isActivePlan) return;
+                      if (freemiumBlocked) {
+                        setShowPaidPlanNotice(true);
+                        return;
+                      }
                   // If user has subscription, redirect to Stripe billing portal
                   if (isChangeMode && !freemium) {
                     window.location.assign(
@@ -571,30 +571,30 @@ export const PricePlans = (props) => {
                     );
                     return;
                   }
-                  handleGetStarted(plan);
-                }}
-              >
-                {buttonText}
+                        handleGetStarted(plan);
+                    }}
+                  >
+                    {buttonText}
               </button>
 
               <div className="plan-features">
                 <span className="plan-features-label">FEATURES</span>
-                <ul>
+                    <ul>
                   {plan.features.map((feature: string, i: number) => {
-                    const normalized =
-                      typeof feature === "string" &&
+                        const normalized =
+                          typeof feature === "string" &&
                       feature.trim().toLowerCase() === "full mobile application access"
-                        ? "Full mobile application access"
-                        : feature;
-                    return (
-                      <li key={i}>
+                            ? "Full mobile application access"
+                            : feature;
+                        return (
+                          <li key={i}>
                         <CheckIcon />
-                        {normalized}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+                            {normalized}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
             </div>
           );
         })}
