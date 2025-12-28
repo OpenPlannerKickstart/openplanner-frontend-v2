@@ -643,22 +643,26 @@
 
 /* Dark Mode Notification Panel */
 [data-theme="dark"] .notification-panel {
-  background: var(--white);
-  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+  background: #0F172A !important;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5) !important;
 }
 
 [data-theme="dark"] .notification-panel-header {
-  background: linear-gradient(to right, var(--primary-subtle), var(--white));
-  border-bottom-color: var(--neutral-200);
+  background: linear-gradient(to right, rgba(35, 155, 194, 0.15), #0F172A) !important;
+  border-bottom-color: #1E293B !important;
 }
 
 [data-theme="dark"] .notification-panel-title {
-  color: var(--neutral-900);
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .notification-panel-body {
+  background: #0F172A !important;
 }
 
 [data-theme="dark"] .clear-all-btn {
-  background: var(--error-light);
-  color: var(--error);
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
 }
 
 [data-theme="dark"] .clear-all-btn:hover {
@@ -666,51 +670,93 @@
 }
 
 [data-theme="dark"] .close-panel-btn {
-  color: var(--neutral-500);
+  color: #94A3B8;
 }
 
 [data-theme="dark"] .close-panel-btn:hover {
-  background: var(--neutral-100);
-  color: var(--neutral-700);
+  background: #1E293B;
+  color: #F8FAFC;
 }
 
 [data-theme="dark"] .notification-item {
-  background: var(--neutral-100);
+  background: #1E293B;
+  border-radius: 12px;
 }
 
 [data-theme="dark"] .notification-item:hover {
-  background: var(--neutral-200);
+  background: #334155;
 }
 
 [data-theme="dark"] .notification-item.unread {
-  background: var(--primary-subtle);
-  border-left-color: var(--primary);
+  background: rgba(94, 190, 232, 0.1);
+  border-left-color: #4AAED4;
 }
 
 [data-theme="dark"] .notification-item.unread:hover {
-  background: rgba(94, 190, 232, 0.2);
+  background: rgba(94, 190, 232, 0.15);
 }
 
 [data-theme="dark"] .notification-title {
-  color: var(--neutral-900);
+  color: #F8FAFC;
 }
 
 [data-theme="dark"] .notification-message {
-  color: var(--neutral-600);
+  color: #CBD5E1;
 }
 
 [data-theme="dark"] .notification-time {
-  color: var(--neutral-400);
+  color: #64748B;
+}
+
+[data-theme="dark"] .notification-dismiss {
+  color: #64748B;
 }
 
 [data-theme="dark"] .notification-dismiss:hover {
-  background: var(--error-light);
-  color: var(--error);
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
 }
 
-[data-theme="dark"] .notification-empty-icon {
-  background: var(--neutral-100);
-  color: var(--neutral-400);
+[data-theme="dark"] .notification-icon {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .notification-icon.reminder {
+  background: rgba(251, 191, 36, 0.15);
+  color: #FBBF24;
+}
+
+[data-theme="dark"] .notification-icon.event {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .notification-icon.course {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ADE80;
+}
+
+[data-theme="dark"] .notification-icon.invite {
+  background: rgba(168, 85, 247, 0.15);
+  color: #C084FC;
+}
+
+[data-theme="dark"] .notification-empty-icon,
+[data-theme="dark"] .empty-notifications-icon {
+  background: #1E293B;
+  color: #64748B;
+}
+
+[data-theme="dark"] .empty-notifications h4 {
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .empty-notifications p {
+  color: #64748B;
+}
+
+[data-theme="dark"] .notification-panel-backdrop.active {
+  background: rgba(0, 0, 0, 0.6);
 }
 
 /* Dark Mode Delete Confirm Modal */

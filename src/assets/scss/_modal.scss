@@ -543,6 +543,39 @@
                 color: #94A3B8;
             }
         }
+
+        // Dark mode for confirmation icon
+        .modal-confirmation-icon {
+            &::before {
+                background-color: rgba(239, 68, 68, 0.15);
+            }
+        }
+
+        &.modal-reject {
+            .modal-confirmation-icon {
+                &::before,
+                &::after {
+                    background-color: rgba(239, 68, 68, 0.15);
+                }
+            }
+        }
+    }
+
+    // Dark mode for cancel/light buttons in modals
+    .btn-light-white {
+        background-color: #1E293B;
+        color: #F8FAFC;
+        border-color: #334155;
+
+        &:hover,
+        &.btn.active,
+        &.btn:active,
+        &:focus-visible,
+        &:first-child:active {
+            background-color: #334155;
+            color: #F8FAFC;
+            border-color: #475569;
+        }
     }
 }
 

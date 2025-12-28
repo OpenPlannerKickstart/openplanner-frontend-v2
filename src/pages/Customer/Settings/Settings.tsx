@@ -933,7 +933,7 @@ const Settings: React.FC = () => {
                         name="theme" 
                         value="dark" 
                         checked={theme === 'dark'}
-                        onChange={() => {}}
+                        onChange={() => setTheme('dark')}
                       />
                       <div className="theme-preview dark-preview">
                         <div className="preview-sidebar"></div>
@@ -961,7 +961,7 @@ const Settings: React.FC = () => {
                         name="theme" 
                         value="system" 
                         checked={theme === 'system'}
-                        onChange={() => {}}
+                        onChange={() => setTheme('system')}
                       />
                       <div className="theme-preview system-preview">
                         <div className="preview-sidebar"></div>
