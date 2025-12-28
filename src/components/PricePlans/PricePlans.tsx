@@ -173,10 +173,14 @@ export const PricePlans = (props) => {
     const fetchCurrentPlan = async () => {
       try {
         const resp: any = await dispatch(getSubscriptionStatusAPI());
+        console.log('[PricePlans] Subscription status response:', resp);
+        
         if (resp) {
           const isSubscription = resp.isSubscription === true;
           const plan = resp.plan || {};
           const planCode = plan.plan_code || '';
+          
+          console.log('[PricePlans] isSubscription:', isSubscription, 'planCode:', planCode);
           
           // Map plan_code to product_id for matching with plan cards
           // Freemium users: plan_code = "freemium" -> product_id = "freemium"
@@ -193,27 +197,30 @@ export const PricePlans = (props) => {
             productIdToSelect = 'one_year';
           }
           
-          // Only set if not already set by props
-          if (productIdToSelect && !props?.currentProductId) {
+          console.log('[PricePlans] Setting selectedPlan to:', productIdToSelect);
+          
+          // Always set the plan from API (override props if API says otherwise)
+          if (productIdToSelect) {
             setSelectedPlan(productIdToSelect);
           }
         }
       } catch (err) {
+        console.error('[PricePlans] Error fetching subscription status:', err);
         // Fallback: check localStorage for freemium
         try {
           const tier = localStorage.getItem('plan_tier');
           const hasSub = localStorage.getItem('has_subscription') === 'true';
-          if (!hasSub && (tier === 'freemium' || !hasSub)) {
-            if (!props?.currentProductId) {
-              setSelectedPlan('freemium');
-            }
+          console.log('[PricePlans] Fallback - tier:', tier, 'hasSub:', hasSub);
+          if (!hasSub) {
+            // User has no paid subscription, they're on freemium
+            setSelectedPlan('freemium');
           }
         } catch {}
       }
     };
     
     fetchCurrentPlan();
-  }, [dispatch, props?.currentProductId]);
+  }, [dispatch]);
 
   // no need to mirror updatePlan into local state
   // console.log("userData", userData)
@@ -237,9 +244,14 @@ export const PricePlans = (props) => {
     }
 
     if (isFreemiumPlan(plan)) {
-      // Block freemium selection when on a paid plan or when in update/upgrade modes
-      if (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial) {
+      // Only block freemium selection if user is on a PAID plan
+      // (hasSubscriptionFlag indicates paid subscription, not freemium)
+      if (hasSubscriptionFlag) {
         setShowPaidPlanNotice(true);
+        return;
+      }
+      // If already on freemium, don't do anything (button should be disabled anyway)
+      if (selectedPlan === 'freemium' || selectedPlan === plan?.product_id) {
         return;
       }
       handleFreemiumEntry();
@@ -429,9 +441,10 @@ export const PricePlans = (props) => {
           const freemium = isFreemiumPlan(plan);
           const originalPrice = undiscountedMap[plan.duration];
           const isPopular = !freemium && plan.duration === "for 1 year";
+          // Only block freemium selection if user is on a PAID subscription
+          // (not when they're already on freemium and viewing the change plan page)
           const freemiumBlocked =
-            freemium &&
-            (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial);
+            freemium && hasSubscriptionFlag;
           const displayDuration =
             freemium ||
             !fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
@@ -439,6 +452,12 @@ export const PricePlans = (props) => {
               : fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
                   ?.duration || plan.duration;
           const isActivePlan = selectedPlan === plan?.product_id;
+          
+          // Debug logging for plan matching
+          if (freemium) {
+            console.log('[PricePlans] Freemium card - selectedPlan:', selectedPlan, 'plan.product_id:', plan?.product_id, 'isActivePlan:', isActivePlan);
+          }
+          
           const buttonText = isActivePlan
             ? "Current"
             : freemium
