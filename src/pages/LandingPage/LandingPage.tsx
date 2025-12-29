@@ -341,7 +341,7 @@ const LandingPage = () => {
           </div>
 
           <div className="hero-visual">
-            <img src="/assets/Open Planner Your Upcoming Week (5) copy.png" alt="Open Planner - Mobile and Desktop App" className="hero-mockup-image" />
+            <img src="/assets/OPhomepage2.png" alt="Open Planner - Mobile and Desktop App" className="hero-mockup-image" />
           </div>
         </div>
       </section>
