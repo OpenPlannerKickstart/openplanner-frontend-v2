@@ -1209,7 +1209,7 @@ div.task-item.clickable-event {
 }
 
 .add-task-modal-wrapper .react-select-container .react-select__value-container {
-    padding: 0.5rem 1rem !important;
+    padding: 0.70rem 1rem !important;
 }
 
 .add-task-modal-wrapper .react-select-container .react-select__value-container--has-value .react-select__single-value,
