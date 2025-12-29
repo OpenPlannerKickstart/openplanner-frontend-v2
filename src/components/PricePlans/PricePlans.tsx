@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Card, Modal } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
 import {
   ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT,
   ENUMFORROUTES,
@@ -8,13 +8,15 @@ import { useNavigate } from "react-router-dom";
 import { AppDispatch } from "../../redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { createCheckOutAPI } from "../../redux/Service/auth/signup";
-import { getDecodeIDToken, isNullUndefinedOrBlank } from "../../Utility/Helper";
+import { getDecodeIDToken, isNullUndefinedOrBlank, getToken } from "../../Utility/Helper";
 import {
   getAllPlanAPI,
   updatePlanAPI,
   getUserAPI,
+  getSubscriptionStatusAPI,
 } from "../../redux/Service/User/Settings/settings";
 import { te } from "../../Utility/Toaster";
+import "./PricePlans.css";
 
 const undiscountedMap = {
   "for 1 month": ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT.ONE_MONTH,
@@ -29,9 +31,10 @@ const FREEMIUM_PLAN = {
   Stripe_id: "freemium",
   duration: "",
   features: [
-    "Upload 3 syllabus",
-    "Web and mobile access",
-    "Basic reminders and notifications",
+    "3 syllabus uploads",
+    "Full website access",
+    "Full mobile application access",
+    "Notifications",
   ],
   is_freemium: true,
 };
@@ -47,16 +50,16 @@ const isFreemiumPlan = (plan: any): boolean => {
 };
 
 const ensureFreemiumPlan = (list: any[]) => {
-  const hasFreemium = Array.isArray(list) && list.some(isFreemiumPlan);
-  if (!hasFreemium) {
-    list.unshift({ ...FREEMIUM_PLAN });
-  }
-  return list;
+  // Remove any existing freemium plan from API and use our constant instead
+  const filteredList = Array.isArray(list) ? list.filter(p => !isFreemiumPlan(p)) : [];
+  // Always add our FREEMIUM_PLAN with correct features
+  filteredList.unshift({ ...FREEMIUM_PLAN });
+  return filteredList;
 };
 
 export const PricePlans = (props) => {
   const [userData, setuserData] = useState<any>(null);
-  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showPaidPlanNotice, setShowPaidPlanNotice] = useState(false);
   const hasSubscriptionFlag = useMemo(() => {
     try {
@@ -152,11 +155,93 @@ export const PricePlans = (props) => {
     }
   }, [savedLoginData, userData, normalizeUserRecord]);
 
+  // Fallback: if user is logged in but we don't have userData, fetch it from API
+  useEffect(() => {
+    const fetchUserIfLoggedIn = async () => {
+      const token = getToken();
+      if (token && !userData && isNullUndefinedOrBlank(props?.state) && isNullUndefinedOrBlank(savedLoginData)) {
+        try {
+          const resp: any = await dispatch<any>(getUserAPI());
+          const payload = resp?.payload || resp;
+          if (payload) {
+            setuserData(normalizeUserRecord(payload));
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+        }
+      }
+    };
+    fetchUserIfLoggedIn();
+  }, [dispatch, userData, props?.state, savedLoginData, normalizeUserRecord]);
+
   useEffect(() => {
     if (!isNullUndefinedOrBlank(props?.currentProductId)) {
       setSelectedPlan(props?.currentProductId);
     }
   }, [props?.currentProductId]);
+
+  // Fetch subscription status to determine the active plan
+  useEffect(() => {
+    const fetchSubscriptionStatus = async () => {
+      const token = getToken();
+      // Always fetch if logged in and no plan selected yet
+      if (token && !selectedPlan) {
+        try {
+          const resp: any = await dispatch<any>(getSubscriptionStatusAPI());
+          const payload = resp?.payload || resp;
+          const isSubscription = payload?.isSubscription === true;
+          const plan = payload?.plan || {};
+          const planCode = plan?.plan_code || '';
+          
+          console.log('[PricePlans] Subscription status:', { isSubscription, planCode, plan });
+          
+          // Determine the correct product_id to select
+          let productIdToSelect: string | null = null;
+          
+          if (!isSubscription || planCode === 'freemium') {
+            // User is on free plan
+            productIdToSelect = 'freemium';
+          } else if (plan?.product_id) {
+            productIdToSelect = plan.product_id;
+          } else if (planCode === '1m') {
+            productIdToSelect = 'one_month';
+          } else if (planCode === '6m') {
+            productIdToSelect = 'six_month';
+          } else if (planCode === '1y') {
+            productIdToSelect = 'one_year';
+          } else if (plan?.plan_type) {
+            // Fallback: try to match plan_type to product_id
+            const planType = plan.plan_type?.toLowerCase() || '';
+            if (planType.includes('6 month') || planType.includes('six month')) {
+              productIdToSelect = 'six_month';
+            } else if (planType.includes('1 year') || planType.includes('annual') || planType.includes('one year')) {
+              productIdToSelect = 'one_year';
+            } else if (planType.includes('1 month') || planType.includes('one month')) {
+              productIdToSelect = 'one_month';
+            } else if (planType.includes('free') || planType.includes('freemium')) {
+              productIdToSelect = 'freemium';
+            }
+          }
+          
+          console.log('[PricePlans] Setting selectedPlan to:', productIdToSelect);
+          
+          if (productIdToSelect) {
+            setSelectedPlan(productIdToSelect);
+          }
+        } catch (error) {
+          console.error("Failed to fetch subscription status:", error);
+          // Fallback: check localStorage
+          try {
+            const hasSub = localStorage.getItem('has_subscription') === 'true';
+            if (!hasSub) {
+              setSelectedPlan('freemium');
+            }
+          } catch {}
+        }
+      }
+    };
+    fetchSubscriptionStatus();
+  }, [dispatch, selectedPlan]);
 
   // no need to mirror updatePlan into local state
   // console.log("userData", userData)
@@ -172,17 +257,45 @@ export const PricePlans = (props) => {
   // }; removed helper
 
   const handleGetStarted = async (plan) => {
+    // Check if user is actually logged in
+    const token = getToken();
+    
     // For upgrade flow (from Settings), allow BE to derive user from auth even if userData is missing
     if (!userData && !props?.upgradeNoTrial) {
+      // If user has a token, try to fetch user data first
+      if (token) {
+        try {
+          const resp: any = await dispatch<any>(getUserAPI());
+          const payload = resp?.payload || resp;
+          if (payload) {
+            const normalized = normalizeUserRecord(payload);
+            setuserData(normalized);
+            // Continue with the normalized user data
+            await processGetStarted(plan, normalized);
+            return;
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+        }
+      }
+      // Only show login error if there's no token
       te("Please Login First!!");
       navigate(ENUMFORROUTES.LOGIN);
       return;
     }
 
+    await processGetStarted(plan, userData);
+  };
+
+  const processGetStarted = async (plan: any, currentUserData: any) => {
     if (isFreemiumPlan(plan)) {
-      // Block freemium selection when on a paid plan or when in update/upgrade modes
-      if (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial) {
+      // Only block freemium selection if user is on a PAID plan
+      if (hasSubscriptionFlag) {
         setShowPaidPlanNotice(true);
+        return;
+      }
+      // If already on freemium, don't do anything (button should be disabled anyway)
+      if (selectedPlan === 'freemium' || selectedPlan === plan?.product_id) {
         return;
       }
       handleFreemiumEntry();
@@ -191,7 +304,7 @@ export const PricePlans = (props) => {
 
     // For upgrades (managed_by_parent), prefer BE inference but include IDs when available
     // to be backward compatible with older deployments that still require them.
-    let ensuredUser = normalizeUserRecord(userData);
+    let ensuredUser = normalizeUserRecord(currentUserData);
     if (ensuredUser) {
       setuserData(ensuredUser);
     }
@@ -365,113 +478,123 @@ export const PricePlans = (props) => {
 
   /** --------------get plans end------------------------------*/
 
+  // Helper to get duration label
+  const getDurationLabel = (plan: any, freemium: boolean) => {
+    if (freemium) return "Free";
+    if (plan.duration === "for 1 month") return "1 Month";
+    if (plan.duration === "for 6 month") return "6 Months";
+    if (plan.duration === "for 1 year") return "1 Year";
+    return plan.title || plan.duration || "";
+  };
+
+  // Helper to get price per month
+  const getPricePerMonth = (plan: any) => {
+    if (plan.duration === "for 6 month") return "$2.50/month";
+    if (plan.duration === "for 1 year") return "$2.00/month";
+    return null;
+  };
+
+  // Check icon SVG component
+  const CheckIcon = () => (
+    <svg className="check-icon" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+    </svg>
+  );
+
   return (
-    <div className="pricing-wrapper">
-      <div className="plans-grid__cards">
+    <div className="price-plans-wrapper">
+      <div className="price-plans-header">
+        <h2>Choose Your Plan</h2>
+        <p>Select the plan that works best for you</p>
+      </div>
+
+      <div className="price-plans-grid">
         {plans.map((plan, index) => {
           const freemium = isFreemiumPlan(plan);
           const originalPrice = undiscountedMap[plan.duration];
-          const isPopular = !freemium && plan.duration === "for 1 year";
-          const freemiumBlocked =
-            freemium &&
-            (hasSubscriptionFlag || props?.updatePlan || props?.upgradeNoTrial);
-          const displayDuration =
-            freemium ||
-            !fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
-              ? plan.duration || "Free forever"
-              : fallbackPlans.find((fb) => fb.Stripe_id === plan.duration)
-                  ?.duration || plan.duration;
+          const isPopular = !freemium && plan.duration === "for 6 month";
+          const isBestValue = !freemium && plan.duration === "for 1 year";
+          // Only block freemium selection if user is on a PAID plan
+          const freemiumBlocked = freemium && hasSubscriptionFlag;
           const isActivePlan = selectedPlan === plan?.product_id;
-          const buttonText = freemium
-            ? isActivePlan
-              ? "Active"
-              : "Start for Free"
-            : isActivePlan
-              ? "Active"
-              : props?.updatePlan
+          // Show "Change Plan" if user has subscription (either via prop or localStorage flag)
+          const isChangeMode = props?.updatePlan || hasSubscriptionFlag;
+          const buttonText = isActivePlan
+            ? "Current"
+            : freemium
+              ? "Start for Free"
+              : isChangeMode
                 ? "Change Plan"
                 : "Get Started";
+          const pricePerMonth = getPricePerMonth(plan);
 
           return (
-            <div key={index} className="plans-grid__item">
-              <Card
-                className={`pricing-card ${
-                  selectedPlan === plan?.product_id ? "active" : ""
-                }`}
+            <div
+              key={index}
+              className={`price-plan-card ${isActivePlan ? "active" : ""} ${isPopular ? "popular" : ""} ${isBestValue ? "best-value" : ""}`}
               >
-                <Card.Body>
-                  <div className="pricing-card__header">
-                    <div className="pill-row">
-                      {freemium && (
-                        <span className="pill pill-free">Free forever</span>
+              {isPopular && (
+                <span className="plan-badge popular-badge">Popular</span>
+              )}
+              {isBestValue && (
+                <span className="plan-badge best-value-badge">Best Value</span>
                       )}
-                      {isPopular && (
-                        <span className="pill pill-popular">Popular</span>
-                      )}
-                    </div>
-                    <div className="price-section">
-                      {!freemium && originalPrice && (
-                        <div>
-                          <span className="original-price">
-                            ${originalPrice}
+
+              <div className="plan-header">
+                <span className="plan-duration">{getDurationLabel(plan, freemium)}</span>
+                <div className="plan-price">
+                  <span className={`plan-price-old ${!originalPrice || freemium ? "plan-price-old-hidden" : ""}`}>
+                    {originalPrice ? `$${originalPrice}` : "\u00A0"}
+                  </span>
+                  <span className="plan-price-current">
+                    {freemium ? "$0" : `$${plan.price}`}
+                  </span>
+                  <span className={`plan-price-per-month ${!pricePerMonth ? "plan-price-per-month-hidden" : ""}`}>
+                    {pricePerMonth || "\u00A0"}
                           </span>
-                        </div>
-                      )}
-                      <div className="price-row">
-                        <span className="price">
-                          {freemium ? "Free" : `$${plan.price}`}
-                        </span>
-                        <span className="duration">{displayDuration}</span>
-                      </div>
                     </div>
                   </div>
 
-                  <Button
-                    variant="primary"
+              <button
+                className={`plan-btn ${isActivePlan ? "active-plan" : ""}`}
                     disabled={isActivePlan}
-                    className="btn-text w-100 mb-4"
                     onClick={() => {
                       if (isActivePlan) return;
                       if (freemiumBlocked) {
                         setShowPaidPlanNotice(true);
                         return;
                       }
-                      if (props?.updatePlan && !props?.upgradeNoTrial) {
-                        handleConfirmationShow(plan);
-                      } else {
+                  // If user has subscription, redirect to Stripe billing portal
+                  if (isChangeMode && !freemium) {
+                    window.location.assign(
+                      'https://billing.stripe.com/p/login/bJedR99D8gNU2Qj0iKbfO00'
+                    );
+                    return;
+                  }
                         handleGetStarted(plan);
-                      }
                     }}
                   >
                     {buttonText}
-                  </Button>
+              </button>
 
-                  {/* <Button variant="primary" disabled={selectedPlan === plan?.product_id} className="btn-text w-100 mb-4" onClick={() => { isUpdatePlan ? handleUpdatePlan(plan?.product_id) : handleGetStarted(plan) }} > Get started */}
-                  {/* </Button> */}
-                  <div className="divider"></div>
-                  <div className="features-section">
-                    <h4>FEATURES</h4>
+              <div className="plan-features">
+                <span className="plan-features-label">FEATURES</span>
                     <ul>
-                      {plan.features.map((feature, i) => {
+                  {plan.features.map((feature: string, i: number) => {
                         const normalized =
                           typeof feature === "string" &&
-                          feature.trim().toLowerCase() ===
-                            "full mobile application access"
+                      feature.trim().toLowerCase() === "full mobile application access"
                             ? "Full mobile application access"
                             : feature;
                         return (
                           <li key={i}>
-                            <i className="material-symbols-outlined check-icon">
-                              check_circle
-                            </i>{" "}
+                        <CheckIcon />
                             {normalized}
                           </li>
                         );
                       })}
                     </ul>
                   </div>
-                </Card.Body>
-              </Card>
             </div>
           );
         })}
@@ -559,33 +682,8 @@ export const PricePlans = (props) => {
       </Modal>
 
       {loading && (
-        <div className="loader-container">
-          <svg
-            className="inner-container"
-            viewBox="0 0 35 35"
-            height="35"
-            width="35"
-          >
-            <rect
-              className="track"
-              x="2.5"
-              y="2.5"
-              fill="none"
-              stroke-width="5px"
-              width="32.5"
-              height="32.5"
-            />
-            <rect
-              className="car"
-              x="2.5"
-              y="2.5"
-              fill="none"
-              stroke-width="5px"
-              width="32.5"
-              height="32.5"
-              pathLength="100"
-            />
-          </svg>
+        <div className="price-plans-loading">
+          <div className="spinner"></div>
         </div>
       )}
     </div>

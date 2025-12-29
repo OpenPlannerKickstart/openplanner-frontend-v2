@@ -43,6 +43,7 @@ export const loginToSystem =
             if (payload.isSubscription) {
               localStorage.removeItem('plan_tier');
             }
+            // Note: Don't set plan_tier here - it's set when user explicitly chooses freemium
           } catch {}
           return dispatch(getLoginSuccess(payload));
         }

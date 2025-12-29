@@ -1,9 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { getUserAPI, updateUserAPI } from '../../../redux/Service/User/Settings/settings'
+import { getUserAPI, updateUserAPI, getTransactionAPI, getSubscriptionStatusAPI, changePasswordAPI, getNotificationSettingAPI, notificationSettingAPI, deleteUserAPI } from '../../../redux/Service/User/Settings/settings'
 import { getUniversityListAPI } from '../../../redux/Service/auth/signup'
 import { AppDispatch } from '../../../redux/store'
-import { isNullUndefinedOrBlank } from '../../../Utility/Helper'
+import { isNullUndefinedOrBlank, isEmptyObjectOrNullUndefiend, formatedDate, customJsonInclude, renderError } from '../../../Utility/Helper'
+import { setNestedObjectValues, useFormik } from 'formik'
+import * as yup from 'yup'
+import { OLD_PASSWORD_IS_REQUIRED, NEW_PASSWORD_IS_REQUIRED, PASSWORD_REQUIRED, REASON_IS_REQUIRED } from '../../../Utility/Validation_Message'
+import { CONFIRM_PASSWORD_NOT_MATCHED, MAX_15, MAX_50, PASSWORD_INVALID, PATTERN_FOR_PASSWORD_NEW } from '../../../Utility/Validation_Helper'
 import { useNavigate } from 'react-router-dom'
 import { ENUMFORROUTES } from '../../../interfaces/enum'
 import { logoutFromSystem } from '../../../redux/Service/auth/login'
@@ -50,6 +54,230 @@ const Settings: React.FC = () => {
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
+
+  // Subscription data
+  const transactionDataRedux: any = useSelector((state: RootState) => state.SettingsReducer.billingData)
+  const [transactionData, setTransactionData] = useState<any>()
+  const [statusPlan, setStatusPlan] = useState<any | null>(null)
+
+  // Change Password state
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+
+  // Change Password validation schema
+  const passwordValidationSchema = yup.object({
+    oldPassword: yup.string().trim().required(OLD_PASSWORD_IS_REQUIRED),
+    newPassword: yup.string().trim().matches(PATTERN_FOR_PASSWORD_NEW, PASSWORD_INVALID).required(NEW_PASSWORD_IS_REQUIRED),
+    confirm: yup.string().when('newPassword', ([newPassword]) => {
+      return newPassword?.length > 0
+        ? yup.string().required('Confirm Password Is Required!!').oneOf([yup.ref('newPassword')], CONFIRM_PASSWORD_NOT_MATCHED)
+        : yup.string()
+    }),
+  })
+
+  // Change Password formik
+  const passwordForm = useFormik({
+    initialValues: { oldPassword: '', newPassword: '', confirm: '' },
+    validationSchema: passwordValidationSchema,
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
+      try {
+        setIsChangingPassword(true)
+        const reqBody = { ...values }
+        customJsonInclude(reqBody)
+        const response = await dispatch(changePasswordAPI(reqBody))
+        if (response?.payload) {
+          // Toast is shown by the API interceptor, just reset form
+          resetForm()
+        }
+      } catch (error) {
+        console.error('Error changing password:', error)
+      } finally {
+        setSubmitting(false)
+        setIsChangingPassword(false)
+      }
+    },
+    enableReinitialize: true,
+  })
+
+  // Check if password form is ready to submit (all fields filled)
+  const canSubmitPassword = passwordForm.values.oldPassword.trim().length > 0 &&
+    passwordForm.values.newPassword.trim().length > 0 &&
+    passwordForm.values.confirm.trim().length > 0
+
+  const handlePasswordBlur = (field: string) => {
+    passwordForm.setFieldValue(field, (passwordForm.values as any)[field]?.trim())
+    setTimeout(() => {
+      passwordForm.setFieldTouched(field, true)
+    }, 100)
+  }
+
+  const handleSubmitPassword = async () => {
+    const errors = await passwordForm.validateForm()
+    if (Object.keys(errors).length > 0) {
+      passwordForm.setTouched(setNestedObjectValues(errors, true))
+      return
+    }
+    passwordForm.handleSubmit()
+  }
+
+  const handleManageBilling = () => {
+    window.location.assign(
+      'https://billing.stripe.com/p/login/bJedR99D8gNU2Qj0iKbfO00'
+    )
+  }
+
+  // Notification settings state
+  const [notificationSettings, setNotificationSettings] = useState({
+    isWeeklyNotofication: false,
+    isEmailNotification: false
+  })
+  const [notificationUserChanged, setNotificationUserChanged] = useState(false)
+
+  // Fetch notification settings when tab is selected
+  const fetchNotificationSettings = async () => {
+    try {
+      const response: any = await dispatch(getNotificationSettingAPI())
+      if (response?.payload) {
+        setNotificationSettings({
+          isWeeklyNotofication: response.payload.isWeeklyNotofication ?? false,
+          isEmailNotification: response.payload.isEmailNotification ?? false
+        })
+        setNotificationUserChanged(false)
+      }
+    } catch (error) {
+      console.error('Error fetching notification settings:', error)
+    }
+  }
+
+  // Save notification settings
+  const saveNotificationSettings = async (settings: typeof notificationSettings) => {
+    try {
+      const reqBody = { ...settings }
+      customJsonInclude(reqBody)
+      await dispatch(notificationSettingAPI(reqBody))
+    } catch (error) {
+      console.error('Error updating notification settings:', error)
+    }
+  }
+
+  // Handle toggle for weekly notifications
+  const handleToggleWeeklyNotification = () => {
+    const newValue = !notificationSettings.isWeeklyNotofication
+    const newSettings = { ...notificationSettings, isWeeklyNotofication: newValue }
+    setNotificationSettings(newSettings)
+    setNotificationUserChanged(true)
+    saveNotificationSettings(newSettings)
+  }
+
+  // Handle toggle for email notifications
+  const handleToggleEmailNotification = () => {
+    const newValue = !notificationSettings.isEmailNotification
+    const newSettings = { ...notificationSettings, isEmailNotification: newValue }
+    setNotificationSettings(newSettings)
+    setNotificationUserChanged(true)
+    saveNotificationSettings(newSettings)
+  }
+
+  // Delete Account state
+  const [showDeletePassword, setShowDeletePassword] = useState(false)
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
+
+  // Delete Account validation schema
+  const deleteAccountValidationSchema = yup.object({
+    reason: yup.string().trim().required(REASON_IS_REQUIRED),
+    password: yup.string().trim().required(PASSWORD_REQUIRED),
+  })
+
+  // Delete Account formik
+  const deleteAccountForm = useFormik({
+    initialValues: { reason: '', password: '' },
+    validationSchema: deleteAccountValidationSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        setIsDeletingAccount(true)
+        const reqBody = { ...values }
+        customJsonInclude(reqBody)
+        const response = await dispatch(deleteUserAPI(reqBody))
+        if (response?.payload) {
+          // Account deleted, logout user
+          await dispatch(logoutFromSystem())
+        }
+      } catch (error) {
+        console.error('Error deleting account:', error)
+      } finally {
+        setSubmitting(false)
+        setIsDeletingAccount(false)
+        setShowDeleteAccountModal(false)
+      }
+    },
+    enableReinitialize: true,
+  })
+
+  const handleDeleteAccountBlur = (field: string) => {
+    deleteAccountForm.setFieldValue(field, (deleteAccountForm.values as any)[field]?.trim())
+    setTimeout(() => {
+      deleteAccountForm.setFieldTouched(field, true)
+    }, 100)
+  }
+
+  const handleDeleteAccountClick = async () => {
+    const errors = await deleteAccountForm.validateForm()
+    if (Object.keys(errors).length > 0) {
+      deleteAccountForm.setTouched(setNestedObjectValues(errors, true))
+      return
+    }
+    // Show confirmation modal
+    setShowDeleteAccountModal(true)
+  }
+
+  const handleConfirmDeleteAccount = () => {
+    deleteAccountForm.handleSubmit()
+  }
+
+  // Check if delete form is ready to submit
+  const canSubmitDelete = deleteAccountForm.values.reason.trim().length > 0 &&
+    deleteAccountForm.values.password.trim().length > 0
+
+  // Subscription helper functions
+  const normalizePlanLabel = (label?: string): string => {
+    const raw = (label || '').toString().trim().toLowerCase()
+    if (!raw) return '-'
+    if (raw.includes('freemium') || raw === 'free') return 'Free'
+    if (raw.includes('1 month')) return 'One Month'
+    if (raw.includes('6 month')) return 'Six Month'
+    if (raw.includes('12 month') || raw.includes('1 year') || raw.includes('one year') || raw.includes('annual')) return 'Annual'
+    return label as string
+  }
+
+  const subscriptionComputed = useMemo(() => ({
+    planLabel: (() => {
+      const localTier = (() => {
+        try { return localStorage.getItem('plan_tier') } catch { return null }
+      })()
+      if (statusPlan?.plan_tier === 'freemium' || localTier === 'freemium') return 'Free'
+      if (typeof statusPlan?.display_label === 'string' && statusPlan.display_label.trim()) return statusPlan.display_label
+      return normalizePlanLabel(transactionData?.currentPlan?.plan_type)
+    })(),
+    paymentAmount: (() => {
+      const localTier = (() => {
+        try { return localStorage.getItem('plan_tier') } catch { return null }
+      })()
+      if (statusPlan?.plan_tier === 'freemium' || localTier === 'freemium') return 0
+      if (statusPlan && typeof statusPlan.payment_amount === 'number') return statusPlan.payment_amount
+      return !isNullUndefinedOrBlank(transactionData?.currentPlan?.amount) ? transactionData?.currentPlan?.amount : '-'
+    })(),
+    nextInvoiceDate: (() => {
+      const next = statusPlan?.next_invoice_date || transactionData?.currentPlan?.next_billing_date
+      return !isNullUndefinedOrBlank(next) ? formatedDate(next, 'DD MMM, YYYY') : '-'
+    })(),
+    totalBilling: !isNullUndefinedOrBlank(transactionData?.currentPlan?.total_amount_paid)
+      ? transactionData?.currentPlan?.total_amount_paid
+      : 0,
+    subscriptionStatus: statusPlan?.subscription_status || transactionData?.currentPlan?.subscription_status || '-',
+  }), [statusPlan, transactionData])
   
   const getAvatarSrc = useMemo(() => {
     return (u: any) =>
@@ -106,6 +334,40 @@ const Settings: React.FC = () => {
       setUserData(settingsData.userData)
     }
   }, [settingsData?.userData])
+
+  // Sync transaction data from Redux
+  useEffect(() => {
+    if (!isEmptyObjectOrNullUndefiend(transactionDataRedux)) {
+      setTransactionData(JSON.parse(JSON.stringify(transactionDataRedux)))
+    }
+  }, [transactionDataRedux])
+
+  // Fetch subscription data when subscription tab is selected
+  useEffect(() => {
+    if (selectedTab === 'subscription') {
+      // Fetch transaction list
+      dispatch(getTransactionAPI())
+      // Fetch subscription status
+      ;(async () => {
+        try {
+          const resp: any = await (dispatch as any)(getSubscriptionStatusAPI())
+          const payload = resp?.payload || resp
+          const plan = payload?.plan || payload
+          if (plan && typeof plan === 'object') setStatusPlan(plan)
+          else setStatusPlan(null)
+        } catch {
+          setStatusPlan(null)
+        }
+      })()
+    }
+  }, [selectedTab, dispatch])
+
+  // Fetch notification settings when notifications tab is selected
+  useEffect(() => {
+    if (selectedTab === 'notifications') {
+      fetchNotificationSettings()
+    }
+  }, [selectedTab])
 
   // Sync profile form with userData when it loads
   useEffect(() => {
@@ -469,7 +731,7 @@ const Settings: React.FC = () => {
             className={`settings-tab ${selectedTab === 'notifications' ? 'active' : ''}`}
             onClick={() => setSelectedTab('notifications')}
           >
-            Notification Settings
+            Notifications
           </button>
           <button 
             className={`settings-tab ${selectedTab === 'delete' ? 'active' : ''}`}
@@ -671,7 +933,7 @@ const Settings: React.FC = () => {
                         name="theme" 
                         value="dark" 
                         checked={theme === 'dark'}
-                        onChange={() => {}}
+                        onChange={() => setTheme('dark')}
                       />
                       <div className="theme-preview dark-preview">
                         <div className="preview-sidebar"></div>
@@ -699,7 +961,7 @@ const Settings: React.FC = () => {
                         name="theme" 
                         value="system" 
                         checked={theme === 'system'}
-                        onChange={() => {}}
+                        onChange={() => setTheme('system')}
                       />
                       <div className="theme-preview system-preview">
                         <div className="preview-sidebar"></div>
@@ -737,36 +999,39 @@ const Settings: React.FC = () => {
                 <div className="subscription-stats">
                   <div className="subscription-stat">
                     <span className="stat-label">Plan Tenure</span>
-                    <span className="stat-value">One Month</span>
+                    <span className="stat-value">{subscriptionComputed.planLabel}</span>
                   </div>
                   <div className="subscription-stat">
                     <span className="stat-label">Payment Amount</span>
-                    <span className="stat-value">$3.99</span>
+                    <span className="stat-value">${subscriptionComputed.paymentAmount}</span>
                   </div>
                   <div className="subscription-stat">
                     <span className="stat-label">Next invoice issue date</span>
-                    <span className="stat-value">17 Dec, 2025</span>
+                    <span className="stat-value">{subscriptionComputed.nextInvoiceDate}</span>
                   </div>
                   <div className="subscription-stat">
                     <span className="stat-label">Total Billing</span>
-                    <span className="stat-value">$0.00</span>
+                    <span className="stat-value">${subscriptionComputed.totalBilling}</span>
                   </div>
                   <div className="subscription-stat">
                     <span className="stat-label">Subscription Status</span>
-                    <span className="stat-value status-ongoing">Ongoing</span>
+                    <span className="stat-value status-ongoing">{subscriptionComputed.subscriptionStatus}</span>
                   </div>
                 </div>
                 
                 {/* Subscription Actions */}
                 <div className="subscription-actions">
-                  <button className="btn btn-primary">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => navigate(ENUMFORROUTES.CHANGE_PLAN)}
+                  >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M23 4v6h-6"/>
                       <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
                     </svg>
                     Change Plan
                   </button>
-                  <button className="btn btn-violet">
+                  <button className="btn btn-violet" onClick={handleManageBilling}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="2" y="5" width="20" height="14" rx="2"/>
                       <line x1="2" y1="10" x2="22" y2="10"/>
@@ -788,23 +1053,53 @@ const Settings: React.FC = () => {
                         <th>Payment Date</th>
                         <th>Status</th>
                         <th>Plan Price</th>
-                        <th>Action</th>
+                        {transactionData?.currentPlan?.payment_method === 'Stripe' && <th>Action</th>}
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>One Month Plan</td>
-                        <td>15 Dec, 2025</td>
-                        <td><span className="badge badge-success">Paid</span></td>
-                        <td>$3.99</td>
-                        <td><button className="btn-link">View</button></td>
-                      </tr>
+                      {!isEmptyObjectOrNullUndefiend(transactionData?.transactions) ? (
+                        transactionData?.transactions?.map((transaction: any, index: number) => (
+                          <tr key={index}>
+                            <td>{!isNullUndefinedOrBlank(transaction.plan_type) ? transaction.plan_type : '-'}</td>
+                            <td>
+                              {transactionData?.currentPlan?.payment_method === 'Stripe'
+                                ? (!isNullUndefinedOrBlank(transaction?.processed_at)
+                                    ? formatedDate(transaction?.processed_at, 'DD MMM, YYYY')
+                                    : '-')
+                                : (!isNullUndefinedOrBlank(transaction?.iap_processed_at)
+                                    ? formatedDate(transaction?.iap_processed_at, 'DD MMM, YYYY')
+                                    : '-')
+                              }
+                            </td>
+                            <td>
+                              <span className={
+                                transaction?.transaction_status === 'paid' || transaction?.transaction_status === 'completed'
+                                  ? 'badge badge-success'
+                                  : 'badge badge-danger'
+                              }>
+                                {!isNullUndefinedOrBlank(transaction?.transaction_status) ? transaction?.transaction_status : '-'}
+                              </span>
+                            </td>
+                            <td>${!isNullUndefinedOrBlank(transaction?.amount_paid) ? transaction?.amount_paid : 0}</td>
+                            {transaction?.invoice_pdf && (
+                              <td>
+                                <button
+                                  className="btn-link"
+                                  onClick={() => window.open(transaction?.invoice_pdf, '_blank')}
+                                >
+                                  View
+                                </button>
+                              </td>
+                            )}
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} style={{ textAlign: 'center' }}>No Transaction Found</td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
-                  
-                  <div className="billing-empty" style={{ display: 'none' }}>
-                    <p>No Transaction Found</p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -815,21 +1110,123 @@ const Settings: React.FC = () => {
             <div className="tab-panel active">
               <div className="settings-card">
                 <h2 className="settings-card-title">Change Password</h2>
-                <form className="password-form">
+                <form className="password-form" onSubmit={(e) => { e.preventDefault(); handleSubmitPassword(); }}>
                   <div className="form-group">
                     <label className="form-label">Current Password <span className="required">*</span></label>
-                    <input type="password" className="form-input" placeholder="Enter current password" />
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showCurrentPassword ? 'text' : 'password'}
+                        className="form-input"
+                        placeholder="Enter current password"
+                        maxLength={MAX_15}
+                        autoComplete="current-password"
+                        {...passwordForm.getFieldProps('oldPassword')}
+                        onBlur={() => handlePasswordBlur('oldPassword')}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-btn"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          {showCurrentPassword ? (
+                            <>
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                              <circle cx="12" cy="12" r="3"/>
+                            </>
+                          ) : (
+                            <>
+                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                              <line x1="1" y1="1" x2="23" y2="23"/>
+                            </>
+                          )}
+                        </svg>
+                      </button>
+                    </div>
+                    {passwordForm.touched.oldPassword && passwordForm.errors.oldPassword && (
+                      <div className="form-error">{passwordForm.errors.oldPassword}</div>
+                    )}
                   </div>
                   <div className="form-group">
                     <label className="form-label">New Password <span className="required">*</span></label>
-                    <input type="password" className="form-input" placeholder="Enter new password" />
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showNewPassword ? 'text' : 'password'}
+                        className="form-input"
+                        placeholder="Enter new password"
+                        maxLength={MAX_50}
+                        autoComplete="new-password"
+                        {...passwordForm.getFieldProps('newPassword')}
+                        onBlur={() => handlePasswordBlur('newPassword')}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-btn"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          {showNewPassword ? (
+                            <>
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                              <circle cx="12" cy="12" r="3"/>
+                            </>
+                          ) : (
+                            <>
+                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                              <line x1="1" y1="1" x2="23" y2="23"/>
+                            </>
+                          )}
+                        </svg>
+                      </button>
+                    </div>
+                    {passwordForm.touched.newPassword && passwordForm.errors.newPassword && (
+                      <div className="form-error">{passwordForm.errors.newPassword}</div>
+                    )}
                   </div>
                   <div className="form-group">
                     <label className="form-label">Confirm New Password <span className="required">*</span></label>
-                    <input type="password" className="form-input" placeholder="Confirm new password" />
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        className="form-input"
+                        placeholder="Confirm new password"
+                        maxLength={MAX_50}
+                        autoComplete="new-password"
+                        {...passwordForm.getFieldProps('confirm')}
+                        onBlur={() => handlePasswordBlur('confirm')}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-btn"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          {showConfirmPassword ? (
+                            <>
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                              <circle cx="12" cy="12" r="3"/>
+                            </>
+                          ) : (
+                            <>
+                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                              <line x1="1" y1="1" x2="23" y2="23"/>
+                            </>
+                          )}
+                        </svg>
+                      </button>
+                    </div>
+                    {passwordForm.touched.confirm && passwordForm.errors.confirm && (
+                      <div className="form-error">{passwordForm.errors.confirm}</div>
+                    )}
                   </div>
                   <div className="form-actions">
-                    <button type="submit" className="btn btn-primary">Update Password</button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      disabled={!canSubmitPassword || isChangingPassword || passwordForm.isSubmitting}
+                    >
+                      {isChangingPassword ? 'Updating...' : 'Update Password'}
+                    </button>
                   </div>
                 </form>
               </div>
@@ -848,7 +1245,11 @@ const Settings: React.FC = () => {
                       <span className="option-desc">Receive a weekly summary of your upcoming tasks and deadlines Sunday at 5pm CST</span>
                     </div>
                     <label className="toggle-switch">
-                      <input type="checkbox" defaultChecked />
+                      <input
+                        type="checkbox"
+                        checked={notificationSettings.isWeeklyNotofication}
+                        onChange={handleToggleWeeklyNotification}
+                      />
                       <span className="toggle-slider"></span>
                     </label>
                   </div>
@@ -858,7 +1259,11 @@ const Settings: React.FC = () => {
                       <span className="option-desc">Receive email reminders for upcoming tasks</span>
                     </div>
                     <label className="toggle-switch">
-                      <input type="checkbox" defaultChecked />
+                      <input
+                        type="checkbox"
+                        checked={notificationSettings.isEmailNotification}
+                        onChange={handleToggleEmailNotification}
+                      />
                       <span className="toggle-slider"></span>
                     </label>
                   </div>
@@ -885,12 +1290,65 @@ const Settings: React.FC = () => {
                     <p>This action cannot be undone. All your data, including courses, tasks, and syllabi will be permanently deleted.</p>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Enter your password to confirm <span className="required">*</span></label>
-                  <input type="password" className="form-input" placeholder="Enter your password" />
-                  <span className="form-error" style={{ display: 'none' }}>Please enter your password to continue</span>
-                </div>
-                <button className="btn btn-danger">Delete My Account</button>
+                <form onSubmit={(e) => { e.preventDefault(); handleDeleteAccountClick(); }}>
+                  <div className="form-group">
+                    <label className="form-label">Reason for leaving <span className="required">*</span></label>
+                    <textarea
+                      className="form-input"
+                      placeholder="Please tell us why you're deleting your account"
+                      rows={3}
+                      maxLength={200}
+                      {...deleteAccountForm.getFieldProps('reason')}
+                      onBlur={() => handleDeleteAccountBlur('reason')}
+                    />
+                    {deleteAccountForm.touched.reason && deleteAccountForm.errors.reason && (
+                      <div className="form-error">{deleteAccountForm.errors.reason}</div>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Enter your password to confirm <span className="required">*</span></label>
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showDeletePassword ? 'text' : 'password'}
+                        className="form-input"
+                        placeholder="Enter your password"
+                        maxLength={200}
+                        autoComplete="current-password"
+                        {...deleteAccountForm.getFieldProps('password')}
+                        onBlur={() => handleDeleteAccountBlur('password')}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-btn"
+                        onClick={() => setShowDeletePassword(!showDeletePassword)}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          {showDeletePassword ? (
+                            <>
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                              <circle cx="12" cy="12" r="3"/>
+                            </>
+                          ) : (
+                            <>
+                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                              <line x1="1" y1="1" x2="23" y2="23"/>
+                            </>
+                          )}
+                        </svg>
+                      </button>
+                    </div>
+                    {deleteAccountForm.touched.password && deleteAccountForm.errors.password && (
+                      <div className="form-error">{deleteAccountForm.errors.password}</div>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    className="btn btn-danger"
+                    disabled={!canSubmitDelete || isDeletingAccount || deleteAccountForm.isSubmitting}
+                  >
+                    {isDeletingAccount ? 'Deleting...' : 'Delete My Account'}
+                  </button>
+                </form>
               </div>
             </div>
           )}
@@ -905,6 +1363,16 @@ const Settings: React.FC = () => {
         bodyTitle="Remove Profile Photo?"
         message="Are you sure you want to remove your profile photo? This action cannot be undone."
         confirmText="Remove"
+      />
+
+      {/* Delete Account Confirmation Modal */}
+      <ConfirmDeleteModal
+        show={showDeleteAccountModal}
+        onClose={() => setShowDeleteAccountModal(false)}
+        onConfirm={handleConfirmDeleteAccount}
+        bodyTitle="Delete Account?"
+        message="This will permanently delete your account and all associated data. This action cannot be undone."
+        confirmText={isDeletingAccount ? 'Deleting...' : 'Delete Account'}
       />
     </>
   );

@@ -291,20 +291,42 @@
 }
 
 [data-theme="dark"] .sidebar-link:hover {
-  color: #0F172A;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="dark"] .sidebar-link:hover svg {
-  stroke: #0F172A;
+  stroke: #FFFFFF;
 }
 
 [data-theme="dark"] .sidebar-link.active {
   background: var(--primary);
-  color: #0F172A;
+  color: #FFFFFF;
 }
 
 [data-theme="dark"] .sidebar-link.active svg {
-  stroke: #0F172A;
+  stroke: #FFFFFF;
+}
+
+[data-theme="dark"] .sidebar-close {
+  color: #FFFFFF;
+  opacity: 0.8;
+}
+
+[data-theme="dark"] .sidebar-close:hover {
+  opacity: 1;
+}
+
+[data-theme="dark"] .sidebar-close svg {
+  stroke: #FFFFFF;
+}
+
+[data-theme="dark"] .sidebar-toggle {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .sidebar-toggle:hover {
+  color: #FFFFFF;
 }
 
 [data-theme="dark"] .sidebar-footer p {

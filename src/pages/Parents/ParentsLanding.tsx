@@ -8,6 +8,8 @@ import {
 } from "../../redux/Service/User/Settings/settings";
 import { te } from "../../Utility/Toaster";
 import { ENUMFORROUTES, ENUM_FOR_UNDISCOUNTED_PLAN_AMOUNT } from "../../interfaces/enum";
+import MarketingHeader from "../../components/MarketingHeader/MarketingHeader";
+import MarketingFooter from "../../components/MarketingFooter/MarketingFooter";
 import "./ParentsLanding.css";
 
 type Plan = {
@@ -42,7 +44,6 @@ const ParentsLanding = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [cart, setCart] = useState<Record<string, number>>({});
   const [parentEmail, setParentEmail] = useState("");
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   const displayPlans = plans.length ? plans : fallbackPlans;
@@ -198,7 +199,6 @@ const ParentsLanding = () => {
   };
 
   const navLink = (path: string) => {
-    setMobileOpen(false);
     if (path.startsWith("http")) {
       window.location.href = path;
     } else {
@@ -208,66 +208,7 @@ const ParentsLanding = () => {
 
   return (
     <div className="parents-page">
-      <header className="parents-navbar">
-        <nav className="parents-container parents-navbar-inner">
-          <button className="parents-navbar-logo" onClick={() => navLink("/")}>
-            <img src="/assets/logo.png" alt="Open Planner" />
-          </button>
-          <ul className="parents-navbar-menu">
-            <li><a className="parents-navbar-link" href="/#features">Features</a></li>
-            <li><a className="parents-navbar-link" href="/#pricing">Pricing</a></li>
-            <li><a className="parents-navbar-link" href="/#/parents">Parents</a></li>
-            <li>
-              <a
-                className="parents-navbar-link"
-                href="/#/faqs"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navLink("/faqs");
-                }}
-              >
-                FAQ&apos;s
-              </a>
-            </li>
-            <li><a className="parents-navbar-link" href="/#contact">Contact</a></li>
-          </ul>
-          <div className="parents-navbar-actions">
-            <button className="parents-navbar-login" onClick={() => navLink(ENUMFORROUTES.LOGIN)}>Log in</button>
-            <button className="parents-btn parents-btn-primary" onClick={() => navLink(ENUMFORROUTES.REGISTRATION)}>Sign up</button>
-          </div>
-          <button
-            className={`parents-mobile-menu-btn ${mobileOpen ? "active" : ""}`}
-            aria-label="Toggle menu"
-            onClick={() => setMobileOpen((p) => !p)}
-          >
-            <span></span><span></span><span></span>
-          </button>
-        </nav>
-        <div className={`parents-mobile-menu ${mobileOpen ? "active" : ""}`}>
-          <ul className="parents-mobile-menu-links">
-            <li><a href="/#features" onClick={() => setMobileOpen(false)}>Features</a></li>
-            <li><a href="/#pricing" onClick={() => setMobileOpen(false)}>Pricing</a></li>
-            <li><a href="/#/parents" onClick={() => setMobileOpen(false)}>Parents</a></li>
-            <li>
-              <a
-                href="/#/faqs"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setMobileOpen(false);
-                  navLink("/faqs");
-                }}
-              >
-                FAQ&apos;s
-              </a>
-            </li>
-            <li><a href="/#contact" onClick={() => setMobileOpen(false)}>Contact</a></li>
-          </ul>
-          <div className="parents-mobile-menu-actions">
-            <button className="parents-btn parents-btn-secondary" onClick={() => navLink(ENUMFORROUTES.LOGIN)}>Log in</button>
-            <button className="parents-btn parents-btn-primary" onClick={() => navLink(ENUMFORROUTES.REGISTRATION)}>Sign up</button>
-          </div>
-        </div>
-      </header>
+      <MarketingHeader />
 
       <main>
         <section className="parents-hero">
@@ -284,16 +225,26 @@ const ParentsLanding = () => {
                     : plan.duration === "for 1 year"
                     ? "$2.00/month"
                     : "";
-                const isPopular = plan.duration === "for 1 year";
+                const isPopular = plan.duration === "for 6 month";
+                const isBestValue = plan.duration === "for 1 year";
+                const durationLabel =
+                  plan.duration === "for 1 month"
+                    ? "1 Month"
+                    : plan.duration === "for 6 month"
+                    ? "6 Months"
+                    : plan.duration === "for 1 year"
+                    ? "1 Year"
+                    : "Free";
                 const count = cart[plan.product_id] || 0;
                 return (
                   <div
                     key={plan.product_id}
-                    className={`pricing-card ${isPopular ? "pricing-card-popular" : ""}`}
+                    className={`pricing-card ${isPopular ? "pricing-card-popular" : ""} ${isBestValue ? "pricing-card-best-value" : ""}`}
                   >
                     {isPopular && <span className="popular-badge">Popular</span>}
+                    {isBestValue && <span className="best-value-badge">Best Value</span>}
                     <div className="pricing-header">
-                      <span className="pricing-duration">{plan.title}</span>
+                      <span className="pricing-duration">{durationLabel}</span>
                       <div className="pricing-price">
                         <span className={`price-old ${oldPrice ? "" : "price-old-hidden"}`}>
                           {oldPrice ? `$${oldPrice}` : "\u00A0"}
@@ -393,90 +344,7 @@ const ParentsLanding = () => {
         </section>
       </main>
 
-      <footer className="parents-footer">
-        <div className="parents-container">
-          <div className="parents-footer-content">
-            <div>
-              <button onClick={() => navLink("/")} aria-label="Open Planner home">
-                <img src="/assets/logo.png" alt="Open Planner" className="parents-footer-logo" />
-              </button>
-              <p>AI-powered scheduling for students</p>
-            </div>
-            <div className="parents-footer-nav">
-              <div>
-                <h4 className="parents-footer-nav-title">Product</h4>
-                <ul className="parents-footer-nav-links">
-                  <li><a href="/#">Home</a></li>
-                  <li><a href="/#features">Features</a></li>
-                  <li><a href="/#pricing">Pricing</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="parents-footer-nav-title">Support</h4>
-                <ul className="parents-footer-nav-links">
-                  <li>
-                    <a
-                      href="/#/faqs"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navLink("/faqs");
-                      }}
-                    >
-                      FAQ&apos;s
-                    </a>
-                  </li>
-                  <li><a href="/#contact">Contact Us</a></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="parents-footer-nav-title">Legal</h4>
-                <ul className="parents-footer-nav-links">
-                  <li>
-                    <a
-                      href="/#/privacy-policy"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navLink("/privacy-policy");
-                      }}
-                    >
-                      Privacy Policy
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="/#/terms"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navLink("/terms");
-                      }}
-                    >
-                      Terms and Conditions
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div>
-              <h4 className="parents-footer-social-title">Follow Us</h4>
-              <div className="parents-footer-social-links">
-                <a href="#" className="parents-footer-social-link" aria-label="Instagram">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                  </svg>
-                </a>
-                <a href="#" className="parents-footer-social-link" aria-label="Facebook">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="parents-footer-bottom">
-            © 2025 Open Planner. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <MarketingFooter />
 
       <button
         className={`parents-back-to-top ${showBackToTop ? "visible" : ""}`}

@@ -2539,54 +2539,93 @@
 }
 
 /* Syllabus Modal Dark Mode */
+[data-theme="dark"] .syllabus-modal .modal-content {
+    background: #0F172A !important;
+}
+
+/* Preserve themed border and glow in dark mode */
+[data-theme="dark"] .add-syllabus-modal.themed .modal-content {
+    background: #0F172A !important;
+    border: 3px solid var(--syllabus-color, #239BC2) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 60px var(--syllabus-color-light, rgba(35, 155, 194, 0.25)) !important;
+}
+
 [data-theme="dark"] .syllabus-modal .modal-header {
-    background: var(--white);
-    border-bottom-color: var(--neutral-200);
+    background: linear-gradient(to right, rgba(35, 155, 194, 0.15), #0F172A) !important;
+    border-bottom-color: #1E293B !important;
+}
+
+/* Themed syllabus modal (Edit Course Details) - use course color gradient */
+[data-theme="dark"] .add-syllabus-modal.themed .modal-header {
+    background: linear-gradient(to right, var(--syllabus-color-light, rgba(35, 155, 194, 0.15)), #0F172A) !important;
+}
+
+[data-theme="dark"] .syllabus-modal .modal-body {
+    background: #0F172A !important;
 }
 
 [data-theme="dark"] .syllabus-modal .modal-title {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .syllabus-modal .modal-title .title-accent {
+    color: #5EBEE8 !important;
 }
 
 [data-theme="dark"] .syllabus-modal .form-label {
-    color: var(--neutral-700);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .syllabus-modal .form-input {
-    background: var(--neutral-100);
-    border-color: var(--neutral-200);
-    color: var(--neutral-800);
+    background: #1E293B !important;
+    border-color: #334155 !important;
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .syllabus-modal .form-input:focus {
-    background: var(--white);
-    border-color: var(--primary);
+    background: #1E293B !important;
+    border-color: #5EBEE8 !important;
 }
 
 [data-theme="dark"] .syllabus-modal .form-input::placeholder {
-    color: var(--neutral-400);
+    color: #64748B !important;
+}
+
+[data-theme="dark"] .syllabus-modal .modal-close-btn {
+    color: #94A3B8 !important;
+    background: transparent !important;
+}
+
+[data-theme="dark"] .syllabus-modal .modal-close-btn:hover {
+    background: #1E293B !important;
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .file-upload-area {
-    background: var(--neutral-100);
-    border-color: var(--primary);
+    background: #1E293B !important;
+    border-color: #5EBEE8 !important;
 }
 
 [data-theme="dark"] .file-upload-area:hover {
-    background: var(--primary-subtle);
+    background: #334155 !important;
+}
+
+[data-theme="dark"] .file-upload-area.dragover {
+    background: #334155 !important;
 }
 
 [data-theme="dark"] .upload-icon {
-    background: var(--primary-subtle);
+    background: rgba(94, 190, 232, 0.15) !important;
+    color: #5EBEE8 !important;
     color: var(--primary);
 }
 
 [data-theme="dark"] .upload-text {
-    color: var(--neutral-600);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .upload-link {
-    color: var(--primary);
+    color: #5EBEE8 !important;
 }
 
 [data-theme="dark"] .file-name {

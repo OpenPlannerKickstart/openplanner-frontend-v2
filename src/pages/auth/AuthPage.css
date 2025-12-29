@@ -284,6 +284,8 @@
   color: var(--neutral-400);
   display: flex;
   align-items: center;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .form-input-icon svg {

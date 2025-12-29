@@ -31,6 +31,7 @@ import Task from './pages/Customer/Task/Task';
 import Calendar from './pages/Customer/Calendar/CalendarEvent';
 import Settings from './pages/Customer/Settings/Settings';
 import EditCourse from './pages/Customer/Courses/EditCourse';
+import ChangePlan from './pages/Customer/Settings/ChangePlan';
 // import { hasUnsavedChanges } from './redux/User/Settings/settingsSlice';
 // import { RootState } from './redux/store';
 // import { useDispatch, useSelector } from 'react-redux';
@@ -119,10 +120,12 @@ const privateRoutes: RouterProps[] = [
     caseSensitive: true,
     url: ENUMFORROUTES.EDIT_COURSE,
   },
-   
-
-
-
+  {
+    path: ENUMFORROUTES.CHANGE_PLAN,
+    component: <ChangePlan />,
+    caseSensitive: true,
+    url: ENUMFORROUTES.CHANGE_PLAN,
+  },
 ];
 /** Define public Routes */
 const publicRoutes: RouterProps[] = [

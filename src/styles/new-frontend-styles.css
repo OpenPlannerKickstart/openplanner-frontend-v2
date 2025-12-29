@@ -426,12 +426,13 @@
 }
 
 [data-theme="dark"] .modal-close-btn {
-  color: var(--neutral-500);
+  color: #94A3B8 !important;
+  background: transparent !important;
 }
 
 [data-theme="dark"] .modal-close-btn:hover {
-  background: var(--neutral-100);
-  color: var(--neutral-700);
+  background: #1E293B !important;
+  color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .modal-footer {
@@ -461,8 +462,10 @@
 /* Dark Mode Form Inputs */
 [data-theme="dark"] .form-input,
 [data-theme="dark"] .form-textarea,
-[data-theme="dark"] .form-select {
+[data-theme="dark"] .form-select,
+[data-theme="dark"] select.form-input {
   background: #1E293B !important;
+  background-color: #1E293B !important;
   border-color: #334155 !important;
   color: #E2E8F0 !important;
 }
@@ -473,6 +476,32 @@
   background: #1E293B !important;
   border-color: #5EBEE8 !important;
   box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15);
+}
+
+[data-theme="dark"] .form-select:disabled,
+[data-theme="dark"] select.form-input:disabled {
+  background: #1E293B !important;
+  background-color: #1E293B !important;
+  color: #94A3B8 !important;
+  opacity: 1 !important;
+}
+
+[data-theme="dark"] .form-select option,
+[data-theme="dark"] select.form-input option {
+  background-color: #1E293B !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .form-select-wrapper select,
+[data-theme="dark"] .form-select-wrapper .form-select {
+  background: #1E293B !important;
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .form-select-wrapper .select-arrow {
+  color: #64748B !important;
 }
 
 [data-theme="dark"] .form-input::placeholder,
@@ -595,23 +624,82 @@
   color: #64748B !important;
 }
 
-[data-theme="dark"] .react-select-container .react-select__menu {
+[data-theme="dark"] .react-select-container .react-select__menu,
+[data-theme="dark"] .react-select__menu {
   background: #1E293B !important;
   border-color: #334155 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
-[data-theme="dark"] .react-select-container .react-select__option {
+[data-theme="dark"] .react-select-container .react-select__menu-list,
+[data-theme="dark"] .react-select__menu-list {
+  background: #1E293B !important;
+}
+
+[data-theme="dark"] .react-select-container .react-select__option,
+[data-theme="dark"] .react-select__option {
   background: #1E293B !important;
   color: #E2E8F0 !important;
 }
 
-[data-theme="dark"] .react-select-container .react-select__option--is-focused {
+[data-theme="dark"] .react-select-container .react-select__option--is-focused,
+[data-theme="dark"] .react-select__option--is-focused {
   background: #334155 !important;
 }
 
-[data-theme="dark"] .react-select-container .react-select__option--is-selected {
+[data-theme="dark"] .react-select-container .react-select__option--is-selected,
+[data-theme="dark"] .react-select__option--is-selected {
   background: #5EBEE8 !important;
   color: #0F172A !important;
+}
+
+/* Syllabus Modal Dark Mode */
+[data-theme="dark"] .syllabus-modal .modal-content {
+  background: #0F172A !important;
+}
+
+/* Preserve themed border and glow in dark mode */
+[data-theme="dark"] .add-syllabus-modal.themed .modal-content {
+  background: #0F172A !important;
+  border: 3px solid var(--syllabus-color, #239BC2) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 60px var(--syllabus-color-light, rgba(35, 155, 194, 0.25)) !important;
+}
+
+[data-theme="dark"] .syllabus-modal .modal-header {
+  background: linear-gradient(to right, rgba(35, 155, 194, 0.15), #0F172A) !important;
+  border-bottom-color: #1E293B !important;
+}
+
+[data-theme="dark"] .add-syllabus-modal.themed .modal-header {
+  background: linear-gradient(to right, var(--syllabus-color-light, rgba(35, 155, 194, 0.15)), #0F172A) !important;
+}
+
+[data-theme="dark"] .syllabus-modal .modal-body {
+  background: #0F172A !important;
+}
+
+[data-theme="dark"] .syllabus-modal .modal-title {
+  color: #F8FAFC !important;
+}
+
+/* Global modal footer dark mode */
+[data-theme="dark"] .modal-footer,
+[data-theme="dark"] .syllabus-footer {
+  background: #0F172A !important;
+  border-top-color: #1E293B !important;
+}
+
+[data-theme="dark"] .modal-footer .btn-outline,
+[data-theme="dark"] .syllabus-footer .btn-outline {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .modal-footer .btn-outline:hover,
+[data-theme="dark"] .syllabus-footer .btn-outline:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
 }
 
 /* Dark Mode Add Event Footer */
@@ -643,22 +731,26 @@
 
 /* Dark Mode Notification Panel */
 [data-theme="dark"] .notification-panel {
-  background: var(--white);
-  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+  background: #0F172A !important;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5) !important;
 }
 
 [data-theme="dark"] .notification-panel-header {
-  background: linear-gradient(to right, var(--primary-subtle), var(--white));
-  border-bottom-color: var(--neutral-200);
+  background: linear-gradient(to right, rgba(35, 155, 194, 0.15), #0F172A) !important;
+  border-bottom-color: #1E293B !important;
 }
 
 [data-theme="dark"] .notification-panel-title {
-  color: var(--neutral-900);
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .notification-panel-body {
+  background: #0F172A !important;
 }
 
 [data-theme="dark"] .clear-all-btn {
-  background: var(--error-light);
-  color: var(--error);
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
 }
 
 [data-theme="dark"] .clear-all-btn:hover {
@@ -666,51 +758,93 @@
 }
 
 [data-theme="dark"] .close-panel-btn {
-  color: var(--neutral-500);
+  color: #94A3B8;
 }
 
 [data-theme="dark"] .close-panel-btn:hover {
-  background: var(--neutral-100);
-  color: var(--neutral-700);
+  background: #1E293B;
+  color: #F8FAFC;
 }
 
 [data-theme="dark"] .notification-item {
-  background: var(--neutral-100);
+  background: #1E293B;
+  border-radius: 12px;
 }
 
 [data-theme="dark"] .notification-item:hover {
-  background: var(--neutral-200);
+  background: #334155;
 }
 
 [data-theme="dark"] .notification-item.unread {
-  background: var(--primary-subtle);
-  border-left-color: var(--primary);
+  background: rgba(94, 190, 232, 0.1);
+  border-left-color: #4AAED4;
 }
 
 [data-theme="dark"] .notification-item.unread:hover {
-  background: rgba(94, 190, 232, 0.2);
+  background: rgba(94, 190, 232, 0.15);
 }
 
 [data-theme="dark"] .notification-title {
-  color: var(--neutral-900);
+  color: #F8FAFC;
 }
 
 [data-theme="dark"] .notification-message {
-  color: var(--neutral-600);
+  color: #CBD5E1;
 }
 
 [data-theme="dark"] .notification-time {
-  color: var(--neutral-400);
+  color: #64748B;
+}
+
+[data-theme="dark"] .notification-dismiss {
+  color: #64748B;
 }
 
 [data-theme="dark"] .notification-dismiss:hover {
-  background: var(--error-light);
-  color: var(--error);
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
 }
 
-[data-theme="dark"] .notification-empty-icon {
-  background: var(--neutral-100);
-  color: var(--neutral-400);
+[data-theme="dark"] .notification-icon {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .notification-icon.reminder {
+  background: rgba(251, 191, 36, 0.15);
+  color: #FBBF24;
+}
+
+[data-theme="dark"] .notification-icon.event {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
+}
+
+[data-theme="dark"] .notification-icon.course {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ADE80;
+}
+
+[data-theme="dark"] .notification-icon.invite {
+  background: rgba(168, 85, 247, 0.15);
+  color: #C084FC;
+}
+
+[data-theme="dark"] .notification-empty-icon,
+[data-theme="dark"] .empty-notifications-icon {
+  background: #1E293B;
+  color: #64748B;
+}
+
+[data-theme="dark"] .empty-notifications h4 {
+  color: #F8FAFC;
+}
+
+[data-theme="dark"] .empty-notifications p {
+  color: #64748B;
+}
+
+[data-theme="dark"] .notification-panel-backdrop.active {
+  background: rgba(0, 0, 0, 0.6);
 }
 
 /* Dark Mode Delete Confirm Modal */
@@ -819,25 +953,30 @@
 
 /* Dark Mode File Upload Area */
 [data-theme="dark"] .file-upload-area {
-  background: var(--neutral-100);
-  border-color: var(--primary);
+  background: #1E293B !important;
+  border-color: #5EBEE8 !important;
 }
 
 [data-theme="dark"] .file-upload-area:hover {
-  background: var(--primary-subtle);
+  background: #334155 !important;
+}
+
+[data-theme="dark"] .file-upload-area.dragover {
+  background: #334155 !important;
 }
 
 [data-theme="dark"] .upload-icon {
-  background: var(--primary-subtle);
+  background: rgba(94, 190, 232, 0.15) !important;
+  color: #5EBEE8 !important;
   color: var(--primary);
 }
 
 [data-theme="dark"] .upload-text {
-  color: var(--neutral-600);
+  color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .file-name {
-  color: var(--primary);
+  color: #5EBEE8 !important;
 }
 
 /* Dark Mode Color Picker */

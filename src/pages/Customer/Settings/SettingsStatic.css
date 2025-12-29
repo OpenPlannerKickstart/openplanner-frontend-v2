@@ -722,7 +722,7 @@
 
 /* Form Error States */
 .form-error {
-    display: none;
+    display: block;
     font-size: 0.8125rem;
     color: var(--error);
     margin-top: 0.375rem;
@@ -730,6 +730,40 @@
 
 .form-error.visible {
     display: block;
+}
+
+/* Password Input Wrapper */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .form-input {
+    padding-right: 3rem;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+    color: var(--text-primary);
+}
+
+.password-toggle-btn svg {
+    width: 20px;
+    height: 20px;
 }
 
 .form-input.error {
@@ -1354,4 +1388,35 @@
 [data-theme="dark"] .btn-primary.btn-disabled {
     background: var(--neutral-200);
     color: var(--neutral-400);
+}
+
+/* ============================================
+   Change Plan Page
+   ============================================ */
+
+.change-plan-content {
+    padding: 1rem 1.5rem 2rem;
+    max-width: 1200px;
+}
+
+.change-plan-content .price-plans-wrapper {
+    padding: 0;
+}
+
+.change-plan-content .price-plans-header {
+    margin-bottom: 1.5rem;
+}
+
+.redeem-btn {
+    border-radius: 0.75rem;
+    font-weight: 500;
+    background: var(--primary, #4AAED4) !important;
+    color: #ffffff !important;
+    border: none !important;
+    transition: all 0.2s ease;
+}
+
+.redeem-btn:hover {
+    background: #3a9bc4 !important;
+    transform: translateY(-2px);
 }

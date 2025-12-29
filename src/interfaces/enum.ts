@@ -48,6 +48,7 @@ export const ENUMFORROUTES = {
   VERIFY_SIGNUP_OTP: "/verify-user-otp",
   EDIT_COURSE:"/edit-course",
   PLAN_DETAILS:"/plan-details",
+  CHANGE_PLAN:"/change-plan",
   SUCCESS:"/success",
   FAILURE:"/failure",
   GROUPS: "/groups",

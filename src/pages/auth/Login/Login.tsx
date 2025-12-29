@@ -8,6 +8,7 @@ import "../AuthPage.css";
 
 import { AppDispatch } from "../../../redux/store";
 import { loginToSystem } from "../../../redux/Service/auth/login";
+import { getSubscriptionStatusAPI } from "../../../redux/Service/User/Settings/settings";
 import { customJsonInclude, isEmptyObjectOrNullUndefiend, renderError } from "../../../Utility/Helper";
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { LoginData } from "../../../interfaces";
@@ -108,6 +109,38 @@ const Login = (props) => {
       }
 
       if (!response?.payload?.isSubscription) {
+        // Check if user is on freemium plan - if so, bypass plan selection
+        // First check localStorage (fast path)
+        const isFreemiumLocal = (() => {
+          try {
+            return localStorage.getItem('plan_tier') === 'freemium';
+          } catch {
+            return false;
+          }
+        })();
+        
+        if (isFreemiumLocal) {
+          // Freemium users go directly to dashboard
+          navigate(ENUMFORROUTES.DASHBOARD);
+          return;
+        }
+        
+        // Check subscription status API (in case localStorage was cleared)
+        try {
+          const statusResp: any = await dispatch(getSubscriptionStatusAPI());
+          const planCode = statusResp?.plan?.plan_code || '';
+          if (planCode === 'freemium' || statusResp?.plan?.plan_type?.toLowerCase()?.includes('free')) {
+            // User is on freemium - set localStorage and go to dashboard
+            try {
+              localStorage.setItem('plan_tier', 'freemium');
+            } catch {}
+            navigate(ENUMFORROUTES.DASHBOARD);
+            return;
+          }
+        } catch {
+          // API call failed - fall through to plan details
+        }
+        
         if (response?.payload) {
           dispatch(savedLoginDataSuccess(response.payload));
         }
