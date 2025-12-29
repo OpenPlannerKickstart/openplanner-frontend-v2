@@ -607,12 +607,11 @@ div.task-item.clickable-event {
 }
 
 /* Datepicker dropdown (calendar + time) */
-.add-task-modal-wrapper .task-date-popper {
-    z-index: 1060; /* above bootstrap modal content */
+.task-date-popper {
+    z-index: 1060 !important; /* above bootstrap modal content */
 }
 
-.add-task-modal-wrapper .task-date-calendar.react-datepicker,
-.add-task-modal-wrapper .react-datepicker {
+.task-date-calendar.react-datepicker {
     border: 1px solid var(--neutral-200);
     border-radius: calc(var(--radius-lg) + 0.25rem);
     box-shadow: 0 16px 40px rgba(15, 23, 42, 0.15);
@@ -620,45 +619,45 @@ div.task-item.clickable-event {
     font-family: inherit;
 }
 
-.add-task-modal-wrapper .react-datepicker__header {
+.task-date-calendar .react-datepicker__header {
     background: var(--white);
     border-bottom: 1px solid var(--neutral-100);
     padding-top: 0.75rem;
 }
 
 /* Remove ONLY the divider between the month header and the days-of-week row */
-.add-task-modal-wrapper .react-datepicker__month-container .react-datepicker__header {
+.task-date-calendar .react-datepicker__month-container .react-datepicker__header {
     border-bottom: 0;
-    padding: 0.75rem 0.25rem 0;
+    padding: 0.5rem 0.25rem;
     position: relative;
 }
 
 /* Keep the divider under the Time header (match design) */
-.add-task-modal-wrapper .react-datepicker__time-container .react-datepicker__header {
+.task-date-calendar .react-datepicker__time-container .react-datepicker__header {
     border-bottom: 1px solid var(--neutral-100);
 }
 
-.add-task-modal-wrapper .react-datepicker__current-month {
+.task-date-calendar .react-datepicker__current-month {
     color: var(--primary);
     font-weight: 600;
-    font-size: 1.125rem;
+    font-size: 1rem;
     line-height: 32px;
     margin: 0;
 }
 
-.add-task-modal-wrapper .react-datepicker__day-name {
+.task-date-calendar .react-datepicker__day-name {
     color: var(--neutral-500);
     font-weight: 600;
     font-size: 0.75rem;
     text-transform: uppercase;
 }
 
-.add-task-modal-wrapper .react-datepicker__month-container {
-    padding: 0.75rem 0.75rem 0.5rem;
+.task-date-calendar .react-datepicker__month-container {
+    padding: 0.25rem 0.75rem 0.5rem;
 }
 
-.add-task-modal-wrapper .react-datepicker__day,
-.add-task-modal-wrapper .react-datepicker__day-name {
+.task-date-calendar .react-datepicker__day,
+.task-date-calendar .react-datepicker__day-name {
     width: 36px;
     height: 36px;
     line-height: 36px;
@@ -666,7 +665,7 @@ div.task-item.clickable-event {
     font-size: 0.875rem;
 }
 
-.add-task-modal-wrapper .react-datepicker__day--today {
+.task-date-calendar .react-datepicker__day--today {
     background: transparent;
     color: var(--primary) !important;
     border-radius: 50%;
@@ -674,25 +673,25 @@ div.task-item.clickable-event {
     box-shadow: inset 0 0 0 2px var(--primary);
 }
 
-.add-task-modal-wrapper .react-datepicker__day--today:hover {
+.task-date-calendar .react-datepicker__day--today:hover {
     background: var(--primary-subtle, rgba(35, 155, 194, 0.1));
     color: var(--primary) !important;
 }
 
 /* If today is selected, it should be filled (not outlined) */
-.add-task-modal-wrapper .react-datepicker__day--today.react-datepicker__day--selected,
-.add-task-modal-wrapper .react-datepicker__day--today.react-datepicker__day--keyboard-selected,
-.add-task-modal-wrapper .react-datepicker__day--today.react-datepicker__day--in-selecting-range,
-.add-task-modal-wrapper .react-datepicker__day--today.react-datepicker__day--in-range {
+.task-date-calendar .react-datepicker__day--today.react-datepicker__day--selected,
+.task-date-calendar .react-datepicker__day--today.react-datepicker__day--keyboard-selected,
+.task-date-calendar .react-datepicker__day--today.react-datepicker__day--in-selecting-range,
+.task-date-calendar .react-datepicker__day--today.react-datepicker__day--in-range {
     background: var(--primary) !important;
     color: var(--white) !important;
     box-shadow: none;
 }
 
-.add-task-modal-wrapper .react-datepicker__day--selected,
-.add-task-modal-wrapper .react-datepicker__day--keyboard-selected,
-.add-task-modal-wrapper .react-datepicker__day--in-selecting-range,
-.add-task-modal-wrapper .react-datepicker__day--in-range {
+.task-date-calendar .react-datepicker__day--selected,
+.task-date-calendar .react-datepicker__day--keyboard-selected,
+.task-date-calendar .react-datepicker__day--in-selecting-range,
+.task-date-calendar .react-datepicker__day--in-range {
     background: var(--primary);
     color: var(--white) !important;
     border-radius: 50%;
@@ -701,74 +700,78 @@ div.task-item.clickable-event {
     z-index: 2; /* prevent top-row clipping under header/day-names */
 }
 
-.add-task-modal-wrapper .react-datepicker__month {
-    padding-top: 4px; /* prevent top row circle clipping */
+.task-date-calendar .react-datepicker__month {
+    padding-top: 0; /* prevent top row circle clipping */
 }
 
-.add-task-modal-wrapper .react-datepicker__week {
+.task-date-calendar .react-datepicker__week {
     overflow: visible;
 }
 
-.add-task-modal-wrapper .react-datepicker__day:hover:not(.react-datepicker__day--outside-month) {
+.task-date-calendar .react-datepicker__day:hover:not(.react-datepicker__day--outside-month) {
     border-radius: 50%;
     background: var(--primary-subtle, rgba(35, 155, 194, 0.1));
     color: var(--primary);
 }
 
 /* Grey out days from previous/next months */
-.add-task-modal-wrapper .react-datepicker__day--outside-month {
+.task-date-calendar .react-datepicker__day--outside-month {
     color: var(--neutral-300) !important;
 }
 
-.add-task-modal-wrapper .react-datepicker__navigation {
+.task-date-calendar .react-datepicker__navigation {
     /*
      * Match Add Event modal positioning:
-     * month-container padding (12px) + header padding-top (12px) = 24px
+     * month-container padding (4px) + header padding-top (8px) = 12px
      * title is 32px tall, so nav top should align to title line
      */
-    top: 24px !important;
+    top: 12px !important;
     width: 32px !important;
     height: 32px !important;
     border: 0 !important; /* remove outline */
     border-radius: var(--radius-md, 0.5rem) !important;
-    background: var(--white) !important;
+    background: transparent !important;
     outline: none !important;
     box-shadow: none !important;
 }
 
-.add-task-modal-wrapper .react-datepicker__navigation:hover {
-    background: var(--neutral-50);
+.task-date-calendar .react-datepicker__navigation:hover {
+    background: rgba(148, 163, 184, 0.1) !important;
     border: 0 !important;
     outline: none !important;
     box-shadow: none !important;
 }
 
-.add-task-modal-wrapper .react-datepicker__navigation:focus,
-.add-task-modal-wrapper .react-datepicker__navigation:focus-visible,
-.add-task-modal-wrapper .react-datepicker__navigation:active {
+.task-date-calendar .react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+    border-color: var(--neutral-500) !important;
+}
+
+.task-date-calendar .react-datepicker__navigation:focus,
+.task-date-calendar .react-datepicker__navigation:focus-visible,
+.task-date-calendar .react-datepicker__navigation:active {
     border: 0 !important;
     outline: none !important;
     box-shadow: none !important;
 }
 
-.add-task-modal-wrapper .react-datepicker__navigation--previous {
+.task-date-calendar .react-datepicker__navigation--previous {
     left: 20px !important;
 }
 
 /* Pull the "next" arrow back onto the month side (not over the time column) */
-.add-task-modal-wrapper .react-datepicker__navigation--next {
+.task-date-calendar .react-datepicker__navigation--next {
     right: calc(160px + 20px) !important;
 }
 
 /* Center the arrow icon within the navigation button (match Add Event modal) */
-.add-task-modal-wrapper .react-datepicker__navigation-icon {
+.task-date-calendar .react-datepicker__navigation-icon {
     position: static !important;
     display: block !important;
     width: 100% !important;
     height: 100% !important;
 }
 
-.add-task-modal-wrapper .react-datepicker__navigation-icon::before {
+.task-date-calendar .react-datepicker__navigation-icon::before {
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
@@ -779,53 +782,53 @@ div.task-item.clickable-event {
     height: 8px !important;
 }
 
-.add-task-modal-wrapper .react-datepicker__navigation--previous .react-datepicker__navigation-icon::before {
+.task-date-calendar .react-datepicker__navigation--previous .react-datepicker__navigation-icon::before {
     transform: translate(-25%, -50%) rotate(-135deg) !important;
 }
 
-.add-task-modal-wrapper .react-datepicker__time-container {
+.task-date-calendar .react-datepicker__time-container {
     width: 160px;
     border-left: 1px solid var(--neutral-100);
     padding-right: 0 !important;
 }
 
-.add-task-modal-wrapper .react-datepicker__time-container .react-datepicker__header {
+.task-date-calendar .react-datepicker__time-container .react-datepicker__header {
     padding: 0.75rem 0.5rem;
 }
 
-.add-task-modal-wrapper .react-datepicker__time-container .react-datepicker__current-month,
-.add-task-modal-wrapper .react-datepicker-time__header,
-.add-task-modal-wrapper .react-datepicker__time-name {
+.task-date-calendar .react-datepicker__time-container .react-datepicker__current-month,
+.task-date-calendar .react-datepicker-time__header,
+.task-date-calendar .react-datepicker__time-name {
     color: var(--primary);
     font-weight: 600;
 }
 
-.add-task-modal-wrapper .react-datepicker__time-container .react-datepicker__time {
+.task-date-calendar .react-datepicker__time-container .react-datepicker__time {
     background: var(--white);
 }
 
-.add-task-modal-wrapper .react-datepicker__time-container .react-datepicker__time-box {
+.task-date-calendar .react-datepicker__time-container .react-datepicker__time-box {
     width: 100% !important;
 }
 
-.add-task-modal-wrapper .react-datepicker__time-list {
+.task-date-calendar .react-datepicker__time-list {
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
     box-sizing: border-box;
 }
 
-.add-task-modal-wrapper .react-datepicker__time-list-item {
+.task-date-calendar .react-datepicker__time-list-item {
     padding: 0.5rem 0.75rem;
     color: var(--neutral-700);
     width: 100%;
 }
 
-.add-task-modal-wrapper .react-datepicker__time-list-item:hover {
+.task-date-calendar .react-datepicker__time-list-item:hover {
     background: var(--neutral-50);
 }
 
-.add-task-modal-wrapper .react-datepicker__time-list-item--selected {
+.task-date-calendar .react-datepicker__time-list-item--selected {
     background: var(--primary) !important;
     color: var(--white) !important;
     font-weight: 600;
@@ -1206,15 +1209,29 @@ div.task-item.clickable-event {
 }
 
 .add-task-modal-wrapper .react-select-container .react-select__value-container {
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 1rem !important;
 }
 
+.add-task-modal-wrapper .react-select-container .react-select__value-container--has-value .react-select__single-value,
 .add-task-modal-wrapper .react-select-container .react-select__placeholder {
+    grid-area: 1 / 1 / 2 / 3 !important;
+    margin-left: 0 !important;
     color: #9ca3af;
 }
 
 .add-task-modal-wrapper .react-select-container .react-select__single-value {
     color: #1e293b;
+}
+
+.add-task-modal-wrapper .react-select-container .react-select__input-container {
+    grid-area: 1 / 1 / 2 / 3 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.add-task-modal-wrapper .react-select-container .react-select__input {
+    opacity: 0 !important;
+    width: 1px !important;
 }
 
 .add-task-modal-wrapper .react-select-container .react-select__indicator-separator {
@@ -1304,67 +1321,88 @@ div.task-item.clickable-event {
     border-top-color: #1E293B !important;
 }
 
-[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__control:hover {
-    border-color: #475569 !important;
+/* Task Date Calendar Dark Mode (portal-rendered) */
+[data-theme="dark"] .task-date-calendar.react-datepicker {
+    background: #1E293B !important;
+    border-color: #334155 !important;
 }
 
-[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__control--is-focused {
-    border-color: #5EBEE8 !important;
-    box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15) !important;
-}
-
-[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__single-value {
-    color: #E2E8F0 !important;
-}
-
-[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__placeholder {
-    color: #64748B !important;
-}
-
-[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__indicator-separator {
-    background-color: #334155 !important;
-}
-
-[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__dropdown-indicator {
-    color: #64748B !important;
-}
-
-[data-theme="dark"] .add-task-modal-wrapper .react-select-container .react-select__dropdown-indicator:hover {
-    color: #94A3B8 !important;
-}
-
-/* Dark mode notification row */
-[data-theme="dark"] .add-task-modal-wrapper .notification-row {
+[data-theme="dark"] .task-date-calendar .react-datepicker__month-container {
     background: #1E293B !important;
 }
 
-[data-theme="dark"] .add-task-modal-wrapper .reminder-field-label {
-    color: #94A3B8 !important;
+[data-theme="dark"] .task-date-calendar .react-datepicker__header {
+    background: #1E293B !important;
+    border-bottom-color: #334155 !important;
 }
 
-[data-theme="dark"] .add-task-modal-wrapper .remove-notification-btn {
-    background: rgba(239, 68, 68, 0.15) !important;
-    color: #f87171 !important;
-}
-
-[data-theme="dark"] .add-task-modal-wrapper .remove-notification-btn:hover {
-    background: #ef4444 !important;
-    color: #fff !important;
-}
-
-[data-theme="dark"] .add-task-modal-wrapper .add-notification-btn {
-    border-color: #475569 !important;
-    color: #94A3B8 !important;
-}
-
-[data-theme="dark"] .add-task-modal-wrapper .add-notification-btn:hover {
-    border-color: #5EBEE8 !important;
+[data-theme="dark"] .task-date-calendar .react-datepicker__current-month {
     color: #5EBEE8 !important;
-    background: rgba(94, 190, 232, 0.1) !important;
 }
 
-/* Dark mode footer */
-[data-theme="dark"] .add-task-modal-wrapper .add-event-footer {
-    background: #0F172A !important;
-    border-top-color: #1E293B !important;
+[data-theme="dark"] .task-date-calendar .react-datepicker__day-name {
+    color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__day {
+    color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__day:hover {
+    background: #334155 !important;
+    color: #5EBEE8 !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__day--selected,
+[data-theme="dark"] .task-date-calendar .react-datepicker__day--keyboard-selected {
+    background: #5EBEE8 !important;
+    color: #0F172A !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__day--today {
+    color: #5EBEE8 !important;
+    box-shadow: inset 0 0 0 2px #5EBEE8;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__day--outside-month {
+    color: #475569 !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__navigation-icon::before {
+    border-color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__time-container {
+    background: #1E293B !important;
+    border-left-color: #334155 !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__time-container .react-datepicker__header {
+    background: #1E293B !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker-time__header {
+    color: #5EBEE8 !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__time {
+    background: #1E293B !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__time-box {
+    background: #1E293B !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__time-list-item {
+    color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__time-list-item:hover {
+    background: #334155 !important;
+    color: #5EBEE8 !important;
+}
+
+[data-theme="dark"] .task-date-calendar .react-datepicker__time-list-item--selected {
+    background: #5EBEE8 !important;
+    color: #0F172A !important;
 }

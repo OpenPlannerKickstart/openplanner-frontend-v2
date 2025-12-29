@@ -585,6 +585,28 @@
   color: #E2E8F0 !important;
 }
 
+/* React Select Value Container Padding Fix */
+.add-event-modal-wrapper .react-select-container .react-select__value-container {
+  padding: 0.5rem 1rem !important;
+}
+
+.add-event-modal-wrapper .react-select-container .react-select__value-container--has-value .react-select__single-value,
+.add-event-modal-wrapper .react-select-container .react-select__placeholder {
+  grid-area: 1 / 1 / 2 / 3 !important;
+  margin-left: 0 !important;
+}
+
+.add-event-modal-wrapper .react-select-container .react-select__input-container {
+  grid-area: 1 / 1 / 2 / 3 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.add-event-modal-wrapper .react-select-container .react-select__input {
+  opacity: 0 !important;
+  width: 1px !important;
+}
+
 /* Dark Mode React Select in Add Event Modal */
 [data-theme="dark"] .add-event-modal-wrapper .react-select-container .react-select__control {
   background: #1E293B !important;

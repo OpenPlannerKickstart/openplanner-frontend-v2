@@ -41,7 +41,6 @@ export const AddEditEvent = (props) => {
         control: (base: any, state: any) => ({
             ...base,
             borderRadius: 16,
-            overflow: 'hidden',
             boxShadow: state.isFocused ? '0 0 0 4px rgba(35, 155, 194, 0.18)' : base.boxShadow,
         }),
         menu: (base: any) => ({
