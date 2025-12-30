@@ -1806,6 +1806,22 @@ input, textarea, select {
   padding: 1rem;
 }
 
+/* Notification Panel Circular Spinner */
+.notification-round-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(35, 155, 194, 0.22);
+  border-top-color: #239BC2;
+  border-radius: 50%;
+  animation: notification-spin 0.8s linear infinite;
+}
+
+@keyframes notification-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Notification Items */
 .notification-item {
   display: flex;

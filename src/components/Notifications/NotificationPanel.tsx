@@ -211,12 +211,7 @@ const NotificationPanel: React.FC = () => {
           {/* Single loader (body only). While loading, hide the empty state. */}
           {loading && !hasAny ? (
             <div className="d-flex align-items-center justify-content-center" style={{ padding: '56px 0' }}>
-              <div className="loader-container inline-loader" style={{ position: 'relative', background: 'transparent' }}>
-                <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
-                  <rect className="track" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" />
-                  <rect className="car" x="2.5" y="2.5" fill="none" strokeWidth="5px" width="32.5" height="32.5" pathLength="100" />
-                </svg>
-              </div>
+              <div className="notification-round-spinner" aria-label="Loading" />
             </div>
           ) : null}
           {/* Group invites (type: invite) */}
