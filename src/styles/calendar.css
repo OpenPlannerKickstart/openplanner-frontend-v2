@@ -1489,8 +1489,8 @@
     /* Let the big calendar expand instead of using a tiny internal viewport */
     .calendar-main {
         min-height: auto;
-        overflow: visible;
-        /* Ensure corners stay rounded even with overflow: visible */
+        overflow: hidden;
+        /* Ensure corners stay rounded */
         border-radius: var(--radius-2xl);
         /* Ensure full width on mobile - important for loading state and week/day views */
         width: 100%;
