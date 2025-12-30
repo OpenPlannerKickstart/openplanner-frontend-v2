@@ -538,7 +538,9 @@ export const PricePlans = (props) => {
           // Show "Change Plan" if user has subscription (either via prop or localStorage flag)
           const isChangeMode = props?.updatePlan || hasSubscriptionFlag;
           const buttonText = isActivePlan
-            ? "Current"
+            ? freemium
+              ? "Continue to Dashboard"
+              : "Current"
             : freemium
               ? "Start for Free"
               : isChangeMode
@@ -575,9 +577,9 @@ export const PricePlans = (props) => {
 
               <button
                 className={`plan-btn ${isActivePlan ? "active-plan" : ""}`}
-                    disabled={isActivePlan}
+                    disabled={isActivePlan && !freemium}
                     onClick={() => {
-                      if (isActivePlan) return;
+                      if (isActivePlan && !freemium) return;
                       if (freemiumBlocked) {
                         setShowPaidPlanNotice(true);
                         return;
