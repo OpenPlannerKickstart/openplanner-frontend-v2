@@ -198,18 +198,21 @@ export const PricePlans = (props) => {
           // Determine the correct product_id to select
           let productIdToSelect: string | null = null;
           
-          if (!isSubscription || planCode === 'freemium') {
-            // User is on free plan
+          // IMPORTANT: Only mark a plan as "Current" if the user has EXPLICITLY chosen it
+          // isSubscription === false means NO subscription at all (new user) - don't pre-select anything
+          // Only set freemium if the API explicitly says planCode is 'freemium'
+          if (planCode === 'freemium') {
+            // User explicitly chose the free plan
             productIdToSelect = 'freemium';
-          } else if (plan?.product_id) {
+          } else if (isSubscription && plan?.product_id) {
             productIdToSelect = plan.product_id;
-          } else if (planCode === '1m') {
+          } else if (isSubscription && planCode === '1m') {
             productIdToSelect = 'one_month';
-          } else if (planCode === '6m') {
+          } else if (isSubscription && planCode === '6m') {
             productIdToSelect = 'six_month';
-          } else if (planCode === '1y') {
+          } else if (isSubscription && planCode === '1y') {
             productIdToSelect = 'one_year';
-          } else if (plan?.plan_type) {
+          } else if (isSubscription && plan?.plan_type) {
             // Fallback: try to match plan_type to product_id
             const planType = plan.plan_type?.toLowerCase() || '';
             if (planType.includes('6 month') || planType.includes('six month')) {
@@ -222,6 +225,8 @@ export const PricePlans = (props) => {
               productIdToSelect = 'freemium';
             }
           }
+          // If isSubscription is false and planCode is empty/undefined, leave productIdToSelect as null
+          // This means the user is a new user who hasn't selected any plan yet
           
           console.log('[PricePlans] Setting selectedPlan to:', productIdToSelect);
           
@@ -230,10 +235,11 @@ export const PricePlans = (props) => {
           }
         } catch (error) {
           console.error("Failed to fetch subscription status:", error);
-          // Fallback: check localStorage
+          // Don't automatically set to freemium on error - let the user choose
+          // Only set if localStorage explicitly has plan_tier set to freemium
           try {
-            const hasSub = localStorage.getItem('has_subscription') === 'true';
-            if (!hasSub) {
+            const planTier = localStorage.getItem('plan_tier');
+            if (planTier === 'freemium') {
               setSelectedPlan('freemium');
             }
           } catch {}
