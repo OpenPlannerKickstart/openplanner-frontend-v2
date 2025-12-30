@@ -14,6 +14,7 @@ import {
   updatePlanAPI,
   getUserAPI,
   getSubscriptionStatusAPI,
+  registerFreemiumAPI,
 } from "../../redux/Service/User/Settings/settings";
 import { te } from "../../Utility/Toaster";
 import "./PricePlans.css";
@@ -85,21 +86,31 @@ export const PricePlans = (props) => {
     }
   }, []);
 
-  const handleFreemiumEntry = useCallback(() => {
+  const handleFreemiumEntry = useCallback(async () => {
     // If on paid plan, surface notice and avoid sending freemium product_id to BE
     if (hasSubscriptionFlag) {
       setShowPaidPlanNotice(true);
       return;
     }
+    
     try {
+      // Call backend to register freemium subscription
+      await dispatch(registerFreemiumAPI());
+      
+      // Update localStorage after successful API call
       localStorage.setItem("has_subscription", "false");
       localStorage.setItem("plan_tier", "freemium");
-    } catch {}
+    } catch (err) {
+      console.error("Failed to register freemium plan:", err);
+      te("Failed to register for free plan. Please try again.");
+      return;
+    }
+    
     if (typeof props?.setShowPlans === "function") {
       props.setShowPlans(false);
     }
     navigate(ENUMFORROUTES.DASHBOARD);
-  }, [navigate, props?.setShowPlans]);
+  }, [dispatch, navigate, props?.setShowPlans, hasSubscriptionFlag]);
 
   const normalizeUserRecord = useCallback(
     (raw: any) => {

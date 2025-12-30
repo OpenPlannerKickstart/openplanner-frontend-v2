@@ -91,6 +91,8 @@ export const PARENTS_BILLING_PORTAL = 'api/parents/billing/portal'
 export const PARENTS_SUBSCRIPTION_FINALIZE = 'api/parents/subscription/finalize'
 // Subscription status (student)
 export const SUBSCRIPTION_STATUS = 'api/subscription/status'
+// Freemium registration
+export const SUBSCRIPTION_FREEMIUM = 'api/subscription/freemium'
 // Student redeem flow
 export const REDEEM_CODE = 'api/redeem'
 // Student billing portal

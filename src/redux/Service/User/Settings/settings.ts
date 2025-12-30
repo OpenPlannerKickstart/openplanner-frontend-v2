@@ -15,6 +15,7 @@ import {
     PARENTS_SUBSCRIPTION_FINALIZE,
     REDEEM_CODE,
     SUBSCRIPTION_STATUS,
+    SUBSCRIPTION_FREEMIUM,
     STUDENT_BILLING_PORTAL,
 } from "../../../../Utility/ApiList";
 import { get, post } from "../../../../Utility/httpInterceptor";
@@ -237,6 +238,19 @@ export const getSubscriptionStatusAPI = () => async (dispatch: AppDispatch) => {
         return response.data.data; // { isSubscription: boolean, plan?: {...} }
     } catch (err) {
         throw err;
+    }
+};
+
+// Register for freemium/free plan
+export const registerFreemiumAPI = () => async (dispatch: AppDispatch) => {
+    dispatch(setLoading(true));
+    try {
+        const response: any = await post(SUBSCRIPTION_FREEMIUM, {});
+        return response.data.data; // { plan_type, plan_code, syllabus_limit, ... }
+    } catch (err) {
+        throw err;
+    } finally {
+        dispatch(setLoading(false));
     }
 };
 
