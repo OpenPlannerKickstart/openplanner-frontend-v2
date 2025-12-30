@@ -46,6 +46,7 @@
     .modal-content {
         border: 0;
         border-radius: 15px;
+        overflow: hidden;
 
         .modal-header {
             padding: 18px 19px;
@@ -378,6 +379,7 @@
     .modal-content {
         background-color: #0F172A;
         border: 1px solid #1E293B;
+        overflow: hidden;
     }
 
     .modal-header {
