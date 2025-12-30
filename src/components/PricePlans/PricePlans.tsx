@@ -86,6 +86,10 @@ export const PricePlans = (props) => {
     }
   }, []);
 
+  useEffect(() => {
+    console.log("[PricePlans] build v2");
+  }, []);
+
   const handleFreemiumEntry = useCallback(async () => {
     // If on paid plan, surface notice and avoid sending freemium product_id to BE
     if (hasSubscriptionFlag) {
@@ -96,15 +100,19 @@ export const PricePlans = (props) => {
     try {
       // Call backend to register freemium subscription
       await dispatch(registerFreemiumAPI());
-      
-      // Update localStorage after successful API call
+    } catch (err: any) {
+      const status = err?.response?.status;
+      if (status !== 404) {
+        console.error("Failed to register freemium plan:", err);
+        te("Failed to register for free plan. Please try again.");
+        return;
+      }
+    }
+
+    try {
       localStorage.setItem("has_subscription", "false");
       localStorage.setItem("plan_tier", "freemium");
-    } catch (err) {
-      console.error("Failed to register freemium plan:", err);
-      te("Failed to register for free plan. Please try again.");
-      return;
-    }
+    } catch {}
     
     if (typeof props?.setShowPlans === "function") {
       props.setShowPlans(false);
