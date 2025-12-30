@@ -55,6 +55,77 @@
     gap: 1.5rem;
 }
 
+/* Courses Empty State */
+.courses-empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    min-height: 400px;
+}
+
+.courses-empty-icon {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-subtle);
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+}
+
+.courses-empty-icon svg {
+    width: 48px;
+    height: 48px;
+}
+
+.courses-empty-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--neutral-800);
+    margin-bottom: 0.75rem;
+}
+
+.courses-empty-text {
+    font-size: 1rem;
+    color: var(--neutral-500);
+    max-width: 400px;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.courses-empty-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Dark Mode - Courses Empty State */
+[data-theme="dark"] .courses-empty-state {
+    background: transparent;
+}
+
+[data-theme="dark"] .courses-empty-icon {
+    background: rgba(94, 190, 232, 0.15);
+    color: #5EBEE8;
+}
+
+[data-theme="dark"] .courses-empty-title {
+    color: #F8FAFC;
+}
+
+[data-theme="dark"] .courses-empty-text {
+    color: #94A3B8;
+}
+
 /* Course Card */
 .course-card {
     background: var(--white);
