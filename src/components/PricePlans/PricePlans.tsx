@@ -217,13 +217,10 @@ export const PricePlans = (props) => {
           // Determine the correct product_id to select
           let productIdToSelect: string | null = null;
           
-          // IMPORTANT: Only mark a plan as "Current" if the user has EXPLICITLY chosen it
-          // isSubscription === false means NO subscription at all (new user) - don't pre-select anything
-          // Only set freemium if the API explicitly says planCode is 'freemium'
-          if (planCode === 'freemium') {
-            // User explicitly chose the free plan
+          // If no active subscription, default to freemium for CTA consistency
+          if (!isSubscription) {
             productIdToSelect = 'freemium';
-          } else if (isSubscription && plan?.product_id) {
+          } else if (plan?.product_id) {
             productIdToSelect = plan.product_id;
           } else if (isSubscription && planCode === '1m') {
             productIdToSelect = 'one_month';
