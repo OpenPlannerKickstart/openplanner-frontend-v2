@@ -800,6 +800,20 @@
   align-items: center;
   gap: 12px;
   justify-content: flex-end;
+
+  .btn {
+    background-color: #4AAED4;
+    border-color: #4AAED4;
+    color: #ffffff;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #3a9bc4;
+      border-color: #3a9bc4;
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+  }
 }
 
 .plans-grid {

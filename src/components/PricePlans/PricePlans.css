@@ -170,6 +170,11 @@
     color: var(--neutral-600, #475569);
 }
 
+.plan-btn.active-plan:hover:not(:disabled) {
+    background: var(--primary, #4AAED4);
+    color: #ffffff;
+}
+
 .plan-features {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
