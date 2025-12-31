@@ -1105,6 +1105,219 @@
   box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--neutral-500);
 }
 
+/* ============================================
+   Dark Mode Legacy SCSS Overrides
+   These use !important to override hardcoded colors
+   from legacy SCSS files (src/assets/scss/)
+   ============================================ */
+
+/* Main content areas */
+[data-theme="dark"] .content-area {
+  background-color: var(--white) !important;
+}
+
+[data-theme="dark"] .page-content {
+  background-color: var(--neutral-50) !important;
+}
+
+[data-theme="dark"] .page-content-wrapper {
+  background-color: transparent !important;
+}
+
+[data-theme="dark"] .main-content {
+  background-color: var(--neutral-50) !important;
+}
+
+/* Dashboard header - ensure it overrides legacy */
+[data-theme="dark"] .dashboard-header {
+  background: var(--white) !important;
+  border-bottom-color: var(--neutral-200) !important;
+}
+
+/* Page header from legacy */
+[data-theme="dark"] .page-header {
+  background-color: var(--white) !important;
+  border-bottom-color: var(--neutral-200) !important;
+}
+
+/* Settings page specific */
+[data-theme="dark"] .settings-page {
+  background-color: var(--neutral-50) !important;
+}
+
+[data-theme="dark"] .settings-card {
+  background: var(--white) !important;
+  border-color: var(--neutral-200) !important;
+}
+
+[data-theme="dark"] .settings-tabs {
+  background-color: transparent !important;
+  border-bottom-color: var(--neutral-200) !important;
+}
+
+/* Form controls from legacy _form-control.scss */
+[data-theme="dark"] .form-control {
+  background-color: var(--neutral-100) !important;
+  border-color: var(--neutral-200) !important;
+  color: var(--neutral-800) !important;
+}
+
+[data-theme="dark"] .form-select {
+  background-color: var(--neutral-100) !important;
+  border-color: var(--neutral-200) !important;
+  color: var(--neutral-800) !important;
+}
+
+/* Cards from legacy */
+[data-theme="dark"] .card {
+  background-color: var(--white) !important;
+  border-color: var(--neutral-200) !important;
+}
+
+/* Modals from legacy _modal.scss */
+[data-theme="dark"] .modal-content {
+  background-color: var(--white) !important;
+  border-color: var(--neutral-200) !important;
+}
+
+[data-theme="dark"] .modal-header {
+  background: var(--white) !important;
+  border-bottom-color: var(--neutral-200) !important;
+}
+
+[data-theme="dark"] .modal-body {
+  background-color: var(--white) !important;
+}
+
+[data-theme="dark"] .modal-footer {
+  background-color: var(--white) !important;
+  border-top-color: var(--neutral-200) !important;
+}
+
+/* Nav tabs from legacy _navs-tabs.scss */
+[data-theme="dark"] .nav-tabs {
+  background-color: var(--neutral-100) !important;
+  border-color: var(--neutral-200) !important;
+}
+
+[data-theme="dark"] .nav-tabs .nav-link {
+  background-color: transparent !important;
+  color: var(--neutral-600) !important;
+}
+
+[data-theme="dark"] .nav-tabs .nav-link.active {
+  background-color: var(--white) !important;
+  color: var(--primary) !important;
+}
+
+/* Dropdown from legacy */
+[data-theme="dark"] .dropdown-menu {
+  background-color: var(--white) !important;
+  border-color: var(--neutral-200) !important;
+}
+
+[data-theme="dark"] .dropdown-item {
+  color: var(--neutral-700) !important;
+}
+
+[data-theme="dark"] .dropdown-item:hover {
+  background-color: var(--neutral-100) !important;
+}
+
+/* Tables from legacy */
+[data-theme="dark"] .table {
+  color: var(--neutral-700) !important;
+}
+
+[data-theme="dark"] .table th {
+  background-color: var(--neutral-100) !important;
+  border-color: var(--neutral-200) !important;
+  color: var(--neutral-600) !important;
+}
+
+[data-theme="dark"] .table td {
+  border-color: var(--neutral-200) !important;
+}
+
+/* Offcanvas from legacy */
+[data-theme="dark"] .offcanvas {
+  background-color: var(--white) !important;
+}
+
+[data-theme="dark"] .offcanvas-header {
+  background-color: var(--white) !important;
+  border-bottom-color: var(--neutral-200) !important;
+}
+
+[data-theme="dark"] .offcanvas-body {
+  background-color: var(--white) !important;
+}
+
+/* Buttons outline variants from legacy */
+[data-theme="dark"] .btn-outline-primary {
+  background-color: transparent !important;
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+  background-color: transparent !important;
+  color: var(--neutral-600) !important;
+  border-color: var(--neutral-300) !important;
+}
+
+/* Calendar sidebar legacy overrides */
+[data-theme="dark"] .cal-side-body {
+  background-color: var(--white) !important;
+}
+
+/* React Select overrides for legacy */
+[data-theme="dark"] .react-select__control {
+  background-color: var(--neutral-100) !important;
+  border-color: var(--neutral-200) !important;
+}
+
+[data-theme="dark"] .react-select__menu {
+  background-color: var(--white) !important;
+  border-color: var(--neutral-200) !important;
+}
+
+[data-theme="dark"] .react-select__option {
+  background-color: var(--white) !important;
+  color: var(--neutral-800) !important;
+}
+
+[data-theme="dark"] .react-select__option--is-focused {
+  background-color: var(--neutral-100) !important;
+}
+
+[data-theme="dark"] .react-select__option--is-selected {
+  background-color: var(--primary) !important;
+  color: var(--white) !important;
+}
+
+[data-theme="dark"] .react-select__single-value {
+  color: var(--neutral-800) !important;
+}
+
+[data-theme="dark"] .react-select__input-container {
+  color: var(--neutral-800) !important;
+}
+
+/* Pricing cards from legacy */
+[data-theme="dark"] .pricing-card {
+  background: var(--white) !important;
+}
+
+/* User menu dropdown */
+[data-theme="dark"] .user-menu .dropdown-menu {
+  background-color: var(--white) !important;
+}
+
+/* ============================================
+   End Dark Mode Legacy SCSS Overrides
+   ============================================ */
+
 /* Base Styles */
 html {
   scroll-behavior: smooth;
