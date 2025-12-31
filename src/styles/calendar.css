@@ -1766,185 +1766,186 @@
 
 /* Mini Calendar Dark Mode */
 [data-theme="dark"] .mini-calendar {
-    background: var(--neutral-50);
-    border-color: var(--neutral-200);
+    background: #1E293B !important;
+    border-color: #334155 !important;
 }
 
 [data-theme="dark"] .mini-calendar-title {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .mini-nav-btn {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .mini-nav-btn:hover {
-    background: var(--neutral-100);
-    color: var(--neutral-700);
+    background: #334155 !important;
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .mini-day-header {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .mini-day {
-    color: var(--neutral-700);
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .mini-day:hover {
-    background: var(--neutral-100);
+    background: #334155 !important;
 }
 
 [data-theme="dark"] .mini-day.other-month {
-    color: var(--neutral-400);
+    color: #64748B !important;
 }
 
 [data-theme="dark"] .mini-day.today {
-    background: transparent;
-    color: var(--primary);
-    box-shadow: inset 0 0 0 2px var(--primary);
+    background: transparent !important;
+    color: #4AAED4 !important;
+    box-shadow: inset 0 0 0 2px #4AAED4 !important;
 }
 
 [data-theme="dark"] .mini-day.selected {
-    background: var(--primary);
-    color: var(--white);
-    font-weight: 600;
+    background: #4AAED4 !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
 }
 
 [data-theme="dark"] .mini-day.today.selected {
-    background: var(--primary);
-    color: var(--white);
-    box-shadow: none;
+    background: #4AAED4 !important;
+    color: #FFFFFF !important;
+    box-shadow: none !important;
 }
 
 [data-theme="dark"] .mini-day.other-month.selected {
-    background: var(--primary-subtle);
-    color: var(--primary);
-    opacity: 0.8;
+    background: rgba(74, 174, 212, 0.15) !important;
+    color: #4AAED4 !important;
+    opacity: 0.8 !important;
 }
 
 /* My Classes Dark Mode */
 [data-theme="dark"] .my-classes {
-    background: var(--neutral-50);
-    border-color: var(--neutral-200);
+    background: #1E293B !important;
+    border-color: #334155 !important;
 }
 
 [data-theme="dark"] .my-classes-header h3 {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .class-count {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .class-item:hover {
-    background: var(--neutral-100);
+    background: #334155 !important;
 }
 
 [data-theme="dark"] .class-name {
-    color: var(--neutral-700);
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .class-item input[type="checkbox"]:not(:checked) + .checkmark {
-    background: var(--neutral-300);
+    background: #475569 !important;
 }
 
 [data-theme="dark"] .class-item input[type="checkbox"]:not(:checked) ~ .class-name {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 /* Main Calendar Dark Mode */
 [data-theme="dark"] .calendar-main {
-    background: var(--neutral-50);
-    border-color: var(--neutral-200);
+    background: #1E293B !important;
+    border-color: #334155 !important;
 }
 
 [data-theme="dark"] .calendar-controls {
-    border-bottom-color: var(--neutral-200);
+    border-bottom-color: #334155 !important;
 }
 
 [data-theme="dark"] .view-toggles {
-    background: var(--neutral-100);
+    background: #0F172A !important;
 }
 
 [data-theme="dark"] .view-btn {
-    color: var(--neutral-600);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .view-btn:hover {
-    color: var(--neutral-800);
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .view-btn.active {
-    background: var(--primary);
-    color: var(--white);
+    background: #4AAED4 !important;
+    color: #FFFFFF !important;
 }
 
 [data-theme="dark"] .cal-nav-btn {
-    color: var(--neutral-500);
-    border-color: var(--neutral-200);
+    color: #94A3B8 !important;
+    border-color: #334155 !important;
 }
 
 [data-theme="dark"] .cal-nav-btn:hover {
-    background: var(--neutral-100);
-    border-color: var(--neutral-300);
-    color: var(--neutral-800);
+    background: #334155 !important;
+    border-color: #475569 !important;
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .current-month {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
 }
 
 /* Calendar Grid Dark Mode */
 [data-theme="dark"] .calendar-page .calendar-header-row {
-    background: var(--neutral-100);
-    border-bottom-color: var(--neutral-200);
+    background: #0F172A !important;
+    border-bottom-color: #334155 !important;
 }
 
 [data-theme="dark"] .calendar-page .calendar-day-header {
-    color: var(--neutral-500);
-    border-right-color: var(--neutral-200);
+    color: #94A3B8 !important;
+    border-right-color: #334155 !important;
 }
 
 [data-theme="dark"] .calendar-page .calendar-cell {
-    border-right-color: var(--neutral-200);
-    border-bottom-color: var(--neutral-200);
+    border-right-color: #334155 !important;
+    border-bottom-color: #334155 !important;
+    background: #1E293B !important;
 }
 
 [data-theme="dark"] .calendar-page .calendar-cell:hover {
-    background: var(--neutral-100);
+    background: #334155 !important;
 }
 
 [data-theme="dark"] .calendar-page .calendar-cell.other-month {
-    background: var(--neutral-100);
+    background: #0F172A !important;
 }
 
 [data-theme="dark"] .calendar-page .calendar-cell.other-month .cell-date {
-    color: var(--neutral-400);
+    color: #64748B !important;
 }
 
 [data-theme="dark"] .calendar-page .calendar-cell.today {
-    background: rgba(94, 190, 232, 0.08);
+    background: rgba(94, 190, 232, 0.08) !important;
 }
 
 [data-theme="dark"] .calendar-page .calendar-cell.today .cell-date {
-    background: transparent;
-    color: var(--primary);
-    box-shadow: inset 0 0 0 2px var(--primary);
+    background: transparent !important;
+    color: #4AAED4 !important;
+    box-shadow: inset 0 0 0 2px #4AAED4 !important;
 }
 
 [data-theme="dark"] .cell-date {
-    color: var(--neutral-700);
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .events-more-btn {
-    background: var(--neutral-200);
-    color: var(--neutral-600);
+    background: #334155 !important;
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .events-more-btn:hover {
-    background: var(--primary-subtle);
-    color: var(--primary);
+    background: rgba(74, 174, 212, 0.15) !important;
+    color: #4AAED4 !important;
 }
 
 /* Event Chips Dark Mode */
@@ -2029,58 +2030,59 @@
 
 /* Week View Dark Mode */
 [data-theme="dark"] .week-view {
-    background: var(--neutral-50);
+    background: #1E293B !important;
 }
 
 [data-theme="dark"] .week-view-header {
-    background: var(--neutral-100);
-    border-bottom-color: var(--neutral-200);
+    background: #0F172A !important;
+    border-bottom-color: #334155 !important;
 }
 
 [data-theme="dark"] .week-time-column {
-    border-right-color: var(--neutral-200);
+    border-right-color: #334155 !important;
 }
 
 [data-theme="dark"] .week-day-column {
-    border-right-color: var(--neutral-200);
+    border-right-color: #334155 !important;
 }
 
 [data-theme="dark"] .week-day-name {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .week-day-date {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .week-day-column.today .week-day-date {
-    background: transparent;
-    color: var(--primary);
-    box-shadow: inset 0 0 0 2px var(--primary);
+    background: transparent !important;
+    color: #4AAED4 !important;
+    box-shadow: inset 0 0 0 2px #4AAED4 !important;
 }
 
 [data-theme="dark"] .week-day-column.selected .week-day-date,
 [data-theme="dark"] .week-day-column.today.selected .week-day-date {
-    background: var(--primary);
-    color: var(--white);
-    box-shadow: none;
+    background: #4AAED4 !important;
+    color: #FFFFFF !important;
+    box-shadow: none !important;
 }
 
 [data-theme="dark"] .time-slot-row {
-    border-bottom-color: var(--neutral-200);
+    border-bottom-color: #334155 !important;
 }
 
 [data-theme="dark"] .time-label {
-    color: var(--neutral-500);
-    border-right-color: var(--neutral-200);
+    color: #94A3B8 !important;
+    border-right-color: #334155 !important;
 }
 
 [data-theme="dark"] .time-slot {
-    border-right-color: var(--neutral-200);
+    border-right-color: #334155 !important;
+    background: #1E293B !important;
 }
 
 [data-theme="dark"] .week-day-events {
-    border-right-color: var(--neutral-200);
+    border-right-color: #334155 !important;
 }
 
 /* Week Events Dark Mode */
@@ -2116,39 +2118,43 @@
 
 /* Day View Dark Mode */
 [data-theme="dark"] .day-view {
-    background: var(--neutral-50);
+    background: #1E293B !important;
 }
 
 [data-theme="dark"] .day-view-header {
-    background: var(--neutral-100);
-    border-bottom-color: var(--neutral-200);
+    background: #0F172A !important;
+    border-bottom-color: #334155 !important;
 }
 
 [data-theme="dark"] .day-view-weekday {
-    color: var(--neutral-600);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .day-view-number {
-    color: var(--neutral-900);
-    background: var(--neutral-50);
+    color: #F8FAFC !important;
+    background: #1E293B !important;
 }
 
 [data-theme="dark"] .day-view-number.today {
-    background: var(--primary);
-    color: var(--white);
+    background: #4AAED4 !important;
+    color: #FFFFFF !important;
 }
 
 [data-theme="dark"] .day-view-month {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .day-time-row {
-    border-bottom-color: var(--neutral-200);
+    border-bottom-color: #334155 !important;
 }
 
 [data-theme="dark"] .day-time-label {
-    color: var(--neutral-500);
-    border-right-color: var(--neutral-200);
+    color: #94A3B8 !important;
+    border-right-color: #334155 !important;
+}
+
+[data-theme="dark"] .day-time-slot {
+    background: #1E293B !important;
 }
 
 /* Day Events Dark Mode */
