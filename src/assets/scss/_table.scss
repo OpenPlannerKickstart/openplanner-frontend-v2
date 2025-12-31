@@ -741,3 +741,39 @@
 
 
 /* ----------------------------- table-collapse ---------------------------- */
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+    .table {
+        color: #E2E8F0 !important;
+        
+        > thead {
+            background-color: #1E293B !important;
+            
+            th {
+                background-color: #1E293B !important;
+                border-color: #334155 !important;
+                color: #94A3B8 !important;
+            }
+        }
+        
+        > tbody {
+            tr {
+                background-color: #0B1120 !important;
+                
+                &:hover {
+                    background-color: #1E293B !important;
+                }
+                
+                td {
+                    border-color: #334155 !important;
+                    color: #E2E8F0 !important;
+                }
+            }
+        }
+    }
+    
+    .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #1E293B !important;
+    }
+}

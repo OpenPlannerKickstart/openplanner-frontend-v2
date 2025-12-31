@@ -221,3 +221,44 @@
 /* -------------------------------------------------------------------------- */
 /*                              Team Dropdown End                             */
 /* -------------------------------------------------------------------------- */
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+    .dropdown-menu {
+        background-color: #0B1120 !important;
+        border-color: #334155 !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    .dropdown-item {
+        color: #E2E8F0 !important;
+        
+        &:hover, &:focus {
+            background-color: #1E293B !important;
+            color: #F8FAFC !important;
+        }
+        
+        &.active, &:active {
+            background-color: #5EBEE8 !important;
+            color: #0B1120 !important;
+        }
+    }
+    
+    .dropdown-divider {
+        border-color: #334155 !important;
+    }
+    
+    .dropdown-header {
+        color: #94A3B8 !important;
+    }
+    
+    .team-profile-content {
+        h6 {
+            color: #F1F5F9 !important;
+        }
+        
+        p {
+            color: #94A3B8 !important;
+        }
+    }
+}

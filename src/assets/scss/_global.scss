@@ -532,3 +532,49 @@ body.groups-page-body {
   .groups-page .tabs-row .page-filters { margin-bottom: 0 !important; }
   .groups-page .tabs-row { padding-bottom: 0 !important; border-bottom: 1px solid #E5E7EB; }
 }
+
+/* ============================================
+   Dark Mode Overrides for Legacy Styles
+   ============================================ */
+[data-theme="dark"] {
+  .main-content {
+    background-color: #0F172A !important;
+    
+    .page-content {
+      background-color: #0F172A !important;
+      
+      .content-area {
+        background-color: #0B1120 !important;
+        border-color: #334155 !important;
+      }
+    }
+  }
+  
+  .content-area {
+    background-color: #0B1120 !important;
+    border-color: #334155 !important;
+  }
+  
+  .page-content-wrapper {
+    background-color: transparent !important;
+  }
+  
+  .no-records-found-text {
+    h6 {
+      color: #F1F5F9 !important;
+    }
+    p {
+      color: #94A3B8 !important;
+    }
+  }
+  
+  .groups-page {
+    .desktop-composer-wrapper {
+      background: #1E293B !important;
+    }
+    
+    .tabs-row {
+      border-bottom-color: #334155 !important;
+    }
+  }
+}

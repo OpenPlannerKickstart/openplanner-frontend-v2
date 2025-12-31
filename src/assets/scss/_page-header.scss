@@ -97,3 +97,28 @@
         margin-bottom: 0 !important;
     }
 }
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+    .page-title-wrapper {
+        background-color: #0B1120 !important;
+        border-bottom-color: #334155 !important;
+        
+        h4, h3, p {
+            color: #F1F5F9 !important;
+        }
+        
+        .page-title-details p {
+            color: #E2E8F0 !important;
+        }
+    }
+    
+    .page-title-wrapper-sub {
+        background-color: #0B1120 !important;
+        border-bottom-color: #334155 !important;
+        
+        h4 {
+            color: #F1F5F9 !important;
+        }
+    }
+}

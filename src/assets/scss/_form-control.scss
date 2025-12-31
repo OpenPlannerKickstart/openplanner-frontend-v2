@@ -1726,3 +1726,78 @@ body {
 /* -------------------------------------------------------------------------- */
 /*                               Datepicker End                               */
 /* -------------------------------------------------------------------------- */
+
+/* ============================================
+   Dark Mode Overrides for Form Controls
+   ============================================ */
+[data-theme="dark"] {
+  .form-group {
+    .form-label {
+      color: #E2E8F0 !important;
+    }
+    
+    .form-control,
+    .form-select {
+      background-color: #1E293B !important;
+      border-color: #334155 !important;
+      color: #F1F5F9 !important;
+      
+      &::placeholder {
+        color: #64748B !important;
+      }
+      
+      &:disabled,
+      &.disabled {
+        background-color: #0F172A !important;
+        border-color: #1E293B !important;
+      }
+    }
+  }
+  
+  .form-control,
+  .form-select {
+    background-color: #1E293B !important;
+    border-color: #334155 !important;
+    color: #F1F5F9 !important;
+    
+    &::placeholder {
+      color: #64748B !important;
+    }
+  }
+  
+  .form-label {
+    color: #E2E8F0 !important;
+  }
+  
+  textarea.form-control {
+    background-color: #1E293B !important;
+    border-color: #334155 !important;
+    color: #F1F5F9 !important;
+  }
+  
+  .input-group {
+    .input-group-text {
+      background-color: #1E293B !important;
+      border-color: #334155 !important;
+      color: #94A3B8 !important;
+    }
+  }
+  
+  .css-13cymwt-control,
+  .css-t3ipsp-control {
+    background-color: #1E293B !important;
+    border-color: #334155 !important;
+  }
+  
+  .css-1dimb5e-singleValue {
+    color: #F1F5F9 !important;
+  }
+  
+  .datepicker-control {
+    .form-control {
+      background-color: #1E293B !important;
+      border-color: #334155 !important;
+      color: #F1F5F9 !important;
+    }
+  }
+}

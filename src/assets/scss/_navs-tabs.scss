@@ -142,3 +142,52 @@
         }
     }
 }
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+    .nav-tabs {
+        background-color: #1E293B !important;
+        border-color: #334155 !important;
+        
+        .nav-link {
+            background-color: transparent !important;
+            color: #94A3B8 !important;
+            
+            &.active {
+                background-color: #0B1120 !important;
+                color: #5EBEE8 !important;
+                border-color: #334155 !important;
+            }
+            
+            &:hover:not(.active) {
+                color: #E2E8F0 !important;
+            }
+        }
+    }
+    
+    .nav-pills {
+        .nav-link {
+            color: #94A3B8 !important;
+            
+            &.active {
+                background-color: #5EBEE8 !important;
+                color: #0B1120 !important;
+            }
+        }
+    }
+    
+    .setting-tabs-wrapper {
+        li {
+            color: #94A3B8 !important;
+            
+            &.active {
+                background-color: #5EBEE8 !important;
+                color: #0B1120 !important;
+            }
+            
+            &:hover:not(.active) {
+                color: #5EBEE8 !important;
+            }
+        }
+    }
+}
