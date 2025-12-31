@@ -1918,7 +1918,7 @@ ul {
 
 /* App Download Section */
 [data-theme="dark"] .app-download {
-    background: linear-gradient(135deg, rgba(74, 174, 212, 0.1), rgba(124, 58, 237, 0.08));
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
 }
 
 [data-theme="dark"] .download-content h2 {
