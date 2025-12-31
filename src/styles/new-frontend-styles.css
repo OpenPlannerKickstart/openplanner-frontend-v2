@@ -1003,7 +1003,7 @@
 
 [data-theme="dark"] .notification-empty-icon,
 [data-theme="dark"] .empty-notifications-icon {
-  background: #1E293B;
+  background: transparent;
   color: #64748B;
 }
 
