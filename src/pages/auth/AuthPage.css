@@ -891,6 +891,14 @@
   color: #F8FAFC !important;
 }
 
+[data-theme="dark"] .auth-select__input {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .auth-select__input-container {
+  color: #F8FAFC !important;
+}
+
 [data-theme="dark"] .auth-select__dropdown-indicator {
   color: #64748B !important;
 }
