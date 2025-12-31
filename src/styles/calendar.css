@@ -120,7 +120,7 @@
 .mini-day.today.selected {
     background: var(--primary);
     color: var(--white);
-    box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--primary);
+    box-shadow: none;
 }
 
 .mini-day.other-month.selected {
@@ -1814,7 +1814,7 @@
 [data-theme="dark"] .mini-day.today.selected {
     background: var(--primary);
     color: var(--white);
-    box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--primary);
+    box-shadow: none;
 }
 
 [data-theme="dark"] .mini-day.other-month.selected {
