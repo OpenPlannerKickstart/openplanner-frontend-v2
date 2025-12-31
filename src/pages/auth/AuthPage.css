@@ -739,3 +739,208 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================
+   Dark Mode Styles for Auth Pages
+   ============================================ */
+
+[data-theme="dark"] .auth-page,
+[data-theme="dark"] .signup-page {
+  background-color: #0F172A !important;
+  color: #E2E8F0 !important;
+}
+
+/* Left Panel Dark Mode */
+[data-theme="dark"] .auth-left-features,
+[data-theme="dark"] .signup-left {
+  background: linear-gradient(135deg, rgba(74, 174, 212, 0.1), rgba(30, 41, 59, 0.8)) !important;
+}
+
+[data-theme="dark"] .auth-left-title,
+[data-theme="dark"] .signup-left-title {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .auth-page .feature-content h3,
+[data-theme="dark"] .signup-page .feature-content h3 {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .auth-page .feature-content p,
+[data-theme="dark"] .signup-page .feature-content p {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .auth-calendar-icon svg,
+[data-theme="dark"] .signup-calendar-icon svg {
+  color: #4AAED4 !important;
+  opacity: 0.2 !important;
+}
+
+[data-theme="dark"] .auth-legal-footer,
+[data-theme="dark"] .signup-legal-footer {
+  color: #94A3B8 !important;
+}
+
+/* Right Panel Dark Mode */
+[data-theme="dark"] .auth-right-form,
+[data-theme="dark"] .signup-right {
+  background: #0F172A !important;
+}
+
+[data-theme="dark"] .auth-icon,
+[data-theme="dark"] .signup-icon {
+  background: rgba(74, 174, 212, 0.15) !important;
+}
+
+[data-theme="dark"] .auth-header h1,
+[data-theme="dark"] .signup-header h1 {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .auth-page h1,
+[data-theme="dark"] .auth-page h2,
+[data-theme="dark"] .auth-page h3,
+[data-theme="dark"] .signup-page h1,
+[data-theme="dark"] .signup-page h2,
+[data-theme="dark"] .signup-page h3 {
+  color: #F8FAFC !important;
+}
+
+/* Form Labels Dark Mode */
+[data-theme="dark"] .auth-page .form-label,
+[data-theme="dark"] .signup-page .form-label {
+  color: #E2E8F0 !important;
+}
+
+/* Form Inputs Dark Mode */
+[data-theme="dark"] .auth-page .form-input,
+[data-theme="dark"] .signup-page .form-input {
+  background: #1E293B !important;
+  border-color: #475569 !important;
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .auth-page .form-input::placeholder,
+[data-theme="dark"] .signup-page .form-input::placeholder {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .auth-page .form-input:focus,
+[data-theme="dark"] .signup-page .form-input:focus {
+  background: #1E293B !important;
+  border-color: #4AAED4 !important;
+  box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.2) !important;
+}
+
+[data-theme="dark"] .form-input-icon {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .form-input-toggle {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .form-input-toggle:hover {
+  color: #94A3B8 !important;
+}
+
+/* Phone Input Dark Mode */
+[data-theme="dark"] .phone-prefix {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .phone-prefix svg {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .phone-input {
+  background: #1E293B !important;
+  border-color: #475569 !important;
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .phone-input::placeholder {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .phone-input:focus {
+  border-color: #4AAED4 !important;
+  box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.2) !important;
+}
+
+/* React Select Dark Mode */
+[data-theme="dark"] .form-select-like,
+[data-theme="dark"] .auth-select__control {
+  background: #1E293B !important;
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] .auth-select__control--is-focused {
+  border-color: #4AAED4 !important;
+  box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.2) !important;
+}
+
+[data-theme="dark"] .auth-select__placeholder {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .auth-select__single-value {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .auth-select__dropdown-indicator {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .auth-select__menu {
+  background: #1E293B !important;
+  border: 1px solid #475569 !important;
+}
+
+[data-theme="dark"] .auth-select__option {
+  background: #1E293B !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .auth-select__option--is-focused {
+  background: #334155 !important;
+}
+
+[data-theme="dark"] .auth-select__option--is-selected {
+  background: #4AAED4 !important;
+  color: #FFFFFF !important;
+}
+
+/* Divider Dark Mode */
+[data-theme="dark"] .auth-divider::before,
+[data-theme="dark"] .auth-divider::after {
+  background: #334155 !important;
+}
+
+[data-theme="dark"] .auth-divider span {
+  color: #64748B !important;
+}
+
+/* OAuth Buttons Dark Mode */
+[data-theme="dark"] .oauth-btn {
+  background: #1E293B !important;
+  border-color: #475569 !important;
+  color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .oauth-btn:hover {
+  background: #334155 !important;
+  border-color: #64748B !important;
+}
+
+/* Footer Dark Mode */
+[data-theme="dark"] .auth-footer {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .auth-footer a {
+  color: #4AAED4 !important;
+}
