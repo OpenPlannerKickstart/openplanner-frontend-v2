@@ -637,10 +637,11 @@ const CalendarEvent = () => {
               <div className="cell-events">
                 {eventsForDay.slice(0, 2).map((event: NormalizedCalendarEvent, eventIndex: number) => {
                   const colorClass = getColorClassName(event.courseColor || '#239BC2');
+                  const completed = isCompletedStatus(event.status);
                   return (
                     <div
                       key={eventIndex}
-                      className={`event-chip ${colorClass}`}
+                      className={`event-chip ${colorClass} ${completed ? 'completed' : ''}`}
                       role="button"
                       tabIndex={0}
                       draggable
