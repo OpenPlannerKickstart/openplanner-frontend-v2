@@ -1108,265 +1108,286 @@
    ============================================ */
 
 [data-theme="dark"] .settings-card {
-    background: var(--white);
-    border-color: var(--neutral-200);
+    background: #1E293B !important;
+    border-color: #334155 !important;
 }
 
 [data-theme="dark"] .settings-card.danger {
-    border-color: rgba(248, 113, 113, 0.3);
+    border-color: rgba(248, 113, 113, 0.3) !important;
 }
 
 [data-theme="dark"] .settings-card-title {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .settings-card-desc {
-    color: var(--neutral-600);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .settings-tabs {
-    border-bottom-color: var(--neutral-200);
+    border-bottom-color: #334155 !important;
 }
 
 [data-theme="dark"] .settings-tab {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .settings-tab:hover {
-    color: var(--neutral-700);
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .settings-tab.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
+    color: #4AAED4 !important;
+    border-bottom-color: #4AAED4 !important;
 }
 
 /* Profile Section Dark Mode */
 [data-theme="dark"] .profile-avatar {
-    background: var(--neutral-200);
-    color: var(--neutral-500);
+    background: #334155 !important;
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .profile-username {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .avatar-btn {
-    background: var(--neutral-100);
-    border-color: var(--neutral-300);
-    color: var(--neutral-600);
+    background: #334155 !important;
+    border-color: #475569 !important;
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .avatar-btn:hover {
-    background: var(--primary-subtle);
-    border-color: var(--primary);
-    color: var(--primary);
+    background: rgba(74, 174, 212, 0.15) !important;
+    border-color: #4AAED4 !important;
+    color: #4AAED4 !important;
 }
 
 [data-theme="dark"] .avatar-btn.delete:hover {
-    background: var(--error-light);
-    border-color: var(--error);
-    color: var(--error);
+    background: rgba(239, 68, 68, 0.15) !important;
+    border-color: #f87171 !important;
+    color: #f87171 !important;
 }
 
 [data-theme="dark"] .avatar-note {
-    color: var(--warning);
+    color: #FBBF24 !important;
 }
 
 /* Form Dark Mode */
 [data-theme="dark"] .form-label {
-    color: var(--neutral-700);
+    color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .form-input,
 [data-theme="dark"] .form-select {
-    background: var(--neutral-100);
-    border-color: var(--neutral-200);
-    color: var(--neutral-800);
+    background: #0F172A !important;
+    border-color: #475569 !important;
+    color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .form-input::placeholder {
+    color: #64748B !important;
 }
 
 [data-theme="dark"] .form-input:focus,
 [data-theme="dark"] .form-select:focus {
-    background: var(--white);
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15);
+    background: #0F172A !important;
+    border-color: #4AAED4 !important;
+    box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.2) !important;
 }
 
 [data-theme="dark"] .form-input.disabled,
 [data-theme="dark"] .form-input:disabled {
-    background: var(--neutral-100);
-    color: var(--neutral-500);
+    background: #1E293B !important;
+    color: #64748B !important;
 }
 
 /* Subscription Dark Mode */
 [data-theme="dark"] .subscription-stats {
-    background: var(--neutral-100);
-    border-color: var(--neutral-200);
+    background: #0F172A !important;
+    border-color: #334155 !important;
 }
 
 [data-theme="dark"] .subscription-stat {
-    border-right-color: var(--neutral-200);
+    border-right-color: #334155 !important;
 }
 
 [data-theme="dark"] .stat-label {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .stat-value {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .stat-value.status-ongoing {
-    color: var(--success);
+    color: #10B981 !important;
 }
 
 [data-theme="dark"] .stat-value.status-canceled {
-    color: var(--warning);
+    color: #FBBF24 !important;
 }
 
 [data-theme="dark"] .stat-value.status-deleted {
-    color: var(--error);
+    color: #f87171 !important;
 }
 
 [data-theme="dark"] .btn-violet {
-    background: #A78BFA;
+    background: #A78BFA !important;
 }
 
 [data-theme="dark"] .btn-violet:hover {
-    background: #8B5CF6;
+    background: #8B5CF6 !important;
 }
 
 [data-theme="dark"] .btn-warning {
-    background: #FBBF24;
-    color: var(--neutral-900);
+    background: #FBBF24 !important;
+    color: #0F172A !important;
 }
 
 [data-theme="dark"] .btn-warning:hover {
-    background: #F59E0B;
+    background: #F59E0B !important;
 }
 
 [data-theme="dark"] .billing-table thead {
-    background: var(--neutral-100);
-    border-bottom-color: var(--neutral-200);
+    background: #0F172A !important;
+    border-bottom-color: #334155 !important;
 }
 
 [data-theme="dark"] .billing-table th {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .billing-table td {
-    color: var(--neutral-700);
-    border-bottom-color: var(--neutral-200);
+    color: #E2E8F0 !important;
+    border-bottom-color: #334155 !important;
 }
 
 [data-theme="dark"] .billing-table tbody tr:hover {
-    background: var(--neutral-100);
+    background: #334155 !important;
 }
 
 [data-theme="dark"] .billing-status.paid {
-    background: var(--success-light);
-    color: var(--success);
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #10B981 !important;
 }
 
 [data-theme="dark"] .billing-status.pending {
-    background: var(--warning-light);
-    color: var(--warning);
+    background: rgba(251, 191, 36, 0.15) !important;
+    color: #FBBF24 !important;
 }
 
 [data-theme="dark"] .billing-status.failed {
-    background: var(--error-light);
-    color: var(--error);
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
 }
 
 [data-theme="dark"] .billing-action-btn {
-    background: var(--primary-subtle);
-    color: var(--primary);
+    background: rgba(74, 174, 212, 0.15) !important;
+    color: #4AAED4 !important;
 }
 
 [data-theme="dark"] .billing-action-btn:hover {
-    background: var(--primary);
-    color: var(--white);
+    background: #4AAED4 !important;
+    color: #FFFFFF !important;
 }
 
 [data-theme="dark"] .billing-empty p {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .plan-label {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .plan-name {
-    color: var(--primary);
+    color: #4AAED4 !important;
 }
 
 [data-theme="dark"] .plan-description {
-    color: var(--neutral-600);
+    color: #94A3B8 !important;
 }
 
 /* Notification Options Dark Mode */
 [data-theme="dark"] .notification-option {
-    background: var(--neutral-100);
+    background: #0F172A !important;
 }
 
 [data-theme="dark"] .notification-option:hover {
-    background: var(--neutral-200);
+    background: #1E293B !important;
 }
 
 [data-theme="dark"] .option-title {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .option-desc {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .toggle-slider {
+    background-color: #475569 !important;
+}
+
+[data-theme="dark"] .toggle-switch input:checked + .toggle-slider {
+    background-color: #4AAED4 !important;
 }
 
 /* Delete Account Dark Mode */
 [data-theme="dark"] .delete-warning {
-    background: var(--error-light);
+    background: rgba(239, 68, 68, 0.1) !important;
 }
 
 [data-theme="dark"] .warning-icon {
-    background: var(--white);
-    color: var(--error);
+    background: #1E293B !important;
+    color: #f87171 !important;
 }
 
 [data-theme="dark"] .warning-content h3 {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .warning-content p {
-    color: var(--neutral-600);
+    color: #94A3B8 !important;
 }
 
 /* Theme Options Dark Mode */
 [data-theme="dark"] .theme-section-title {
-    color: var(--neutral-900);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .theme-section-desc {
-    color: var(--neutral-500);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .theme-preview {
-    border-color: var(--neutral-200);
+    border-color: #334155 !important;
 }
 
 [data-theme="dark"] .theme-option:hover .theme-preview {
-    border-color: var(--neutral-300);
+    border-color: #475569 !important;
 }
 
 [data-theme="dark"] .theme-option input[type="radio"]:checked + .theme-preview {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.2);
+    border-color: #4AAED4 !important;
+    box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.2) !important;
 }
 
 [data-theme="dark"] .theme-label {
-    color: var(--neutral-600);
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .theme-option input[type="radio"]:checked ~ .theme-label {
-    color: var(--primary);
+    color: #4AAED4 !important;
+}
+
+/* Password Input Dark Mode */
+[data-theme="dark"] .password-toggle-btn {
+    color: #64748B !important;
+}
+
+[data-theme="dark"] .password-toggle-btn:hover {
+    color: #94A3B8 !important;
 }
 
 /* Disabled Button States */
@@ -1386,8 +1407,8 @@
 
 [data-theme="dark"] .btn-primary:disabled,
 [data-theme="dark"] .btn-primary.btn-disabled {
-    background: var(--neutral-200);
-    color: var(--neutral-400);
+    background: #334155 !important;
+    color: #64748B !important;
 }
 
 /* ============================================

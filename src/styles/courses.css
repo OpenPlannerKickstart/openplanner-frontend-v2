@@ -358,12 +358,19 @@
    Empty State
    ============================================ */
 
-.courses-empty {
+.courses-empty,
+.courses-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     padding: 4rem 2rem;
-    background: var(--white);
-    border: 2px dashed var(--neutral-300);
-    border-radius: var(--radius-2xl);
+    background: transparent;
+    border: none;
+    min-height: calc(100vh - 200px);
+    width: 100%;
+    grid-column: 1 / -1; /* Span all columns in the grid */
 }
 
 .courses-empty-icon {
@@ -383,16 +390,25 @@
     height: 40px;
 }
 
-.courses-empty h3 {
+.courses-empty h3,
+.courses-empty-title {
     font-size: 1.25rem;
     font-weight: 600;
     color: var(--neutral-900);
     margin-bottom: 0.5rem;
 }
 
-.courses-empty p {
+.courses-empty p,
+.courses-empty-text {
     color: var(--neutral-500);
     margin-bottom: 1.5rem;
+    max-width: 400px;
+}
+
+.courses-empty-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 /* ============================================
@@ -2520,9 +2536,10 @@
 }
 
 /* Empty State Dark Mode */
-[data-theme="dark"] .courses-empty {
-    background: #0B1120;
-    border-color: #475569;
+[data-theme="dark"] .courses-empty,
+[data-theme="dark"] .courses-empty-state {
+    background: transparent;
+    border: none;
 }
 
 [data-theme="dark"] .courses-empty-icon {
@@ -2530,12 +2547,14 @@
     color: #5EBEE8;
 }
 
-[data-theme="dark"] .courses-empty h3 {
-    color: #F8FAFC;
+[data-theme="dark"] .courses-empty h3,
+[data-theme="dark"] .courses-empty-title {
+    color: var(--neutral-900);
 }
 
-[data-theme="dark"] .courses-empty p {
-    color: #94A3B8;
+[data-theme="dark"] .courses-empty p,
+[data-theme="dark"] .courses-empty-text {
+    color: var(--neutral-400);
 }
 
 /* Syllabus Modal Dark Mode */
