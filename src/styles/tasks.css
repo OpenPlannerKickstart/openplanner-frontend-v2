@@ -985,143 +985,143 @@ div.task-item.clickable-event {
 
 /* Task Toolbar Dark Mode */
 [data-theme="dark"] .tasks-page .tab-btn {
-    color: var(--neutral-500);
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .tasks-page .tab-btn:hover {
-    color: var(--neutral-700);
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .tasks-page .tab-btn.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
+    color: #5EBEE8;
+    border-bottom-color: #5EBEE8;
     background: transparent !important;
     border-radius: 0 !important;
 }
 
 [data-theme="dark"] .tasks-page .tab-count {
-    background: var(--neutral-200);
-    color: var(--neutral-600);
+    background: #334155;
+    color: #CBD5E1;
 }
 
 [data-theme="dark"] .tasks-page .tab-btn.active .tab-count {
-    background: var(--primary-subtle);
-    color: var(--primary);
+    background: rgba(94, 190, 232, 0.15);
+    color: #5EBEE8;
 }
 
 /* Search & Date Inputs Dark Mode */
 [data-theme="dark"] .search-input input,
 [data-theme="dark"] .date-range-input input {
-    background: var(--white);
-    border-color: var(--neutral-200);
-    color: var(--neutral-700);
+    background: #0B1120;
+    border-color: #334155;
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .search-input input:focus,
 [data-theme="dark"] .date-range-input input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-subtle);
+    border-color: #5EBEE8;
+    box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.15);
 }
 
 [data-theme="dark"] .search-input svg,
 [data-theme="dark"] .date-range-input svg {
-    color: var(--neutral-400);
+    color: #64748B;
 }
 
 /* Task List Container Dark Mode */
 [data-theme="dark"] .tasks-list-container {
-    background: var(--white);
+    background: #0B1120;
 }
 
 /* Task Item Dark Mode */
 [data-theme="dark"] .task-item {
-    border-bottom-color: var(--neutral-200);
+    border-bottom-color: #334155;
 }
 
 [data-theme="dark"] .task-item:hover {
-    background: var(--neutral-100);
+    background: #1E293B;
 }
 
 [data-theme="dark"] .task-item:focus {
-    background: var(--primary-subtle);
+    background: rgba(94, 190, 232, 0.15);
 }
 
 [data-theme="dark"] .task-checkbox {
-    border-color: var(--neutral-300);
+    border-color: #475569;
 }
 
 [data-theme="dark"] .task-checkbox:hover {
-    border-color: var(--primary);
-    background: var(--primary-subtle);
+    border-color: #5EBEE8;
+    background: rgba(94, 190, 232, 0.15);
 }
 
 [data-theme="dark"] .task-item.completed .task-checkbox {
-    border-color: var(--success);
-    background: var(--success);
+    border-color: #34D399;
+    background: #34D399;
 }
 
 [data-theme="dark"] .task-name {
-    color: var(--neutral-800);
+    color: #F1F5F9;
 }
 
 [data-theme="dark"] .task-due {
-    color: var(--neutral-500);
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .task-item.completed .task-name {
-    color: var(--neutral-500);
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .task-item.completed .task-due {
-    color: var(--neutral-400);
+    color: #64748B;
 }
 
 /* Star Button Dark Mode */
 [data-theme="dark"] .task-star {
-    color: var(--neutral-400);
+    color: #64748B;
 }
 
 [data-theme="dark"] .task-star:hover {
-    color: var(--course-yellow);
-    background: var(--course-yellow-light);
+    color: #EAB308;
+    background: rgba(234, 179, 8, 0.15);
 }
 
 [data-theme="dark"] .task-star.starred {
-    color: var(--course-yellow);
+    color: #EAB308;
 }
 
 /* Add Task Row Dark Mode */
 [data-theme="dark"] .add-task-row {
-    background: var(--neutral-100);
-    border-top-color: var(--neutral-200);
+    background: #1E293B;
+    border-top-color: #334155;
 }
 
 [data-theme="dark"] .add-task-circle {
-    border-color: var(--neutral-300);
-    color: var(--neutral-400);
+    border-color: #475569;
+    color: #64748B;
 }
 
 [data-theme="dark"] .add-task-circle:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-    background: var(--primary-subtle);
+    border-color: #5EBEE8;
+    color: #5EBEE8;
+    background: rgba(94, 190, 232, 0.15);
 }
 
 [data-theme="dark"] .add-task-input {
-    color: var(--neutral-700);
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .add-task-input::placeholder {
-    color: var(--neutral-400);
+    color: #64748B;
 }
 
 /* Empty State Dark Mode */
 [data-theme="dark"] .empty-state h3 {
-    color: var(--neutral-700);
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .empty-state p {
-    color: var(--neutral-500);
+    color: #94A3B8;
 }
 
 /* Add Task Modal Dark Mode */

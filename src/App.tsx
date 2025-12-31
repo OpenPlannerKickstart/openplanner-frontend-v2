@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
+// Import dark mode overrides AFTER legacy SCSS to ensure they take precedence
+import './styles/new-frontend-styles.css';
 import './assets/css/bootstrap-icons.css';
 import './assets/css/material-icon.css';
 import "./assets/css/icon.css";

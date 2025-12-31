@@ -55,77 +55,6 @@
     gap: 1.5rem;
 }
 
-/* Courses Empty State */
-.courses-empty-state {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 4rem 2rem;
-    min-height: 400px;
-}
-
-.courses-empty-icon {
-    width: 100px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--primary-subtle);
-    border-radius: 50%;
-    margin-bottom: 1.5rem;
-    color: var(--primary);
-}
-
-.courses-empty-icon svg {
-    width: 48px;
-    height: 48px;
-}
-
-.courses-empty-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--neutral-800);
-    margin-bottom: 0.75rem;
-}
-
-.courses-empty-text {
-    font-size: 1rem;
-    color: var(--neutral-500);
-    max-width: 400px;
-    margin-bottom: 1.5rem;
-    line-height: 1.6;
-}
-
-.courses-empty-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 600;
-}
-
-/* Dark Mode - Courses Empty State */
-[data-theme="dark"] .courses-empty-state {
-    background: transparent;
-}
-
-[data-theme="dark"] .courses-empty-icon {
-    background: rgba(94, 190, 232, 0.15);
-    color: #5EBEE8;
-}
-
-[data-theme="dark"] .courses-empty-title {
-    color: #F8FAFC;
-}
-
-[data-theme="dark"] .courses-empty-text {
-    color: #94A3B8;
-}
-
 /* Course Card */
 .course-card {
     background: var(--white);
@@ -933,13 +862,13 @@
 }
 
 [data-theme="dark"] .syllabus-time-popper .syllabus-time-calendar.react-datepicker {
-    background: var(--white);
-    border-color: var(--neutral-200);
+    background: #0B1120;
+    border-color: #334155;
 }
 
 [data-theme="dark"] .syllabus-time-popper .syllabus-time-calendar .react-datepicker__header {
-    background: var(--primary-subtle);
-    border-bottom-color: var(--neutral-200);
+    background: rgba(94, 190, 232, 0.15);
+    border-bottom-color: #334155;
 }
 
 /* ============================================
@@ -2493,47 +2422,47 @@
 
 /* Course Cards Dark Mode */
 [data-theme="dark"] .course-card {
-    background: var(--white);
-    border-color: var(--neutral-200);
+    background: #0B1120;
+    border-color: #334155;
 }
 
 [data-theme="dark"] .course-card:hover {
-    border-color: var(--neutral-300);
+    border-color: #475569;
 }
 
 [data-theme="dark"] .course-icon {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(8px);
-    color: var(--neutral-100);
+    color: #1E293B;
 }
 
 [data-theme="dark"] .course-name {
-    color: var(--neutral-900);
+    color: #F8FAFC;
 }
 
 [data-theme="dark"] .course-meta {
-    border-bottom-color: var(--neutral-200);
+    border-bottom-color: #334155;
 }
 
 [data-theme="dark"] .meta-item {
-    color: var(--neutral-600);
+    color: #CBD5E1;
 }
 
 [data-theme="dark"] .meta-item svg {
-    color: var(--neutral-500);
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .event-count {
-    color: var(--neutral-600);
+    color: #CBD5E1;
 }
 
 [data-theme="dark"] .event-count strong {
-    color: var(--neutral-900);
+    color: #F8FAFC;
 }
 
 [data-theme="dark"] .delete-course-btn {
-    background: var(--error-light);
-    color: var(--error);
+    background: rgba(248, 113, 113, 0.15);
+    color: #F87171;
 }
 
 [data-theme="dark"] .delete-course-btn:hover {
@@ -2542,71 +2471,71 @@
 
 /* View Toggle Dark Mode */
 [data-theme="dark"] .view-toggle {
-    background: var(--white);
-    border-color: var(--neutral-200);
+    background: #0B1120;
+    border-color: #334155;
 }
 
 [data-theme="dark"] .view-toggle-btn {
-    background: var(--white);
-    color: var(--neutral-500);
+    background: #0B1120;
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .view-toggle-btn:first-child {
-    border-right-color: var(--neutral-200);
+    border-right-color: #334155;
 }
 
 [data-theme="dark"] .view-toggle-btn:hover {
-    background: var(--neutral-100);
-    color: var(--neutral-700);
+    background: #1E293B;
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .view-toggle-btn.active {
-    background: var(--primary-subtle);
-    color: var(--primary);
+    background: rgba(94, 190, 232, 0.15);
+    color: #5EBEE8;
 }
 
 /* Add Course Card Dark Mode */
 [data-theme="dark"] .add-course-card {
-    background: var(--neutral-100);
-    border-color: var(--neutral-300);
+    background: #1E293B;
+    border-color: #475569;
 }
 
 [data-theme="dark"] .add-course-card:hover {
-    background: var(--primary-subtle);
-    border-color: var(--primary);
+    background: rgba(94, 190, 232, 0.15);
+    border-color: #5EBEE8;
 }
 
 [data-theme="dark"] .add-icon {
-    background: var(--white);
-    color: var(--neutral-500);
+    background: #0B1120;
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .add-course-card:hover .add-icon {
-    background: var(--primary);
-    color: var(--white);
+    background: #5EBEE8;
+    color: #0B1120;
 }
 
 [data-theme="dark"] .add-course-card span {
-    color: var(--neutral-600);
+    color: #CBD5E1;
 }
 
 /* Empty State Dark Mode */
 [data-theme="dark"] .courses-empty {
-    background: var(--white);
-    border-color: var(--neutral-300);
+    background: #0B1120;
+    border-color: #475569;
 }
 
 [data-theme="dark"] .courses-empty-icon {
-    background: var(--primary-subtle);
-    color: var(--primary);
+    background: rgba(94, 190, 232, 0.15);
+    color: #5EBEE8;
 }
 
 [data-theme="dark"] .courses-empty h3 {
-    color: var(--neutral-900);
+    color: #F8FAFC;
 }
 
 [data-theme="dark"] .courses-empty p {
-    color: var(--neutral-500);
+    color: #94A3B8;
 }
 
 /* Syllabus Modal Dark Mode */
@@ -2705,273 +2634,273 @@
 
 /* Time Picker Dark Mode */
 [data-theme="dark"] .time-picker-dropdown {
-    background: var(--white);
-    border-color: var(--neutral-200);
+    background: #0B1120;
+    border-color: #334155;
 }
 
 [data-theme="dark"] .time-picker-header {
-    color: var(--primary);
-    border-bottom-color: var(--neutral-200);
-    background: var(--primary-subtle);
+    color: #5EBEE8;
+    border-bottom-color: #334155;
+    background: rgba(94, 190, 232, 0.15);
 }
 
 [data-theme="dark"] .time-picker-option {
-    color: var(--neutral-600);
+    color: #CBD5E1;
 }
 
 [data-theme="dark"] .time-picker-option:hover {
-    background: var(--primary-subtle);
-    color: var(--primary);
+    background: rgba(94, 190, 232, 0.15);
+    color: #5EBEE8;
 }
 
 [data-theme="dark"] .time-picker-option.selected {
-    background: var(--primary);
-    color: var(--white);
+    background: #5EBEE8;
+    color: #0B1120;
 }
 
 /* Color Picker Dark Mode */
 [data-theme="dark"] .color-preview.selected,
 [data-theme="dark"] .color-option.selected {
-    border-color: var(--neutral-100);
-    box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--neutral-500);
+    border-color: #1E293B;
+    box-shadow: 0 0 0 2px #0B1120, 0 0 0 4px #94A3B8;
 }
 
 /* Syllabus Footer Dark Mode */
 [data-theme="dark"] .syllabus-footer {
-    background: var(--neutral-100);
-    border-top-color: var(--neutral-200);
+    background: #1E293B;
+    border-top-color: #334155;
 }
 
 [data-theme="dark"] .syllabus-footer .btn-outline {
-    background: var(--neutral-100);
-    border-color: var(--neutral-300);
-    color: var(--neutral-600);
+    background: #1E293B;
+    border-color: #475569;
+    color: #CBD5E1;
 }
 
 [data-theme="dark"] .syllabus-footer .btn-outline:hover {
-    background: var(--neutral-200);
-    border-color: var(--neutral-400);
+    background: #334155;
+    border-color: #64748B;
 }
 
 /* Edit Course Page Dark Mode */
 [data-theme="dark"] .events-panel {
-    background: var(--white);
-    border-color: var(--neutral-200);
+    background: #0B1120;
+    border-color: #334155;
 }
 
 [data-theme="dark"] .course-tabs {
-    background: var(--neutral-100);
-    border-bottom-color: var(--neutral-200);
+    background: #1E293B;
+    border-bottom-color: #334155;
 }
 
 [data-theme="dark"] .tab-btn {
-    color: var(--neutral-600);
+    color: #CBD5E1;
 }
 
 [data-theme="dark"] .tab-btn:hover {
-    color: var(--primary);
-    background: var(--primary-subtle);
+    color: #5EBEE8;
+    background: rgba(94, 190, 232, 0.15);
 }
 
 [data-theme="dark"] .tab-btn.active {
-    color: var(--primary);
-    background: var(--white);
-    border-color: var(--neutral-200);
+    color: #5EBEE8;
+    background: #0B1120;
+    border-color: #334155;
 }
 
 [data-theme="dark"] .edit-course-table-header {
-    background: var(--neutral-100);
-    border-bottom-color: var(--neutral-200);
-    color: var(--neutral-500);
+    background: #1E293B;
+    border-bottom-color: #334155;
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .events-panel .task-row {
-    border-bottom-color: var(--neutral-200);
+    border-bottom-color: #334155;
 }
 
 [data-theme="dark"] .events-panel .task-row:hover {
-    background: var(--neutral-100);
+    background: #1E293B;
 }
 
 [data-theme="dark"] .events-panel .task-checkbox {
-    background: var(--white);
-    border-color: var(--neutral-300);
+    background: #0B1120;
+    border-color: #475569;
 }
 
 [data-theme="dark"] .events-panel .task-checkbox:hover {
-    border-color: var(--primary);
+    border-color: #5EBEE8;
 }
 
 [data-theme="dark"] .events-panel .col-time {
-    color: var(--neutral-700);
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .events-panel .col-event {
-    color: var(--neutral-600);
+    color: #CBD5E1;
 }
 
 [data-theme="dark"] .events-panel .due-date-header {
-    background: var(--neutral-100);
-    border-bottom-color: var(--neutral-200);
-    color: var(--neutral-900);
+    background: #1E293B;
+    border-bottom-color: #334155;
+    color: #F8FAFC;
 }
 
 [data-theme="dark"] .events-panel .due-date-group {
-    border-bottom-color: var(--neutral-200);
+    border-bottom-color: #334155;
 }
 
 /* Priority Badges Dark Mode */
 [data-theme="dark"] .events-panel .priority-badge.low {
-    background: var(--success-light);
-    color: var(--success);
+    background: rgba(52, 211, 153, 0.15);
+    color: #34D399;
 }
 
 [data-theme="dark"] .events-panel .priority-badge.medium {
-    background: var(--warning-light);
-    color: var(--warning);
+    background: rgba(251, 191, 36, 0.15);
+    color: #FBBF24;
 }
 
 [data-theme="dark"] .events-panel .priority-badge.high {
-    background: var(--error-light);
-    color: var(--error);
+    background: rgba(248, 113, 113, 0.15);
+    color: #F87171;
 }
 
 /* Past Events Dark Mode */
 [data-theme="dark"] .past-events-toggle {
-    background: var(--neutral-100);
-    color: var(--neutral-700);
+    background: #1E293B;
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .past-events-toggle:hover {
-    background: var(--neutral-200);
+    background: #334155;
 }
 
 /* Syllabus Details Form Dark Mode */
 [data-theme="dark"] .syllabus-details-form .form-label {
-    color: var(--neutral-700);
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .syllabus-details-form .form-input {
-    background: var(--neutral-100);
-    border-color: var(--neutral-200);
-    color: var(--neutral-800);
+    background: #1E293B;
+    border-color: #334155;
+    color: #F1F5F9;
 }
 
 [data-theme="dark"] .syllabus-details-header {
-    border-bottom-color: var(--neutral-200);
+    border-bottom-color: #334155;
 }
 
 [data-theme="dark"] .syllabus-details-title {
-    color: var(--neutral-800);
+    color: #F1F5F9;
 }
 
 [data-theme="dark"] .syllabus-file-display {
-    background: var(--neutral-100);
-    border-color: var(--neutral-200);
+    background: #1E293B;
+    border-color: #334155;
 }
 
 [data-theme="dark"] .syllabus-file-display .file-name {
-    color: var(--neutral-800);
+    color: #F1F5F9;
 }
 
 [data-theme="dark"] .syllabus-file-display .file-size {
-    color: var(--neutral-500);
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .syllabus-file-display .file-view-btn {
-    background: var(--white);
-    border-color: var(--neutral-200);
-    color: var(--neutral-600);
+    background: #0B1120;
+    border-color: #334155;
+    color: #CBD5E1;
 }
 
 [data-theme="dark"] .syllabus-file-display .file-view-btn:hover {
-    background: var(--neutral-100);
+    background: #1E293B;
 }
 
 [data-theme="dark"] .course-color-display {
-    background: var(--neutral-100);
-    border-color: var(--neutral-200);
+    background: #1E293B;
+    border-color: #334155;
 }
 
 [data-theme="dark"] .course-color-display .color-name {
-    color: var(--neutral-700);
+    color: #E2E8F0;
 }
 
 /* Syllabus Preview Panel Dark Mode */
 [data-theme="dark"] .syllabus-preview-panel {
-    background: var(--white);
-    border-color: var(--neutral-200);
+    background: #0B1120;
+    border-color: #334155;
 }
 
 [data-theme="dark"] .preview-header {
-    border-bottom-color: var(--neutral-200);
+    border-bottom-color: #334155;
 }
 
 [data-theme="dark"] .preview-title {
-    color: var(--neutral-900);
+    color: #F8FAFC;
 }
 
 [data-theme="dark"] .hide-preview-btn {
-    color: var(--primary);
+    color: #5EBEE8;
 }
 
 [data-theme="dark"] .preview-toolbar {
-    background: var(--neutral-100);
-    border-bottom-color: var(--neutral-200);
+    background: #1E293B;
+    border-bottom-color: #334155;
 }
 
 [data-theme="dark"] .toolbar-btn {
-    color: var(--neutral-500);
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .toolbar-btn:hover {
-    color: var(--neutral-700);
-    background: var(--neutral-200);
+    color: #E2E8F0;
+    background: #334155;
 }
 
 [data-theme="dark"] .page-input,
 [data-theme="dark"] .page-select {
-    background: var(--white);
-    border-color: var(--neutral-300);
-    color: var(--neutral-700);
+    background: #0B1120;
+    border-color: #475569;
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .preview-content {
-    background: var(--neutral-100);
+    background: #1E293B;
 }
 
 [data-theme="dark"] .pdf-placeholder {
-    background: var(--white);
+    background: #0B1120;
 }
 
 [data-theme="dark"] .pdf-document {
-    color: var(--neutral-700);
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .pdf-document h3,
 [data-theme="dark"] .pdf-section h4 {
-    color: var(--neutral-900);
+    color: #F8FAFC;
 }
 
 /* Back Button Dark Mode */
 [data-theme="dark"] .back-btn {
-    background: var(--primary);
-    color: var(--white);
+    background: #5EBEE8;
+    color: #0B1120;
 }
 
 [data-theme="dark"] .back-btn:hover {
-    background: var(--primary-dark);
+    background: #4AAED4;
 }
 
 /* Static Field Dark Mode */
 [data-theme="dark"] .static-field {
-    background: var(--neutral-100);
-    border-color: var(--neutral-200);
-    color: var(--neutral-700);
+    background: #1E293B;
+    border-color: #334155;
+    color: #E2E8F0;
 }
 
 [data-theme="dark"] .static-field svg {
-    color: var(--primary);
+    color: #5EBEE8;
 }
 
 /* ============================================
@@ -3203,38 +3132,38 @@
 
 /* Upload Progress Dark Mode */
 [data-theme="dark"] .upload-progress-card {
-    background: var(--white);
+    background: #0B1120;
     box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="dark"] .upload-progress-card h3 {
-    color: var(--neutral-900);
+    color: #F8FAFC;
 }
 
 [data-theme="dark"] .upload-header-info .file-name-small {
-    color: var(--neutral-500);
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .upload-spinner {
-    border-color: var(--neutral-300);
-    border-top-color: var(--primary);
+    border-color: #475569;
+    border-top-color: #5EBEE8;
 }
 
 [data-theme="dark"] .progress-bar-container {
-    background: var(--neutral-200);
+    background: #334155;
 }
 
 [data-theme="dark"] .progress-text {
-    color: var(--neutral-500);
+    color: #94A3B8;
 }
 
 [data-theme="dark"] .upload-close-btn {
-    color: var(--neutral-400);
+    color: #64748B;
 }
 
 [data-theme="dark"] .upload-close-btn:hover {
-    background: var(--neutral-200);
-    color: var(--neutral-600);
+    background: #334155;
+    color: #CBD5E1;
 }
 
 /* Responsive */
