@@ -278,34 +278,70 @@
 
 /* Dark Mode Support */
 [data-theme="dark"] .price-plan-card {
-    background: var(--bg-secondary, #1e293b);
-    border-color: var(--neutral-700, #334155);
+    background: #1E293B !important;
+    border-color: #334155 !important;
 }
 
 [data-theme="dark"] .price-plan-card:hover {
-    border-color: var(--primary, #4AAED4);
+    border-color: #4AAED4 !important;
+}
+
+[data-theme="dark"] .price-plan-card.popular {
+    border-color: #4AAED4 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 0 40px rgba(74, 174, 212, 0.2) !important;
+}
+
+[data-theme="dark"] .price-plan-card.best-value {
+    border-color: #10B981 !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 0 40px rgba(16, 185, 129, 0.2) !important;
 }
 
 [data-theme="dark"] .plan-duration {
-    color: var(--neutral-400, #94a3b8);
+    color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .plan-price-old {
+    color: #64748B !important;
 }
 
 [data-theme="dark"] .plan-price-current {
-    color: var(--white, #ffffff);
+    color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .plan-price-per-month {
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .plan-features {
-    border-top-color: var(--neutral-700, #334155);
+    border-top-color: #334155 !important;
+}
+
+[data-theme="dark"] .plan-features-label {
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .plan-features li {
-    color: var(--neutral-300, #cbd5e1);
+    color: #E2E8F0 !important;
+}
+
+[data-theme="dark"] .plan-btn.active-plan {
+    background: #334155 !important;
+    color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .plan-btn:disabled {
+    background: #475569 !important;
+    color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .price-plans-header h2 {
-    color: var(--white, #ffffff);
+    color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .price-plans-header p {
-    color: var(--neutral-400, #94a3b8);
+    color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .price-plans-loading {
+    background: rgba(15, 23, 42, 0.8) !important;
 }

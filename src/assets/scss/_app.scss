@@ -915,3 +915,44 @@
     max-width: 100%;
   }
 }
+
+/* ============================================
+   Dark Mode Styles for Plans Page
+   ============================================ */
+
+[data-theme="dark"] .plans-page {
+  background: radial-gradient(circle at 20% 20%, rgba(74, 174, 212, 0.1) 0, rgba(74, 174, 212, 0.05) 25%, transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(139, 92, 246, 0.08) 0, rgba(139, 92, 246, 0.04) 22%, transparent 40%),
+    linear-gradient(135deg, #0F172A 0%, #1E293B 100%) !important;
+}
+
+[data-theme="dark"] .plans-hero h1 {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .plans-hero__eyebrow {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .plans-hero__sub {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .plans-actions .btn-outline-primary {
+  color: #4AAED4 !important;
+  border-color: #4AAED4 !important;
+  background: transparent !important;
+}
+
+[data-theme="dark"] .plans-actions .btn-outline-primary:hover {
+  background: rgba(74, 174, 212, 0.15) !important;
+}
+
+[data-theme="dark"] .plans-grid .pricing-card {
+  background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%) !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .plans-grid .pricing-card:hover {
+  border-color: #4AAED4 !important;
+}
