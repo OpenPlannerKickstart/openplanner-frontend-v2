@@ -888,7 +888,7 @@
 [data-theme="dark"] .notification-item {
   background: #1E293B;
   border-radius: 12px;
-  border-left: 3px solid transparent;
+  border-left: none;
 }
 
 [data-theme="dark"] .notification-item:hover {
@@ -896,64 +896,32 @@
 }
 
 /* Type-specific notification styling in dark mode */
-/* Event (Class Starting Soon) - Blue */
-[data-theme="dark"] .notification-item:has(.notification-icon.event) {
-  background: rgba(59, 130, 246, 0.08);
-  border-left-color: #60A5FA;
-}
-
-[data-theme="dark"] .notification-item:has(.notification-icon.event):hover {
-  background: rgba(59, 130, 246, 0.15);
-}
-
-/* Reminder (Assignment Due) - Gold/Yellow */
-[data-theme="dark"] .notification-item:has(.notification-icon.reminder) {
-  background: rgba(251, 191, 36, 0.08);
-  border-left-color: #FBBF24;
-}
-
-[data-theme="dark"] .notification-item:has(.notification-icon.reminder):hover {
-  background: rgba(251, 191, 36, 0.15);
-}
-
-/* Course (New Material) - Green */
-[data-theme="dark"] .notification-item:has(.notification-icon.course) {
-  background: rgba(34, 197, 94, 0.08);
-  border-left-color: #4ADE80;
-}
-
-[data-theme="dark"] .notification-item:has(.notification-icon.course):hover {
-  background: rgba(34, 197, 94, 0.15);
-}
-
-/* Invite - Purple */
-[data-theme="dark"] .notification-item:has(.notification-icon.invite) {
-  background: rgba(168, 85, 247, 0.08);
-  border-left-color: #C084FC;
-}
-
-[data-theme="dark"] .notification-item:has(.notification-icon.invite):hover {
-  background: rgba(168, 85, 247, 0.15);
-}
-
-/* Alert (Schedule Change) - Red */
+/* Neutral dark background, no colored border */
+[data-theme="dark"] .notification-item:has(.notification-icon.event),
+[data-theme="dark"] .notification-item:has(.notification-icon.reminder),
+[data-theme="dark"] .notification-item:has(.notification-icon.course),
+[data-theme="dark"] .notification-item:has(.notification-icon.invite),
 [data-theme="dark"] .notification-item:has(.notification-icon.alert) {
-  background: rgba(239, 68, 68, 0.08);
-  border-left-color: #f87171;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: none;
 }
 
+[data-theme="dark"] .notification-item:has(.notification-icon.event):hover,
+[data-theme="dark"] .notification-item:has(.notification-icon.reminder):hover,
+[data-theme="dark"] .notification-item:has(.notification-icon.course):hover,
+[data-theme="dark"] .notification-item:has(.notification-icon.invite):hover,
 [data-theme="dark"] .notification-item:has(.notification-icon.alert):hover {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Legacy unread styling (fallback) */
 [data-theme="dark"] .notification-item.unread {
-  background: rgba(94, 190, 232, 0.1);
-  border-left-color: #4AAED4;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: none;
 }
 
 [data-theme="dark"] .notification-item.unread:hover {
-  background: rgba(94, 190, 232, 0.15);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 [data-theme="dark"] .notification-title {
@@ -2106,7 +2074,7 @@ input, textarea, select {
 
 .notification-item.unread {
   background: var(--primary-subtle);
-  border-left: 3px solid var(--primary);
+  border-left: none;
 }
 
 .notification-item.unread:hover {
@@ -2114,54 +2082,22 @@ input, textarea, select {
 }
 
 /* Type-specific notification styling in light mode */
-/* Event (Class Starting Soon) - Blue */
-.notification-item:has(.notification-icon.event) {
-  background: rgba(59, 130, 246, 0.06);
-  border-left: 3px solid var(--course-blue);
-}
-
-.notification-item:has(.notification-icon.event):hover {
-  background: rgba(59, 130, 246, 0.12);
-}
-
-/* Reminder (Assignment Due) - Gold/Yellow */
-.notification-item:has(.notification-icon.reminder) {
-  background: rgba(251, 191, 36, 0.08);
-  border-left: 3px solid var(--warning);
-}
-
-.notification-item:has(.notification-icon.reminder):hover {
-  background: rgba(251, 191, 36, 0.14);
-}
-
-/* Course (New Material) - Green */
-.notification-item:has(.notification-icon.course) {
-  background: rgba(34, 197, 94, 0.06);
-  border-left: 3px solid var(--course-teal);
-}
-
-.notification-item:has(.notification-icon.course):hover {
-  background: rgba(34, 197, 94, 0.12);
-}
-
-/* Invite - Purple */
-.notification-item:has(.notification-icon.invite) {
-  background: rgba(168, 85, 247, 0.06);
-  border-left: 3px solid var(--course-purple);
-}
-
-.notification-item:has(.notification-icon.invite):hover {
-  background: rgba(168, 85, 247, 0.12);
-}
-
-/* Alert (Schedule Change) - Red */
+/* Neutral white background, no colored border */
+.notification-item:has(.notification-icon.event),
+.notification-item:has(.notification-icon.reminder),
+.notification-item:has(.notification-icon.course),
+.notification-item:has(.notification-icon.invite),
 .notification-item:has(.notification-icon.alert) {
-  background: rgba(239, 68, 68, 0.06);
-  border-left: 3px solid var(--error);
+  background: rgba(255, 255, 255, 0.9);
+  border-left: none;
 }
 
+.notification-item:has(.notification-icon.event):hover,
+.notification-item:has(.notification-icon.reminder):hover,
+.notification-item:has(.notification-icon.course):hover,
+.notification-item:has(.notification-icon.invite):hover,
 .notification-item:has(.notification-icon.alert):hover {
-  background: rgba(239, 68, 68, 0.12);
+  background: var(--neutral-100);
 }
 
 .notification-icon {
@@ -4119,4 +4055,51 @@ input, textarea, select {
         grid-template-columns: repeat(3, 1fr);
         gap: 0.25rem;
     }
+}
+
+/* ============================================
+   Global Back to Top Button Styles
+   ============================================ */
+button.back-to-top,
+button.parents-back-to-top,
+.back-to-top,
+.parents-back-to-top {
+    background: transparent !important;
+    background-color: transparent !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+    color: #6B7280 !important; /* Grey in light mode */
+}
+
+button.back-to-top:hover,
+button.parents-back-to-top:hover,
+.back-to-top:hover,
+.parents-back-to-top:hover {
+    background: #4AAED4 !important;
+    background-color: #4AAED4 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 10px 25px -5px rgba(74, 174, 212, 0.3), 0 8px 10px -6px rgba(74, 174, 212, 0.2) !important;
+}
+
+[data-theme="dark"] button.back-to-top,
+[data-theme="dark"] button.parents-back-to-top,
+[data-theme="dark"] .back-to-top,
+[data-theme="dark"] .parents-back-to-top {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
+    color: #FFFFFF !important; /* White in dark mode */
+}
+
+[data-theme="dark"] button.back-to-top:hover,
+[data-theme="dark"] button.parents-back-to-top:hover,
+[data-theme="dark"] .back-to-top:hover,
+[data-theme="dark"] .parents-back-to-top:hover {
+    background: #4AAED4 !important;
+    background-color: #4AAED4 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 10px 25px -5px rgba(74, 174, 212, 0.4), 0 8px 10px -6px rgba(74, 174, 212, 0.3) !important;
 }

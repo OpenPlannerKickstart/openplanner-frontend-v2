@@ -29,10 +29,10 @@
 }
 
 .marketing-footer-logo {
-  height: 40px !important;
+  height: 48px !important;
   width: auto !important;
   max-width: none !important;
-  filter: brightness(0) invert(1);
+  /* No filter - using the blue and white logo */
 }
 
 /* Nav */
@@ -132,6 +132,17 @@
   .marketing-footer-content {
     grid-template-columns: 1fr;
     text-align: center;
+  }
+
+  .marketing-footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .marketing-footer-brand a {
+    display: flex;
+    justify-content: center;
   }
 
   .marketing-footer-nav {

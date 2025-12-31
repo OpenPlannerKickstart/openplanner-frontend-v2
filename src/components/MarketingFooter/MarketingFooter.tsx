@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MarketingFooter.css';
+import sidebarLogoLg from '../../assets/images/sidebar-logo-lg.svg';
 
 const MarketingFooter: React.FC = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const MarketingFooter: React.FC = () => {
         <div className="marketing-footer-content">
           <div className="marketing-footer-brand">
             <a href="/" onClick={(e) => { e.preventDefault(); navLink('/'); }}>
-              <img src="/assets/logo.png" alt="Open Planner" className="marketing-footer-logo" />
+              <img src={sidebarLogoLg} alt="Open Planner" className="marketing-footer-logo" />
             </a>
             <p>AI-powered scheduling for students</p>
           </div>

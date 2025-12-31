@@ -173,29 +173,34 @@
 /* Mobile Menu Dropdown */
 .marketing-mobile-menu {
   display: none;
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 72px; /* Height of navbar */
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  padding: 1.5rem;
+  height: calc(100vh - 72px);
+  height: calc(100dvh - 72px); /* Dynamic viewport height for mobile */
+  background: #FFFFFF !important;
+  padding: 2rem 1.5rem;
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   border-top: 1px solid #E2E8F0;
+  z-index: 9999 !important;
+  overflow-y: auto;
 }
 
 .marketing-mobile-menu.active {
-  display: block;
+  display: flex !important;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .marketing-mobile-nav-links {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   list-style: none;
-  margin: 0 0 1.5rem 0;
+  margin: 0;
   padding: 0;
+  flex: 1;
 }
 
 .marketing-mobile-nav-links li {
@@ -204,10 +209,10 @@
 
 .marketing-mobile-nav-links a {
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 1.125rem;
   color: #334155;
-  padding: 0.75rem 0;
   display: block;
+  padding: 1rem 0;
   text-decoration: none;
   transition: color 0.15s ease;
 }
@@ -219,7 +224,9 @@
 .marketing-mobile-actions {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
+  margin-top: auto;
+  padding-bottom: 2rem;
 }
 
 .marketing-mobile-login-btn {
@@ -310,9 +317,10 @@
 }
 
 [data-theme="dark"] .marketing-mobile-menu {
-  background: rgba(15, 23, 42, 0.98) !important;
+  background: #0F172A !important;
   border-top-color: #1E293B !important;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  z-index: 9999 !important;
 }
 
 [data-theme="dark"] .marketing-mobile-nav-links a {
@@ -372,9 +380,10 @@
 }
 
 [data-theme="dark"] .marketing-mobile-menu {
-  background: rgba(15, 23, 42, 0.98) !important;
+  background: #0F172A !important;
   border-top-color: #1E293B !important;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  z-index: 9999 !important;
 }
 
 [data-theme="dark"] .marketing-mobile-nav-links a {

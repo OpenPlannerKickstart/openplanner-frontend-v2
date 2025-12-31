@@ -3,6 +3,7 @@ import { Button, Card, Form } from "react-bootstrap";
 import authLogo from "/assets/images/auth-logo.svg";
 import authBGImage from "/assets/images/auth-bg-image.svg";
 import authBGImage3 from "/assets/images/auth-bg-image3.svg";
+import sidebarLogoLg from '../../../assets/images/sidebar-logo-lg.svg';
 import { NavLink, useNavigate } from "react-router-dom";
 
 import { connect, useDispatch } from "react-redux";
@@ -20,6 +21,35 @@ import { EMAIL_INVALID, EMAIL_REQUIRED, USERNAME_IS_REQUIRED, USERNAME_SPACE_VAL
 const ForgotPassword = (props) => {
   const dispatch: AppDispatch = useDispatch();
   const [emailDetailObj, setEmailDetailObj] = useState({} as any);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+  // Detect theme changes
+  useEffect(() => {
+    const checkTheme = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      setIsDarkMode(theme === 'dark');
+    };
+    
+    // Initial check
+    checkTheme();
+    
+    // Watch for theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          checkTheme();
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+    
+    return () => observer.disconnect();
+  }, []);
+
+  // Dynamic logo based on theme
+  const brandLogo = isDarkMode ? sidebarLogoLg : authLogo;
+
   /* ------------------------ Send Email Otp Data start ----------------------- */
 
   const initEmailData = {
@@ -103,7 +133,7 @@ const ForgotPassword = (props) => {
                 <div className="admin-auth-col admin-auth-left">
                   <a href="https://open-planner.com/" target='_blank' >
                     <div className="admin-auth-logo cursor">
-                      <img src={authLogo} alt="OpenPlanner" />
+                      <img src={brandLogo} alt="OpenPlanner" />
                     </div>
                   </a>
                   <a href="https://open-planner.com/" target='_blank' >
@@ -114,6 +144,9 @@ const ForgotPassword = (props) => {
                 </div>
                 <div className="admin-auth-col admin-auth-right">
                   <div className="admin-auth-from">
+                    <a href="https://open-planner.com/" className="admin-auth-mobile-logo" target="_blank" rel="noreferrer">
+                      <img src={brandLogo} alt="Open Planner" />
+                    </a>
                     <div className="admin-auth-card-title">
                       <div className="box-icon box-light-primary wh-70px">
                         <i className="material-symbols-outlined">lock</i>
@@ -123,10 +156,10 @@ const ForgotPassword = (props) => {
                     <Card className="admin-auth-card">
                       <Card.Body>
                         <Form.Group className="form-group required">
-                          <Form.Label>Enter User Name</Form.Label>
+                          <Form.Label>Username/Email</Form.Label>
                           <div className="form-group-icon-start">
                             <i className="material-symbols-outlined">mail</i>
-                            <Form.Control type="email" placeholder="Enter User Name"
+                            <Form.Control type="email" placeholder="Enter Username/Email"
                               {...emailFormData.getFieldProps("username")}
                               onKeyDown={(event) => { handleKeyPress(event) }}
                               onBlur={() => {

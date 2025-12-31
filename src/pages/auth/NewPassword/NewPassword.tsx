@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Card, Form } from "react-bootstrap";
 import authLogo from "/assets/images/auth-logo.svg";
 import authBGImage4 from "/assets/images/auth-bg-image4.svg";
+import sidebarLogoLg from '../../../assets/images/sidebar-logo-lg.svg';
 import { connect, useDispatch } from "react-redux";
 import { AppDispatch } from "../../../redux/store";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -16,8 +17,36 @@ const NewPassword = (props) => {
   const { emailDetailObj } = props;
   const [eyeToggle, setEyeToggle] = useState<boolean>(false);
   const [eyeConfirmToggle, setEyeConfirmToggle] = useState<boolean>(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Detect theme changes
+  useEffect(() => {
+    const checkTheme = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      setIsDarkMode(theme === 'dark');
+    };
+    
+    // Initial check
+    checkTheme();
+    
+    // Watch for theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          checkTheme();
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+    
+    return () => observer.disconnect();
+  }, []);
+
+  // Dynamic logo based on theme
+  const brandLogo = isDarkMode ? sidebarLogoLg : authLogo;
   const initPasswordResetValues: any = {
     new_password: "",
     confirm_password: "",
@@ -109,7 +138,7 @@ const NewPassword = (props) => {
           <div className="admin-auth-row">
             <div className="admin-auth-col admin-auth-left">
               <div className="admin-auth-logo">
-                <img src={authLogo} alt="Open Planer" />
+                <img src={brandLogo} alt="Open Planner" />
               </div>
               <div className="auth-image">
                 <img src={authBGImage4} alt="Open Planer" />
@@ -117,6 +146,9 @@ const NewPassword = (props) => {
             </div>
             <div className="admin-auth-col admin-auth-right">
               <div className="admin-auth-from">
+                <a href="https://open-planner.com/" className="admin-auth-mobile-logo" target="_blank" rel="noreferrer">
+                  <img src={brandLogo} alt="Open Planner" />
+                </a>
                 <div className="admin-auth-card-title">
                   <div className="box-icon box-light-primary wh-70px">
                     <i className="material-symbols-outlined">key</i>

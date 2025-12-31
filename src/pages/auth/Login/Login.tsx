@@ -5,6 +5,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 
 import "../AuthPage.css";
+import sidebarLogoLg from '../../../assets/images/sidebar-logo-lg.svg';
 
 import { AppDispatch } from "../../../redux/store";
 import { loginToSystem } from "../../../redux/Service/auth/login";
@@ -39,6 +40,31 @@ const Login = (props) => {
   const [eyeToggle, setEyeToggle] = useState<boolean>(false);
   const dispatch: AppDispatch = useDispatch();
   const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+  // Detect theme changes
+  useEffect(() => {
+    const checkTheme = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      setIsDarkMode(theme === 'dark');
+    };
+    
+    // Initial check
+    checkTheme();
+    
+    // Watch for theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          checkTheme();
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+    
+    return () => observer.disconnect();
+  }, []);
 
   const initLoginValues: LoginData = {
     identifier: "",
@@ -132,7 +158,7 @@ const Login = (props) => {
     }
   };
 
-  const brandLogo = "/assets/logo.png";
+  const brandLogo = isDarkMode ? sidebarLogoLg : "/assets/logo.png";
 
   return (
     <>
@@ -239,7 +265,7 @@ const Login = (props) => {
                     <input
                       type="text"
                       className="form-input"
-                      placeholder="Enter Your User Name"
+                      placeholder="Enter Username/Email"
                       {...loginFormData.getFieldProps("identifier")}
                       maxLength={MAX_50}
                       onKeyDown={(event) => {

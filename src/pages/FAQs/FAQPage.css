@@ -360,14 +360,17 @@ input, textarea, select {
 
 .mobile-menu {
   display: none;
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 72px; /* Height of navbar */
   left: 0;
   right: 0;
+  bottom: 0;
   background: var(--white);
   padding: 1.5rem;
   box-shadow: var(--shadow-lg);
   border-top: 1px solid var(--neutral-200);
+  z-index: 999;
+  overflow-y: auto;
 }
 
 .mobile-menu.active {
@@ -651,38 +654,50 @@ input, textarea, select {
    Back to Top Button
    ============================================ */
 
+button.back-to-top,
 .back-to-top {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
   width: 48px;
   height: 48px;
-  background: none !important;
-  color: #4AAED4 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  color: #6B7280 !important; /* Grey in light mode */
+  border: none !important;
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   z-index: 999;
   opacity: 0;
   visibility: hidden;
   transform: translateY(20px);
   transition: all var(--transition-base);
+  cursor: pointer;
 }
 
+button.back-to-top.visible,
 .back-to-top.visible {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 }
 
+button.back-to-top:hover,
 .back-to-top:hover {
   background: #4AAED4 !important;
+  background-color: #4AAED4 !important;
   color: #FFFFFF !important;
   transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(74, 174, 212, 0.3), 0 8px 10px -6px rgba(74, 174, 212, 0.2);
 }
 
+button.back-to-top svg,
 .back-to-top svg {
   width: 24px;
   height: 24px;
@@ -925,13 +940,13 @@ input, textarea, select {
 
 /* Base */
 [data-theme="dark"] .faq-page {
-  background-color: var(--neutral-900);
-  color: var(--neutral-300);
+  background-color: #0F172A !important;
+  color: #CBD5E1 !important;
 }
 
 [data-theme="dark"] .faq-page,
 [data-theme="dark"] .faq-page * {
-  color: var(--neutral-300);
+  color: #CBD5E1;
 }
 
 [data-theme="dark"] .faq-page h1,
@@ -940,176 +955,187 @@ input, textarea, select {
 [data-theme="dark"] .faq-page h4,
 [data-theme="dark"] .faq-page h5,
 [data-theme="dark"] .faq-page h6 {
-  color: var(--neutral-50);
+  color: #F8FAFC !important;
 }
 
 /* Navbar */
 [data-theme="dark"] .faq-page .navbar {
-  background: rgba(15, 23, 42, 0.95);
-  border-bottom-color: rgba(255, 255, 255, 0.05);
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 [data-theme="dark"] .navbar-link {
-  color: var(--neutral-300);
+  color: #CBD5E1 !important;
 }
 
 [data-theme="dark"] .navbar-link:hover {
-  color: var(--primary-light);
+  color: #6BC4E8 !important;
 }
 
 [data-theme="dark"] .navbar-login {
-  color: var(--neutral-300);
+  color: #CBD5E1 !important;
 }
 
 [data-theme="dark"] .navbar-login:hover {
-  color: var(--primary-light);
-  background-color: rgba(74, 174, 212, 0.1);
+  color: #6BC4E8 !important;
+  background-color: rgba(74, 174, 212, 0.1) !important;
 }
 
 [data-theme="dark"] .mobile-menu-btn span {
-  background-color: var(--neutral-300);
+  background-color: #CBD5E1 !important;
 }
 
 [data-theme="dark"] .mobile-menu {
-  background: var(--neutral-800);
-  border-top-color: var(--neutral-700);
+  background: #0F172A !important;
+  border-top-color: #334155 !important;
 }
 
 [data-theme="dark"] .mobile-menu-links a {
-  color: var(--neutral-200);
+  color: #E2E8F0 !important;
 }
 
 [data-theme="dark"] .mobile-menu-links a:hover {
-  color: var(--primary-light);
+  color: #6BC4E8 !important;
 }
 
 /* Hero Section */
 [data-theme="dark"] .faq-hero .hero-bg-gradient {
-  background: linear-gradient(to bottom, #0F172A, #1E293B, var(--neutral-900));
+  background: linear-gradient(to bottom, #0F172A, #1E293B, #0F172A) !important;
 }
 
 [data-theme="dark"] .faq-hero .hero-bg-radial1 {
-  background: radial-gradient(ellipse 100% 80% at 50% -10%, rgba(74, 174, 212, 0.2), transparent);
+  background: radial-gradient(ellipse 100% 80% at 50% -10%, rgba(74, 174, 212, 0.2), transparent) !important;
 }
 
 [data-theme="dark"] .section-label {
-  color: var(--accent-purple-light);
+  color: #A78BFA !important;
 }
 
 [data-theme="dark"] .section-title {
-  color: var(--neutral-50);
+  color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .section-desc {
-  color: var(--neutral-400);
+  color: #94A3B8 !important;
 }
 
 /* FAQ Section */
 [data-theme="dark"] .faq-section {
-  background: var(--neutral-900);
+  background: #0F172A !important;
 }
 
 [data-theme="dark"] .faq-item {
-  border-color: var(--neutral-700);
-  background: var(--neutral-800);
+  border-color: #334155 !important;
+  background: #1E293B !important;
 }
 
 [data-theme="dark"] .faq-item:hover {
-  border-color: var(--primary);
+  border-color: #4AAED4 !important;
 }
 
 [data-theme="dark"] .faq-question {
-  background: var(--neutral-800);
-  color: var(--neutral-50);
+  background: #1E293B !important;
+  color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .faq-question:hover {
-  background: var(--neutral-700);
+  background: #334155 !important;
 }
 
 [data-theme="dark"] .faq-icon {
-  background: rgba(74, 174, 212, 0.15);
-  color: var(--primary-light);
+  background: rgba(74, 174, 212, 0.15) !important;
+  color: #6BC4E8 !important;
 }
 
 [data-theme="dark"] .faq-answer-content {
-  color: var(--neutral-400);
+  color: #94A3B8 !important;
 }
 
 /* FAQ CTA Section */
 [data-theme="dark"] .faq-cta {
-  background: #0F172A;
+  background: #0F172A !important;
 }
 
 [data-theme="dark"] .faq-cta-title {
-  color: var(--neutral-50);
+  color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .faq-cta-desc {
-  color: var(--neutral-400);
+  color: #94A3B8 !important;
 }
 
 /* Buttons */
 [data-theme="dark"] .btn-secondary {
-  background-color: var(--neutral-800);
-  color: var(--neutral-200);
-  border-color: var(--neutral-600);
+  background-color: #1E293B !important;
+  color: #E2E8F0 !important;
+  border-color: #475569 !important;
 }
 
 [data-theme="dark"] .btn-secondary:hover {
-  border-color: var(--primary);
-  color: var(--primary-light);
-  background-color: rgba(74, 174, 212, 0.1);
+  border-color: #4AAED4 !important;
+  color: #6BC4E8 !important;
+  background-color: rgba(74, 174, 212, 0.1) !important;
 }
 
 /* Footer */
 [data-theme="dark"] .faq-page .footer {
-  background: #0A0F1A;
+  background: #0A0F1A !important;
 }
 
 [data-theme="dark"] .footer-bottom {
-  border-top-color: var(--neutral-800);
+  border-top-color: #1E293B !important;
 }
 
 /* Back to Top */
+[data-theme="dark"] button.back-to-top,
 [data-theme="dark"] .back-to-top {
-  background: var(--neutral-800) !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
+  color: #FFFFFF !important; /* White in dark mode */
+}
+
+[data-theme="dark"] button.back-to-top:hover,
+[data-theme="dark"] .back-to-top:hover {
+  background: #4AAED4 !important;
+  background-color: #4AAED4 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 10px 25px -5px rgba(74, 174, 212, 0.4), 0 8px 10px -6px rgba(74, 174, 212, 0.3) !important;
 }
 
 /* Legal Pages */
 [data-theme="dark"] .legal-page {
-  background: var(--neutral-900);
+  background: #0F172A !important;
 }
 
 [data-theme="dark"] .legal-title {
-  color: var(--neutral-50) !important;
+  color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .legal-updated {
-  color: var(--neutral-400) !important;
+  color: #94A3B8 !important;
 }
 
 [data-theme="dark"] .legal-section h2 {
-  color: var(--neutral-50) !important;
+  color: #F8FAFC !important;
 }
 
 [data-theme="dark"] .legal-section h3 {
-  color: var(--neutral-100) !important;
+  color: #F1F5F9 !important;
 }
 
 [data-theme="dark"] .legal-section p {
-  color: var(--neutral-300) !important;
+  color: #CBD5E1 !important;
 }
 
 [data-theme="dark"] .legal-section li {
-  color: var(--neutral-300) !important;
+  color: #CBD5E1 !important;
 }
 
 [data-theme="dark"] .legal-section a {
-  color: var(--primary-light) !important;
+  color: #6BC4E8 !important;
 }
 
 [data-theme="dark"] .legal-section a:hover {
-  color: var(--primary) !important;
+  color: #4AAED4 !important;
 }

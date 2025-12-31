@@ -567,12 +567,12 @@
 .form-select-like,
 .auth-select__control {
   width: 100%;
-  min-height: 44px;
-  height: 44px;
+  min-height: 48px;
+  height: 48px;
   padding: 0;
   background: var(--white) !important;
   border: 1px solid var(--neutral-200) !important;
-  border-radius: var(--radius-lg);
+  border-radius: 0.75rem !important;
   font-size: 0.875rem;
   color: var(--neutral-900);
   transition: all 0.2s ease;
@@ -616,14 +616,38 @@
 
 .auth-select__menu {
   position: relative;
-  border-radius: var(--radius-lg);
+  border-radius: 0.75rem !important;
   overflow: hidden;
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   z-index: 9999 !important;
+  margin-top: 0.5rem !important;
+  border: 1px solid var(--neutral-200) !important;
+}
+
+.auth-select__menu-list {
+  padding: 0.5rem !important;
+  max-height: 250px !important;
 }
 
 .auth-select__option {
   font-size: 0.875rem;
+  border-radius: 0.5rem !important;
+  padding: 0.625rem 0.75rem !important;
+  margin-bottom: 0.125rem;
+  transition: all 0.15s ease !important;
+}
+
+.auth-select__option:last-child {
+  margin-bottom: 0;
+}
+
+.auth-select__option--is-focused {
+  background: var(--neutral-100) !important;
+}
+
+.auth-select__option--is-selected {
+  background: var(--primary) !important;
+  color: var(--white) !important;
 }
 
 .phone-input-wrapper {
@@ -771,6 +795,18 @@
   color: #94A3B8 !important;
 }
 
+/* Feature icon circles - lighter blue for better contrast in dark mode */
+[data-theme="dark"] .auth-page .feature-icon,
+[data-theme="dark"] .signup-page .feature-icon {
+  background: rgba(74, 174, 212, 0.25) !important;
+  border: 1px solid rgba(74, 174, 212, 0.4) !important;
+}
+
+[data-theme="dark"] .auth-page .feature-icon svg,
+[data-theme="dark"] .signup-page .feature-icon svg {
+  color: #4AAED4 !important;
+}
+
 [data-theme="dark"] .auth-calendar-icon svg,
 [data-theme="dark"] .signup-calendar-icon svg {
   color: #4AAED4 !important;
@@ -906,10 +942,15 @@
 [data-theme="dark"] .auth-select__menu {
   background: #1E293B !important;
   border: 1px solid #475569 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .auth-select__menu-list {
+  background: #1E293B !important;
 }
 
 [data-theme="dark"] .auth-select__option {
-  background: #1E293B !important;
+  background: transparent !important;
   color: #E2E8F0 !important;
 }
 
@@ -952,3 +993,4 @@
 [data-theme="dark"] .auth-footer a {
   color: #4AAED4 !important;
 }
+

@@ -17,7 +17,7 @@
 }
 
 /* Dark Mode Overrides */
-[data-theme="dark"] .card {
+[data-theme="dark"] .card:not(.admin-auth-card) {
     background-color: #0B1120 !important;
     border-color: #334155 !important;
     
@@ -33,5 +33,16 @@
     .card-footer {
         background-color: #1E293B !important;
         border-top-color: #334155 !important;
+    }
+}
+
+/* Admin auth cards should be transparent */
+[data-theme="dark"] .admin-auth-card {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    
+    .card-body {
+        background-color: transparent !important;
     }
 }

@@ -29,6 +29,25 @@ const LandingPage = () => {
   const swipeStartXRef = useRef<number | null>(null);
   const swipeStartYRef = useRef<number | null>(null);
   const swipeStartedRef = useRef(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Dark mode detection
+  useEffect(() => {
+    const checkTheme = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      setIsDarkMode(theme === 'dark');
+    };
+    checkTheme();
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          checkTheme();
+        }
+      });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
+  }, []);
 
   // Scroll effects (header shadow, shapes parallax, back-to-top)
   useEffect(() => {
@@ -341,7 +360,7 @@ const LandingPage = () => {
           </div>
 
           <div className="hero-visual">
-            <img src="/assets/OPhomepage2.png" alt="Open Planner - Mobile and Desktop App" className="hero-mockup-image" />
+            <img src={isDarkMode ? "/assets/landingDark.png" : "/assets/landingLight.png"} alt="Open Planner - Mobile and Desktop App" className="hero-mockup-image" />
           </div>
         </div>
       </section>

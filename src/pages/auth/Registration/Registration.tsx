@@ -6,6 +6,7 @@ import * as yup from "yup";
 import Select from "react-select";
 
 import "../AuthPage.css";
+import sidebarLogoLg from '../../../assets/images/sidebar-logo-lg.svg';
 
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { AppDispatch } from "../../../redux/store";
@@ -33,21 +34,46 @@ import { customJsonInclude, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank
 import { addUniversityAPI, getUniversityListAPI, signupToSystem } from "../../../redux/Service/auth/signup";
 import VerifySignupOtp from "./VerifySignupOtp";
 
-// TODO: Uncomment when backend supports "year" field in registration
-// const yearOptions = [
-//   { value: "first_year", label: "First Year" },
-//   { value: "second_year", label: "Second Year" },
-//   { value: "third_year", label: "Third Year" },
-//   { value: "senior", label: "Senior" },
-//   { value: "post_graduate", label: "Post Graduate" },
-// ];
+// Academic year options for college/university students
+const yearOptions = [
+  { value: "freshman", label: "Freshman" },
+  { value: "sophomore", label: "Sophomore" },
+  { value: "junior", label: "Junior" },
+  { value: "senior", label: "Senior" },
+  { value: "graduate", label: "Graduate" },
+  { value: "other", label: "Other" },
+];
 
 const Registeration = (props) => {
   const [eyeToggle, setEyeToggle] = useState<boolean>(false);
   const dispatch: AppDispatch = useDispatch();
   const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
-  // TODO: Uncomment when backend supports "year" field
-  // const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+
+  // Detect theme changes
+  useEffect(() => {
+    const checkTheme = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      setIsDarkMode(theme === 'dark');
+    };
+    
+    // Initial check
+    checkTheme();
+    
+    // Watch for theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          checkTheme();
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+    
+    return () => observer.disconnect();
+  }, []);
 
   const initSignUpValues: SignUpData = {
     first_name: "",
@@ -102,7 +128,7 @@ const Registeration = (props) => {
       return;
     }
 
-    const reqBody = {
+    const reqBody: any = {
       first_name: signUpFormData.values.first_name,
       last_name: signUpFormData.values.last_name,
       university_name: signUpFormData.values.university_name,
@@ -111,6 +137,11 @@ const Registeration = (props) => {
       mobile: signUpFormData.values.mobile == "+1" ? undefined : `${signUpFormData.values.mobile}`,
       username: signUpFormData.values.username,
     };
+    
+    // Include year if selected and not Other/Highschool
+    if (selectedYear && signUpFormData.values.university_name !== "Other/Highschool") {
+      reqBody.year = selectedYear;
+    }
     customJsonInclude(reqBody);
     const response = await dispatch(signupToSystem(reqBody));
 
@@ -209,7 +240,7 @@ const Registeration = (props) => {
     }
   };
 
-  const brandLogo = "/assets/logo.png";
+  const brandLogo = isDarkMode ? sidebarLogoLg : "/assets/logo.png";
   const mobileNumberValue =
     signUpFormData.values.mobile?.startsWith("+1")
       ? signUpFormData.values.mobile.slice(2)
@@ -376,7 +407,7 @@ const Registeration = (props) => {
                     <input
                       type="text"
                       className="form-input"
-                      placeholder="Enter User Name"
+                      placeholder="Enter Username/Email"
                       {...signUpFormData.getFieldProps("username")}
                       maxLength={MAX_50}
                       onBlur={() => {
@@ -458,6 +489,10 @@ const Registeration = (props) => {
                       placeholder={<div>Select your school</div>}
                       onChange={(selectedOption) => {
                         signUpFormData.setFieldValue("university_name", selectedOption?.label ? selectedOption?.label : null);
+                        // Reset year selection if switching to Other/Highschool or clearing
+                        if (!selectedOption?.label || selectedOption?.label === "Other/Highschool") {
+                          setSelectedYear(null);
+                        }
                       }}
                       value={univercityData?.filter(({ label }) => {
                         return label === signUpFormData.values.university_name;
@@ -473,72 +508,60 @@ const Registeration = (props) => {
                   {signUpFormData.touched.university_name && signUpFormData.errors.university_name
                     ? renderError(signUpFormData.errors.university_name)
                     : null}
-
-                  {/* TODO: Uncomment when backend supports "year" field in registration
-                  {signUpFormData.values.university_name && signUpFormData.values.university_name !== "Other/Highschool" && (
-                    <div className="form-group" style={{ marginTop: '1rem' }}>
-                      <label className="form-label">Select Year (Optional)</label>
-                      <div className="form-input-wrapper">
-                        <span className="form-input-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
-                          </svg>
-                        </span>
-                        <Select
-                          options={yearOptions}
-                          placeholder={<div>Select your year</div>}
-                          onChange={(selectedOption) => {
-                            setSelectedYear(selectedOption?.value || null);
-                          }}
-                          value={yearOptions.filter(({ value }) => value === selectedYear)}
-                          isClearable
-                          menuPosition={isMobile ? "absolute" : "fixed"}
-                          menuPlacement={isMobile ? "top" : "auto"}
-                          menuPortalTarget={isMobile ? undefined : document.body}
-                          menuShouldScrollIntoView={isMobile}
-                          classNamePrefix="auth-select"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  */}
-
-                  {signUpFormData.values.university_name === "Other/Highschool" && (
-                    <div className="auth-inline-row">
-                      <div className="form-group">
-                        <label className="form-label">School Name</label>
-                        <div className="form-input-wrapper">
-                          <span className="form-input-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-                              <path d="M6 12v5c3 3 9 3 12 0v-5" />
-                            </svg>
-                          </span>
-                          <input
-                            type="text"
-                            className="form-input"
-                            placeholder="Enter School Name"
-                            {...formData.getFieldProps("institution_name")}
-                            maxLength={MAX_50}
-                            minLength={MAX_5}
-                            onBlur={() => {
-                              handleAddUniBlurValueUpdate("institution_name");
-                            }}
-                          />
-                        </div>
-                        {formData.touched.institution_name && formData.errors.institution_name
-                          ? renderError(formData.errors.institution_name)
-                          : null}
-                      </div>
-                      <button type="button" className="auth-inline-btn" onClick={handleSubmitFormData}>
-                        Add
-                      </button>
-                    </div>
-                  )}
                 </div>
+
+                {/* Academic Year dropdown - only shows for college/university (not Other/Highschool) */}
+                {signUpFormData.values.university_name && signUpFormData.values.university_name !== "Other/Highschool" && (
+                  <div className="form-group">
+                    <label className="form-label">Academic Year</label>
+                    <div className="form-input-wrapper">
+                      <span className="form-input-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                          <line x1="16" y1="2" x2="16" y2="6" />
+                          <line x1="8" y1="2" x2="8" y2="6" />
+                          <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                      </span>
+                      <Select
+                        options={yearOptions}
+                        placeholder={<div>Select your year</div>}
+                        onChange={(selectedOption) => {
+                          setSelectedYear(selectedOption?.value || null);
+                        }}
+                        value={yearOptions.filter(({ value }) => value === selectedYear)}
+                        isClearable
+                        menuPosition={isMobile ? "absolute" : "fixed"}
+                        menuPlacement={isMobile ? "top" : "auto"}
+                        menuPortalTarget={isMobile ? undefined : document.body}
+                        menuShouldScrollIntoView={isMobile}
+                        classNamePrefix="auth-select"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {signUpFormData.values.university_name === "Other/Highschool" && (
+                  <div className="form-group">
+                    <label className="form-label">School Name</label>
+                    <div className="form-input-wrapper">
+                      <span className="form-input-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                          <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                        </svg>
+                      </span>
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="Enter School Name"
+                        {...signUpFormData.getFieldProps("custom_school_name")}
+                        onBlur={() => handleBlurValueUpdate("custom_school_name")}
+                      />
+                    </div>
+                  </div>
+                )}
+
 
                 <div className="form-group">
                   <label className="form-label">

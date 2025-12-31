@@ -1951,80 +1951,80 @@
 /* Event Chips Dark Mode */
 [data-theme="dark"] .event-chip.green {
     background: var(--course-green-light);
-    color: var(--course-green);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .event-chip.blue {
     background: var(--course-blue-light);
-    color: var(--course-blue);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .event-chip.yellow {
     background: var(--course-yellow-light);
-    color: var(--course-yellow);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .event-chip.orange {
     background: var(--course-orange-light);
-    color: var(--course-orange);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .event-chip.teal {
     background: var(--course-teal-light);
-    color: var(--course-teal);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .event-chip.lime {
     background: var(--course-lime-light);
-    color: var(--course-lime);
+    color: #FFFFFF;
 }
 
 /* Month view event-chip colors (dark mode) */
 [data-theme="dark"] .event-chip.cyan {
     background: rgba(35, 155, 194, 0.18);
-    color: #7DD3FC;
+    color: #FFFFFF;
     border-left-color: #239BC2;
 }
 
 [data-theme="dark"] .event-chip.red {
     background: rgba(239, 68, 68, 0.16);
-    color: #FCA5A5;
+    color: #FFFFFF;
     border-left-color: #EF4444;
 }
 
 [data-theme="dark"] .event-chip.purple {
     background: rgba(139, 92, 246, 0.16);
-    color: #C4B5FD;
+    color: #FFFFFF;
     border-left-color: #8B5CF6;
 }
 
 [data-theme="dark"] .event-chip.pink {
     background: rgba(236, 72, 153, 0.16);
-    color: #F9A8D4;
+    color: #FFFFFF;
     border-left-color: #EC4899;
 }
 
 [data-theme="dark"] .event-chip.gray {
     background: rgba(107, 114, 128, 0.16);
-    color: #E5E7EB;
+    color: #FFFFFF;
     border-left-color: #6B7280;
 }
 
 [data-theme="dark"] .event-chip.stone {
     background: rgba(120, 113, 108, 0.16);
-    color: #E7E5E4;
+    color: #FFFFFF;
     border-left-color: #78716C;
 }
 
 [data-theme="dark"] .event-chip.gold {
     background: rgba(217, 119, 6, 0.16);
-    color: #FCD34D;
+    color: #FFFFFF;
     border-left-color: #D97706;
 }
 
 [data-theme="dark"] .event-chip.indigo {
     background: rgba(99, 102, 241, 0.16);
-    color: #C7D2FE;
+    color: #FFFFFF;
     border-left-color: #6366F1;
 }
 
@@ -2088,32 +2088,32 @@
 /* Week Events Dark Mode */
 [data-theme="dark"] .week-event.yellow {
     background: var(--course-yellow-light);
-    color: var(--course-yellow);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .week-event.blue {
     background: var(--course-blue-light);
-    color: var(--course-blue);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .week-event.green {
     background: var(--course-green-light);
-    color: var(--course-green);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .week-event.orange {
     background: var(--course-orange-light);
-    color: var(--course-orange);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .week-event.teal {
     background: var(--course-teal-light);
-    color: var(--course-teal);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .week-event.lime {
     background: var(--course-lime-light);
-    color: var(--course-lime);
+    color: #FFFFFF;
 }
 
 /* Day View Dark Mode */
@@ -2160,32 +2160,32 @@
 /* Day Events Dark Mode */
 [data-theme="dark"] .day-event.yellow {
     background: var(--course-yellow-light);
-    color: var(--course-yellow);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .day-event.blue {
     background: var(--course-blue-light);
-    color: var(--course-blue);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .day-event.green {
     background: var(--course-green-light);
-    color: var(--course-green);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .day-event.orange {
     background: var(--course-orange-light);
-    color: var(--course-orange);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .day-event.teal {
     background: var(--course-teal-light);
-    color: var(--course-teal);
+    color: #FFFFFF;
 }
 
 [data-theme="dark"] .day-event.lime {
     background: var(--course-lime-light);
-    color: var(--course-lime);
+    color: #FFFFFF;
 }
 
 /* Drag and Drop Dark Mode */

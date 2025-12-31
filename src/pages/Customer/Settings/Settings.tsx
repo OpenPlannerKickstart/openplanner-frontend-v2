@@ -38,16 +38,28 @@ const Settings: React.FC = () => {
   const [showDeleteAvatarModal, setShowDeleteAvatarModal] = useState<boolean>(false)
   const avatarFileInputRef = useRef<HTMLInputElement>(null)
 
+  // Academic year options
+  const yearOptions = [
+    { value: "freshman", label: "Freshman" },
+    { value: "sophomore", label: "Sophomore" },
+    { value: "junior", label: "Junior" },
+    { value: "senior", label: "Senior" },
+    { value: "graduate", label: "Graduate" },
+    { value: "other", label: "Other" },
+  ]
+
   // Profile form state
   const [profileForm, setProfileForm] = useState({
     firstname: '',
     lastname: '',
-    university_name: ''
+    university_name: '',
+    year: ''
   })
   const [originalProfileForm, setOriginalProfileForm] = useState({
     firstname: '',
     lastname: '',
-    university_name: ''
+    university_name: '',
+    year: ''
   })
   const [isSavingProfile, setIsSavingProfile] = useState(false)
   const [universityList, setUniversityList] = useState<Array<{value: string, label: string}>>([])
@@ -375,7 +387,8 @@ const Settings: React.FC = () => {
       const formValues = {
         firstname: userData.firstname || '',
         lastname: userData.lastname || '',
-        university_name: userData.university_name || ''
+        university_name: userData.university_name || '',
+        year: userData.year || ''
       }
       setProfileForm(formValues)
       setOriginalProfileForm(formValues)
@@ -387,7 +400,8 @@ const Settings: React.FC = () => {
     return (
       profileForm.firstname !== originalProfileForm.firstname ||
       profileForm.lastname !== originalProfileForm.lastname ||
-      profileForm.university_name !== originalProfileForm.university_name
+      profileForm.university_name !== originalProfileForm.university_name ||
+      profileForm.year !== originalProfileForm.year
     )
   }, [profileForm, originalProfileForm])
 
@@ -405,19 +419,16 @@ const Settings: React.FC = () => {
       formData.append('firstname', profileForm.firstname)
       formData.append('lastname', profileForm.lastname)
       formData.append('university_name', profileForm.university_name)
+      // Include year if set, or send empty string to clear it
+      formData.append('year', profileForm.year || '')
       if (!isNullUndefinedOrBlank(userData?.email)) formData.append('email', String(userData.email))
       if (!isNullUndefinedOrBlank(userData?.mobile)) formData.append('mobile', String(userData.mobile))
 
       const res: any = await dispatch(updateUserAPI(formData))
       const updated = res?.payload
       if (!isNullUndefinedOrBlank(updated)) {
-        setUserData(updated)
-        // Update original to match current (no more unsaved changes)
-        setOriginalProfileForm({
-          firstname: updated.firstname || '',
-          lastname: updated.lastname || '',
-          university_name: updated.university_name || ''
-        })
+        // Refresh user data from the server to get the updated year field
+        await getUserData()
       }
     } catch (err) {
       // Optionally show error toast
@@ -854,6 +865,10 @@ const Settings: React.FC = () => {
                       placeholder={<div>Select</div>}
                       onChange={(selectedOption) => {
                         handleProfileInputChange('university_name', selectedOption?.label || '')
+                        // Clear year if switching to Other/Highschool or clearing
+                        if (!selectedOption?.label || selectedOption?.label === "Other/Highschool") {
+                          handleProfileInputChange('year', '')
+                        }
                       }}
                       value={universityList.filter(({ label }) => label === profileForm.university_name)}
                       isClearable
@@ -862,6 +877,25 @@ const Settings: React.FC = () => {
                       classNamePrefix="react-select"
                     />
                   </div>
+
+                  {/* Academic Year - only show for college/university (not Other/Highschool) */}
+                  {profileForm.university_name && profileForm.university_name !== "Other/Highschool" && (
+                    <div className="form-group">
+                      <label className="form-label">Academic Year</label>
+                      <Select
+                        options={yearOptions}
+                        placeholder={<div>Select your year</div>}
+                        onChange={(selectedOption) => {
+                          handleProfileInputChange('year', selectedOption?.value || '')
+                        }}
+                        value={yearOptions.filter(({ value }) => value === profileForm.year)}
+                        isClearable
+                        menuPosition="fixed"
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                      />
+                    </div>
+                  )}
                   
                   <div className="form-actions">
                     <button 

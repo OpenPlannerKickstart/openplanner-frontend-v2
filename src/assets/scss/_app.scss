@@ -2,7 +2,7 @@
     height: 100vh;
 
     .admin-auth-inner-wrapper {
-        padding: 20px;
+        padding: 0;
         height: 100%;
 
 
@@ -17,9 +17,9 @@
 
 
             .admin-auth-left {
-                width: 100%;
+                flex: 1;
                 background: linear-gradient(118.43deg, #F7F4DF 3.68%, #EEF6FF 94.5%);
-                border-radius: 17px;
+                border-radius: 0;
                 position: relative;
 
                 display: flex;
@@ -109,19 +109,15 @@
             }
 
             .admin-auth-right {
-                width: calc(100% - 670px);
-                padding-top: 140px;
-                padding: 129px 20px 0;
+                flex: 1;
+                padding: 3rem;
                 display: flex;
-                align-items: flex-start;
+                align-items: center;
                 justify-content: center;
                 position: relative;
                 overflow-X: auto;
 
-                @media (max-width:1366px) {
-                    width: calc(100% - 170px);
-                }
-                 @media screen and (max-width:1024px) {
+                @media screen and (max-width:1024px) {
                     width: 100%;
                 }
                 .golf-men {
@@ -285,7 +281,7 @@
 
 
 .admin-auth-from {
-    max-width: 450px;
+    max-width: 420px;
 
     width: 100%;
 
@@ -331,9 +327,11 @@
         border: transparent;
         background: transparent;
         box-shadow: none;
+        overflow: visible;
 
         .card-body {
             padding: 0px;
+            overflow: visible;
 
             .auth-top-text-link {
                 margin: 24px 0;
@@ -955,4 +953,257 @@
 
 [data-theme="dark"] .plans-grid .pricing-card:hover {
   border-color: #4AAED4 !important;
+}
+
+/* ===== Forgot Password / Admin Auth Pages Dark Mode ===== */
+
+/* Main wrapper background */
+[data-theme="dark"] .admin-auth-wrapper {
+  background: #0F172A !important;
+}
+
+/* Left panel with gradient */
+[data-theme="dark"] .admin-auth-wrapper .admin-auth-left {
+  background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%) !important;
+  border-radius: 0 !important;
+}
+
+/* Right panel background */
+[data-theme="dark"] .admin-auth-wrapper .admin-auth-right {
+  background: #0F172A !important;
+}
+
+/* Card title text */
+[data-theme="dark"] .admin-auth-card-title h2 {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .admin-auth-card-title p {
+  color: #94A3B8 !important;
+}
+
+/* Form labels */
+.admin-auth-from .form-label {
+  text-transform: none !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  letter-spacing: normal !important;
+}
+
+[data-theme="dark"] .admin-auth-from .form-label {
+  color: #E2E8F0 !important;
+}
+
+/* Form inputs - match Login page styling */
+.admin-auth-from .form-control {
+  border-radius: 0.75rem !important;
+  padding: 0.75rem 0.875rem 0.75rem 2.5rem !important;
+  font-size: 0.875rem !important;
+  border: 1px solid var(--neutral-200) !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-theme="dark"] .admin-auth-from .form-control {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .admin-auth-from .form-control::placeholder {
+  color: #64748B !important;
+}
+
+[data-theme="dark"] .admin-auth-from .form-control:focus {
+  border-color: #4AAED4 !important;
+  box-shadow: 0 0 0 3px rgba(74, 174, 212, 0.15) !important;
+}
+
+/* Input icons */
+[data-theme="dark"] .admin-auth-from .form-group-icon-start i {
+  color: #64748B !important;
+}
+
+/* Box icon (lock icon) - match Login page circular style */
+.admin-auth-card-title .box-icon {
+  border-radius: 50% !important;
+  border: none !important;
+  background: rgba(74, 174, 212, 0.15) !important;
+}
+
+.admin-auth-card-title .box-icon i {
+  color: #4AAED4 !important;
+}
+
+[data-theme="dark"] .admin-auth-card-title .box-icon {
+  background: rgba(74, 174, 212, 0.15) !important;
+  border: none !important;
+}
+
+[data-theme="dark"] .admin-auth-card-title .box-icon i {
+  color: #4AAED4 !important;
+}
+
+/* Primary button */
+[data-theme="dark"] .admin-auth-from .btn-primary {
+  background: #4AAED4 !important;
+  border-color: #4AAED4 !important;
+  color: #0F172A !important;
+}
+
+[data-theme="dark"] .admin-auth-from .btn-primary:hover {
+  background: #3B9BC0 !important;
+  border-color: #3B9BC0 !important;
+}
+
+/* Bottom text links */
+[data-theme="dark"] .auth-bottom-text-link p {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .auth-bottom-text-link a {
+  color: #4AAED4 !important;
+}
+
+[data-theme="dark"] .auth-bottom-text-link a:hover {
+  color: #60C5E8 !important;
+}
+
+/* OTP input styling */
+[data-theme="dark"] .otp-group input {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .otp-group input:focus {
+  border-color: #4AAED4 !important;
+}
+
+/* Auth top text link (resend) */
+[data-theme="dark"] .auth-top-text-link p {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .auth-top-text-link a {
+  color: #4AAED4 !important;
+}
+
+/* Card background - higher specificity to override _card.scss and _admin.scss */
+[data-theme="dark"] .admin-auth-wrapper .admin-auth-from .admin-auth-card {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .admin-auth-wrapper .admin-auth-from .admin-auth-card .card-body {
+  background: transparent !important;
+}
+
+/* Bootstrap Card overrides for admin-auth pages - high specificity */
+[data-theme="dark"] .admin-auth-wrapper .admin-auth-right .card {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .admin-auth-wrapper .admin-auth-right .card .card-body {
+  background: transparent !important;
+}
+
+[data-theme="dark"] .admin-auth-wrapper .admin-auth-from .card {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .admin-auth-wrapper .admin-auth-from .card .card-body {
+  background: transparent !important;
+}
+
+/* Password toggle button */
+[data-theme="dark"] .admin-auth-from .btn-password {
+  color: #64748B !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+[data-theme="dark"] .admin-auth-from .btn-password:hover {
+  color: #94A3B8 !important;
+}
+
+/* Timer/resend text */
+[data-theme="dark"] .admin-auth-from .text-gray-600 {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .admin-auth-from p {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .admin-auth-from .text-primary {
+  color: #4AAED4 !important;
+}
+
+/* Password visibility icon */
+[data-theme="dark"] .form-group-password .material-symbols-outlined {
+  color: #64748B !important;
+}
+
+/* Mobile logo - hidden by default */
+.admin-auth-mobile-logo {
+  display: none;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.admin-auth-mobile-logo img {
+  height: 48px;
+  width: auto;
+}
+
+/* Mobile breakpoint for admin auth pages */
+@media (max-width: 1024px) {
+  .admin-auth-wrapper .admin-auth-left {
+    display: none !important;
+  }
+
+  .admin-auth-wrapper .admin-auth-right {
+    width: 100% !important;
+    flex: none !important;
+    padding: 2rem 1.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+  }
+
+  .admin-auth-mobile-logo {
+    display: block !important;
+    margin-bottom: 2rem !important;
+  }
+
+  .admin-auth-from {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .admin-auth-from .admin-auth-card-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .admin-auth-from .admin-auth-card {
+    width: 100%;
+  }
+
+  .admin-auth-from .auth-bottom-text-link {
+    text-align: center;
+  }
+
+  .admin-auth-from .auth-bottom-text-link p {
+    justify-content: center;
+  }
 }

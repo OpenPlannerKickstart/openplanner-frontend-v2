@@ -7179,8 +7179,8 @@ $sm_sidebar_home_link_width: 170px;
     background: #0B1120 !important;
   }
   
-  /* Card styles */
-  .card {
+  /* Card styles - exclude admin-auth cards which should be transparent */
+  .card:not(.admin-auth-card) {
     background-color: #0B1120 !important;
     border-color: #334155 !important;
   }
@@ -7190,13 +7190,20 @@ $sm_sidebar_home_link_width: 170px;
     border-bottom-color: #334155 !important;
   }
   
-  .card-body {
+  .card:not(.admin-auth-card) .card-body {
     background-color: #0B1120 !important;
   }
   
   .card-footer {
     background-color: #1E293B !important;
     border-top-color: #334155 !important;
+  }
+  
+  /* Admin auth cards should be transparent */
+  .admin-auth-card,
+  .admin-auth-card .card-body {
+    background-color: transparent !important;
+    border-color: transparent !important;
   }
   
   /* Pricing card */
