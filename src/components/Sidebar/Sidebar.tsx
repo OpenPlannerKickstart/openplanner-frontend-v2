@@ -41,11 +41,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen: externalIsOpen, onTogg
     }
   }, []);
 
-  // Auto-open on desktop
+  // Auto-open on desktop, auto-close when transitioning to mobile
   useEffect(() => {
+    // Set initial state based on screen size
     if (window.innerWidth >= 1024) {
       setIsOpen(true);
     }
+
+    // Track previous width to detect breakpoint crossing
+    let prevWidth = window.innerWidth;
+
+    const handleResize = () => {
+      const currentWidth = window.innerWidth;
+      const wasDesktop = prevWidth >= 1024;
+      const isDesktop = currentWidth >= 1024;
+
+      // Close sidebar when transitioning from desktop to mobile
+      if (wasDesktop && !isDesktop) {
+        setIsOpen(false);
+      }
+
+      prevWidth = currentWidth;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [setIsOpen]);
 
   const sidebarClasses = [
