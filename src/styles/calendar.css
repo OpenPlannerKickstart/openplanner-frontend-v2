@@ -1545,7 +1545,8 @@
 /* Desktop split-view: keep left visible, scroll right pane independently */
 @media (min-width: 1025px) {
     .calendar-main {
-        height: calc(100vh - 140px);
+        /* Use fit-content so calendar shrinks to content, but cap at viewport height */
+        height: fit-content;
         max-height: calc(100vh - 140px);
     }
 
