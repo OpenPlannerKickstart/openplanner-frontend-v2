@@ -255,6 +255,8 @@
 /* Calendar loading overlay */
 .calendar-loading-overlay {
     background: rgba(255, 255, 255, 0.72);
+    /* Higher z-index than sticky header row (z-index: 5) */
+    z-index: 10;
 }
 
 [data-theme="dark"] .calendar-loading-overlay {
@@ -1547,6 +1549,9 @@
         min-height: 0;
         overflow-y: auto;
         overscroll-behavior: contain;
+        /* Ensure scroll container stays below loading overlay (z-index: 10) */
+        position: relative;
+        z-index: 1;
     }
 
     /* Sticky headers inside the right scroll pane */
