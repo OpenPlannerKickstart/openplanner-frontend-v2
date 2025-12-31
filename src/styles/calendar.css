@@ -1766,7 +1766,7 @@
 
 /* Mini Calendar Dark Mode */
 [data-theme="dark"] .mini-calendar {
-    background: var(--white);
+    background: var(--neutral-50);
     border-color: var(--neutral-200);
 }
 
@@ -1825,7 +1825,7 @@
 
 /* My Classes Dark Mode */
 [data-theme="dark"] .my-classes {
-    background: var(--white);
+    background: var(--neutral-50);
     border-color: var(--neutral-200);
 }
 
@@ -1855,7 +1855,7 @@
 
 /* Main Calendar Dark Mode */
 [data-theme="dark"] .calendar-main {
-    background: var(--white);
+    background: var(--neutral-50);
     border-color: var(--neutral-200);
 }
 
@@ -2029,7 +2029,7 @@
 
 /* Week View Dark Mode */
 [data-theme="dark"] .week-view {
-    background: var(--white);
+    background: var(--neutral-50);
 }
 
 [data-theme="dark"] .week-view-header {
@@ -2116,7 +2116,7 @@
 
 /* Day View Dark Mode */
 [data-theme="dark"] .day-view {
-    background: var(--white);
+    background: var(--neutral-50);
 }
 
 [data-theme="dark"] .day-view-header {
@@ -2130,7 +2130,7 @@
 
 [data-theme="dark"] .day-view-number {
     color: var(--neutral-900);
-    background: var(--white);
+    background: var(--neutral-50);
 }
 
 [data-theme="dark"] .day-view-number.today {
