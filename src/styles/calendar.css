@@ -914,11 +914,7 @@
 
 .week-view {
     background: var(--white);
-    border: 1px solid var(--neutral-200);
-    border-radius: var(--radius-2xl);
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    /*border-bottom-right-radius: 0;*/
+    /* No border - already inside .calendar-main which has the border */
     overflow: hidden;
 }
 
@@ -1201,11 +1197,7 @@
 
 .day-view {
     background: var(--white);
-    border: 1px solid var(--neutral-200);
-    border-radius: var(--radius-2xl);
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    /*border-bottom-right-radius: 0;*/
+    /* No border - already inside .calendar-main which has the border */
     overflow: hidden;
 }
 
@@ -2033,7 +2025,6 @@
 /* Week View Dark Mode */
 [data-theme="dark"] .week-view {
     background: var(--white);
-    border-color: var(--neutral-200);
 }
 
 [data-theme="dark"] .week-view-header {
@@ -2121,7 +2112,6 @@
 /* Day View Dark Mode */
 [data-theme="dark"] .day-view {
     background: var(--white);
-    border-color: var(--neutral-200);
 }
 
 [data-theme="dark"] .day-view-header {
