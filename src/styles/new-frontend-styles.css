@@ -3621,6 +3621,17 @@ input, textarea, select {
     opacity: 0.7;
 }
 
+/* Dark Mode Completed Task Row Styles */
+[data-theme="dark"] .task-row.completed {
+    background: #1E293B !important;
+    border-radius: 0 !important;
+}
+
+[data-theme="dark"] .task-row.completed .col-event,
+[data-theme="dark"] .task-row.completed .col-course {
+    color: #94A3B8;
+}
+
 .task-row.clickable-event:focus {
     outline: none;
     box-shadow: 0 0 0 2px var(--primary-light);
