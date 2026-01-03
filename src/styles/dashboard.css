@@ -740,6 +740,10 @@
   border-color: #5EBEE8;
 }
 
+[data-theme="dark"] .calendar-option-btn img.calendar-icon--apple {
+  filter: brightness(0) invert(1);
+}
+
 /* Dark Mode Buttons in Modal */
 [data-theme="dark"] .btn-success {
   background: #34D399;
@@ -3767,6 +3771,14 @@ input, textarea, select {
 
 .time-list::-webkit-scrollbar-thumb:hover {
     background: var(--neutral-400);
+}
+
+[data-theme="dark"] .time-list::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+[data-theme="dark"] .time-list::-webkit-scrollbar-thumb:hover {
+    background: #64748B;
 }
 
 /* Responsive */

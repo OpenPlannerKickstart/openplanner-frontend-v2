@@ -241,7 +241,7 @@ const ParentsLanding = () => {
                     key={plan.product_id}
                     className={`pricing-card ${isPopular ? "pricing-card-popular" : ""} ${isBestValue ? "pricing-card-best-value" : ""}`}
                   >
-                    {isPopular && <span className="popular-badge">Popular</span>}
+                    {isPopular && <span className="popular-badge">Most Popular</span>}
                     {isBestValue && <span className="best-value-badge">Best Value</span>}
                     <div className="pricing-header">
                       <span className="pricing-duration">{durationLabel}</span>

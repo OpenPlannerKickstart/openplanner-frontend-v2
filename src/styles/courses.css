@@ -777,6 +777,14 @@
     background: var(--neutral-400);
 }
 
+[data-theme="dark"] .time-picker-list::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+[data-theme="dark"] .time-picker-list::-webkit-scrollbar-thumb:hover {
+    background: #64748B;
+}
+
 /* ============================================
    Add Syllabus - Class Time (react-datepicker)
    Match new dropdown design (rounded card + header)
@@ -874,6 +882,10 @@
 .syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list::-webkit-scrollbar-thumb {
     background: var(--neutral-300);
     border-radius: 6px;
+}
+
+[data-theme="dark"] .syllabus-time-popper .syllabus-time-calendar .react-datepicker__time-list::-webkit-scrollbar-thumb {
+    background: #475569;
 }
 
 [data-theme="dark"] .syllabus-time-popper .syllabus-time-calendar.react-datepicker {
@@ -2152,6 +2164,10 @@
 .syllabus-preview-panel .rpv-core__inner-pages::-webkit-scrollbar-thumb {
     background: var(--neutral-300);
     border-radius: 3px;
+}
+
+[data-theme="dark"] .syllabus-preview-panel .rpv-core__inner-pages::-webkit-scrollbar-thumb {
+    background: #475569;
 }
 
 .pdf-info p {

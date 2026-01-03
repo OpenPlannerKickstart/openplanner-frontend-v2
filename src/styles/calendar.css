@@ -671,6 +671,25 @@
     font-size: 7px;
 }
 
+/* Priority indicator for month view (multi-day events) */
+.month-multiday-event {
+    position: relative;
+}
+
+.month-multiday-event .priority-indicator {
+    top: 50%;
+    transform: translateY(-50%);
+    left: 4px;
+    right: auto;
+    width: 12px;
+    height: 12px;
+    font-size: 8px;
+}
+
+.month-multiday-event .priority-indicator + .month-multiday-title {
+    margin-left: 16px;
+}
+
 /* Priority indicator for week view */
 .week-event {
     position: relative;
@@ -2116,6 +2135,46 @@
     color: #FFFFFF;
 }
 
+[data-theme="dark"] .week-event.cyan {
+    background: rgba(35, 155, 194, 0.15);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .week-event.red {
+    background: rgba(239, 68, 68, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .week-event.purple {
+    background: rgba(139, 92, 246, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .week-event.pink {
+    background: rgba(236, 72, 153, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .week-event.gray {
+    background: rgba(107, 114, 128, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .week-event.stone {
+    background: rgba(120, 113, 108, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .week-event.gold {
+    background: rgba(217, 119, 6, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .week-event.indigo {
+    background: rgba(99, 102, 241, 0.12);
+    color: #FFFFFF;
+}
+
 /* Day View Dark Mode */
 [data-theme="dark"] .day-view {
     background: #1E293B !important;
@@ -2185,6 +2244,46 @@
 
 [data-theme="dark"] .day-event.lime {
     background: var(--course-lime-light);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .day-event.cyan {
+    background: rgba(35, 155, 194, 0.15);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .day-event.red {
+    background: rgba(239, 68, 68, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .day-event.purple {
+    background: rgba(139, 92, 246, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .day-event.pink {
+    background: rgba(236, 72, 153, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .day-event.gray {
+    background: rgba(107, 114, 128, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .day-event.stone {
+    background: rgba(120, 113, 108, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .day-event.gold {
+    background: rgba(217, 119, 6, 0.12);
+    color: #FFFFFF;
+}
+
+[data-theme="dark"] .day-event.indigo {
+    background: rgba(99, 102, 241, 0.12);
     color: #FFFFFF;
 }
 

@@ -96,3 +96,36 @@ input, textarea, select {
   scrollbar-width: thin;
   scrollbar-color: var(--neutral-300) var(--neutral-100);
 }
+
+/* Dark Mode Scrollbar */
+[data-theme="dark"] {
+  scrollbar-color: #475569 #1E293B;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #1E293B !important;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #475569 !important;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #64748B !important;
+}
+
+/* Also style scrollbar on html/body for dark mode */
+html[data-theme="dark"]::-webkit-scrollbar-track,
+html[data-theme="dark"] *::-webkit-scrollbar-track {
+  background: #1E293B !important;
+}
+
+html[data-theme="dark"]::-webkit-scrollbar-thumb,
+html[data-theme="dark"] *::-webkit-scrollbar-thumb {
+  background: #475569 !important;
+}
+
+html[data-theme="dark"]::-webkit-scrollbar-thumb:hover,
+html[data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
+  background: #64748B !important;
+}

@@ -172,15 +172,15 @@
 
 /* Dark Mode Scrollbar */
 [data-theme="dark"] ::-webkit-scrollbar-track {
-  background: var(--neutral-100);
+  background: #1E293B !important;
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: var(--neutral-300);
+  background: #475569 !important;
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: var(--neutral-400);
+  background: #64748B !important;
 }
 
 /* Dark Mode Dashboard Layout */

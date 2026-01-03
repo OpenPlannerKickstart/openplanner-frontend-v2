@@ -554,7 +554,7 @@ export const PricePlans = (props) => {
               className={`price-plan-card ${isActivePlan ? "active" : ""} ${isPopular ? "popular" : ""} ${isBestValue ? "best-value" : ""}`}
               >
               {isPopular && (
-                <span className="plan-badge popular-badge">Popular</span>
+                <span className="plan-badge popular-badge">Most Popular</span>
               )}
               {isBestValue && (
                 <span className="plan-badge best-value-badge">Best Value</span>

@@ -575,7 +575,7 @@ const LandingPage = () => {
             </div>
 
             <div className="pricing-card pricing-card-popular" data-aos="fade-up" data-aos-delay="200">
-              <span className="popular-badge">Popular</span>
+              <span className="popular-badge">Most Popular</span>
               <div className="pricing-header">
                 <span className="pricing-duration">6 Months</span>
                 <div className="pricing-price">

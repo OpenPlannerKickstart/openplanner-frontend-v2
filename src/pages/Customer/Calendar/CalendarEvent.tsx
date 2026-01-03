@@ -583,6 +583,7 @@ const CalendarEvent = () => {
             >
               {segments.map((seg) => {
                 const colorClass = getColorClassName(seg.ev.courseColor || '#239BC2');
+                const high = isHighPriority(seg.ev.priority);
                 return (
                   <div
                     key={`${String(seg.ev.id)}-${week[0].format('YYYY-MM-DD')}-${seg.startIdx}-${seg.endIdx}-${seg.row}`}
@@ -602,6 +603,7 @@ const CalendarEvent = () => {
                     }}
                     title={seg.ev.title}
                   >
+                    {high && seg.isStart && <span className="priority-indicator high" title="High priority">!</span>}
                     <span className="month-multiday-title">{seg.ev.title}</span>
                   </div>
                 );
@@ -638,6 +640,7 @@ const CalendarEvent = () => {
                 {eventsForDay.slice(0, 2).map((event: NormalizedCalendarEvent, eventIndex: number) => {
                   const colorClass = getColorClassName(event.courseColor || '#239BC2');
                   const completed = isCompletedStatus(event.status);
+                  const high = isHighPriority(event.priority);
                   return (
                     <div
                       key={eventIndex}
@@ -652,6 +655,7 @@ const CalendarEvent = () => {
                         handleEventClick(event.raw);
                       }}
                     >
+                      {high && <span className="priority-indicator high" title="High priority">!</span>}
                       {event.title}
                     </div>
                   );
@@ -1493,7 +1497,7 @@ const CalendarEvent = () => {
                                         onDragEnd={handleDragEnd}
                                         onClick={() => handleEventClick(ev.raw)}
                                       >
-                                        {high ? <span className="priority-indicator high" title="High priority" /> : null}
+                                        {high && <span className="priority-indicator high" title="High priority">!</span>}
                                         <span className="week-event-title">{ev.title}</span>
                                         <span className="week-event-time">{startStr} - {endStr}</span>
                                       </div>
@@ -1602,7 +1606,7 @@ const CalendarEvent = () => {
                                   onDragEnd={handleDragEnd}
                                   onClick={() => handleEventClick(ev.raw)}
                                 >
-                                  {high ? <span className="priority-indicator high" title="High priority" /> : null}
+                                  {high && <span className="priority-indicator high" title="High priority">!</span>}
                                   <div className="day-event-content">
                                     <div className="day-event-time">{startStr} - {endStr}</div>
                                     <div className="day-event-title">{ev.title}</div>
