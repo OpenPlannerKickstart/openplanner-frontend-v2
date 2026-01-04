@@ -30,6 +30,9 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
   const [transactionData, setTransactionData] = useState<any>();
   const [showPlans, setShowPlans] = useState(false);
   const [statusPlan, setStatusPlan] = useState<any | null>(null);
+  const [subscriptionActive, setSubscriptionActive] = useState<boolean | null>(
+    null
+  );
   const [plansMode, setPlansMode] = useState<"update" | "upgrade">("update");
 
   const getTransactionList = async () => {
@@ -50,10 +53,14 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
     try {
       const resp: any = await dispatch<any>(getSubscriptionStatusAPI());
       const payload = resp?.payload || resp;
+      if (typeof payload?.isSubscription === "boolean") {
+        setSubscriptionActive(payload.isSubscription);
+      }
       const plan = payload?.plan || payload;
       if (plan && typeof plan === "object") setStatusPlan(plan);
       else setStatusPlan(null);
     } catch {
+      setSubscriptionActive(null);
       setStatusPlan(null);
     }
   }, [dispatch]);
@@ -69,10 +76,14 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
         try {
           const resp: any = await dispatch<any>(getSubscriptionStatusAPI());
           const payload = resp?.payload || resp;
+          if (typeof payload?.isSubscription === "boolean") {
+            setSubscriptionActive(payload.isSubscription);
+          }
           const plan = payload?.plan || payload; // BE returns { plan: {...} }
           if (plan && typeof plan === "object") setStatusPlan(plan);
           else setStatusPlan(null);
         } catch {
+          setSubscriptionActive(null);
           setStatusPlan(null);
         }
       })();
@@ -146,11 +157,28 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
     return label as string;
   };
 
+  const isFreePlan = (() => {
+    const localTier = getLocalTier();
+    const label = (statusPlan?.display_label || "").toString().toLowerCase();
+    return (
+      subscriptionActive === false ||
+      statusPlan?.plan_tier === "freemium" ||
+      statusPlan?.plan_code === "freemium" ||
+      label.includes("free") ||
+      (!statusPlan?.plan_tier && localTier === "freemium")
+    );
+  })();
+
   const computed = {
     managedByParent: statusPlan?.managed_by_parent === true,
     planLabel: (() => {
       const localTier = getLocalTier();
-      if (statusPlan?.plan_tier === "freemium") return "Free";
+      if (
+        subscriptionActive === false ||
+        statusPlan?.plan_tier === "freemium" ||
+        statusPlan?.plan_code === "freemium"
+      )
+        return "Free";
       if (!statusPlan?.plan_tier && localTier === "freemium") return "Free";
       if (
         typeof statusPlan?.display_label === "string" &&
@@ -161,7 +189,7 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
     })(),
     paymentAmount: (() => {
       const localTier = getLocalTier();
-      if (statusPlan?.plan_tier === "freemium") return 0;
+      if (isFreePlan) return 0;
       if (!statusPlan?.plan_tier && localTier === "freemium") return 0;
       if (statusPlan && typeof statusPlan.payment_amount === "number")
         return statusPlan.payment_amount;
@@ -170,6 +198,7 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
         : "-";
     })(),
     nextInvoiceDate: (() => {
+      if (isFreePlan) return "-";
       const next =
         statusPlan?.next_invoice_date ||
         transactionData?.currentPlan?.next_billing_date;
@@ -177,11 +206,16 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
         ? formatedDate(next, "DD MMM, YYYY")
         : "-";
     })(),
-    subscriptionStatus:
-      statusPlan?.subscription_status ||
-      transactionData?.currentPlan?.subscription_status ||
-      "-",
+    subscriptionStatus: (() => {
+      if (isFreePlan) return "inactive";
+      return (
+        statusPlan?.subscription_status ||
+        transactionData?.currentPlan?.subscription_status ||
+        "-"
+      );
+    })(),
     currentPeriodEnd: (() => {
+      if (isFreePlan) return "";
       const end =
         statusPlan?.current_period_end ||
         transactionData?.currentPlan?.next_billing_date;
