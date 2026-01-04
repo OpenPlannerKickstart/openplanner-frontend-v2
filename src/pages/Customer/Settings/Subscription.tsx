@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Button, Card, Modal, Table } from "react-bootstrap";
 import { PricePlans } from "../../../components/PricePlans/PricePlans";
 import {
@@ -45,6 +45,19 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
     }
   }, [transactionDataRedux]);
 
+  const refreshSubscriptionData = useCallback(async () => {
+    await getTransactionList();
+    try {
+      const resp: any = await dispatch<any>(getSubscriptionStatusAPI());
+      const payload = resp?.payload || resp;
+      const plan = payload?.plan || payload;
+      if (plan && typeof plan === "object") setStatusPlan(plan);
+      else setStatusPlan(null);
+    } catch {
+      setStatusPlan(null);
+    }
+  }, [dispatch]);
+
   useEffect(() => {
     if (props?.selectedTab === ENUMFORACCOUNTTAB.SUBSCRIPTION) {
       setShowPlans(false);
@@ -67,6 +80,28 @@ export const Subscription: React.FC<SubscriptionProps> = (props) => {
 
     // eslint-disable-next-line
   }, [props?.selectedTab]);
+
+  useEffect(() => {
+    if (props?.selectedTab !== ENUMFORACCOUNTTAB.SUBSCRIPTION) return;
+    const onFocus = () => {
+      refreshSubscriptionData();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        refreshSubscriptionData();
+      }
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [props?.selectedTab, refreshSubscriptionData]);
+
+  useEffect(() => {
+    refreshSubscriptionData();
+  }, [refreshSubscriptionData]);
 
   useEffect(() => {
     if (showPlans === false) {

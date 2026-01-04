@@ -310,6 +310,29 @@ export const PricePlans = (props) => {
     await processGetStarted(plan, userData);
   };
 
+  const deriveProductId = (plan: any) => {
+    const rawId = (plan?.product_id || "").toString().toLowerCase();
+    if (rawId === "freemium" || rawId === "free") return "freemium";
+    if (rawId === "one_month" || rawId === "six_month" || rawId === "one_year")
+      return rawId;
+
+    const text = (
+      plan?.duration ||
+      plan?.title ||
+      plan?.Stripe_id ||
+      ""
+    )
+      .toString()
+      .toLowerCase();
+
+    if (text.includes("6 month") || text.includes("six month")) return "six_month";
+    if (text.includes("1 year") || text.includes("one year") || text.includes("annual"))
+      return "one_year";
+    if (text.includes("1 month") || text.includes("one month")) return "one_month";
+
+    return plan?.product_id || null;
+  };
+
   const processGetStarted = async (plan: any, currentUserData: any) => {
     if (isFreemiumPlan(plan)) {
       // Only block freemium selection if user is on a PAID plan
@@ -366,8 +389,14 @@ export const PricePlans = (props) => {
       return;
     }
 
+    const resolvedProductId = deriveProductId(plan);
+    if (!resolvedProductId) {
+      te("Plan configuration is missing. Please refresh and try again.");
+      return;
+    }
+
     let reqBody: any = {
-      product_id: plan.product_id,
+      product_id: resolvedProductId,
       price: plan.price.toString(),
       user_id: ensuredUser.user_id, // Always include user_id (now guaranteed to exist)
       ...(props?.upgradeNoTrial
@@ -391,8 +420,13 @@ export const PricePlans = (props) => {
     }
   };
 
-  const handleUpdatePlan = async (product_id) => {
-    let reqBody = { product_id };
+  const handleUpdatePlan = async (planToUpdate) => {
+    const resolvedProductId = deriveProductId(planToUpdate);
+    if (!resolvedProductId) {
+      te("Plan configuration is missing. Please refresh and try again.");
+      return;
+    }
+    let reqBody = { product_id: resolvedProductId };
     setloading(true);
     const response = await dispatch(updatePlanAPI(reqBody));
     if (response) {
@@ -692,7 +726,7 @@ export const PricePlans = (props) => {
               variant="primary"
               className="btn-icon-text btn-md"
               onClick={() => {
-                handleUpdatePlan(plan?.product_id);
+                handleUpdatePlan(plan);
               }}
             >
               {" "}
