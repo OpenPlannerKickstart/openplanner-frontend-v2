@@ -102,7 +102,7 @@ const ChangePlan: React.FC = () => {
 
       {/* Price Plans Content */}
       <div className="change-plan-content">
-        <PricePlans updatePlan={true} />
+        <PricePlans updatePlan={true} useBillingPortal={false} />
       </div>
 
       {/* Redeem Code Modal */}

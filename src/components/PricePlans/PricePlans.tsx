@@ -62,6 +62,7 @@ export const PricePlans = (props) => {
   const [userData, setuserData] = useState<any>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showPaidPlanNotice, setShowPaidPlanNotice] = useState(false);
+  const shouldUseBillingPortal = props?.useBillingPortal ?? true;
   const hasSubscriptionFlag = useMemo(() => {
     try {
       return localStorage.getItem("has_subscription") === "true";
@@ -585,7 +586,7 @@ export const PricePlans = (props) => {
                         return;
                       }
                   // If user has subscription, redirect to Stripe billing portal
-                  if (isChangeMode && !freemium) {
+                  if (isChangeMode && !freemium && shouldUseBillingPortal) {
                     window.location.assign(
                       'https://billing.stripe.com/p/login/bJedR99D8gNU2Qj0iKbfO00'
                     );
