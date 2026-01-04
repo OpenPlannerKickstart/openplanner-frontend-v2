@@ -257,7 +257,8 @@ const Settings: React.FC = () => {
       const localTier = (() => {
         try { return localStorage.getItem('plan_tier') } catch { return null }
       })()
-      if (statusPlan?.plan_tier === 'freemium' || localTier === 'freemium') return 'Free'
+      if (statusPlan?.plan_tier === 'freemium') return 'Free'
+      if (!statusPlan?.plan_tier && localTier === 'freemium') return 'Free'
       if (typeof statusPlan?.display_label === 'string' && statusPlan.display_label.trim()) return statusPlan.display_label
       return normalizePlanLabel(transactionData?.currentPlan?.plan_type)
     })(),
@@ -265,7 +266,8 @@ const Settings: React.FC = () => {
       const localTier = (() => {
         try { return localStorage.getItem('plan_tier') } catch { return null }
       })()
-      if (statusPlan?.plan_tier === 'freemium' || localTier === 'freemium') return 0
+      if (statusPlan?.plan_tier === 'freemium') return 0
+      if (!statusPlan?.plan_tier && localTier === 'freemium') return 0
       if (statusPlan && typeof statusPlan.payment_amount === 'number') return statusPlan.payment_amount
       return !isNullUndefinedOrBlank(transactionData?.currentPlan?.amount) ? transactionData?.currentPlan?.amount : '-'
     })(),
