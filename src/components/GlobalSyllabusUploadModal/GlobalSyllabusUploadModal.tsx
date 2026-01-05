@@ -203,7 +203,7 @@ export default function GlobalSyllabusUploadModal() {
   };
 
   const handleUpgradeClick = () => {
-    navigate(ENUMFORROUTES.PLAN_DETAILS);
+    navigate(ENUMFORROUTES.CHANGE_PLAN);
     close();
   };
 
