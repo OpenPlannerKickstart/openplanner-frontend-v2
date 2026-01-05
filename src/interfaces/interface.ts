@@ -217,7 +217,6 @@ export interface Reminder {
 }
 
 export interface NotificationData {
-
   id: any;
   user_id: any;
   message: any;
@@ -226,4 +225,13 @@ export interface NotificationData {
   created_at: any;
   duration: any;
   isNew?: boolean;
+  // New structured fields from backend
+  type_name?: string;                    // Display name e.g. "Event", "Task"
+  type?: 'event' | 'task';               // Lowercase type for easy comparison
+  entity_name?: string | null;           // Event/task name (no regex parsing needed)
+  entity_date?: string | null;           // ISO date (start_date for events, due_date for tasks)
+  event_id?: string | null;
+  task_id?: string | null;
+  syllabus_name?: string | null;
+  syllabus_colour?: string | null;
 }

@@ -1728,6 +1728,11 @@ input, textarea, select {
   color: var(--warning);
 }
 
+.notification-icon.task {
+  background: var(--course-purple-light, rgba(139, 92, 246, 0.15));
+  color: var(--course-purple, #8B5CF6);
+}
+
 .notification-icon.course {
   background: var(--course-teal-light);
   color: var(--course-teal);

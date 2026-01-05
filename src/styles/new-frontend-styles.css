@@ -903,6 +903,7 @@
 /* Neutral dark background, no colored border */
 [data-theme="dark"] .notification-item:has(.notification-icon.event),
 [data-theme="dark"] .notification-item:has(.notification-icon.reminder),
+[data-theme="dark"] .notification-item:has(.notification-icon.task),
 [data-theme="dark"] .notification-item:has(.notification-icon.course),
 [data-theme="dark"] .notification-item:has(.notification-icon.invite),
 [data-theme="dark"] .notification-item:has(.notification-icon.alert) {
@@ -912,6 +913,7 @@
 
 [data-theme="dark"] .notification-item:has(.notification-icon.event):hover,
 [data-theme="dark"] .notification-item:has(.notification-icon.reminder):hover,
+[data-theme="dark"] .notification-item:has(.notification-icon.task):hover,
 [data-theme="dark"] .notification-item:has(.notification-icon.course):hover,
 [data-theme="dark"] .notification-item:has(.notification-icon.invite):hover,
 [data-theme="dark"] .notification-item:has(.notification-icon.alert):hover {
@@ -966,6 +968,11 @@
 [data-theme="dark"] .notification-icon.course {
   background: rgba(34, 197, 94, 0.15);
   color: #4ADE80;
+}
+
+[data-theme="dark"] .notification-icon.task {
+  background: rgba(139, 92, 246, 0.15);
+  color: #A78BFA;
 }
 
 [data-theme="dark"] .notification-icon.invite {
@@ -2089,6 +2096,7 @@ input, textarea, select {
 /* Neutral white background, no colored border */
 .notification-item:has(.notification-icon.event),
 .notification-item:has(.notification-icon.reminder),
+.notification-item:has(.notification-icon.task),
 .notification-item:has(.notification-icon.course),
 .notification-item:has(.notification-icon.invite),
 .notification-item:has(.notification-icon.alert) {
@@ -2098,6 +2106,7 @@ input, textarea, select {
 
 .notification-item:has(.notification-icon.event):hover,
 .notification-item:has(.notification-icon.reminder):hover,
+.notification-item:has(.notification-icon.task):hover,
 .notification-item:has(.notification-icon.course):hover,
 .notification-item:has(.notification-icon.invite):hover,
 .notification-item:has(.notification-icon.alert):hover {
@@ -2122,6 +2131,11 @@ input, textarea, select {
 .notification-icon.reminder {
   background: var(--warning-light);
   color: var(--warning);
+}
+
+.notification-icon.task {
+  background: var(--course-purple-light, rgba(139, 92, 246, 0.15));
+  color: var(--course-purple, #8B5CF6);
 }
 
 .notification-icon.course {
@@ -2162,6 +2176,23 @@ input, textarea, select {
 .notification-time {
   font-size: 0.75rem;
   color: var(--neutral-400);
+}
+
+.notification-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.notification-entity-date {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--primary, #4AAED4);
+}
+
+[data-theme="dark"] .notification-entity-date {
+  color: #60A5FA;
 }
 
 /* Invite rows: keep time on the left and Join/Decline on the right */
