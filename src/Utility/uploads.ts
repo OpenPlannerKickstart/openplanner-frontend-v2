@@ -129,11 +129,28 @@ export async function uploadToS3(
           if (onProgress) onProgress(1);
           resolve();
         } else {
-          reject(new Error(`S3 PUT failed with status ${xhr.status}`));
+          // Status 0 typically means CORS blocked, network failure, or request aborted
+          if (xhr.status === 0) {
+            console.error('[S3 Upload] Request failed with status 0. Possible causes: CORS, network issue, or ad blocker.');
+            console.error('[S3 Upload] PUT URL domain:', new URL(putUrl).hostname);
+            reject(new Error('Upload failed. Please check your internet connection and try again.'));
+          } else {
+            // Try to get more info from the response
+            const responseText = xhr.responseText || '';
+            console.error(`[S3 Upload] Failed with status ${xhr.status}:`, responseText);
+            reject(new Error(`Upload failed (${xhr.status}). Please try again.`));
+          }
         }
       }
     };
-    xhr.onerror = () => reject(new Error('S3 PUT network error'));
+    xhr.onerror = () => {
+      console.error('[S3 Upload] Network error occurred');
+      reject(new Error('Upload failed due to a network error. Please check your connection.'));
+    };
+    xhr.ontimeout = () => {
+      console.error('[S3 Upload] Request timed out');
+      reject(new Error('Upload timed out. Please try again with a smaller file or better connection.'));
+    };
     xhr.send(file);
   });
 }

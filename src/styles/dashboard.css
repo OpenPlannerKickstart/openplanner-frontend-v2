@@ -297,10 +297,22 @@
 
 [data-theme="dark"] .user-dropdown-item:hover {
   background: #1E293B;
+  color: #FFFFFF;
 }
 
 [data-theme="dark"] .user-dropdown-divider {
   background: #334155;
+}
+
+/* Dark Mode Header Action Buttons - dark text for better contrast */
+[data-theme="dark"] .dashboard-header-right .btn-primary,
+[data-theme="dark"] .dashboard-header-right .btn-accent {
+  color: #0F172A;
+}
+
+[data-theme="dark"] .dashboard-header-right .btn-primary:hover,
+[data-theme="dark"] .dashboard-header-right .btn-accent:hover {
+  color: #0F172A;
 }
 
 /* Dark Mode Mobile Menu Toggle */
