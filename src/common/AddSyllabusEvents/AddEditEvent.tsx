@@ -632,7 +632,8 @@ export const AddEditEvent = (props) => {
                     </div>
                 </Modal.Header>
                 <Modal.Body>
-                    {/* Start Date */}
+                    {/* Start Date - Only show for events, not tasks */}
+                    {entityType !== 'task' && (
                     <div className="form-group">
                         <label className="form-label">Start Date{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
                         {isEditMode || !isExistingEvent ? (
@@ -671,10 +672,9 @@ export const AddEditEvent = (props) => {
                                     showPopperArrow={false}
                                     placeholderText="Select Date"
                                     onBlur={() => eventFormData.setFieldTouched("start_date", true)}
-                                    minDate={entityType === 'task' ? undefined : new Date()}
+                                    minDate={new Date()}
                                     disabled={eventFormData?.values?.is_all_day_event}
                                     filterTime={(time) => {
-                                        if (entityType === 'task') return true;
                                         const now = new Date();
                                         const selectedDate = eventFormData.values.start_date || new Date();
                                         if (selectedDate.toDateString() === now.toDateString()) {
@@ -700,10 +700,11 @@ export const AddEditEvent = (props) => {
                         )}
                         {eventFormData.touched.start_date && eventFormData.errors.start_date && renderError(eventFormData.errors.start_date as any)}
                     </div>
+                    )}
 
-                    {/* End Date */}
+                    {/* End Date / Due Date (for tasks) */}
                     <div className="form-group">
-                        <label className="form-label">End Date{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
+                        <label className="form-label">{entityType === 'task' ? 'Due Date' : 'End Date'}{(isEditMode || !isExistingEvent) && <span className="required-asterisk">*</span>}</label>
                         {isEditMode || !isExistingEvent ? (
                             <div className="date-input-wrapper">
                                 <DatePicker

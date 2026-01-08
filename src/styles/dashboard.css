@@ -297,10 +297,22 @@
 
 [data-theme="dark"] .user-dropdown-item:hover {
   background: #1E293B;
+  color: #FFFFFF;
 }
 
 [data-theme="dark"] .user-dropdown-divider {
   background: #334155;
+}
+
+/* Dark Mode Header Action Buttons - dark text for better contrast */
+[data-theme="dark"] .dashboard-header-right .btn-primary,
+[data-theme="dark"] .dashboard-header-right .btn-accent {
+  color: #0F172A;
+}
+
+[data-theme="dark"] .dashboard-header-right .btn-primary:hover,
+[data-theme="dark"] .dashboard-header-right .btn-accent:hover {
+  color: #0F172A;
 }
 
 /* Dark Mode Mobile Menu Toggle */
@@ -1726,6 +1738,11 @@ input, textarea, select {
 .notification-icon.reminder {
   background: var(--warning-light);
   color: var(--warning);
+}
+
+.notification-icon.task {
+  background: var(--course-purple-light, rgba(139, 92, 246, 0.15));
+  color: var(--course-purple, #8B5CF6);
 }
 
 .notification-icon.course {

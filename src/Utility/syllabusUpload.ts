@@ -268,7 +268,12 @@ export async function startSyllabusUpload(
   } catch (error: any) {
     const errorMessage = parseErrorMessage(error);
     setStatus('failed', errorMessage);
-    te(errorMessage);
+    // Don't show toast for limit reached errors - the modal shows upgrade UI instead
+    const isLimitError = errorMessage.toLowerCase().includes('limit') && 
+      (errorMessage.toLowerCase().includes('syllabi') || errorMessage.toLowerCase().includes('syllabus') || errorMessage.toLowerCase().includes('upload'));
+    if (!isLimitError) {
+      te(errorMessage);
+    }
     throw error;
   }
 }

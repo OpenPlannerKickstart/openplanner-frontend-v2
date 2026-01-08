@@ -8,28 +8,78 @@ import { formatedDate, isEmptyObjectOrNullUndefiend } from '../../Utility/Helper
 import { get, post } from '../../Utility/httpInterceptor';
 import { useNavigate } from 'react-router-dom';
 
-const getNotificationType = (msg: string) => {
-  const lowerMsg = (msg || '').toLowerCase();
-  if (lowerMsg.includes('assignment') || lowerMsg.includes('due')) return 'reminder';
-  if (lowerMsg.includes('class') || lowerMsg.includes('event')) return 'event';
-  if (lowerMsg.includes('course') || lowerMsg.includes('material')) return 'course';
+/**
+ * Determine notification type from backend field or fallback to message parsing.
+ * Uses the new `type` field from backend when available, otherwise parses keywords.
+ */
+const getNotificationType = (item: NotificationData): string => {
+  // Prefer the new structured type field from backend
+  if (item.type) {
+    return item.type; // 'event' | 'task'
+  }
+  
+  // Fallback: parse keywords from message for older notifications
+  const lowerMsg = (item.message || '').toLowerCase();
+  
+  if (lowerMsg.includes('task')) return 'task';
+  if (lowerMsg.includes('assignment') || lowerMsg.includes('homework') || lowerMsg.includes('quiz')) return 'reminder';
+  if (lowerMsg.includes('due') && !lowerMsg.includes('event:')) return 'reminder';
+  if (lowerMsg.includes('event:') || lowerMsg.includes('class') || lowerMsg.includes('lecture') || lowerMsg.includes('exam')) return 'event';
+  if (lowerMsg.includes('course') || lowerMsg.includes('syllabus') || lowerMsg.includes('material')) return 'course';
+  if (lowerMsg.includes('scheduled')) return 'event';
+  
   return 'alert';
 };
 
-const getNotificationTitle = (type: string) => {
+/**
+ * Generate notification title from backend field or derive from type/message.
+ * Uses the new `entity_name` field when available for a better display title.
+ */
+const getNotificationTitle = (type: string, item?: NotificationData | null): string => {
+  // If we have entity_name from backend, use it directly
+  if (item?.entity_name) {
+    return item.entity_name;
+  }
+  
+  // Fallback: generate title based on type and message content
+  const lowerMsg = (item?.message || '').toLowerCase();
+  const isUpcoming = lowerMsg.includes('tomorrow') || lowerMsg.includes('starting soon') || lowerMsg.includes('due');
+  const isNew = lowerMsg.includes('added') || lowerMsg.includes('created') || lowerMsg.includes('new');
+  
   switch (type) {
+    case 'task':
+      if (isUpcoming) return 'Task Due Soon';
+      return 'Task Reminder';
     case 'reminder':
-      return 'Assignment Due Tomorrow';
+      if (lowerMsg.includes('tomorrow')) return 'Due Tomorrow';
+      if (isUpcoming) return 'Upcoming Deadline';
+      return 'Assignment Reminder';
     case 'event':
-      return 'Class Starting Soon';
+      if (lowerMsg.includes('exam')) return 'Exam Reminder';
+      if (lowerMsg.includes('class')) return 'Class Reminder';
+      if (isNew) return 'New Event';
+      if (isUpcoming) return 'Upcoming Event';
+      return 'Event Scheduled';
     case 'course':
-      return 'New Course Material';
+      return 'Course Update';
     case 'invite':
       return 'Group Invite';
     case 'alert':
     default:
-      return 'Schedule Change';
+      if (isNew) return 'New Activity';
+      return 'Notification';
   }
+};
+
+/**
+ * Format the entity date for display.
+ * Uses entity_date from backend when available.
+ */
+const formatEntityDate = (item: NotificationData): string | null => {
+  if (item.entity_date) {
+    return formatedDate(item.entity_date, 'MMM DD [at] hh:mm a');
+  }
+  return null;
 };
 
 const Icon: React.FC<{ type: string }> = ({ type }) => {
@@ -41,6 +91,13 @@ const Icon: React.FC<{ type: string }> = ({ type }) => {
           <circle cx="9" cy="7" r="4" />
           <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
           <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      );
+    case 'task':
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 11l3 3L22 4" />
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
         </svg>
       );
     case 'reminder':
@@ -284,11 +341,16 @@ const NotificationPanel: React.FC = () => {
           })}
 
           {!isEmptyObjectOrNullUndefiend(notificationList) && notificationList.map((item) => {
-            const msg = String(item?.message ?? '');
-            const notifType = getNotificationType(msg);
-            const title = getNotificationTitle(notifType);
+            const notifType = getNotificationType(item);
+            const title = getNotificationTitle(notifType, item);
+            const entityDate = formatEntityDate(item);
             const created = item?.created_at || (item as any)?.createdAt || Date.now();
             const unread = item?.is_read === false;
+            const msg = String(item?.message ?? '');
+            
+            // Use syllabus info if available for additional context
+            const syllabusInfo = item.syllabus_name ? ` • ${item.syllabus_name}` : '';
+            
             return (
               <div
                 key={String(item?.id ?? created)}
@@ -303,7 +365,14 @@ const NotificationPanel: React.FC = () => {
                 <div className="notification-content">
                   <div className="notification-title">{title}</div>
                   <p className="notification-message">{msg}</p>
-                  <span className="notification-time">{formatedDate(created, `MMM DD, [at] hh:mm a`)}</span>
+                  <div className="notification-meta">
+                    {entityDate && (
+                      <span className="notification-entity-date">{entityDate}</span>
+                    )}
+                    <span className="notification-time">
+                      {formatedDate(created, `MMM DD, [at] hh:mm a`)}{syllabusInfo}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Dismiss (X) - matches invite behavior/hover */}

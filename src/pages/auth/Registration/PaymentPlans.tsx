@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import authLogo from '/assets/images/auth-logo.svg'
+import sidebarLogoLg from '../../../assets/images/sidebar-logo-lg.svg'
 import { PricePlans } from '../../../components/PricePlans/PricePlans'
 import { Button, Form, Modal } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -17,6 +18,21 @@ export const PaymentPlans = () => {
   const [showRedeem, setShowRedeem] = useState(false);
   const [redeemCode, setRedeemCode] = useState('');
   const [redeemLoading, setRedeemLoading] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => 
+    document.documentElement.getAttribute('data-theme') === 'dark'
+  );
+
+  // Listen for theme changes
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.documentElement.getAttribute('data-theme') === 'dark');
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+
+  // Use blue and white logo in dark mode
+  const brandLogo = isDarkMode ? sidebarLogoLg : authLogo;
 
   const normalizeCode = (code: string) => code.trim().replace(/[^A-Za-z0-9]/g, '').toUpperCase();
 
@@ -131,7 +147,7 @@ export const PaymentPlans = () => {
         <div className="plans-shell">
           <div className="plans-hero">
             <div className="plans-hero__brand">
-              <img src={authLogo} alt="OpenPlanner" className="plans-hero__logo" />
+              <img src={brandLogo} alt="OpenPlanner" className="plans-hero__logo" />
             </div>
             <div className="plans-actions">
               <Button variant="outline-primary" onClick={() => setShowRedeem(true)}>

@@ -1,8 +1,15 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSyllabusUpload } from '../../context/SyllabusUploadContext';
 import { ENUMFORROUTES } from '../../interfaces/enum';
 import './GlobalSyllabusUploadModal.scss';
+
+// Check if error message indicates limit reached
+const isLimitReachedError = (message: string | undefined | null): boolean => {
+  if (!message) return false;
+  const lowerMsg = message.toLowerCase();
+  return lowerMsg.includes('limit') && (lowerMsg.includes('syllabi') || lowerMsg.includes('syllabus') || lowerMsg.includes('upload'));
+};
 
 const TIMEOUT_MS = 3 * 60 * 1000; // 3 minutes
 const VIEWPORT_PADDING = 8; // Minimum distance from viewport edges
@@ -154,6 +161,7 @@ export default function GlobalSyllabusUploadModal() {
   if (!isOpen) return null;
 
   const progressPercent = Math.round(progress * 100);
+  const limitReached = status === 'failed' && isLimitReachedError(errorMessage);
 
   const getStatusText = () => {
     if (timedOut) return 'Taking longer than expected...';
@@ -165,7 +173,7 @@ export default function GlobalSyllabusUploadModal() {
       case 'ready':
         return 'Upload complete!';
       case 'failed':
-        return 'Upload failed';
+        return limitReached ? 'Upgrade Required' : 'Upload failed';
       default:
         return 'Preparing...';
     }
@@ -174,6 +182,14 @@ export default function GlobalSyllabusUploadModal() {
   const getStatusIcon = () => {
     if (status === 'ready') {
       return <i className="material-symbols-outlined status-icon success">check_circle</i>;
+    }
+    if (limitReached) {
+      // Crown icon for upgrade required
+      return (
+        <svg className="status-icon crown" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/>
+        </svg>
+      );
     }
     if (status === 'failed' || timedOut) {
       return <i className="material-symbols-outlined status-icon error">error</i>;
@@ -184,6 +200,11 @@ export default function GlobalSyllabusUploadModal() {
         <div className="spinner" />
       </div>
     );
+  };
+
+  const handleUpgradeClick = () => {
+    navigate(ENUMFORROUTES.CHANGE_PLAN);
+    close();
   };
 
   const canClose = status === 'ready' || status === 'failed' || timedOut;
@@ -199,7 +220,7 @@ export default function GlobalSyllabusUploadModal() {
   return (
     <div
       ref={modalRef}
-      className={`global-syllabus-upload-modal ${expanded ? 'expanded' : 'collapsed'} status-${status} ${isAutoClosing ? 'auto-closing' : ''}`}
+      className={`global-syllabus-upload-modal ${expanded ? 'expanded' : 'collapsed'} status-${status} ${limitReached ? 'limit-reached' : ''} ${isAutoClosing ? 'auto-closing' : ''}`}
       style={{
         left: position.x,
         top: position.y,
@@ -306,7 +327,7 @@ export default function GlobalSyllabusUploadModal() {
             </>
           )}
 
-          {status === 'failed' && (
+          {status === 'failed' && !limitReached && (
             <>
               <p className="info-text error">
                 {errorMessage || 'Something went wrong while processing your syllabus. Please try again.'}
@@ -315,6 +336,24 @@ export default function GlobalSyllabusUploadModal() {
                 <i className="material-symbols-outlined file-icon error">error</i>
                 <span className="file-name" title={fileName}>{fileName}</span>
               </div>
+            </>
+          )}
+
+          {status === 'failed' && limitReached && (
+            <>
+              <p className="info-text upgrade">
+                You have reached the free upload limit of 3 syllabi. Please upgrade to premium to upload more.
+              </p>
+              <button
+                type="button"
+                className="upgrade-btn"
+                onClick={handleUpgradeClick}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/>
+                </svg>
+                Upgrade to Premium
+              </button>
             </>
           )}
         </div>

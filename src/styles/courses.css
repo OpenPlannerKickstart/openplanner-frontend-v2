@@ -904,6 +904,7 @@
 
 .edit-course-page {
     padding: 1.5rem;
+    padding-bottom: 3rem;
     min-height: calc(100vh - var(--header-height));
 }
 
@@ -2281,6 +2282,11 @@
 @media (max-width: 768px) {
     .edit-course-page {
         padding: 1rem;
+        padding-bottom: 3rem;
+    }
+    
+    .edit-course-page .events-panel {
+        margin-bottom: 2rem;
     }
     
     .course-tabs {
@@ -2335,6 +2341,11 @@
 @media (max-width: 480px) {
     .edit-course-page {
         padding: 0.75rem;
+        padding-bottom: 3rem;
+    }
+    
+    .edit-course-page .events-panel {
+        margin-bottom: 2rem;
     }
     
     .tab-btn {
