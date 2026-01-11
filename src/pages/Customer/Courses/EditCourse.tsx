@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import SyllabusDetails from './SyllabusDetails'
 import Events from './Events'
-import { ENUM_FOR_SYLLABUS_TAB, ENUMFORROUTES } from '../../../interfaces/enum'
+import { ENUM_FOR_SYLLABUS_TAB, ENUMFORROUTES, ENUMFORSTATUS } from '../../../interfaces/enum'
 import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent'
 import { formatedDate, isNullUndefinedOrBlank } from '../../../Utility/Helper'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
-import { getEventListDataAPI, getCoursesListDataAPI } from '../../../redux/Service/User/Courses/courses'
+import { getEventListDataAPI, getCoursesListDataAPI, updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses'
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
 import { Viewer } from '@react-pdf-viewer/core'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { ts } from '../../../Utility/Helper'
 
 const EditCourse = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedSyllabusObj, setSelectedSyllabusObj] = useState<any>({});
+  const hasHandledActionRef = useRef(false);
 
   // Add body class for responsive styling
   useEffect(() => {
@@ -25,6 +27,43 @@ const EditCourse = () => {
       document.body.classList.remove('edit-course-body');
     };
   }, []);
+
+  // Handle email deep link action=complete parameter
+  useEffect(() => {
+    const action = searchParams.get('action');
+    const eventId = searchParams.get('id');
+    
+    // Only process once per mount
+    if (action === 'complete' && eventId && !hasHandledActionRef.current) {
+      hasHandledActionRef.current = true;
+      
+      const markEventComplete = async () => {
+        const idNum = parseInt(eventId, 10);
+        if (!idNum || Number.isNaN(idNum)) return;
+        
+        try {
+          // Mark the event as complete
+          const response = await dispatch(updateEventStatusDataAPI(
+            { event_id: [idNum], status: ENUMFORSTATUS.COMPLETED },
+            { silent: true }
+          ));
+          
+          if (!isNullUndefinedOrBlank(response?.payload)) {
+            ts('Assignment marked as complete!');
+          }
+        } catch (error) {
+          console.error('[EditCourse] Failed to mark event complete:', error);
+        }
+        
+        // Clean up the URL by removing the action parameter
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('action');
+        setSearchParams(newParams, { replace: true });
+      };
+      
+      markEventComplete();
+    }
+  }, [searchParams, dispatch, setSearchParams]);
 
   // Load course data from state or fetch if missing (e.g., page refresh)
   useEffect(() => {
