@@ -217,9 +217,14 @@ const AddEditTask: React.FC<Props> = ({
 
     const noteTrimmed = String(formik.values.note || '').trim();
     
-    // Filter out incomplete reminders and format properly
-    const validReminders = formik.values.is_reminder && Array.isArray(formik.values.reminder)
-      ? formik.values.reminder.filter((r: any) => r.unit && r.value)
+    // Filter out incomplete reminders and transform to backend field names (rem_value, rem_unit)
+    const transformedReminders = formik.values.is_reminder && Array.isArray(formik.values.reminder)
+      ? formik.values.reminder
+          .filter((r: any) => r.unit && r.value)
+          .map((r: any) => ({
+              rem_value: parseInt(r.value, 10) || 1,
+              rem_unit: r.unit === 'days' ? 'day' : r.unit === 'hours' ? 'hour' : r.unit
+          }))
       : [];
 
     const body: any = {
@@ -227,8 +232,8 @@ const AddEditTask: React.FC<Props> = ({
       due_date: formik.values.due_date ? getDate(formik.values.due_date) : null,
       // Backend validators reject empty string for note; omit when blank.
       ...(noteTrimmed ? { note: noteTrimmed } : {}),
-      is_reminder: !!formik.values.is_reminder && validReminders.length > 0,
-      reminder: validReminders,
+      is_reminder: !!formik.values.is_reminder && transformedReminders.length > 0,
+      reminder: transformedReminders,
       ...(formik.values.id ? { task_id: formik.values.id } : {}),
     };
 

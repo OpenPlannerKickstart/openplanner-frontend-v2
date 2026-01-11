@@ -317,13 +317,23 @@ export const AddEditEvent = (props) => {
             return;
         }
         if (entityType === 'task') {
+            // Transform reminder array to use backend field names (rem_value, rem_unit)
+            const taskReminders = eventFormData.values.is_reminder && Array.isArray(eventFormData.values.reminder)
+                ? eventFormData.values.reminder
+                    .filter((r: any) => r.unit && r.value)
+                    .map((r: any) => ({
+                        rem_value: parseInt(r.value, 10) || 1,
+                        rem_unit: r.unit === 'days' ? 'day' : r.unit === 'hours' ? 'hour' : r.unit
+                    }))
+                : [];
+
             const reqBody: any = {
                 task_name: eventFormData.values.title,
                 // Tasks only have due_date; map from the modal's End Date
                 due_date: eventFormData.values.end_date ? getDate(eventFormData.values.end_date) : null,
                 note: eventFormData.values.note,
-                is_reminder: eventFormData.values.is_reminder,
-                reminder: eventFormData.values.reminder,
+                is_reminder: eventFormData.values.is_reminder && taskReminders.length > 0,
+                reminder: taskReminders,
                 ...(eventFormData.values.id ? { task_id: eventFormData.values.id } : {}),
             };
             customJsonInclude(reqBody);
@@ -335,13 +345,23 @@ export const AddEditEvent = (props) => {
             return;
         }
 
+        // Transform reminder array to use backend field names (rem_value, rem_unit)
+        const transformedReminders = eventFormData.values.is_reminder && Array.isArray(eventFormData.values.reminder)
+            ? eventFormData.values.reminder
+                .filter((r: any) => r.unit && r.value)
+                .map((r: any) => ({
+                    rem_value: parseInt(r.value, 10) || 1,
+                    rem_unit: r.unit === 'days' ? 'day' : r.unit === 'hours' ? 'hour' : r.unit
+                }))
+            : [];
+
         const reqBody = {
             title: eventFormData.values.title,
             start_date: getDate(eventFormData.values.start_date),
             end_date: getDate(eventFormData.values.end_date),
             note: eventFormData.values.note,
-            is_reminder: eventFormData.values.is_reminder,
-            reminder: eventFormData.values.reminder,
+            is_reminder: eventFormData.values.is_reminder && transformedReminders.length > 0,
+            reminder: transformedReminders,
             syllabus_id: eventFormData.values.syllabus_id,
             event_id: eventFormData.values.id,
             is_all_day_event: eventFormData?.values?.is_all_day_event,

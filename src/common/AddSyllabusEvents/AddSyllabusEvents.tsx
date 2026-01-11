@@ -382,13 +382,23 @@ const AddSyllabusEvents = (props) => {
         >(eventFormDataErrors, true))
       return;
     }
+    // Transform reminder array to use backend field names (rem_value, rem_unit)
+    const transformedReminders = eventFormData.values.is_reminder && Array.isArray(eventFormData.values.reminder)
+      ? eventFormData.values.reminder
+          .filter((r: any) => r.unit && r.value)
+          .map((r: any) => ({
+              rem_value: parseInt(r.value, 10) || 1,
+              rem_unit: r.unit === 'days' ? 'day' : r.unit === 'hours' ? 'hour' : r.unit
+          }))
+      : [];
+
     const reqBody = {
       title: eventFormData.values.title,
       start_date: getDate(eventFormData.values.start_date),
       end_date: getDate(eventFormData.values.end_date),
       note: eventFormData.values.note,
-      is_reminder: eventFormData.values.is_reminder,
-      reminder: eventFormData.values.reminder,
+      is_reminder: eventFormData.values.is_reminder && transformedReminders.length > 0,
+      reminder: transformedReminders,
       syllabus_id: eventFormData.values.syllabus_id,
 
 
