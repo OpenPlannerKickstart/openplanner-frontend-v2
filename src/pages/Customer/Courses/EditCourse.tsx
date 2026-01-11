@@ -10,7 +10,7 @@ import { getEventListDataAPI, getCoursesListDataAPI, updateEventStatusDataAPI } 
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
 import { Viewer } from '@react-pdf-viewer/core'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { ts } from '../../../Utility/Helper'
+import { ts } from '../../../Utility/Toaster'
 
 const EditCourse = () => {
   const dispatch: AppDispatch = useDispatch();
