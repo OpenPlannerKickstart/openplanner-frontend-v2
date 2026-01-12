@@ -34,7 +34,7 @@ export const NO_END_DATE_ADDED = 'No End Date Added';
 
 export const CONFIRM_PASSWORD_REQUIRED = "Confirm Password Is Required!!";
 export const NEW_PASSWORD_REQUIRED = "New Password is Required!!";
-export const PASSWORD_INVALID = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character (*, @, or $)';
+export const PASSWORD_INVALID = 'Password must be 8-32 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character (*, @, or $)';
 export const CONFIRM_PASSWORD_NOT_MATCHED = 'Password and Confirm password not equal.';
 export const EMAIL_CODE_IS_REQUIRED = 'Email Code Is Required!!';
 
@@ -49,5 +49,4 @@ export const NEW_PASSWORD_IS_REQUIRED = "New Password is Required!!";
 export const REASON_IS_REQUIRED = "Reason is required!!";
 
 export const PLEASE_ENTER_OTP = "Please enter valid verification code!!";
-
 

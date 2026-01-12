@@ -262,9 +262,9 @@ export const PATTERN_FOR_PASSWORD = /^[a-zA-Z0-9]{6,32}$/;
 
 /** PATTERN_FOR_PASSWORD_NEW is a regular expression for validating stronger passwords.
 It enforces the use of lowercase letters, digits, and special characters, with a
-length between 8 and 15 characters. Customize as needed. */
+length between 8 and 32 characters. Customize as needed. */
 export const PATTERN_FOR_PASSWORD_NEW =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,15}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,32}$/;
 /** PATTERN_FOR_BAR_COUNCIL_NO is a regular expression for validating bar council
 numbers. It enforces a pattern of two uppercase alphabets, a forward slash (/),
 followed by optional digits, another forward slash (/), and four numeric digits.
@@ -308,7 +308,7 @@ export const PATTERN_FOR_MOBILE_NO = /^\+?\d{10,15}$/;
 /* Validation Message */
 /**  PASSWORD_INVALID is a string message describing the criteria for a valid password.
 Customize the message based on your specific password policy. */
-export const PASSWORD_INVALID = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character (*, @, or $)';
+export const PASSWORD_INVALID = 'Password must be 8-32 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character (*, @, or $)';
 /** CONFIRM_PASSWORD_NOT_MATCHED is a string message indicating that the entered password
 and the confirmed password do not match. Adjust the message as needed. */
 export const CONFIRM_PASSWORD_NOT_MATCHED = 'Password and Confirm password not equal.';

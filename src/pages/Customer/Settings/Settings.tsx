@@ -7,7 +7,7 @@ import { isNullUndefinedOrBlank, isEmptyObjectOrNullUndefiend, formatedDate, cus
 import { setNestedObjectValues, useFormik } from 'formik'
 import * as yup from 'yup'
 import { OLD_PASSWORD_IS_REQUIRED, NEW_PASSWORD_IS_REQUIRED, PASSWORD_REQUIRED, REASON_IS_REQUIRED } from '../../../Utility/Validation_Message'
-import { CONFIRM_PASSWORD_NOT_MATCHED, MAX_15, MAX_50, PASSWORD_INVALID, PATTERN_FOR_PASSWORD_NEW } from '../../../Utility/Validation_Helper'
+import { CONFIRM_PASSWORD_NOT_MATCHED, MAX_32, MAX_50, PASSWORD_INVALID, PATTERN_FOR_PASSWORD_NEW } from '../../../Utility/Validation_Helper'
 import { useNavigate } from 'react-router-dom'
 import { ENUMFORROUTES } from '../../../interfaces/enum'
 import { logoutFromSystem } from '../../../redux/Service/auth/login'
@@ -1154,7 +1154,7 @@ const Settings: React.FC = () => {
                         type={showCurrentPassword ? 'text' : 'password'}
                         className="form-input"
                         placeholder="Enter current password"
-                        maxLength={MAX_15}
+                        maxLength={MAX_32}
                         autoComplete="current-password"
                         {...passwordForm.getFieldProps('oldPassword')}
                         onBlur={() => handlePasswordBlur('oldPassword')}
@@ -1190,7 +1190,7 @@ const Settings: React.FC = () => {
                         type={showNewPassword ? 'text' : 'password'}
                         className="form-input"
                         placeholder="Enter new password"
-                        maxLength={MAX_50}
+                        maxLength={MAX_32}
                         autoComplete="new-password"
                         {...passwordForm.getFieldProps('newPassword')}
                         onBlur={() => handlePasswordBlur('newPassword')}
@@ -1226,7 +1226,7 @@ const Settings: React.FC = () => {
                         type={showConfirmPassword ? 'text' : 'password'}
                         className="form-input"
                         placeholder="Confirm new password"
-                        maxLength={MAX_50}
+                        maxLength={MAX_32}
                         autoComplete="new-password"
                         {...passwordForm.getFieldProps('confirm')}
                         onBlur={() => handlePasswordBlur('confirm')}

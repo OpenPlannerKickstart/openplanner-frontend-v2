@@ -14,7 +14,7 @@ import { customJsonInclude, isEmptyObjectOrNullUndefiend, renderError } from "..
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { LoginData } from "../../../interfaces";
 import {
-  MAX_15,
+  MAX_32,
   MAX_50,
   PASSWORD_INVALID,
   PATTERN_FOR_EMAIL_OR_USERNAME,
@@ -297,7 +297,7 @@ const Login = (props) => {
                       className="form-input"
                       placeholder="Enter Password"
                       {...loginFormData.getFieldProps("password")}
-                      maxLength={MAX_15}
+                      maxLength={MAX_32}
                       onKeyDown={(event) => {
                         handleKeyPress(event);
                       }}

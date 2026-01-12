@@ -8,7 +8,7 @@ import { deleteAPI } from '../../../Utility/httpInterceptor';
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
 import { deleteUserAPI } from '../../../redux/Service/User/Settings/settings';
-import { MAX_200 } from '../../../Utility/Validation_Helper';
+import { MAX_200, MAX_32 } from '../../../Utility/Validation_Helper';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
 
 const DeleteAccount: React.FC = () => {
@@ -120,7 +120,7 @@ const DeleteAccount: React.FC = () => {
                                 <div className="form-group-icon-end form-group-password">
                                     <Form.Control type={!eyeToggle ? "password" : "text"} placeholder='Enter password'
                                         {...formData.getFieldProps("password")}
-                                        maxLength={MAX_200}
+                                        maxLength={MAX_32}
                                         autoComplete='new-password'
                                         onBlur={() => {
                                             handleBlurValueUpdate("password");

@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { useState } from 'react';
 import { customJsonInclude, renderError } from '../../../Utility/Helper';
 import { NEW_PASSWORD_IS_REQUIRED, OLD_PASSWORD_IS_REQUIRED } from '../../../Utility/Validation_Message';
-import { CONFIRM_PASSWORD_NOT_MATCHED, MAX_15, MAX_50, PASSWORD_INVALID, PATTERN_FOR_PASSWORD, PATTERN_FOR_PASSWORD_NEW } from '../../../Utility/Validation_Helper';
+import { CONFIRM_PASSWORD_NOT_MATCHED, MAX_32, PASSWORD_INVALID, PATTERN_FOR_PASSWORD, PATTERN_FOR_PASSWORD_NEW } from '../../../Utility/Validation_Helper';
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
 import { changePasswordAPI } from '../../../redux/Service/User/Settings/settings';
@@ -106,7 +106,7 @@ const ChangePassword: React.FC = () => {
                                     <Form.Control type={eyeToggle ? "text" : "password"} autoComplete='new password' placeholder='Enter current password'
 
                                         {...formData.getFieldProps("oldPassword")}
-                                        maxLength={MAX_15}
+                                        maxLength={MAX_32}
 
                                         onBlur={() => {
                                             handleBlurValueUpdate("oldPassword");
@@ -131,7 +131,7 @@ const ChangePassword: React.FC = () => {
                                     <i className="material-symbols-outlined">lock</i>
                                     <Form.Control type={eyeToggleTwo ? "text" : "password"} placeholder='Enter new password'
                                         {...formData.getFieldProps("newPassword")}
-                                        maxLength={MAX_50}
+                                        maxLength={MAX_32}
                                         autoComplete='new-password'
                                         onBlur={() => {
                                             handleBlurValueUpdate("newPassword");
@@ -156,7 +156,7 @@ const ChangePassword: React.FC = () => {
                                     <i className="material-symbols-outlined">lock</i>
                                     <Form.Control type={eyeToggleThree ? "text" : "password"} placeholder='Re-enter new password'
                                         {...formData.getFieldProps("confirm")}
-                                        maxLength={MAX_50}
+                                        maxLength={MAX_32}
                                         autoComplete='new-password'
                                         onBlur={() => {
                                             handleBlurValueUpdate("confirm");

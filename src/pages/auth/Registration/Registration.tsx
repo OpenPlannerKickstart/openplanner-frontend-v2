@@ -11,7 +11,7 @@ import sidebarLogoLg from '../../../assets/images/sidebar-logo-lg.svg';
 import { ENUMFORROUTES } from "../../../interfaces/enum";
 import { AppDispatch } from "../../../redux/store";
 import {
-  MAX_15,
+  MAX_32,
   MAX_5,
   MAX_50,
   PASSWORD_INVALID,
@@ -580,7 +580,7 @@ const Registeration = (props) => {
                       className="form-input"
                       placeholder="Enter Password"
                       {...signUpFormData.getFieldProps("password")}
-                      maxLength={MAX_15}
+                      maxLength={MAX_32}
                     />
                     <button
                       type="button"
