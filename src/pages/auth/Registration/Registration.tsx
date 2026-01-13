@@ -75,7 +75,7 @@ const Registeration = (props) => {
     return () => observer.disconnect();
   }, []);
 
-  const initSignUpValues: SignUpData = {
+  const initSignUpValues: SignUpData & { custom_school_name?: string } = {
     first_name: "",
     last_name: "",
     university_name: "",
@@ -83,6 +83,7 @@ const Registeration = (props) => {
     password: "",
     username: "",
     mobile: "+1",
+    custom_school_name: "",
   };
 
   const [savesignUpFormData, setSaveSignUpFormData] = useState(initSignUpValues);
@@ -103,6 +104,11 @@ const Registeration = (props) => {
       .string()
       .matches(PATTERN_FOR_PASSWORD_NEW, PASSWORD_INVALID)
       .required(PASSWORD_REQUIRED),
+    custom_school_name: yup.string().when('university_name', {
+      is: 'Other/Highschool',
+      then: (schema) => schema.required("School name is required").min(3, "Minimum 3 characters required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   });
 
   const signUpFormData = useFormik({
@@ -128,10 +134,44 @@ const Registeration = (props) => {
       return;
     }
 
+    const isOtherSchool = signUpFormData.values.university_name === "Other/Highschool";
+    const customSchoolName = (signUpFormData.values as any).custom_school_name?.trim();
+
+    // If user selected "Other/Highschool", we need to add their custom school first
+    if (isOtherSchool && customSchoolName) {
+      try {
+        const addUniversityReqBody = {
+          institution_name: customSchoolName,
+          unitid: `custom-${Date.now()}`, // Generate a unique ID
+        };
+        const addUniversityResponse = await dispatch(addUniversityAPI(addUniversityReqBody));
+        
+        // If the response is successful OR the school already exists, proceed with registration
+        // The backend will return success or "already exists" - both are fine
+        if (!addUniversityResponse?.payload && !addUniversityResponse?.error?.includes?.('already exists')) {
+          // Only fail if it's a real error (not "already exists")
+          console.error('[Registration] Failed to add custom school:', addUniversityResponse);
+          // Still proceed - the backend might accept the school name directly
+        }
+      } catch (error: any) {
+        // If the error is "already exists", that's fine - proceed with registration
+        const errorMessage = error?.response?.data?.message || error?.message || '';
+        if (!errorMessage.toLowerCase().includes('already exists')) {
+          console.error('[Registration] Error adding custom school:', error);
+          // Still proceed with registration - the backend might handle it
+        }
+      }
+    }
+
+    // Determine the actual university name to send
+    const universityNameToSend = isOtherSchool && customSchoolName 
+      ? customSchoolName 
+      : signUpFormData.values.university_name;
+
     const reqBody: any = {
       first_name: signUpFormData.values.first_name,
       last_name: signUpFormData.values.last_name,
-      university_name: signUpFormData.values.university_name,
+      university_name: universityNameToSend,
       email: signUpFormData.values.email,
       password: signUpFormData.values.password,
       mobile: signUpFormData.values.mobile == "+1" ? undefined : `${signUpFormData.values.mobile}`,
@@ -139,7 +179,7 @@ const Registeration = (props) => {
     };
     
     // Include year if selected and not Other/Highschool
-    if (selectedYear && signUpFormData.values.university_name !== "Other/Highschool") {
+    if (selectedYear && !isOtherSchool) {
       reqBody.year = selectedYear;
     }
     customJsonInclude(reqBody);
@@ -543,7 +583,7 @@ const Registeration = (props) => {
 
                 {signUpFormData.values.university_name === "Other/Highschool" && (
                   <div className="form-group">
-                    <label className="form-label">School Name</label>
+                    <label className="form-label">School Name <span>*</span></label>
                     <div className="form-input-wrapper">
                       <span className="form-input-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -559,6 +599,9 @@ const Registeration = (props) => {
                         onBlur={() => handleBlurValueUpdate("custom_school_name")}
                       />
                     </div>
+                    {(signUpFormData.touched as any).custom_school_name && (signUpFormData.errors as any).custom_school_name
+                      ? renderError((signUpFormData.errors as any).custom_school_name)
+                      : null}
                   </div>
                 )}
 
