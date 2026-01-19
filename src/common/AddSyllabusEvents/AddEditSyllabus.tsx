@@ -20,6 +20,7 @@ import SyllabusGroupSuggestModal from '../../components/SyllabusGroupSuggestModa
 import { useSyllabusUpload } from '../../context/SyllabusUploadContext';
 import { startSyllabusUpload } from '../../Utility/syllabusUpload';
 import { isGroupsEnabled } from '../../config/featureFlags';
+import { getFreemiumUploadLimit, getReferralSentCount } from '../../Utility/referrals';
 
 export const AddEditSyllabus = (props) => {
     const dispatch: AppDispatch = useDispatch();
@@ -112,7 +113,14 @@ export const AddEditSyllabus = (props) => {
             return false;
         }
     })();
-    const FREEMIUM_UPLOAD_LIMIT = 3;
+    const referralUploadLimit = getFreemiumUploadLimit(getReferralSentCount());
+    const upgradeRequired =
+        !!props?.upgradeRequired ||
+        (isFreemiumPlan &&
+            !hasSubscription &&
+            getReferralSentCount() >= 1 &&
+            typeof effectiveSyllabusCount === "number" &&
+            effectiveSyllabusCount >= getFreemiumUploadLimit(1));
     const effectiveSyllabusCount = typeof props?.existingSyllabusCount === "number"
         ? props.existingSyllabusCount
         : existingSyllabusCount;
@@ -121,7 +129,7 @@ export const AddEditSyllabus = (props) => {
         !hasSubscription &&
         (!!props?.freemiumLimitReached ||
             (typeof effectiveSyllabusCount === "number" &&
-                effectiveSyllabusCount >= FREEMIUM_UPLOAD_LIMIT));
+                effectiveSyllabusCount >= referralUploadLimit));
 
     const fetchExistingSyllabusCount = async () => {
         try {
@@ -148,7 +156,19 @@ export const AddEditSyllabus = (props) => {
         }
     }, [showAddSyllabusEvents, props?.existingSyllabusCount]);
 
-    const handleUpgrade = () => {
+    const handleUnlockMoreUploads = () => {
+        if (upgradeRequired) {
+            if (props?.onUpgradeClick) {
+                props.onUpgradeClick();
+                return;
+            }
+            navigate(ENUMFORROUTES.PLAN_DETAILS);
+            return;
+        }
+        if (props?.onReferralClick) {
+            props.onReferralClick();
+            return;
+        }
         if (props?.onUpgradeClick) {
             props.onUpgradeClick();
             return;
@@ -183,7 +203,7 @@ export const AddEditSyllabus = (props) => {
     })
     const handleSyllabusSubmit = async () => {
         if (freemiumUploadLocked) {
-            handleUpgrade();
+            handleUnlockMoreUploads();
             return;
         }
 
@@ -397,9 +417,19 @@ export const AddEditSyllabus = (props) => {
                         {freemiumUploadLocked && (
                             <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2 mb-3">
                                 <div>
-                                    <strong>Free plan limit reached.</strong> Upgrade for unlimited uploads.
+                                    {upgradeRequired ? (
+                                        <>
+                                            <strong>Free plan limit reached.</strong> You can upload up to 3 syllabi on the free plan. Upgrade to keep adding courses.
+                                        </>
+                                    ) : (
+                                        <>
+                                            <strong>Referral required.</strong> Share your referral link to unlock uploads 2 and 3.
+                                        </>
+                                    )}
                                 </div>
-                                <Button size="sm" variant="primary" onClick={handleUpgrade}>View plans</Button>
+                                <Button size="sm" variant="primary" onClick={handleUnlockMoreUploads}>
+                                    {upgradeRequired ? "View plans" : "Share referral link"}
+                                </Button>
                             </div>
                         )}
                         <div 
