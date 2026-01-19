@@ -3,6 +3,25 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useSyllabusUpload } from '../../context/SyllabusUploadContext';
 import { ENUMFORROUTES } from '../../interfaces/enum';
 import './GlobalSyllabusUploadModal.scss';
+import {
+  buildReferralLink,
+  recordReferralSent,
+  markReferralSentRemote,
+  getReferralSentCount,
+} from '../../Utility/referrals';
+import {
+  EmailShareButton,
+  FacebookShareButton,
+  LinkedinShareButton,
+  TwitterShareButton,
+  WhatsappShareButton,
+  EmailIcon,
+  FacebookIcon,
+  LinkedinIcon,
+  TwitterIcon,
+  WhatsappIcon,
+} from 'react-share';
+import { ts } from '../../Utility/Toaster';
 
 // Check if error message indicates limit reached
 const isLimitReachedError = (message: string | undefined | null): boolean => {
@@ -31,6 +50,8 @@ export default function GlobalSyllabusUploadModal() {
 
   const hasAutoClosedRef = useRef(false);
   const [isAutoClosing, setIsAutoClosing] = useState(false);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  const unlockTimerRef = useRef<number | null>(null);
 
   // Dragging state
   const [position, setPosition] = useState({ x: 20, y: 20 });
@@ -158,10 +179,19 @@ export default function GlobalSyllabusUploadModal() {
     };
   }, [isOpen, status, location?.pathname, close]);
 
+  const referralLink = useMemo(() => buildReferralLink(), []);
+
+  useEffect(() => {
+    return () => {
+      if (unlockTimerRef.current) window.clearTimeout(unlockTimerRef.current);
+    };
+  }, []);
+
   if (!isOpen) return null;
 
   const progressPercent = Math.round(progress * 100);
   const limitReached = status === 'failed' && isLimitReachedError(errorMessage);
+  const referralAlreadyUsed = getReferralSentCount() >= 1;
 
   const getStatusText = () => {
     if (timedOut) return 'Taking longer than expected...';
@@ -173,7 +203,7 @@ export default function GlobalSyllabusUploadModal() {
       case 'ready':
         return 'Upload complete!';
       case 'failed':
-        return limitReached ? 'Upgrade Required' : 'Upload failed';
+        return limitReached ? 'Referral Required' : 'Upload failed';
       default:
         return 'Preparing...';
     }
@@ -184,12 +214,7 @@ export default function GlobalSyllabusUploadModal() {
       return <i className="material-symbols-outlined status-icon success">check_circle</i>;
     }
     if (limitReached) {
-      // Crown icon for upgrade required
-      return (
-        <svg className="status-icon crown" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/>
-        </svg>
-      );
+      return <i className="material-symbols-outlined status-icon">link</i>;
     }
     if (status === 'failed' || timedOut) {
       return <i className="material-symbols-outlined status-icon error">error</i>;
@@ -202,9 +227,21 @@ export default function GlobalSyllabusUploadModal() {
     );
   };
 
-  const handleUpgradeClick = () => {
-    navigate(ENUMFORROUTES.CHANGE_PLAN);
-    close();
+  const startUnlockTimer = () => {
+    if (isUnlocking) return;
+    setIsUnlocking(true);
+    unlockTimerRef.current = window.setTimeout(() => {
+      recordReferralSent();
+      markReferralSentRemote();
+      ts('Referral shared. Uploads 2 and 3 are unlocked.');
+      setIsUnlocking(false);
+    }, 10000);
+  };
+
+  const shareProps = {
+    url: referralLink,
+    onClick: startUnlockTimer,
+    disabled: isUnlocking,
   };
 
   const canClose = status === 'ready' || status === 'failed' || timedOut;
@@ -215,6 +252,10 @@ export default function GlobalSyllabusUploadModal() {
       navigate(ENUMFORROUTES.COURSES);
       close();
     }
+  };
+
+  const handleUpgradeClick = () => {
+    navigate(ENUMFORROUTES.PLAN_DETAILS);
   };
 
   return (
@@ -341,19 +382,44 @@ export default function GlobalSyllabusUploadModal() {
 
           {status === 'failed' && limitReached && (
             <>
-              <p className="info-text upgrade">
-                You have reached the free upload limit of 3 syllabi. Please upgrade to premium to upload more.
-              </p>
-              <button
-                type="button"
-                className="upgrade-btn"
-                onClick={handleUpgradeClick}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z"/>
-                </svg>
-                Upgrade to Premium
-              </button>
+              {referralAlreadyUsed ? (
+                <>
+                  <p className="info-text upgrade">
+                    Free plan limit reached. Upgrade to keep uploading more syllabi.
+                  </p>
+                  <button
+                    type="button"
+                    className="upgrade-btn"
+                    onClick={handleUpgradeClick}
+                  >
+                    <i className="material-symbols-outlined" style={{ fontSize: 18 }}>upgrade</i>
+                    View plans
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="info-text upgrade">
+                    You’ve used your free upload. Share your referral link to unlock uploads 2 and 3.
+                  </p>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <FacebookShareButton {...shareProps}>
+                      <FacebookIcon size={32} round />
+                    </FacebookShareButton>
+                    <TwitterShareButton {...shareProps}>
+                      <TwitterIcon size={32} round />
+                    </TwitterShareButton>
+                    <LinkedinShareButton {...shareProps}>
+                      <LinkedinIcon size={32} round />
+                    </LinkedinShareButton>
+                    <WhatsappShareButton {...shareProps}>
+                      <WhatsappIcon size={32} round />
+                    </WhatsappShareButton>
+                    <EmailShareButton {...shareProps}>
+                      <EmailIcon size={32} round />
+                    </EmailShareButton>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>
@@ -361,4 +427,3 @@ export default function GlobalSyllabusUploadModal() {
     </div>
   );
 }
-
