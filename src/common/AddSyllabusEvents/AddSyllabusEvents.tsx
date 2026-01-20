@@ -26,7 +26,6 @@ import SyllabusGroupSuggestModal from '../../components/SyllabusGroupSuggestModa
 import { useSyllabusUpload } from '../../context/SyllabusUploadContext';
 import { startSyllabusUpload } from '../../Utility/syllabusUpload';
 import { isGroupsEnabled } from '../../config/featureFlags';
-import { getFreemiumUploadLimit, getReferralSentCount } from '../../Utility/referrals';
 const AddSyllabusEvents = (props) => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
@@ -124,31 +123,13 @@ const AddSyllabusEvents = (props) => {
     typeof props?.existingSyllabusCount === "number"
       ? props.existingSyllabusCount
       : 0;
-  const referralUploadLimit = getFreemiumUploadLimit(getReferralSentCount());
-  const upgradeRequired =
-    !!props?.upgradeRequired ||
-    (isFreemiumPlan &&
-      !hasSubscription &&
-      getReferralSentCount() >= 1 &&
-      existingSyllabusCount >= getFreemiumUploadLimit(1));
+  const FREEMIUM_UPLOAD_LIMIT = 3;
   const freemiumUploadLocked =
     isFreemiumPlan &&
     !hasSubscription &&
-    ((!!props?.freemiumLimitReached) || existingSyllabusCount >= referralUploadLimit);
+    ((!!props?.freemiumLimitReached) || existingSyllabusCount >= FREEMIUM_UPLOAD_LIMIT);
 
-  const handleUnlockMoreUploads = () => {
-    if (upgradeRequired) {
-      if (props?.onUpgradeClick) {
-        props.onUpgradeClick();
-        return;
-      }
-      navigate(ENUMFORROUTES.PLAN_DETAILS);
-      return;
-    }
-    if (props?.onReferralClick) {
-      props.onReferralClick();
-      return;
-    }
+  const handleUpgrade = () => {
     if (props?.onUpgradeClick) {
       props.onUpgradeClick();
       return;
@@ -182,7 +163,7 @@ const AddSyllabusEvents = (props) => {
   })
   const handleSyllabusSubmit = async () => {
     if (freemiumUploadLocked) {
-      handleUnlockMoreUploads();
+      handleUpgrade();
       return;
     }
 
@@ -651,18 +632,10 @@ const AddSyllabusEvents = (props) => {
                             {freemiumUploadLocked && (
                               <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
                                 <div>
-                                  {upgradeRequired ? (
-                                    <>
-                                      <strong>Free plan limit reached.</strong> You can upload up to 3 syllabi on the free plan. Upgrade to keep adding courses.
-                                    </>
-                                  ) : (
-                                    <>
-                                      <strong>Referral required.</strong> Share your referral link to unlock uploads 2 and 3.
-                                    </>
-                                  )}
+                                  <strong>Free plan limit reached.</strong> Upload up to 3 syllabi for free, then upgrade for unlimited uploads.
                                 </div>
-                                <Button size="sm" variant="primary" onClick={handleUnlockMoreUploads}>
-                                  {upgradeRequired ? "View plans" : "Share referral link"}
+                                <Button size="sm" variant="primary" onClick={handleUpgrade}>
+                                  View plans
                                 </Button>
                               </div>
                             )}

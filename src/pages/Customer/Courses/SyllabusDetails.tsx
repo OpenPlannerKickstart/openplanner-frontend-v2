@@ -118,7 +118,6 @@ const SyllabusDetails = (props) => {
   const isNewSyllabus = isNullUndefinedOrBlank(props?.selectedSyllabusObj?.id);
   const freemiumUploadLocked =
     isNewSyllabus && !hasSubscription && !!props?.freemiumLimitReached;
-  const upgradeRequired = !!props?.upgradeRequired;
 
   // View vs edit state (match new Courses tab design)
   const [isEditingDetails, setIsEditingDetails] = useState<boolean>(false);
@@ -203,19 +202,7 @@ const SyllabusDetails = (props) => {
     return map[hex.toLowerCase()] || hex;
   };
 
-  const handleUnlockMoreUploads = () => {
-    if (upgradeRequired) {
-      if (props?.onUpgradeClick) {
-        props.onUpgradeClick();
-        return;
-      }
-      navigate(ENUMFORROUTES.PLAN_DETAILS);
-      return;
-    }
-    if (props?.onReferralClick) {
-      props.onReferralClick();
-      return;
-    }
+  const handleUpgrade = () => {
     if (props?.onUpgradeClick) {
       props.onUpgradeClick();
       return;
@@ -253,7 +240,7 @@ const SyllabusDetails = (props) => {
   });
   const handleSyllabusSubmit = async (): Promise<boolean> => {
     if (freemiumUploadLocked) {
-      handleUnlockMoreUploads();
+      handleUpgrade();
       return false;
     }
 
@@ -624,18 +611,10 @@ const SyllabusDetails = (props) => {
             {freemiumUploadLocked && (
               <div className="alert alert-warning d-flex align-items-center justify-content-between gap-2">
                 <div>
-                  {upgradeRequired ? (
-                    <>
-                      <strong>Free plan limit reached.</strong> You can upload up to 3 syllabi on the free plan. Upgrade to keep adding courses.
-                    </>
-                  ) : (
-                    <>
-                      <strong>Referral required.</strong> Share your referral link to unlock uploads 2 and 3.
-                    </>
-                  )}
+                  <strong>Free plan limit reached.</strong> Upload up to 3 syllabi for free, then upgrade for unlimited uploads.
                 </div>
-                <Button size="sm" variant="primary" onClick={handleUnlockMoreUploads}>
-                  {upgradeRequired ? "View plans" : "Share referral link"}
+                <Button size="sm" variant="primary" onClick={handleUpgrade}>
+                  View plans
                 </Button>
               </div>
             )}
