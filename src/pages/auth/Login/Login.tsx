@@ -41,6 +41,7 @@ const Login = (props) => {
   const dispatch: AppDispatch = useDispatch();
   const [otpDetailsObj, setOtpDetailsObj] = useState<any>({} as any);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [showAppPromo, setShowAppPromo] = useState<boolean>(false);
 
   // Detect theme changes
   useEffect(() => {
@@ -64,6 +65,11 @@ const Login = (props) => {
     observer.observe(document.documentElement, { attributes: true });
     
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem("openPlannerAppPromoDismissed");
+    setShowAppPromo(!dismissed);
   }, []);
 
   const initLoginValues: LoginData = {
@@ -159,6 +165,10 @@ const Login = (props) => {
   };
 
   const brandLogo = isDarkMode ? sidebarLogoLg : "/assets/logo.png";
+  const handleDismissAppPromo = () => {
+    localStorage.setItem("openPlannerAppPromoDismissed", "1");
+    setShowAppPromo(false);
+  };
 
   return (
     <>
@@ -342,6 +352,32 @@ const Login = (props) => {
               </p>
             </div>
           </div>
+          {showAppPromo ? (
+            <div className="auth-app-promo" role="dialog" aria-live="polite">
+              <div className="auth-app-promo-content">
+                <div className="auth-app-promo-text">
+                  <p className="auth-app-promo-title">Check out the Open Planner app</p>
+                  <p className="auth-app-promo-subtitle">Get reminders and manage assignments on the go.</p>
+                </div>
+                <a
+                  className="auth-app-promo-link"
+                  href="https://apps.apple.com/us/app/open-planner/id6615063437"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View in App Store
+                </a>
+              </div>
+              <button
+                type="button"
+                className="auth-app-promo-dismiss"
+                onClick={handleDismissAppPromo}
+                aria-label="Dismiss app promo"
+              >
+                Dismiss
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : (
         <VerifySignupOtp
