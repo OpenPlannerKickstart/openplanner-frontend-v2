@@ -1,19 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-import {
-  EmailShareButton,
-  FacebookShareButton,
-  LinkedinShareButton,
-  TwitterShareButton,
-  WhatsappShareButton,
-  EmailIcon,
-  FacebookIcon,
-  LinkedinIcon,
-  TwitterIcon,
-  WhatsappIcon,
-} from "react-share";
-import { ENUMFORROUTES } from "../../interfaces/enum";
 import { ts, te } from "../../Utility/Toaster";
 import {
   getFreemiumUploadLimit,
@@ -39,16 +25,18 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
   existingSyllabusCount,
   onReferralSent,
 }) => {
-  const navigate = useNavigate();
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
     "idle"
   );
   const [isUnlocking, setIsUnlocking] = useState(false);
   const unlockTimerRef = useRef<number | null>(null);
+  const unlockCountdownRef = useRef<number | null>(null);
+  const [unlockCountdown, setUnlockCountdown] = useState<number | null>(null);
 
   useEffect(() => {
     return () => {
       if (unlockTimerRef.current) window.clearTimeout(unlockTimerRef.current);
+      if (unlockCountdownRef.current) window.clearInterval(unlockCountdownRef.current);
     };
   }, []);
 
@@ -90,6 +78,18 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
   const startUnlockTimer = () => {
     if (isUnlocking || remainingReferrals <= 0) return;
     setIsUnlocking(true);
+    setUnlockCountdown(10);
+    if (unlockCountdownRef.current) window.clearInterval(unlockCountdownRef.current);
+    unlockCountdownRef.current = window.setInterval(() => {
+      setUnlockCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          if (unlockCountdownRef.current) window.clearInterval(unlockCountdownRef.current);
+          unlockCountdownRef.current = null;
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
     unlockTimerRef.current = window.setTimeout(() => {
       const nextCount = onReferralSent();
       markReferralSentRemote();
@@ -102,12 +102,6 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
       }
       setIsUnlocking(false);
     }, 10000);
-  };
-
-  const shareProps = {
-    url: referralLink,
-    onClick: startUnlockTimer,
-    disabled: remainingReferrals <= 0 || isUnlocking,
   };
 
   return (
@@ -143,7 +137,7 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
           <div className="modal-confirmation-content">
             <h5>Unlock your next syllabus upload</h5>
             <p>
-              Unlock your next syllabus by sharing the link or clicking the buttons below.
+              Copy your referral link to unlock uploads 2 and 3. After you copy, we’ll unlock in 10 seconds.
             </p>
             <p style={{ marginTop: 8, color: "var(--neutral-500)" }}>
               Referral sent: {referralSentCount}/{MAX_REFERRALS} · Uploads
@@ -158,46 +152,15 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
                 style={{ fontSize: 12 }}
               />
             </div>
-            {remainingReferrals > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  marginTop: 12,
-                  flexWrap: "wrap",
-                }}
-              >
-                <FacebookShareButton {...shareProps}>
-                  <FacebookIcon size={36} round />
-                </FacebookShareButton>
-                <TwitterShareButton {...shareProps}>
-                  <TwitterIcon size={36} round />
-                </TwitterShareButton>
-                <LinkedinShareButton {...shareProps}>
-                  <LinkedinIcon size={36} round />
-                </LinkedinShareButton>
-                <WhatsappShareButton {...shareProps}>
-                  <WhatsappIcon size={36} round />
-                </WhatsappShareButton>
-                <EmailShareButton {...shareProps}>
-                  <EmailIcon size={36} round />
-                </EmailShareButton>
-              </div>
+            {isUnlocking && unlockCountdown !== null && (
+              <p style={{ marginTop: 10, color: "var(--neutral-500)" }}>
+                Unlocking in {unlockCountdown}s…
+              </p>
             )}
           </div>
         </div>
 
         <div className="modal-button-group modal-full-width-btn modal-footer-button">
-          <Button variant="light-white" className="btn-md" onClick={onClose}>
-            Close
-          </Button>
-          <Button
-            variant="light-white"
-            className="btn-md"
-            onClick={() => navigate(ENUMFORROUTES.PLAN_DETAILS)}
-          >
-            Upgrade
-          </Button>
           <Button variant="primary" className="btn-md" onClick={tryCopy}>
             {copyLabel}
           </Button>
