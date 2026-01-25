@@ -1,5 +1,7 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { ENUMFORROUTES } from "../../interfaces/enum";
 import { ts, te } from "../../Utility/Toaster";
 import {
   getFreemiumUploadLimit,
@@ -25,6 +27,7 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
   existingSyllabusCount,
   onReferralSent,
 }) => {
+  const navigate = useNavigate();
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">(
     "idle"
   );
@@ -161,6 +164,13 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
         </div>
 
         <div className="modal-button-group modal-full-width-btn modal-footer-button">
+          <Button
+            variant="light-white"
+            className="btn-md"
+            onClick={() => navigate(ENUMFORROUTES.PLAN_DETAILS)}
+          >
+            Upgrade
+          </Button>
           <Button variant="primary" className="btn-md" onClick={tryCopy}>
             {copyLabel}
           </Button>
