@@ -39,7 +39,8 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
   useEffect(() => {
     return () => {
       if (unlockTimerRef.current) window.clearTimeout(unlockTimerRef.current);
-      if (unlockCountdownRef.current) window.clearInterval(unlockCountdownRef.current);
+      if (unlockCountdownRef.current)
+        window.clearInterval(unlockCountdownRef.current);
     };
   }, []);
 
@@ -82,11 +83,13 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
     if (isUnlocking || remainingReferrals <= 0) return;
     setIsUnlocking(true);
     setUnlockCountdown(10);
-    if (unlockCountdownRef.current) window.clearInterval(unlockCountdownRef.current);
+    if (unlockCountdownRef.current)
+      window.clearInterval(unlockCountdownRef.current);
     unlockCountdownRef.current = window.setInterval(() => {
       setUnlockCountdown((prev) => {
         if (prev === null || prev <= 1) {
-          if (unlockCountdownRef.current) window.clearInterval(unlockCountdownRef.current);
+          if (unlockCountdownRef.current)
+            window.clearInterval(unlockCountdownRef.current);
           unlockCountdownRef.current = null;
           return 0;
         }
@@ -131,7 +134,14 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
               color: "#4AAED4",
             }}
           >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6" />
               <path d="M16 6l-4-4-4 4" />
               <path d="M12 2v14" />
@@ -139,9 +149,7 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
           </div>
           <div className="modal-confirmation-content">
             <h5>Unlock your next syllabus upload</h5>
-            <p>
-              Copy your referral link to unlock uploads 2 and 3. After you copy, we’ll unlock in 10 seconds.
-            </p>
+            <p>Copy your referral link to unlock uploads 2 and 3.</p>
             <p style={{ marginTop: 8, color: "var(--neutral-500)" }}>
               Referral sent: {referralSentCount}/{MAX_REFERRALS} · Uploads
               unlocked: {unlockedUploads}/3
