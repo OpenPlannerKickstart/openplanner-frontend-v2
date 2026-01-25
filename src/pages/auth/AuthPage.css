@@ -442,74 +442,6 @@
   text-decoration: underline;
 }
 
-.auth-app-promo {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 10;
-  max-width: 320px;
-  border-radius: 16px;
-  border: 1px solid var(--neutral-200);
-  background: var(--white);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.auth-app-promo-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.auth-app-promo-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--neutral-900);
-  margin: 0 0 4px;
-}
-
-.auth-app-promo-subtitle {
-  font-size: 0.875rem;
-  color: var(--neutral-600);
-  margin: 0;
-}
-
-.auth-app-promo-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: var(--primary);
-  color: var(--white);
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.auth-app-promo-link:hover {
-  opacity: 0.9;
-  color: var(--white);
-}
-
-.auth-app-promo-dismiss {
-  background: transparent;
-  border: 1px solid var(--neutral-200);
-  color: var(--neutral-600);
-  font-weight: 600;
-  font-size: 0.8125rem;
-  border-radius: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.auth-app-promo-dismiss:hover {
-  border-color: var(--neutral-300);
-  color: var(--neutral-800);
-}
-
 .auth-mobile-logo {
   display: none;
   margin-bottom: 2rem;
@@ -1060,33 +992,4 @@
 
 [data-theme="dark"] .auth-footer a {
   color: #4AAED4 !important;
-}
-
-[data-theme="dark"] .auth-app-promo {
-  background: #0F172A !important;
-  border-color: #1E293B !important;
-  box-shadow: 0 18px 40px rgba(2, 6, 23, 0.6);
-}
-
-[data-theme="dark"] .auth-app-promo-title {
-  color: #F8FAFC !important;
-}
-
-[data-theme="dark"] .auth-app-promo-subtitle {
-  color: #94A3B8 !important;
-}
-
-[data-theme="dark"] .auth-app-promo-link {
-  background: #4AAED4 !important;
-  color: #0F172A !important;
-}
-
-[data-theme="dark"] .auth-app-promo-dismiss {
-  border-color: #334155 !important;
-  color: #CBD5F5 !important;
-}
-
-[data-theme="dark"] .auth-app-promo-dismiss:hover {
-  border-color: #475569 !important;
-  color: #F8FAFC !important;
 }

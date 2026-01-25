@@ -41,6 +41,7 @@ const Dashboard = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const [showAppPromo, setShowAppPromo] = useState(false);
 
   /** -----------------event listing api start---------------------------*/
   const [eventData, setEventData] = useState<any>([]);
@@ -57,6 +58,11 @@ const Dashboard = () => {
   const isOnTodayWeek =
     moment(startDate).isSame(moment().startOf('week'), 'day') &&
     moment(endDate).isSame(moment().endOf('week'), 'day');
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem('openPlannerAppPromoDismissed');
+    setShowAppPromo(!dismissed);
+  }, []);
 
   const normalizeId = (id: string | number | null | undefined) =>
     id === null || typeof id === 'undefined' ? null : String(id);
@@ -125,6 +131,11 @@ const Dashboard = () => {
 
     setStartDate(start.format('YYYY-MM-DD'));
     setEndDate(end.format('YYYY-MM-DD'));
+  };
+
+  const handleDismissAppPromo = () => {
+    localStorage.setItem('openPlannerAppPromoDismissed', '1');
+    setShowAppPromo(false);
   };
 
   const handleEventListing = async () => {
@@ -842,6 +853,33 @@ const Dashboard = () => {
         existingSyllabusCount={syllabusDropDownData.length}
         onReferralSent={markReferralSent}
       />
+
+      {showAppPromo ? (
+        <div className="dashboard-app-promo" role="dialog" aria-live="polite">
+          <div className="dashboard-app-promo-content">
+            <div className="dashboard-app-promo-text">
+              <p className="dashboard-app-promo-title">Check out the Open Planner app</p>
+              <p className="dashboard-app-promo-subtitle">Get reminders and manage assignments on the go.</p>
+            </div>
+            <a
+              className="dashboard-app-promo-link"
+              href="https://apps.apple.com/us/app/open-planner/id6615063437"
+              target="_blank"
+              rel="noreferrer"
+            >
+              View in App Store
+            </a>
+          </div>
+          <button
+            type="button"
+            className="dashboard-app-promo-dismiss"
+            onClick={handleDismissAppPromo}
+            aria-label="Dismiss app promo"
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
     </>
   );
 };
