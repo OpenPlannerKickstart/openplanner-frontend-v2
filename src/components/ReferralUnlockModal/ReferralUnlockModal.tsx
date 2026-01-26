@@ -1,18 +1,6 @@
 import React, { useMemo, useRef, useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import {
-  EmailShareButton,
-  FacebookShareButton,
-  LinkedinShareButton,
-  TwitterShareButton,
-  WhatsappShareButton,
-  EmailIcon,
-  FacebookIcon,
-  LinkedinIcon,
-  TwitterIcon,
-  WhatsappIcon,
-} from "react-share";
 import { ENUMFORROUTES } from "../../interfaces/enum";
 import { ts, te } from "../../Utility/Toaster";
 import {
@@ -45,10 +33,14 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
   );
   const [isUnlocking, setIsUnlocking] = useState(false);
   const unlockTimerRef = useRef<number | null>(null);
+  const unlockCountdownRef = useRef<number | null>(null);
+  const [unlockCountdown, setUnlockCountdown] = useState<number | null>(null);
 
   useEffect(() => {
     return () => {
       if (unlockTimerRef.current) window.clearTimeout(unlockTimerRef.current);
+      if (unlockCountdownRef.current)
+        window.clearInterval(unlockCountdownRef.current);
     };
   }, []);
 
@@ -90,6 +82,20 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
   const startUnlockTimer = () => {
     if (isUnlocking || remainingReferrals <= 0) return;
     setIsUnlocking(true);
+    setUnlockCountdown(10);
+    if (unlockCountdownRef.current)
+      window.clearInterval(unlockCountdownRef.current);
+    unlockCountdownRef.current = window.setInterval(() => {
+      setUnlockCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          if (unlockCountdownRef.current)
+            window.clearInterval(unlockCountdownRef.current);
+          unlockCountdownRef.current = null;
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
     unlockTimerRef.current = window.setTimeout(() => {
       const nextCount = onReferralSent();
       markReferralSentRemote();
@@ -102,12 +108,6 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
       }
       setIsUnlocking(false);
     }, 10000);
-  };
-
-  const shareProps = {
-    url: referralLink,
-    onClick: startUnlockTimer,
-    disabled: remainingReferrals <= 0 || isUnlocking,
   };
 
   return (
@@ -134,7 +134,14 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
               color: "#4AAED4",
             }}
           >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M4 12v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6" />
               <path d="M16 6l-4-4-4 4" />
               <path d="M12 2v14" />
@@ -142,9 +149,7 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
           </div>
           <div className="modal-confirmation-content">
             <h5>Unlock your next syllabus upload</h5>
-            <p>
-              Unlock your next syllabus by sharing the link or clicking the buttons below.
-            </p>
+            <p>Copy your referral link to unlock uploads 2 and 3.</p>
             <p style={{ marginTop: 8, color: "var(--neutral-500)" }}>
               Referral sent: {referralSentCount}/{MAX_REFERRALS} · Uploads
               unlocked: {unlockedUploads}/3
@@ -158,39 +163,15 @@ const ReferralUnlockModal: React.FC<ReferralUnlockModalProps> = ({
                 style={{ fontSize: 12 }}
               />
             </div>
-            {remainingReferrals > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  gap: 10,
-                  marginTop: 12,
-                  flexWrap: "wrap",
-                }}
-              >
-                <FacebookShareButton {...shareProps}>
-                  <FacebookIcon size={36} round />
-                </FacebookShareButton>
-                <TwitterShareButton {...shareProps}>
-                  <TwitterIcon size={36} round />
-                </TwitterShareButton>
-                <LinkedinShareButton {...shareProps}>
-                  <LinkedinIcon size={36} round />
-                </LinkedinShareButton>
-                <WhatsappShareButton {...shareProps}>
-                  <WhatsappIcon size={36} round />
-                </WhatsappShareButton>
-                <EmailShareButton {...shareProps}>
-                  <EmailIcon size={36} round />
-                </EmailShareButton>
-              </div>
+            {isUnlocking && unlockCountdown !== null && (
+              <p style={{ marginTop: 10, color: "var(--neutral-500)" }}>
+                Unlocking in {unlockCountdown}s…
+              </p>
             )}
           </div>
         </div>
 
         <div className="modal-button-group modal-full-width-btn modal-footer-button">
-          <Button variant="light-white" className="btn-md" onClick={onClose}>
-            Close
-          </Button>
           <Button
             variant="light-white"
             className="btn-md"

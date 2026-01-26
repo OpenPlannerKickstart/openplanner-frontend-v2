@@ -66,6 +66,7 @@ const Login = (props) => {
     return () => observer.disconnect();
   }, []);
 
+
   const initLoginValues: LoginData = {
     identifier: "",
     password: "",
@@ -159,7 +160,6 @@ const Login = (props) => {
   };
 
   const brandLogo = isDarkMode ? sidebarLogoLg : "/assets/logo.png";
-
   return (
     <>
       {isEmptyObjectOrNullUndefiend(otpDetailsObj) ? (

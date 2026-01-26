@@ -3817,3 +3817,100 @@ input, textarea, select {
         gap: 0.25rem;
     }
 }
+
+.dashboard-app-promo {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 10;
+    max-width: 320px;
+    border-radius: 16px;
+    border: 1px solid var(--neutral-200);
+    background: var(--white);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dashboard-app-promo-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dashboard-app-promo-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--neutral-900);
+    margin: 0 0 4px;
+}
+
+.dashboard-app-promo-subtitle {
+    font-size: 0.875rem;
+    color: var(--neutral-600);
+    margin: 0;
+}
+
+.dashboard-app-promo-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--primary);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.dashboard-app-promo-link:hover {
+    opacity: 0.9;
+    color: var(--white);
+}
+
+.dashboard-app-promo-dismiss {
+    background: transparent;
+    border: 1px solid var(--neutral-200);
+    color: var(--neutral-600);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.dashboard-app-promo-dismiss:hover {
+    border-color: var(--neutral-300);
+    color: var(--neutral-800);
+}
+
+[data-theme="dark"] .dashboard-app-promo {
+    background: #0F172A;
+    border-color: #1E293B;
+    box-shadow: 0 18px 40px rgba(2, 6, 23, 0.6);
+}
+
+[data-theme="dark"] .dashboard-app-promo-title {
+    color: #F8FAFC;
+}
+
+[data-theme="dark"] .dashboard-app-promo-subtitle {
+    color: #94A3B8;
+}
+
+[data-theme="dark"] .dashboard-app-promo-link {
+    background: #4AAED4;
+    color: #0F172A;
+}
+
+[data-theme="dark"] .dashboard-app-promo-dismiss {
+    border-color: #334155;
+    color: #CBD5F5;
+}
+
+[data-theme="dark"] .dashboard-app-promo-dismiss:hover {
+    border-color: #475569;
+    color: #F8FAFC;
+}
