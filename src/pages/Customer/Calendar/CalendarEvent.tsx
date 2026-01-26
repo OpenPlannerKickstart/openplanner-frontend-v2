@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { Modal, Button } from 'react-bootstrap';
 import {
   getCalenderDataAPI,
   getSyllabusDropDownDataAPI,
@@ -26,6 +25,8 @@ import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 import { isUpdatedSyllabus } from '../../../redux/User/Courses/coursesSlice';
+import { useReferralUploadLimit } from '../../../hooks/useReferralUploadLimit';
+import ReferralUnlockModal from '../../../components/ReferralUnlockModal/ReferralUnlockModal';
 import moment from 'moment';
 
 // Type for normalized calendar events
@@ -399,31 +400,42 @@ const CalendarEvent = () => {
       const subscriptionFlag = localStorage.getItem('has_subscription') === 'true';
       return {
         hasSubscription: subscriptionFlag,
-        isFreemiumPlan: tier === 'freemium',
+        isFreemiumPlan: tier === 'freemium' || !subscriptionFlag,
       };
     } catch {
       return {
         hasSubscription: false,
-        isFreemiumPlan: false,
+        isFreemiumPlan: true,
       };
     }
   })();
 
-  const FREEMIUM_UPLOAD_LIMIT = 3;
-  const freemiumLimitReached =
-    isFreemiumPlan && !hasSubscription && syllabusDropDownData.length >= FREEMIUM_UPLOAD_LIMIT;
+  const {
+    limitReached: freemiumLimitReached,
+    upgradeRequired,
+    referralLink,
+    referralSentCount,
+    markReferralSent,
+  } = useReferralUploadLimit({
+    isFreemiumPlan,
+    hasSubscription,
+    existingSyllabusCount: syllabusDropDownData.length,
+  });
 
-  // Upgrade modal state for freemium limit
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  // Referral modal state for freemium limit
+  const [showReferralModal, setShowReferralModal] = useState(false);
 
-  const handleUpgradeClick = () => {
-    setShowUpgradeModal(false);
-    navigate(ENUMFORROUTES.CHANGE_PLAN);
+  const handleReferralClick = () => {
+    setShowReferralModal(true);
   };
 
   const handleAddSyllabusClick = () => {
+    if (upgradeRequired) {
+      navigate(ENUMFORROUTES.PLAN_DETAILS);
+      return;
+    }
     if (freemiumLimitReached) {
-      setShowUpgradeModal(true);
+      setShowReferralModal(true);
       return;
     }
     setShowSyllabus(true);
@@ -1650,65 +1662,20 @@ const CalendarEvent = () => {
         freemiumLimitReached={freemiumLimitReached}
         hasSubscription={hasSubscription}
         isFreemiumPlan={isFreemiumPlan}
-        onUpgradeClick={handleUpgradeClick}
+        onReferralClick={handleReferralClick}
+        onUpgradeClick={() => navigate(ENUMFORROUTES.PLAN_DETAILS)}
+        upgradeRequired={upgradeRequired}
         existingSyllabusCount={syllabusDropDownData.length}
       />
 
-      {/* Freemium Upgrade Modal */}
-      <Modal
-        className="modal-theme modal-confirmation"
-        show={showUpgradeModal}
-        onHide={() => setShowUpgradeModal(false)}
-        centered
-        backdrop
-        keyboard
-      >
-        <Modal.Body>
-          <div className="modal-confirmation-container">
-            <div 
-              style={{ 
-                width: '54px',
-                height: '54px',
-                borderRadius: '50%',
-                background: '#e8f4f8', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                margin: '0 auto',
-                color: '#4AAED4'
-              }}
-            >
-              <svg 
-                width="28" 
-                height="28" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                <path d="M2 17l10 5 10-5" />
-                <path d="M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <div className="modal-confirmation-content">
-              <h5>Free Plan Limit Reached</h5>
-              <p>You've used all 3 free syllabus uploads. Upgrade to Premium for unlimited uploads and full access to all features.</p>
-            </div>
-          </div>
-
-          <div className="modal-button-group modal-full-width-btn modal-footer-button">
-            <Button variant="light-white" className="btn-md" onClick={() => setShowUpgradeModal(false)}>
-              No thanks
-            </Button>
-            <Button variant="primary" className="btn-md" onClick={handleUpgradeClick}>
-              View plans
-            </Button>
-          </div>
-        </Modal.Body>
-      </Modal>
+      <ReferralUnlockModal
+        show={showReferralModal}
+        onClose={() => setShowReferralModal(false)}
+        referralLink={referralLink}
+        referralSentCount={referralSentCount}
+        existingSyllabusCount={syllabusDropDownData.length}
+        onReferralSent={markReferralSent}
+      />
     </>
   );
 };
