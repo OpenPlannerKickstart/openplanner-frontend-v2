@@ -113,6 +113,9 @@ export const AddEditSyllabus = (props) => {
             return false;
         }
     })();
+    const effectiveSyllabusCount = typeof props?.existingSyllabusCount === "number"
+        ? props.existingSyllabusCount
+        : existingSyllabusCount;
     const referralUploadLimit = getFreemiumUploadLimit(getReferralSentCount());
     const upgradeRequired =
         !!props?.upgradeRequired ||
@@ -121,9 +124,6 @@ export const AddEditSyllabus = (props) => {
             getReferralSentCount() >= 1 &&
             typeof effectiveSyllabusCount === "number" &&
             effectiveSyllabusCount >= getFreemiumUploadLimit(1));
-    const effectiveSyllabusCount = typeof props?.existingSyllabusCount === "number"
-        ? props.existingSyllabusCount
-        : existingSyllabusCount;
     const freemiumUploadLocked =
         isFreemiumPlan &&
         !hasSubscription &&
