@@ -1,6 +1,6 @@
 // API functions
-export { fetchSyllabusDropdown } from './syllabus';
-export type { SyllabusDropdownItem } from './syllabus';
+export { fetchSyllabusDropdown, deleteSyllabus } from './syllabus';
+export type { SyllabusDropdownItem, DeleteSyllabusParams } from './syllabus';
 
 export { fetchUser } from './user';
 export type { UserData } from './user';

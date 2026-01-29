@@ -1,5 +1,5 @@
-import { get } from '../Utility/httpInterceptor';
-import { GET_SYLLABUS_DROPDOWN_API } from '../Utility/ApiList';
+import { get, post } from '../Utility/httpInterceptor';
+import { GET_SYLLABUS_DROPDOWN_API, DELETE_SYLLABUS_DATA_API } from '../Utility/ApiList';
 
 /**
  * Syllabus/Course item from the dropdown API
@@ -31,4 +31,21 @@ export const fetchSyllabusDropdown = async (): Promise<SyllabusDropdownItem[]> =
   }
   
   return response.data.data || [];
+};
+
+/**
+ * Delete one or more syllabi/courses
+ */
+export interface DeleteSyllabusParams {
+  id: (number | string)[];
+}
+
+export const deleteSyllabus = async (params: DeleteSyllabusParams): Promise<any> => {
+  const response: any = await post(DELETE_SYLLABUS_DATA_API, params);
+  
+  if (response.data.error) {
+    throw new Error(response.data.message || 'Failed to delete syllabus');
+  }
+  
+  return response.data.data;
 };

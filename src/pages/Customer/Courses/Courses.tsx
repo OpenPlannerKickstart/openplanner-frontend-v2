@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
-import { deleteSyllabusDataAPI } from '../../../redux/Service/User/Courses/courses';
 import { isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import moment from 'moment';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
@@ -11,6 +10,7 @@ import { logoutFromSystem } from '../../../redux/Service/auth/login';
 import { useSidebar } from '../../../layouts/DashboardLayout';
 import { useUser } from '../../../hooks/queries/useUser';
 import { useCourses } from '../../../hooks/queries/useCourses';
+import { useDeleteSyllabus } from '../../../hooks/queries/useSyllabusDropdown';
 import { invalidateOnSyllabusChange } from '../../../lib/invalidationMap';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
@@ -32,6 +32,9 @@ const Courses = () => {
 
   // Courses data - cached and shared, shows instantly on return visits
   const { data: courses = [] } = useCourses();
+
+  // Delete syllabus mutation
+  const deleteSyllabusMutation = useDeleteSyllabus();
 
   // User data - cached and shared across pages
   const { data: userData } = useUser();
@@ -93,7 +96,6 @@ const Courses = () => {
   /** -------------------Delete course-------------------------*/
   const [deleteShow, setDeleteShow] = useState(false);
   const [deleteCourseId, setDeleteCourseId] = useState<number | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleDeleteShow = (e: React.MouseEvent, courseId: number) => {
     e.stopPropagation();
@@ -102,28 +104,22 @@ const Courses = () => {
   };
 
   const handleDeleteClose = () => {
-    if (deleteLoading) return;
+    if (deleteSyllabusMutation.isPending) return;
     setDeleteShow(false);
     setDeleteCourseId(null);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (deleteCourseId) {
-      try {
-        setDeleteLoading(true);
-        // Backend expects syllabus id(s), not `course_id`
-        // (matches SyllabusDetails.tsx delete flow)
-        const reqBody = { id: [deleteCourseId] };
-        const response = await dispatch(deleteSyllabusDataAPI(reqBody));
-        if (!isNullUndefinedOrBlank(response?.payload)) {
-          setDeleteShow(false);
-          setDeleteCourseId(null);
-          // Invalidate courses cache to refresh the list
-          invalidateOnSyllabusChange(queryClient);
+      deleteSyllabusMutation.mutate(
+        { id: [deleteCourseId] },
+        {
+          onSuccess: () => {
+            setDeleteShow(false);
+            setDeleteCourseId(null);
+          },
         }
-      } finally {
-        setDeleteLoading(false);
-      }
+      );
     }
   };
 
@@ -406,7 +402,7 @@ const Courses = () => {
         }
         cancelText="Cancel"
         confirmText="Delete"
-        loading={deleteLoading}
+        loading={deleteSyllabusMutation.isPending}
       />
 
       {/* Courses Content */}

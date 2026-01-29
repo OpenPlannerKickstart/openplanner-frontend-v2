@@ -1,5 +1,5 @@
 // Query hooks - data fetching with caching
-export { useSyllabusDropdown } from './useSyllabusDropdown';
+export { useSyllabusDropdown, useDeleteSyllabus } from './useSyllabusDropdown';
 export { useUser } from './useUser';
 export { useCourses } from './useCourses';
 
