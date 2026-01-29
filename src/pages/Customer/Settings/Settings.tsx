@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { getUserAPI, updateUserAPI, getTransactionAPI, getSubscriptionStatusAPI, changePasswordAPI, getNotificationSettingAPI, notificationSettingAPI, deleteUserAPI } from '../../../redux/Service/User/Settings/settings'
+import { useQueryClient } from '@tanstack/react-query'
+import { updateUserAPI, getTransactionAPI, getSubscriptionStatusAPI, changePasswordAPI, getNotificationSettingAPI, notificationSettingAPI, deleteUserAPI } from '../../../redux/Service/User/Settings/settings'
 import { getUniversityListAPI } from '../../../redux/Service/auth/signup'
 import { AppDispatch } from '../../../redux/store'
+import { useUser } from '../../../hooks/queries/useUser'
+import { queryKeys } from '../../../lib/queryKeys'
 import { isNullUndefinedOrBlank, isEmptyObjectOrNullUndefiend, formatedDate, customJsonInclude, renderError } from '../../../Utility/Helper'
 import { setNestedObjectValues, useFormik } from 'formik'
 import * as yup from 'yup'
@@ -24,6 +27,7 @@ import './SettingsStatic.css'
 const Settings: React.FC = () => {
   const dispatch: AppDispatch = useDispatch()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { toggleSidebar } = useSidebar()
   const { open: openNotifications, unreadCount } = useNotificationPanel()
   const settingsData: any = useSelector((state: RootState) => state.SettingsReducer)
@@ -32,9 +36,14 @@ const Settings: React.FC = () => {
   // Tab management - using same structure as HTML
   const [selectedTab, setSelectedTab] = useState<string>('profile')
   
-  // User data management
-  const [userData, setUserData] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  // User data - cached and shared across pages via React Query
+  const { data: cachedUserData, isLoading: isUserLoading } = useUser()
+  // Local state for optimistic updates and Redux sync
+  const [localUserData, setLocalUserData] = useState<any>(null)
+  // Use local state if available (for optimistic updates), otherwise use cached data
+  const userData = localUserData ?? cachedUserData ?? null
+  const isLoading = isUserLoading && !userData
+  
   const [showDeleteAvatarModal, setShowDeleteAvatarModal] = useState<boolean>(false)
   const avatarFileInputRef = useRef<HTMLInputElement>(null)
 
@@ -303,31 +312,14 @@ const Settings: React.FC = () => {
       null;
   }, []);
 
-  const getUserData = async () => {
-    try {
-      setIsLoading(true);
-      const response: any = await dispatch(getUserAPI());
-      if (!isNullUndefinedOrBlank(response?.payload)) {
-        setUserData(response?.payload);
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Set default data if API fails
-      setUserData({
-        firstname: '',
-        lastname: '', 
-        email: 'acmoore1250@gmail.com',
-        mobile: '',
-        university_name: ''
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  // Invalidate user cache to trigger refetch
+  const refreshUserData = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.user });
+    setLocalUserData(null); // Clear local state so we use fresh cached data
+  };
 
   useEffect(() => {
-    getUserData();
-    // Fetch university list
+    // Fetch university list on mount
     const fetchUniversities = async () => {
       const response: any = await dispatch(getUniversityListAPI());
       if (response?.payload) {
@@ -342,12 +334,14 @@ const Settings: React.FC = () => {
     fetchUniversities();
   }, []);
 
-  // Keep header/user menu in sync with any settings updates
+  // Keep local state in sync with Redux updates (for backward compat with updateUserAPI)
   useEffect(() => {
     if (!isNullUndefinedOrBlank(settingsData?.userData)) {
-      setUserData(settingsData.userData)
+      setLocalUserData(settingsData.userData);
+      // Also invalidate the React Query cache so other components get fresh data
+      queryClient.invalidateQueries({ queryKey: queryKeys.user });
     }
-  }, [settingsData?.userData])
+  }, [settingsData?.userData, queryClient])
 
   // Sync transaction data from Redux
   useEffect(() => {
@@ -430,7 +424,7 @@ const Settings: React.FC = () => {
       const updated = res?.payload
       if (!isNullUndefinedOrBlank(updated)) {
         // Refresh user data from the server to get the updated year field
-        await getUserData()
+        refreshUserData()
       }
     } catch (err) {
       // Optionally show error toast
@@ -488,7 +482,7 @@ const Settings: React.FC = () => {
     const previewUrl = URL.createObjectURL(file)
 
     // optimistic preview
-    setUserData((prev: any) => ({
+    setLocalUserData((prev: any) => ({
       ...(prev || {}),
       profile_image: previewUrl,
     }))
@@ -508,15 +502,15 @@ const Settings: React.FC = () => {
       const res: any = await dispatch(updateUserAPI(formData))
       const updated = res?.payload
       if (!isNullUndefinedOrBlank(updated)) {
-        setUserData(updated)
+        setLocalUserData(updated)
         return
       }
 
       // rollback if BE didn't return data
-      setUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
+      setLocalUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
     } catch (err) {
       // rollback on error
-      setUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
+      setLocalUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
     } finally {
       URL.revokeObjectURL(previewUrl)
     }
@@ -531,7 +525,7 @@ const Settings: React.FC = () => {
 
     // Close modal immediately and optimistically remove photo
     setShowDeleteAvatarModal(false)
-    setUserData((prev: any) => ({ ...(prev || {}), profile_image: null }))
+    setLocalUserData((prev: any) => ({ ...(prev || {}), profile_image: null }))
 
     try {
       const formData = new FormData()
@@ -546,15 +540,15 @@ const Settings: React.FC = () => {
       const res: any = await dispatch(updateUserAPI(formData))
       const updated = res?.payload
       if (!isNullUndefinedOrBlank(updated)) {
-        setUserData(updated)
+        setLocalUserData(updated)
         return
       }
 
       // Rollback if BE didn't return data
-      setUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
+      setLocalUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
     } catch (err) {
       // Rollback on error
-      setUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
+      setLocalUserData((prev: any) => ({ ...(prev || {}), profile_image: prevSrc }))
     }
   }
 
