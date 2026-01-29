@@ -7539,12 +7539,12 @@ $sm_sidebar_home_link_width: 170px;
   
   /* Color wheel trigger dark mode */
   .color-wheel-trigger::after {
-    background: #1E293B !important;
+    background: #0B1120 !important;
   }
   
   .color-wheel-trigger.selected {
     border-color: #E2E8F0 !important;
-    box-shadow: 0 0 0 2px #1E293B, 0 0 0 4px #64748B !important;
+    box-shadow: 0 0 0 2px #0B1120, 0 0 0 4px #64748B !important;
   }
   
   /* Color wheel modal dark mode */
