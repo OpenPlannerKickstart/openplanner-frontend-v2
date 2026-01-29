@@ -4,6 +4,7 @@ import { AppDispatch } from "../../store";
 import { getLoginFailure, getLoginSuccess } from "../../auth/Login/loginSlice";
 import { setLoading } from "../../Loader/LoaderSlice";
 import { deleteAllCookies, setPlannerIDToken, setPlannerRefreshToken, setPlannerToken } from "../../../Utility/Helper";
+import { queryClient } from "../../../lib/queryClient";
 
 /**
  * Login
@@ -65,6 +66,10 @@ export const logoutFromSystem = () => async (dispatch: AppDispatch) => {
     localStorage.removeItem('has_subscription');
     localStorage.removeItem('plan_tier');
   } catch {}
+  
+  // SECURITY: Clear React Query cache to prevent cross-user data bleed
+  queryClient.clear();
+  
   dispatch(setLoading(true));
   setTimeout(() => {
     dispatch(setLoading(false));

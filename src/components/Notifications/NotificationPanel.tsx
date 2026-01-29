@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '../../redux/store';
-import type { NotificationData } from '../../interfaces/interface';
-import { clearNotificationAPI, getAllNotificationAPI, getCountOfUnreadNotificationAPI, readNotificationAPI } from '../../redux/Service/User/Notification/notification';
+import { useNotifications, useMarkNotificationRead, useClearNotification } from '../../hooks/queries/useNotifications';
+import type { NotificationData } from '../../api/notifications';
 import { useNotificationPanel } from './NotificationPanelContext';
 import { formatedDate, isEmptyObjectOrNullUndefiend } from '../../Utility/Helper';
 import { get, post } from '../../Utility/httpInterceptor';
@@ -137,17 +135,20 @@ const Icon: React.FC<{ type: string }> = ({ type }) => {
 };
 
 const NotificationPanel: React.FC = () => {
-  const dispatch: AppDispatch = useDispatch();
   const { isOpen, close, refresh } = useNotificationPanel();
   const navigate = useNavigate();
 
-  const notificationList: NotificationData[] = useSelector(
-    (state: RootState) => state.NotificationReducer.notificationData
-  ) || [];
+  // React Query hooks
+  const { data: notificationList = [], isLoading: isLoadingNotifications } = useNotifications();
+  const markReadMutation = useMarkNotificationRead();
+  const clearMutation = useClearNotification();
 
   type InviteItem = { id: string; groupId: string; fromUserId?: string; fromUsername?: string; groupName?: string; fromName?: string; message?: string; createdAt?: any; read?: boolean };
   const [invites, setInvites] = useState<Array<InviteItem>>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [isLoadingInvites, setIsLoadingInvites] = useState<boolean>(false);
+  
+  // Combined loading state
+  const loading = isLoadingNotifications || isLoadingInvites;
 
   const getInviteReadSet = () => { try { return new Set<string>(JSON.parse(localStorage.getItem('op_invite_read') || '[]')); } catch { return new Set<string>(); } };
   const setInviteReadSet = (s: Set<string>) => { try { localStorage.setItem('op_invite_read', JSON.stringify(Array.from(s))); } catch {} };
@@ -186,29 +187,19 @@ const NotificationPanel: React.FC = () => {
     return anyNotifs || anyInvites;
   }, [notificationList, invites]);
 
-  const handleClearAll = async () => {
+  const handleClearAll = () => {
     const allId = (notificationList || []).map((val) => val.id);
     if (allId.length === 0) return;
-    await dispatch(clearNotificationAPI({ id: allId }));
-    await dispatch(getAllNotificationAPI());
-    await dispatch(getCountOfUnreadNotificationAPI());
+    clearMutation.mutate({ id: allId });
   };
 
-  const handleRead = async (id: any) => {
-    await dispatch(readNotificationAPI({ id: [id], is_read: true }));
-    await dispatch(getAllNotificationAPI());
-    await dispatch(getCountOfUnreadNotificationAPI());
+  const handleRead = (id: any) => {
+    markReadMutation.mutate({ id: [id], is_read: true });
   };
 
-  const handleDismiss = async (id: any) => {
+  const handleDismiss = (id: any) => {
     if (!id) return;
-    try {
-      await dispatch(clearNotificationAPI({ id: [id] }));
-      await dispatch(getAllNotificationAPI());
-      await dispatch(getCountOfUnreadNotificationAPI());
-    } catch {
-      // ignore
-    }
+    clearMutation.mutate({ id: [id] });
   };
 
   useEffect(() => {
@@ -218,22 +209,18 @@ const NotificationPanel: React.FC = () => {
       if (e.key === 'Escape') close();
     };
     document.addEventListener('keydown', onKeyDown);
-    // Load notifications + invites when panel opens (show spinner while loading)
+    
+    // Load invites when panel opens (notifications are loaded by React Query automatically)
     (async () => {
       try {
-        setLoading(true);
-        // Only block the spinner on data that affects what we render in this panel
-        await Promise.all([
-          dispatch(getAllNotificationAPI()),
-          fetchInvites(),
-        ]);
-        // Count refresh is for the header badge; don't hold spinner for it
-        dispatch(getCountOfUnreadNotificationAPI());
+        setIsLoadingInvites(true);
+        await fetchInvites();
         refresh();
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setIsLoadingInvites(false);
       }
     })();
+    
     return () => {
       cancelled = true;
       document.removeEventListener('keydown', onKeyDown);

@@ -1,16 +1,15 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { AppDispatch, RootState } from '../../../redux/store';
-import { useDispatch, useSelector } from 'react-redux';
-import { upadteTaskStatusAPI, updateTaskStarAPI, taskListingAPI } from '../../../redux/Service/task';
-import {
-  formatedDate,
-  isNullUndefinedOrBlank,
-} from '../../../Utility/Helper';
+import React, { useEffect, useState, useRef } from 'react';
+import { AppDispatch } from '../../../redux/store';
+import { useDispatch } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
+import { formatedDate, isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import { ENUMFORROUTES, ENUMFORSTATUS } from '../../../interfaces/enum';
 import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
-import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
+import { useUser } from '../../../hooks/queries/useUser';
+import { useTasks, useUpdateTaskStatus, useUpdateTaskStar } from '../../../hooks/queries/useTasks';
+import { invalidateOnTaskChange } from '../../../lib/invalidationMap';
 import AddEditTask from '../../../common/Task/AddEditTask';
 import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
@@ -21,15 +20,24 @@ const Task = () => {
   const { toggleSidebar } = useSidebar();
   const { open: openNotifications, unreadCount } = useNotificationPanel();
 
-  const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
+  // React Query client for cache invalidation
+  const queryClient = useQueryClient();
+
+  // Task data - cached and shared, shows instantly on return visits
+  const { data: taskData = [] } = useTasks();
+
+  // Task mutations with optimistic updates
+  const updateStatusMutation = useUpdateTaskStatus();
+  const updateStarMutation = useUpdateTaskStar();
+
+  // User data - cached and shared across pages
+  const { data: userData } = useUser();
 
   /** -----------------User menu and notification state---------------------------*/
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   /** -----------------Task state---------------------------*/
-  const [taskData, setTaskData] = useState<any>([]);
   const [activeTab, setActiveTab] = useState<'todo' | 'completed' | 'starred'>('todo');
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editTaskFormData, setEditTaskFormData] = useState<any>(null);
@@ -38,87 +46,23 @@ const Task = () => {
   const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);
   const [viewTaskFormData, setViewTaskFormData] = useState<any>(null);
 
-  /** -------------------Task listing api start-------------------------*/
-  const handleTaskListing = useCallback(async () => {
-    try {
-      // Use /taskListing for the Task List page (supports is_starred + full list)
-      const response = await dispatch(taskListingAPI({}));
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        const payload: any = response.payload;
-        // taskListing historically returns an object with { tasks, pending_task_count, ... }
-        const tasks = Array.isArray(payload) ? payload : (payload?.tasks ?? []);
-        setTaskData(Array.isArray(tasks) ? tasks : []);
-        return;
-      }
-      setTaskData([]);
-    } catch (error) {
-      console.error('Error fetching task data:', error);
-      setTaskData([]);
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
-    handleTaskListing();
-  }, [handleTaskListing]);
-
   /** -------------------Task complete/incomplete toggle-------------------------*/
-  const handleTaskToggle = async (taskId: number, currentStatus: string) => {
+  const handleTaskToggle = (taskId: number, currentStatus: string) => {
     const newStatus = currentStatus === ENUMFORSTATUS.COMPLETED ? ENUMFORSTATUS.PENDING : ENUMFORSTATUS.COMPLETED;
-    // Optimistic UI update so tasks move between tabs instantly
-    setTaskData((prev: any[]) => (Array.isArray(prev)
-      ? prev.map((t: any) => (t?.id === taskId ? { ...t, status: newStatus } : t))
-      : prev));
-    const reqBody = {
-      // backend expects an array id for toggle mode (id: [taskId])
+    // Mutation with optimistic update is handled by the hook
+    updateStatusMutation.mutate({
       id: [taskId],
-      // explicitly set so uncomplete is reliable (BE supports set mode)
       status: newStatus,
-    };
-    try {
-      const response = await dispatch(upadteTaskStatusAPI(reqBody));
-      if (!isNullUndefinedOrBlank(response?.payload)) {
-        handleTaskListing();
-        return;
-      }
-      // revert if API didn't succeed
-      setTaskData((prev: any[]) => (Array.isArray(prev)
-        ? prev.map((t: any) => (t?.id === taskId ? { ...t, status: currentStatus } : t))
-        : prev));
-    } catch {
-      setTaskData((prev: any[]) => (Array.isArray(prev)
-        ? prev.map((t: any) => (t?.id === taskId ? { ...t, status: currentStatus } : t))
-        : prev));
-    }
+    });
   };
 
   /** -------------------Star/unstar task-------------------------*/
-  const handleToggleStar = async (taskId: number, currentIsStarred: boolean) => {
-    const newIsStarred = !currentIsStarred;
-    // Optimistic UI update
-    setTaskData((prev: any[]) => (Array.isArray(prev)
-      ? prev.map((t: any) => (t?.id === taskId ? { ...t, is_starred: newIsStarred } : t))
-      : prev));
-    const reqBody = {
-      // backend validators in this env appear to require arrays for IDs
-      // BE supports both scalar and array; use scalar for simplest compatibility
+  const handleToggleStar = (taskId: number, currentIsStarred: boolean) => {
+    // Mutation with optimistic update is handled by the hook
+    updateStarMutation.mutate({
       task_id: taskId,
-      is_starred: newIsStarred,
-    };
-    try {
-      const response = await dispatch(updateTaskStarAPI(reqBody));
-      if (!isNullUndefinedOrBlank(response?.payload)) {
-        handleTaskListing();
-        return;
-      }
-      // revert if API didn't succeed
-      setTaskData((prev: any[]) => (Array.isArray(prev)
-        ? prev.map((t: any) => (t?.id === taskId ? { ...t, is_starred: currentIsStarred } : t))
-        : prev));
-    } catch {
-      setTaskData((prev: any[]) => (Array.isArray(prev)
-        ? prev.map((t: any) => (t?.id === taskId ? { ...t, is_starred: currentIsStarred } : t))
-        : prev));
-    }
+      is_starred: !currentIsStarred,
+    });
   };
 
   /** -------------------Add/Edit task modal-------------------------*/
@@ -152,7 +96,8 @@ const Task = () => {
   };
 
   const handleGetUpdatedData = () => {
-    handleTaskListing();
+    // Invalidate task cache to refresh the list
+    invalidateOnTaskChange(queryClient);
   };
 
   /** -------------------User menu and notification handlers-------------------------*/
@@ -165,23 +110,7 @@ const Task = () => {
     navigate(ENUMFORROUTES.LOGIN);
   };
 
-  // Fetch user data on component mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const response = await dispatch(getUserAPI());
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        setUserData(response.payload);
-      }
-    };
-    fetchUserData();
-  }, [dispatch]);
-
-  // Update user data when settings data changes
-  useEffect(() => {
-    if (!isNullUndefinedOrBlank(settingsData?.userData)) {
-      setUserData(settingsData.userData);
-    }
-  }, [settingsData?.userData]);
+  // Note: userData now comes from useUser() hook (cached and shared across pages)
 
   // Close user menu when clicking outside
   useEffect(() => {

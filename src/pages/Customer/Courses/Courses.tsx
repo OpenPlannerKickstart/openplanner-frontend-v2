@@ -1,21 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  getCoursesListDataAPI,
-  deleteSyllabusDataAPI,
-} from '../../../redux/Service/User/Courses/courses';
-import {
-  formatedDate,
-  isEmptyObjectOrNullUndefiend,
-  isNullUndefinedOrBlank,
-} from '../../../Utility/Helper';
+import { useQueryClient } from '@tanstack/react-query';
+import { isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import moment from 'moment';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
 import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
-import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
+import { useUser } from '../../../hooks/queries/useUser';
+import { useCourses } from '../../../hooks/queries/useCourses';
+import { useDeleteSyllabus } from '../../../hooks/queries/useSyllabusDropdown';
+import { invalidateOnSyllabusChange } from '../../../lib/invalidationMap';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
@@ -29,38 +25,31 @@ const Courses = () => {
   const { toggleSidebar } = useSidebar();
   const { open: openNotifications, unreadCount } = useNotificationPanel();
 
-  const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
+  // React Query client for cache invalidation
+  const queryClient = useQueryClient();
+
   const coursesData: any = useSelector((state: RootState) => state.CoursesReducer);
+
+  // Courses data - cached and shared, shows instantly on return visits
+  const { data: courses = [] } = useCourses();
+
+  // Delete syllabus mutation
+  const deleteSyllabusMutation = useDeleteSyllabus();
+
+  // User data - cached and shared across pages
+  const { data: userData } = useUser();
 
   /** -----------------User menu and notification state---------------------------*/
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   /** -----------------Courses state---------------------------*/
-  const [courses, setCourses] = useState<any>([]);
   const [showSyllabus, setShowSyllabus] = useState(false);
 
-  /** -------------------Get courses list-------------------------*/
-  const handleGetCoursesList = async () => {
-    try {
-      const reqBody = {};
-      const response = await dispatch(getCoursesListDataAPI(reqBody));
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        setCourses(response.payload);
-      }
-    } catch (error) {
-      console.error('Error fetching courses:', error);
-    }
-  };
-
+  // When syllabus is updated (e.g., from upload modal), invalidate courses cache
   useEffect(() => {
-    handleGetCoursesList();
-  }, []);
-
-  useEffect(() => {
-      if (coursesData.isUpdatedSyllabusData) {
-      handleGetCoursesList();
+    if (coursesData.isUpdatedSyllabusData) {
+      invalidateOnSyllabusChange(queryClient);
       // Reset flag so future uploads trigger refresh again
       setTimeout(() => {
         try {
@@ -68,7 +57,7 @@ const Courses = () => {
         } catch {}
       }, 250);
     }
-  }, [coursesData.isUpdatedSyllabusData]);
+  }, [coursesData.isUpdatedSyllabusData, queryClient, dispatch]);
 
   // Format class_time coming from backend. We store class_time as "HH:mm:ssZ" (time-only with offset).
   const formatCourseTime = (value: any): string => {
@@ -107,7 +96,6 @@ const Courses = () => {
   /** -------------------Delete course-------------------------*/
   const [deleteShow, setDeleteShow] = useState(false);
   const [deleteCourseId, setDeleteCourseId] = useState<number | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleDeleteShow = (e: React.MouseEvent, courseId: number) => {
     e.stopPropagation();
@@ -116,27 +104,22 @@ const Courses = () => {
   };
 
   const handleDeleteClose = () => {
-    if (deleteLoading) return;
+    if (deleteSyllabusMutation.isPending) return;
     setDeleteShow(false);
     setDeleteCourseId(null);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (deleteCourseId) {
-      try {
-        setDeleteLoading(true);
-        // Backend expects syllabus id(s), not `course_id`
-        // (matches SyllabusDetails.tsx delete flow)
-        const reqBody = { id: [deleteCourseId] };
-        const response = await dispatch(deleteSyllabusDataAPI(reqBody));
-        if (!isNullUndefinedOrBlank(response?.payload)) {
-          setDeleteShow(false);
-          setDeleteCourseId(null);
-          handleGetCoursesList();
+      deleteSyllabusMutation.mutate(
+        { id: [deleteCourseId] },
+        {
+          onSuccess: () => {
+            setDeleteShow(false);
+            setDeleteCourseId(null);
+          },
         }
-      } finally {
-        setDeleteLoading(false);
-      }
+      );
     }
   };
 
@@ -194,7 +177,8 @@ const Courses = () => {
   };
 
   const handleGetUpdatedData = () => {
-    handleGetCoursesList();
+    // Invalidate courses cache to refresh the list after syllabus changes
+    invalidateOnSyllabusChange(queryClient);
   };
 
   /** -------------------Navigate to course detail-------------------------*/
@@ -214,23 +198,7 @@ const Courses = () => {
     navigate(ENUMFORROUTES.LOGIN);
   };
 
-  // Fetch user data on component mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const response = await dispatch(getUserAPI());
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        setUserData(response.payload);
-      }
-    };
-    fetchUserData();
-  }, [dispatch]);
-
-  // Update user data when settings data changes
-  useEffect(() => {
-    if (!isNullUndefinedOrBlank(settingsData?.userData)) {
-      setUserData(settingsData.userData);
-    }
-  }, [settingsData?.userData]);
+  // Note: userData now comes from useUser() hook (cached and shared across pages)
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -434,7 +402,7 @@ const Courses = () => {
         }
         cancelText="Cancel"
         confirmText="Delete"
-        loading={deleteLoading}
+        loading={deleteSyllabusMutation.isPending}
       />
 
       {/* Courses Content */}

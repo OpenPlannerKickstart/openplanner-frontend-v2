@@ -1,0 +1,51 @@
+// API functions
+export { fetchSyllabusDropdown, deleteSyllabus } from './syllabus';
+export type { SyllabusDropdownItem, DeleteSyllabusParams } from './syllabus';
+
+export { fetchUser } from './user';
+export type { UserData } from './user';
+
+export { fetchCourses } from './courses';
+export type { Course } from './courses';
+
+export {
+  fetchTasks,
+  addEditTask,
+  deleteTask,
+  updateTaskStatus,
+  updateTaskStar,
+} from './tasks';
+export type {
+  Task,
+  TaskListingResponse,
+  AddEditTaskParams,
+  DeleteTaskParams,
+  UpdateTaskStatusParams,
+  UpdateTaskStarParams,
+} from './tasks';
+
+export {
+  fetchCalendarEvents,
+  addEditEvent,
+  addEditEventSilent,
+  deleteEvent,
+  updateEventStatus,
+} from './events';
+export type {
+  CalendarEvent,
+  AddEditEventParams,
+  DeleteEventParams,
+  UpdateEventStatusParams,
+} from './events';
+
+export {
+  fetchNotifications,
+  fetchUnreadCount,
+  markNotificationRead,
+  clearNotification,
+} from './notifications';
+export type {
+  NotificationData,
+  MarkNotificationReadParams,
+  ClearNotificationParams,
+} from './notifications';

@@ -6,7 +6,8 @@ import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent'
 import { formatedDate, isNullUndefinedOrBlank } from '../../../Utility/Helper'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
-import { getEventListDataAPI, getCoursesListDataAPI, updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses'
+import { getEventListDataAPI, updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses'
+import { useCourses } from '../../../hooks/queries/useCourses'
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
 import { Viewer } from '@react-pdf-viewer/core'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -19,6 +20,9 @@ const EditCourse = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedSyllabusObj, setSelectedSyllabusObj] = useState<any>({});
   const hasHandledActionRef = useRef(false);
+
+  // Courses data - cached and shared across pages (used for fallback on page refresh)
+  const { data: courses = [] } = useCourses();
 
   // Add body class for responsive styling
   useEffect(() => {
@@ -65,27 +69,22 @@ const EditCourse = () => {
     }
   }, [searchParams, dispatch, setSearchParams]);
 
-  // Load course data from state or fetch if missing (e.g., page refresh)
+  // Load course data from state or find from cached courses (e.g., page refresh)
   useEffect(() => {
-    const loadCourseData = async () => {
-      if (location.state?.syllabusObj) {
-        setSelectedSyllabusObj(location.state.syllabusObj);
-      } else {
-        // Fallback: fetch courses list and find by ID from URL
-        const courseId = searchParams.get('id');
-        if (courseId) {
-          const response = await dispatch(getCoursesListDataAPI({}));
-          if (response?.payload?.length) {
-            const course = response.payload.find((c: any) => c.id === parseInt(courseId));
-            if (course) {
-              setSelectedSyllabusObj(course);
-            }
-          }
+    if (location.state?.syllabusObj) {
+      // Coming from Courses page - use passed data
+      setSelectedSyllabusObj(location.state.syllabusObj);
+    } else if (courses.length > 0) {
+      // Fallback: find course from cached courses list
+      const courseId = searchParams.get('id');
+      if (courseId) {
+        const course = courses.find((c: any) => c.id === parseInt(courseId));
+        if (course) {
+          setSelectedSyllabusObj(course);
         }
       }
-    };
-    loadCourseData();
-  }, [location.state, searchParams, dispatch]);
+    }
+  }, [location.state, searchParams, courses]);
 
   // Tab logic
   const [selectedTab, setSelectedTab] = useState<any>(ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS)

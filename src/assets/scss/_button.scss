@@ -935,3 +935,14 @@
     }
 }
 
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+    .btn-link {
+        color: #E2E8F0 !important;
+        
+        &:hover {
+            color: #4AAED4 !important;
+        }
+    }
+}
+
