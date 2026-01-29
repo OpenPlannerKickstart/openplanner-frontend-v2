@@ -72,7 +72,9 @@ export function useAddEditEventSilent() {
   return useMutation({
     mutationFn: addEditEventSilent,
     onError: (error: Error) => {
-      console.error('Failed to update event:', error);
+      // Sanitize error message to prevent log injection (remove newlines/control chars)
+      const sanitizedMessage = error.message?.replace(/[\r\n\t]/g, ' ') || 'Unknown error';
+      console.error('Failed to update event:', sanitizedMessage);
     },
     onSettled: () => {
       // Always invalidate on settle to ensure cache is fresh
