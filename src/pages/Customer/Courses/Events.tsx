@@ -27,11 +27,6 @@ const Events = (props: any) => {
     if (props?.selectedSyllabusObj?.id && props?.selectedTab === ENUM_FOR_SYLLABUS_TAB.EVENT_DETAILS) {
       void getEventListData()
     }
-    return () => {
-      setTimeout(() => {
-        setEventListData({} as EventResponseType)
-      }, 200)
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props?.selectedSyllabusObj?.id, props?.selectedTab])
 
