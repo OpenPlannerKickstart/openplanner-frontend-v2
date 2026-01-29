@@ -18,6 +18,7 @@ import {
 } from "./Helper"; // Importing utility functions related to server validation, token retrieval, exclusion list, and refresh tokens
 import { te, ts } from "./Toaster"; // Importing functions related to displaying toasts or messages
 import { ResponseWrapperDTO } from "../interfaces/interface"; // Importing a data transfer object (DTO) for response wrapping
+import { queryClient } from "../lib/queryClient"; // React Query cache for clearing on logout
 import { GET_LOGIN_DATA_API } from "./ApiList"; // Importing a specific API endpoint constant
 // import { GET_LOGIN_DATA_API } from './ApiList';
 
@@ -305,6 +306,9 @@ export const logoutFromSystem = (objBody = {}, msg = "Unauthorized user") => {
   deleteAllCookies();
   // removeCookieByName("token");
   // removeCookieByName("accessToken");
+  
+  // SECURITY: Clear React Query cache to prevent cross-user data bleed
+  queryClient.clear();
 };
 
 /**
