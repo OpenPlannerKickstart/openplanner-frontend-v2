@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import './Sidebar.scss';
 import logo from '../../assets/images/sidebar-logo-lg.svg';
 import { isGroupsEnabled } from '../../config/featureFlags';
+import { useSyllabusDropdown } from '../../hooks/queries/useSyllabusDropdown';
+import { queryKeys } from '../../lib/queryKeys';
+import { fetchCalendarEvents } from '../../api/events';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -12,10 +16,42 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen: externalIsOpen, onToggleOpen }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const queryClient = useQueryClient();
+
+  // Get syllabus data for calendar prefetching
+  const { data: syllabusData = [] } = useSyllabusDropdown();
 
   // Use external control if provided, otherwise use internal state
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
   const setIsOpen = (onToggleOpen as any) || setInternalIsOpen;
+
+  // Prefetch calendar events on hover (for instant Calendar page load)
+  // Must match exactly how CalendarEvent.tsx constructs syllabusIds
+  const prefetchCalendarEvents = useCallback(() => {
+    console.log('[Sidebar] Hover detected, syllabusData:', syllabusData.length, 'items');
+    
+    if (syllabusData.length === 0) {
+      console.log('[Sidebar] No syllabus data yet, skipping prefetch');
+      return;
+    }
+    
+    // Calendar page uses: syllabusDropDownData.map((item) => item.value)
+    const syllabusIds = syllabusData.map((item: any) => item.value).filter(Boolean);
+    console.log('[Sidebar] Syllabus IDs:', syllabusIds);
+    
+    if (syllabusIds.length === 0) {
+      console.log('[Sidebar] No valid syllabus IDs found');
+      return;
+    }
+
+    console.log('[Sidebar] Prefetching calendar events for', syllabusIds.length, 'syllabi');
+    
+    // Prefetch only if not already cached/fresh
+    queryClient.prefetchQuery({
+      queryKey: [...queryKeys.events, 'calendar', syllabusIds],
+      queryFn: () => fetchCalendarEvents(syllabusIds),
+    });
+  }, [syllabusData, queryClient]);
 
   // Close sidebar on mobile when clicking a link
   const handleLinkClick = () => {
@@ -149,6 +185,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen: externalIsOpen, onTogg
             className="sidebar-link"
             data-tooltip="Calendar"
             onClick={handleLinkClick}
+            onMouseEnter={prefetchCalendarEvents}
           >
             <svg
               width="20"

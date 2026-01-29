@@ -771,6 +771,18 @@
                 }
             }
         }
+        
+        .tbl-action {
+            button,
+            a,
+            .btn {
+                color: #E2E8F0 !important;
+                
+                &:hover {
+                    color: #FFFFFF !important;
+                }
+            }
+        }
     }
     
     .table-striped > tbody > tr:nth-of-type(odd) {
