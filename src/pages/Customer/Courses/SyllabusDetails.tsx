@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal, Overlay, Popover } from "react-bootstrap";
 import { connect, useDispatch } from "react-redux";
+import { HexColorPicker } from 'react-colorful';
 import DefaultAvtar from "../../../assets/images/avatar-default.svg";
 import Select, { components, ControlProps } from "react-select";
 import {
@@ -53,6 +54,7 @@ const SyllabusDetails = (props) => {
   const navigate = useNavigate();
   const [showSuggestModal, setShowSuggestModal] = useState<boolean>(false);
   const [showEditDetailsModal, setShowEditDetailsModal] = useState<boolean>(false);
+  const [showColorWheel, setShowColorWheel] = useState<boolean>(false);
   const {
     syllabusId: hookSyllabusId,
     setSyllabusId,
@@ -1086,7 +1088,7 @@ const SyllabusDetails = (props) => {
           </div>
 
           {/* Course Color */}
-          <div className="form-group">
+          <div className="form-group" style={{ position: 'relative' }}>
             <label className="form-label">Course Color</label>
             <div className="color-picker-container">
               {colorPalette.map((color) => (
@@ -1094,9 +1096,23 @@ const SyllabusDetails = (props) => {
                   key={color}
                   className={`color-option${syllabusFormData.values.course_color === color ? " selected" : ""}`}
                   style={{ backgroundColor: color }}
-                  onClick={() => syllabusFormData.setFieldValue("course_color", color)}
+                  onClick={() => {
+                    syllabusFormData.setFieldValue("course_color", color);
+                    setShowColorWheel(false);
+                  }}
                 />
               ))}
+              {/* Color wheel trigger - circular button */}
+              <div
+                className={`color-option color-wheel-trigger${!colorPalette.includes(syllabusFormData.values.course_color) ? " selected" : ""}`}
+                onClick={() => setShowColorWheel(!showColorWheel)}
+                title="Pick custom color"
+                style={{
+                  '--selected-color': !colorPalette.includes(syllabusFormData.values.course_color) 
+                    ? syllabusFormData.values.course_color 
+                    : undefined
+                } as React.CSSProperties}
+              />
             </div>
           </div>
         </Modal.Body>
@@ -1112,6 +1128,62 @@ const SyllabusDetails = (props) => {
           </div>
         </div>
       </Modal>
+
+      {/***** Color Wheel Modal *****/}
+      <Modal
+        className="modal-theme modal-confirmation color-wheel-modal"
+        show={showColorWheel}
+        onHide={() => setShowColorWheel(false)}
+        centered
+        backdrop={true}
+        backdropClassName="color-wheel-modal-backdrop"
+        keyboard
+      >
+        <Modal.Header>
+          <Modal.Title>Pick a Color</Modal.Title>
+          <button type="button" className="btn-close" onClick={() => setShowColorWheel(false)} aria-label="Close">
+            <i className="material-symbols-outlined">close</i>
+          </button>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="color-wheel-modal-content">
+            <HexColorPicker
+              color={syllabusFormData.values.course_color}
+              onChange={(color) => syllabusFormData.setFieldValue("course_color", color)}
+            />
+            <div className="color-wheel-hex-input">
+              <label>Hex Color</label>
+              <div className="hex-input-row">
+                <div 
+                  className="color-preview" 
+                  style={{ backgroundColor: syllabusFormData.values.course_color }}
+                />
+                <input
+                  type="text"
+                  value={syllabusFormData.values.course_color}
+                  onChange={(e) => {
+                    let value = e.target.value;
+                    if (value && !value.startsWith('#')) {
+                      value = '#' + value;
+                    }
+                    syllabusFormData.setFieldValue("course_color", value);
+                  }}
+                  placeholder="#000000"
+                  maxLength={7}
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              className="color-wheel-done-btn"
+              onClick={() => setShowColorWheel(false)}
+            >
+              Done
+            </button>
+          </div>
+        </Modal.Body>
+      </Modal>
+      {/***** Color Wheel Modal end *****/}
 
       {/* Bottom buttons: only show in edit mode */}
       {isEditingDetails ? (
