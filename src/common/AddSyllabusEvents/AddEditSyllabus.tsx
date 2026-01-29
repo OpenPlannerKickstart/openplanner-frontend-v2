@@ -7,7 +7,8 @@ import { CLASS_TIME_IS_REQUIRED, FILE_FORMATE_VALIDATION, PLEASE_ADD_VALID_PROFE
 import { customJsonInclude, formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from '../../Utility/Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import { AppDispatch } from '../../redux/store';
-import { addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
+import { addEditSyllabusDataAPI } from '../../redux/Service/User/Courses/courses';
+import { useSyllabusDropdown } from '../../hooks/queries/useSyllabusDropdown';
 import { MAX_50, ONLY_ALPHABETS_AND_DOT } from '../../Utility/Validation_Helper';
 import GetImageIcon from '../GetImageIcon';
 import DatePicker from "react-datepicker";
@@ -93,9 +94,10 @@ export const AddEditSyllabus = (props) => {
     const [savedSyllabusFormData, setSavedSyllabusFormData] = useState<addSyllabusData>(initSyllabusData);
     const onSubmitForSyllabus = (values) => {
     }
-    const [existingSyllabusCount, setExistingSyllabusCount] = useState<number | null>(
-        typeof props?.existingSyllabusCount === "number" ? props.existingSyllabusCount : null
-    );
+    
+    // Use syllabus dropdown from React Query cache for count (fallback if prop not provided)
+    const { data: syllabusDropdownData = [] } = useSyllabusDropdown();
+    const hookSyllabusCount = syllabusDropdownData.length;
     const localPlanTier = (() => {
         try {
             return localStorage.getItem("plan_tier");
@@ -114,9 +116,10 @@ export const AddEditSyllabus = (props) => {
         }
     })();
     const referralUploadLimit = getFreemiumUploadLimit(getReferralSentCount());
+    // Use prop if provided, otherwise use the hook count from React Query cache
     const effectiveSyllabusCount = typeof props?.existingSyllabusCount === "number"
         ? props.existingSyllabusCount
-        : existingSyllabusCount;
+        : hookSyllabusCount;
     const upgradeRequired =
         !!props?.upgradeRequired ||
         (isFreemiumPlan &&
@@ -131,30 +134,8 @@ export const AddEditSyllabus = (props) => {
             (typeof effectiveSyllabusCount === "number" &&
                 effectiveSyllabusCount >= referralUploadLimit));
 
-    const fetchExistingSyllabusCount = async () => {
-        try {
-            const response: any = await dispatch(getSyllabusDropDownDataAPI({}));
-            if (Array.isArray(response?.payload)) {
-                setExistingSyllabusCount(response.payload.length);
-            } else {
-                setExistingSyllabusCount(0);
-            }
-        } catch (error) {
-            setExistingSyllabusCount(0);
-        }
-    };
-
-    useEffect(() => {
-        if (typeof props?.existingSyllabusCount === "number") {
-            setExistingSyllabusCount(props.existingSyllabusCount);
-        }
-    }, [props?.existingSyllabusCount]);
-
-    useEffect(() => {
-        if (showAddSyllabusEvents && typeof props?.existingSyllabusCount !== "number") {
-            fetchExistingSyllabusCount();
-        }
-    }, [showAddSyllabusEvents, props?.existingSyllabusCount]);
+    // Note: existingSyllabusCount now comes from useSyllabusDropdown() hook
+    // which is cached and shared across pages - no need for manual fetching
 
     const handleUnlockMoreUploads = () => {
         if (upgradeRequired) {

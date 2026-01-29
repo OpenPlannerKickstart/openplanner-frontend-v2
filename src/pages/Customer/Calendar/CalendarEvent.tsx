@@ -1,25 +1,21 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  getCalenderDataAPI,
-  getSyllabusDropDownDataAPI,
-} from '../../../redux/Service/User/Calender/calender';
-import {
-  deleteEventDataAPI,
-  addEditEventDataAPI,
-} from '../../../redux/Service/User/Courses/courses';
+import { useSyllabusDropdown } from '../../../hooks/queries/useSyllabusDropdown';
+import { useCalendarEvents, useDeleteEvent, useAddEditEventSilent } from '../../../hooks/queries/useEvents';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../../../lib/queryKeys';
+import { invalidateOnEventChange, invalidateOnSyllabusChange } from '../../../lib/invalidationMap';
 import {
   formatedDate,
-  isNullUndefinedOrBlank,
   customJsonInclude,
 } from '../../../Utility/Helper';
 import { ENUMFORROUTES, ENUMFORSTATUS } from '../../../interfaces/enum';
 import { ENUM_FOR_EVENT_PRIORITY } from '../../../interfaces/enum';
 import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
-import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
+import { useUser } from '../../../hooks/queries/useUser';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 import AddEditEvent from '../../../common/AddSyllabusEvents/AddEditEvent';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
@@ -46,24 +42,40 @@ const CalendarEvent = () => {
   const navigate = useNavigate();
   const { toggleSidebar } = useSidebar();
   const { open: openNotifications, unreadCount } = useNotificationPanel();
+  const queryClient = useQueryClient();
 
-  const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
   const coursesData: any = useSelector((state: RootState) => state.CoursesReducer);
 
+  // Syllabus dropdown data - cached and shared across pages
+  const { data: syllabusDropDownData = [], isLoading: loadingDropdown } = useSyllabusDropdown();
+
+  // User data - cached and shared across pages
+  const { data: userData } = useUser();
+
+  // Derive all syllabus IDs from the cached dropdown data
+  const allSyllabusIds = useMemo(() => {
+    return syllabusDropDownData.map((item: any) => item.value).filter(Boolean);
+  }, [syllabusDropDownData]);
+
+  // Calendar events - cached and shared, fetched for all syllabi
+  const { 
+    data: allEvents = [], 
+    isLoading: loadingEvents,
+    isFetched: hasLoadedEventsOnce,
+  } = useCalendarEvents(allSyllabusIds, { enabled: allSyllabusIds.length > 0 });
+
+  // Mutations for events
+  const deleteEventMutation = useDeleteEvent();
+  const updateEventSilentMutation = useAddEditEventSilent();
+
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   const [currentDate, setCurrentDate] = useState(moment());
   const [miniCalendarDate, setMiniCalendarDate] = useState(moment());
   const [selectedDate, setSelectedDate] = useState(moment());
   const [currentView, setCurrentView] = useState<'month' | 'week' | 'day'>('month');
-  const [allEvents, setAllEvents] = useState<any[]>([]); // All events from all classes
   const [selectedClasses, setSelectedClasses] = useState<number[]>([]);
-  const [syllabusDropDownData, setSyllabusDropDownData] = useState<any>([]);
-  const [loadingDropdown, setLoadingDropdown] = useState<boolean>(true);
-  const [loadingEvents, setLoadingEvents] = useState<boolean>(false);
-  const [hasLoadedEventsOnce, setHasLoadedEventsOnce] = useState<boolean>(false);
 
   const [show, setShow] = useState(false);
   const [showSyllabus, setShowSyllabus] = useState(false);
@@ -75,69 +87,26 @@ const CalendarEvent = () => {
   const [draggedEvent, setDraggedEvent] = useState<NormalizedCalendarEvent | null>(null);
   const [dragOverTarget, setDragOverTarget] = useState<string | null>(null);
 
-  // Store all syllabus IDs for fetching all events
-  const [allSyllabusIds, setAllSyllabusIds] = useState<number[]>([]);
-
-  const handleGetDropDownData = async () => {
-    setLoadingDropdown(true);
-    try {
-    const response = await dispatch(getSyllabusDropDownDataAPI());
-    if (response && !isNullUndefinedOrBlank(response?.payload)) {
-      setSyllabusDropDownData(response?.payload);
-      const syllabusIds = response?.payload?.map((item: any) => item.value);
-      setAllSyllabusIds(syllabusIds); // Store all IDs
-      setSelectedClasses(syllabusIds); // Initially all selected
-      } else {
-        setSyllabusDropDownData([]);
-        setAllSyllabusIds([]);
-        setSelectedClasses([]);
-      }
-    } finally {
-      setLoadingDropdown(false);
-    }
-  };
-
-  // Fetch events for ALL classes (not just selected ones)
-  const handleGetCalendarData = async (syllabusIds?: number[]) => {
-    const idsToFetch = syllabusIds || allSyllabusIds;
-    if (idsToFetch.length === 0) return;
-    
-    setLoadingEvents(true);
-    try {
-    const reqBody: any = { syllabus_id: idsToFetch };
-    customJsonInclude(reqBody);
-    const response = await dispatch(getCalenderDataAPI(reqBody));
-    if (response && !isNullUndefinedOrBlank(response?.payload)) {
-      setAllEvents(response?.payload || []);
-    } else {
-      setAllEvents([]);
-      }
-    } finally {
-      setLoadingEvents(false);
-      setHasLoadedEventsOnce(true);
-    }
-  };
-
+  // Initialize selectedClasses when syllabus data loads
+  const [hasInitializedSelection, setHasInitializedSelection] = useState(false);
   useEffect(() => {
-    handleGetDropDownData();
-  }, []);
-
-  // Fetch all events once when syllabus data is loaded
-  useEffect(() => {
-    if (allSyllabusIds.length > 0 && !hasLoadedEventsOnce) {
-      handleGetCalendarData(allSyllabusIds);
+    if (!hasInitializedSelection && syllabusDropDownData.length > 0) {
+      setSelectedClasses(allSyllabusIds);
+      setHasInitializedSelection(true);
     }
-  }, [allSyllabusIds]);
+  }, [syllabusDropDownData, allSyllabusIds, hasInitializedSelection]);
 
+  // When event data is updated via Redux flag, invalidate the cache
   useEffect(() => {
     if (coursesData.isUpdatedEventData) {
-      handleGetCalendarData();
+      invalidateOnEventChange(queryClient);
     }
-  }, [coursesData.isUpdatedEventData]);
+  }, [coursesData.isUpdatedEventData, queryClient]);
 
+  // When syllabus data is updated via Redux flag, invalidate the cache
   useEffect(() => {
     if (coursesData.isUpdatedSyllabusData) {
-      handleGetDropDownData();
+      invalidateOnSyllabusChange(queryClient);
       // Reset flag so future uploads trigger refresh again
       setTimeout(() => {
         try {
@@ -145,7 +114,17 @@ const CalendarEvent = () => {
         } catch {}
       }, 250);
     }
-  }, [coursesData.isUpdatedSyllabusData]);
+  }, [coursesData.isUpdatedSyllabusData, queryClient, dispatch]);
+
+  // Callback to refresh data (used by child components after changes)
+  const handleGetCalendarData = useCallback(() => {
+    invalidateOnEventChange(queryClient);
+  }, [queryClient]);
+
+  // Callback to refresh syllabus data (used by child components after adding syllabus)
+  const handleRefreshSyllabusData = useCallback(() => {
+    invalidateOnSyllabusChange(queryClient);
+  }, [queryClient]);
 
   const handleToday = () => {
     const now = moment();
@@ -448,13 +427,14 @@ const CalendarEvent = () => {
 
   const handleDeleteConfirm = async () => {
     if (deleteEventData) {
-      const response = await dispatch(
-        deleteEventDataAPI({ event_id: [deleteEventData.event_data.id] })
+      deleteEventMutation.mutate(
+        { event_id: [deleteEventData.event_data.id] },
+        {
+          onSuccess: () => {
+            handleDeleteClose();
+          },
+        }
       );
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        handleDeleteClose();
-        handleGetCalendarData();
-      }
     }
   };
 
@@ -467,21 +447,7 @@ const CalendarEvent = () => {
     navigate(ENUMFORROUTES.LOGIN);
   };
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const response = await dispatch(getUserAPI());
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        setUserData(response.payload);
-      }
-    };
-    fetchUserData();
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (!isNullUndefinedOrBlank(settingsData?.userData)) {
-      setUserData(settingsData.userData);
-    }
-  }, [settingsData?.userData]);
+  // Note: userData now comes from useUser() hook (cached and shared across pages)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -773,9 +739,6 @@ const CalendarEvent = () => {
     }
   }, []);
 
-  // Use a ref to store the pre-update state for potential rollback
-  const rollbackEventsRef = useRef<any[]>([]);
-
   // Auto-scroll to current time indicator (week/day views)
   const weekBodyRef = useRef<HTMLDivElement | null>(null);
   const dayBodyRef = useRef<HTMLDivElement | null>(null);
@@ -878,72 +841,73 @@ const CalendarEvent = () => {
     const newEndStr = moment(newEnd).format('YYYY-MM-DD HH:mm:ss');
 
     // ========================================
-    // OPTIMISTIC UPDATE - Update UI immediately
-    // Use functional update to ensure we have the latest state
+    // OPTIMISTIC UPDATE via React Query cache
     // ========================================
-    setAllEvents(prevEvents => {
-      // Store for potential rollback
-      rollbackEventsRef.current = prevEvents;
-      
-      return prevEvents.map((ev: any) => {
-        const eventData = ev?.event_data ?? ev;
-        const evId = eventData?.id ?? ev?.id;
-        
-        if (evId === eventId) {
-          // Create a deep copy with updated dates at all levels
-          const updatedEventData = {
-            ...(ev?.event_data || {}),
-            ...eventData,
-            start_date: newStartStr,
-            end_date: newEndStr,
-            startDate: newStartStr,
-            endDate: newEndStr,
-          };
+    const cacheKey = [...queryKeys.events, 'calendar', allSyllabusIds];
+    
+    // Cancel any in-flight queries
+    await queryClient.cancelQueries({ queryKey: cacheKey });
+    
+    // Snapshot previous value for rollback
+    const previousEvents = queryClient.getQueryData<any[]>(cacheKey);
+    
+    // Optimistically update the cache
+    if (previousEvents) {
+      queryClient.setQueryData<any[]>(cacheKey, (old) => {
+        if (!old) return old;
+        return old.map((ev: any) => {
+          const eventData = ev?.event_data ?? ev;
+          const evId = eventData?.id ?? ev?.id;
           
-          return {
-            ...ev,
-            start: newStartStr,
-            end: newEndStr,
-            event_data: updatedEventData,
-          };
-        }
-        return ev;
+          if (evId === eventId) {
+            const updatedEventData = {
+              ...(ev?.event_data || {}),
+              ...eventData,
+              start_date: newStartStr,
+              end_date: newEndStr,
+              startDate: newStartStr,
+              endDate: newEndStr,
+            };
+            
+            return {
+              ...ev,
+              start: newStartStr,
+              end: newEndStr,
+              event_data: updatedEventData,
+            };
+          }
+          return ev;
+        });
       });
-    });
+    }
 
     // ========================================
     // BACKGROUND API CALL - Persist to server
     // ========================================
-    try {
-      const reqBody: any = {
-        event_id: eventId,
-        syllabus_id: rawEvent.syllabus_id,
-        title: rawEvent.title || calEvent.title,
-        note: rawEvent.note || '',
-        start_date: newStartStr,
-        end_date: newEndStr,
-        is_reminder: rawEvent.is_reminder || false,
-        reminder: rawEvent.reminder || [],
-        priority: rawEvent.priority || 'Low',
-        is_all_day_event: rawEvent.is_all_day_event || false,
-      };
+    const reqBody: any = {
+      event_id: eventId,
+      syllabus_id: rawEvent.syllabus_id,
+      title: rawEvent.title || calEvent.title,
+      note: rawEvent.note || '',
+      start_date: newStartStr,
+      end_date: newEndStr,
+      is_reminder: rawEvent.is_reminder || false,
+      reminder: rawEvent.reminder || [],
+      priority: rawEvent.priority || 'Low',
+      is_all_day_event: rawEvent.is_all_day_event || false,
+    };
 
-      customJsonInclude(reqBody);
+    customJsonInclude(reqBody);
 
-      // Call API silently (no toast, no loading spinner)
-      const response = await dispatch(addEditEventDataAPI(reqBody, { silent: true }));
-      
-      if (!response?.payload) {
-        // API failed - revert to original state
-        console.error('Failed to update event, reverting...');
-        setAllEvents(rollbackEventsRef.current);
-      }
-    } catch (err) {
-      console.error('Failed to update event dates:', err);
-      // Revert on error
-      setAllEvents(rollbackEventsRef.current);
-    }
-  }, [dispatch]);
+    updateEventSilentMutation.mutate(reqBody, {
+      onError: () => {
+        // Rollback on error
+        if (previousEvents) {
+          queryClient.setQueryData(cacheKey, previousEvents);
+        }
+      },
+    });
+  }, [allSyllabusIds, queryClient, updateEventSilentMutation]);
 
   // Universal drop handler that uses dragOverTarget to determine the correct drop location
   const handleDrop = useCallback(async (event: React.DragEvent) => {
@@ -1658,7 +1622,7 @@ const CalendarEvent = () => {
       <AddEditSyllabus
         showSyllabus={showSyllabus}
         setShowSyllabus={setShowSyllabus}
-        handleGetData={handleGetDropDownData}
+        handleGetData={handleRefreshSyllabusData}
         freemiumLimitReached={freemiumLimitReached}
         hasSubscription={hasSubscription}
         isFreemiumPlan={isFreemiumPlan}

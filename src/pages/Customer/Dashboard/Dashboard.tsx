@@ -3,9 +3,11 @@ import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   dashboardEventListingAPI,
-  syllabusDropDownAPI,
   deleteEventAPI,
 } from '../../../redux/Service/User/DashBoard/dashboard';
+import { useSyllabusDropdown } from '../../../hooks/queries/useSyllabusDropdown';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../../../lib/queryKeys';
 import {
   customJsonInclude,
   formatedDate,
@@ -22,8 +24,8 @@ import { ENUMFORROUTES, ENUMFORSTATUS } from '../../../interfaces/enum';
 import { updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses';
 import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
-import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
+import { useUser } from '../../../hooks/queries/useUser';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 import { useReferralUploadLimit } from '../../../hooks/useReferralUploadLimit';
 import ReferralUnlockModal from '../../../components/ReferralUnlockModal/ReferralUnlockModal';
@@ -37,9 +39,17 @@ const Dashboard = () => {
   const coursesData: any = useSelector((state: RootState) => state.CoursesReducer);
   const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
 
+  // React Query client for cache invalidation
+  const queryClient = useQueryClient();
+
+  // Syllabus dropdown data - cached and shared across pages
+  const { data: syllabusDropDownData = [], isFetching: isSyllabusRefetching } = useSyllabusDropdown();
+
+  // User data - cached and shared across pages
+  const { data: userData } = useUser();
+
   /** -----------------User menu and notification state---------------------------*/
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const [showAppPromo, setShowAppPromo] = useState(false);
 
@@ -173,7 +183,8 @@ const Dashboard = () => {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (coursesData.isUpdatedSyllabusData) {
-        handleGetDropDownData();
+        // Invalidate the syllabus dropdown cache to trigger a refetch
+        queryClient.invalidateQueries({ queryKey: queryKeys.syllabusDropdown });
         setTimeout(() => {
           dispatch(isUpdatedSyllabus(false));
         }, 400);
@@ -182,7 +193,7 @@ const Dashboard = () => {
     return () => {
       clearTimeout(delayDebounceFn);
     };
-  }, [coursesData.isUpdatedSyllabusData]);
+  }, [coursesData.isUpdatedSyllabusData, queryClient]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -198,14 +209,8 @@ const Dashboard = () => {
     };
   }, [coursesData.isUpdatedEventData]);
 
-  /** --------------------get syllabus dropdown data start------------------------*/
-  const [syllabusDropDownData, setSyllabusDropDownData] = useState<any>([]);
-  const handleGetDropDownData = async () => {
-    const response = await dispatch(syllabusDropDownAPI());
-    if (response && !isNullUndefinedOrBlank(response)) {
-      setSyllabusDropDownData(response?.payload);
-    }
-  };
+  /** --------------------syllabus dropdown data (now from React Query)------------------------*/
+  // syllabusDropDownData is now provided by useSyllabusDropdown() hook at the top
 
   // Derive all course ids from pills (stable, stringified)
   const allCourseIds = React.useMemo(() => {
@@ -235,7 +240,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      handleGetDropDownData();
+      // Note: syllabusDropDownData now comes from React Query (useSyllabusDropdown)
+      // which fetches automatically and caches the result
       handleEventListing();
     }, 300);
     return () => {
@@ -472,23 +478,7 @@ const Dashboard = () => {
     navigate(ENUMFORROUTES.LOGIN);
   };
 
-  // Fetch user data on component mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const response = await dispatch(getUserAPI());
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        setUserData(response.payload);
-      }
-    };
-    fetchUserData();
-  }, [dispatch]);
-
-  // Update user data when settings data changes
-  useEffect(() => {
-    if (!isNullUndefinedOrBlank(settingsData?.userData)) {
-      setUserData(settingsData.userData);
-    }
-  }, [settingsData?.userData]);
+  // Note: userData now comes from useUser() hook (cached and shared across pages)
 
   // Close user menu when clicking outside
   useEffect(() => {
