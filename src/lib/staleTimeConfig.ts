@@ -22,4 +22,8 @@ export const staleTimeConfig = {
   // Rarely changes
   courses: 300_000,             // 5 minutes
   user: 300_000,                // 5 minutes
+
+  // Notifications
+  notifications: 60_000,        // 1 minute
+  notificationCount: 30_000,    // 30 seconds (badge should feel current)
 } as const;

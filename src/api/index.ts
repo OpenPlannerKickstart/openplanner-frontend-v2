@@ -37,3 +37,15 @@ export type {
   DeleteEventParams,
   UpdateEventStatusParams,
 } from './events';
+
+export {
+  fetchNotifications,
+  fetchUnreadCount,
+  markNotificationRead,
+  clearNotification,
+} from './notifications';
+export type {
+  NotificationData,
+  MarkNotificationReadParams,
+  ClearNotificationParams,
+} from './notifications';

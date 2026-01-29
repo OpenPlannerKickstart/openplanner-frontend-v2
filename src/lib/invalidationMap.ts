@@ -46,3 +46,11 @@ export const invalidateOnCourseChange = (qc: QueryClient, courseId?: string) => 
     qc.invalidateQueries({ queryKey: queryKeys.courseDetail(courseId) });
   }
 };
+
+/**
+ * Call after notification read/clear
+ */
+export const invalidateOnNotificationChange = (qc: QueryClient) => {
+  qc.invalidateQueries({ queryKey: queryKeys.notifications });
+  qc.invalidateQueries({ queryKey: queryKeys.notificationCount });
+};

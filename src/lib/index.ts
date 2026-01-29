@@ -7,4 +7,5 @@ export {
   invalidateOnEventChange,
   invalidateOnSyllabusChange,
   invalidateOnCourseChange,
+  invalidateOnNotificationChange,
 } from './invalidationMap';

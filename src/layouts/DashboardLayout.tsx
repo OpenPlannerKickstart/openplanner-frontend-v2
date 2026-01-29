@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useMemo, useState, useCallback, useEffect } from 'react';
 import Sidebar from '../components/Sidebar/Sidebar';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '../redux/store';
-import { getAllNotificationAPI, getCountOfUnreadNotificationAPI } from '../redux/Service/User/Notification/notification';
+import { useQueryClient } from '@tanstack/react-query';
+import { useNotifications, useUnreadCount } from '../hooks/queries/useNotifications';
+import { invalidateOnNotificationChange } from '../lib/invalidationMap';
 import NotificationPanel from '../components/Notifications/NotificationPanel';
 import { NotificationPanelProvider } from '../components/Notifications/NotificationPanelContext';
 import { get } from '../Utility/httpInterceptor';
@@ -28,10 +28,13 @@ export const useSidebar = () => {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const dispatch: AppDispatch = useDispatch();
-  const unreadCountRaw = useSelector((state: RootState) => state.NotificationReducer.countOfUnreadNotificationData);
+  const queryClient = useQueryClient();
+  
+  // React Query hooks for notifications
+  const { data: notificationList = [] } = useNotifications();
+  const { data: unreadCountRaw = 0 } = useUnreadCount();
   const unreadCount = Number.isFinite(Number(unreadCountRaw)) ? Number(unreadCountRaw) : 0;
-  const notificationList: any[] = useSelector((state: RootState) => state.NotificationReducer.notificationData) || [];
+  
   const [inviteCounts, setInviteCounts] = useState<{ total: number; unread: number }>({ total: 0, unread: 0 });
 
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -58,14 +61,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   }, []);
 
   const refreshBadge = useCallback(async () => {
-    try {
-      await dispatch(getAllNotificationAPI());
-      await dispatch(getCountOfUnreadNotificationAPI());
-    } catch {
-      // ignore
-    }
+    // Invalidate notification queries to trigger refetch
+    invalidateOnNotificationChange(queryClient);
     await refreshInvitesCount();
-  }, [dispatch, refreshInvitesCount]);
+  }, [queryClient, refreshInvitesCount]);
 
   useEffect(() => {
     // Ensure badge is correct on initial load

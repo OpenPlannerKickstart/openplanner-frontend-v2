@@ -6,6 +6,7 @@ import {
   deleteEventAPI,
 } from '../../../redux/Service/User/DashBoard/dashboard';
 import { useSyllabusDropdown } from '../../../hooks/queries/useSyllabusDropdown';
+import { useCourses } from '../../../hooks/queries/useCourses';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../../../lib/queryKeys';
 import {
@@ -47,6 +48,9 @@ const Dashboard = () => {
 
   // User data - cached and shared across pages
   const { data: userData } = useUser();
+
+  // Prefetch courses data for faster Courses page navigation
+  useCourses();
 
   /** -----------------User menu and notification state---------------------------*/
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);

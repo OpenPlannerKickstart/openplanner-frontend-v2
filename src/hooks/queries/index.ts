@@ -20,3 +20,11 @@ export {
   useDeleteEvent,
   useUpdateEventStatus,
 } from './useEvents';
+
+// Notification hooks
+export {
+  useNotifications,
+  useUnreadCount,
+  useMarkNotificationRead,
+  useClearNotification,
+} from './useNotifications';
