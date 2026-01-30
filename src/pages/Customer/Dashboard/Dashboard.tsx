@@ -9,6 +9,7 @@ import { useSyllabusDropdown } from '../../../hooks/queries/useSyllabusDropdown'
 import { useCourses } from '../../../hooks/queries/useCourses';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../../../lib/queryKeys';
+import { invalidateOnSyllabusChange } from '../../../lib/invalidationMap';
 import {
   customJsonInclude,
   formatedDate,
@@ -279,6 +280,8 @@ const Dashboard = () => {
 
   const handleGetUpdatedData = () => {
     handleEventListing();
+    // Invalidate courses cache so Courses page shows the new/updated syllabus
+    invalidateOnSyllabusChange(queryClient);
   };
 
   /** -----------------Add/Edit syllabus start---------------------------*/

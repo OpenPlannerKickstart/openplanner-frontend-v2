@@ -151,7 +151,7 @@ export const Sidebar = () => {
                 Add New Event/Syllabus
               </button> */}
               <div className="sidebar-footer">
-                <p>© 2025 Open Planner</p>
+                <p>© 2026 Open Planner</p>
               </div>
             </div>
           </div>

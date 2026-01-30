@@ -8,6 +8,8 @@ import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../../redux/store'
 import { getEventListDataAPI, updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses'
 import { useCourses } from '../../../hooks/queries/useCourses'
+import { useQueryClient } from '@tanstack/react-query'
+import { invalidateOnSyllabusChange } from '../../../lib/invalidationMap'
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
 import { Viewer } from '@react-pdf-viewer/core'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
@@ -17,12 +19,24 @@ const EditCourse = () => {
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedSyllabusObj, setSelectedSyllabusObj] = useState<any>({});
   const hasHandledActionRef = useRef(false);
+  const hasInitializedRef = useRef(false);
 
   // Courses data - cached and shared across pages (used for fallback on page refresh)
   const { data: courses = [] } = useCourses();
+
+  // Invalidate courses cache so changes reflect on Courses page
+  const handleGetCourseList = () => {
+    invalidateOnSyllabusChange(queryClient);
+  };
+
+  // Handler for when syllabus is updated locally (e.g., from edit modal)
+  const handleSyllabusUpdated = (updated: any) => {
+    setSelectedSyllabusObj(updated);
+  };
 
   // Add body class for responsive styling
   useEffect(() => {
@@ -70,10 +84,14 @@ const EditCourse = () => {
   }, [searchParams, dispatch, setSearchParams]);
 
   // Load course data from state or find from cached courses (e.g., page refresh)
+  // Only run on initial mount - local updates are handled via handleSyllabusUpdated
   useEffect(() => {
+    if (hasInitializedRef.current) return;
+    
     if (location.state?.syllabusObj) {
       // Coming from Courses page - use passed data
       setSelectedSyllabusObj(location.state.syllabusObj);
+      hasInitializedRef.current = true;
     } else if (courses.length > 0) {
       // Fallback: find course from cached courses list
       const courseId = searchParams.get('id');
@@ -81,6 +99,7 @@ const EditCourse = () => {
         const course = courses.find((c: any) => c.id === parseInt(courseId));
         if (course) {
           setSelectedSyllabusObj(course);
+          hasInitializedRef.current = true;
         }
       }
     }
@@ -245,9 +264,9 @@ const EditCourse = () => {
               <div className="syllabus-details-form">
                 <SyllabusDetails
                   selectedSyllabusObj={selectedSyllabusObj}
-                  handleGetCourseList={() => {}}
+                  handleGetCourseList={handleGetCourseList}
                   handleCloseSyllabusDetails={() => {}}
-                  onSyllabusUpdated={(updated: any) => setSelectedSyllabusObj(updated)}
+                  onSyllabusUpdated={handleSyllabusUpdated}
                   setPdfPreviewLink={setPdfPreviewLink}
                   pdfPreviewLink={pdfPreviewLink}
                 />

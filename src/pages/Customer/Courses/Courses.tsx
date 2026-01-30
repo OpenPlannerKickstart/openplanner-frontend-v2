@@ -219,7 +219,8 @@ const Courses = () => {
 
   /** --------------------Map hex colors to CSS class names------------------------*/
   /** Map hex colors to CSS class names - synced with colorPalette in AddEditSyllabus */
-  const getColorClassName = (hexColor: string): string => {
+  /** Returns null for custom colors (from color wheel) so inline styles can be used */
+  const getColorClassName = (hexColor: string): string | null => {
     const colorMap: { [key: string]: string } = {
       // New design system colors (primary)
       '#F97316': 'orange',
@@ -282,7 +283,7 @@ const Courses = () => {
       '#607d8b': 'gray',
       '#607D8B': 'gray',
     };
-    return colorMap[hexColor] || 'cyan';
+    return colorMap[hexColor] || null;
   };
 
   return (
@@ -418,6 +419,14 @@ const Courses = () => {
                 course?.class_time_display ||
                 formatCourseTime(course?.class_time ?? course?.course_time ?? course?.classTime);
 
+              // Generate inline styles for custom colors (when colorClass is null)
+              const customBannerStyle = !colorClass && course.course_color 
+                ? { background: `linear-gradient(135deg, ${course.course_color}33 0%, ${course.course_color}66 100%)` } 
+                : undefined;
+              const customSwatchStyle = !colorClass && course.course_color 
+                ? { backgroundColor: course.course_color, display: 'inline-block' } 
+                : undefined;
+
               return (
                 <div
                   key={course.id}
@@ -425,7 +434,10 @@ const Courses = () => {
                   onClick={() => handleCourseClick(course)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <div className={`course-banner ${colorClass}`}>
+                  <div 
+                    className={`course-banner ${colorClass || ''}`}
+                    style={customBannerStyle}
+                  >
                     <div className="course-icon">
                       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -448,7 +460,10 @@ const Courses = () => {
                         <span>{classTimeDisplay}</span>
                   </div>
                       <div className="meta-item color-tag">
-                        <span className={`color-swatch ${colorClass}`}></span>
+                        <span 
+                          className={`color-swatch ${colorClass || ''}`}
+                          style={customSwatchStyle}
+                        ></span>
                         <span>{course.course_color}</span>
                   </div>
                 </div>
