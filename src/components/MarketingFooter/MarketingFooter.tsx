@@ -68,7 +68,7 @@ const MarketingFooter: React.FC = () => {
         </div>
 
         <div className="marketing-footer-bottom">
-          <p className="marketing-footer-copyright">© 2025 Open Planner. All rights reserved.</p>
+          <p className="marketing-footer-copyright">© 2026 Open Planner. All rights reserved.</p>
         </div>
       </div>
     </footer>

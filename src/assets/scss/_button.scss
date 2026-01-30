@@ -944,5 +944,17 @@
             color: #4AAED4 !important;
         }
     }
+    
+    /* Dark text for primary/accent buttons for better contrast on light backgrounds */
+    .btn-primary,
+    .btn-accent {
+        color: #0F172A !important;
+        
+        &:hover,
+        &:active,
+        &:focus-visible {
+            color: #0F172A !important;
+        }
+    }
 }
 
