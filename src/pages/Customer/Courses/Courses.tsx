@@ -217,6 +217,32 @@ const Courses = () => {
     };
   }, [isUserMenuOpen]);
 
+  /** --------------------Helper to create pastel colors from any hex------------------------*/
+  /** Converts a hex color to a lightened pastel version by mixing with white.
+   *  This ensures custom colors look consistent in both light and dark modes. */
+  const hexToPasstel = (hex: string, lightness: number = 0.8): string => {
+    // Remove # if present and normalize to 6 characters
+    let cleanHex = hex.replace('#', '');
+    if (cleanHex.length === 3) {
+      cleanHex = cleanHex.split('').map(c => c + c).join('');
+    }
+    
+    // Parse RGB values
+    const r = parseInt(cleanHex.substring(0, 2), 16);
+    const g = parseInt(cleanHex.substring(2, 4), 16);
+    const b = parseInt(cleanHex.substring(4, 6), 16);
+    
+    // Mix with white (255, 255, 255) based on lightness factor
+    // lightness of 0.8 means 80% white + 20% original color
+    const mixedR = Math.round(255 * lightness + r * (1 - lightness));
+    const mixedG = Math.round(255 * lightness + g * (1 - lightness));
+    const mixedB = Math.round(255 * lightness + b * (1 - lightness));
+    
+    // Convert back to hex
+    const toHex = (n: number) => n.toString(16).padStart(2, '0');
+    return `#${toHex(mixedR)}${toHex(mixedG)}${toHex(mixedB)}`;
+  };
+
   /** --------------------Map hex colors to CSS class names------------------------*/
   /** Map hex colors to CSS class names - synced with colorPalette in AddEditSyllabus */
   /** Returns null for custom colors (from color wheel) so inline styles can be used */
@@ -420,8 +446,10 @@ const Courses = () => {
                 formatCourseTime(course?.class_time ?? course?.course_time ?? course?.classTime);
 
               // Generate inline styles for custom colors (when colorClass is null)
+              // Uses solid pastel colors instead of alpha transparency to ensure
+              // consistent appearance in both light and dark modes
               const customBannerStyle = !colorClass && course.course_color 
-                ? { background: `linear-gradient(135deg, ${course.course_color}33 0%, ${course.course_color}66 100%)` } 
+                ? { background: `linear-gradient(135deg, ${hexToPasstel(course.course_color, 0.8)} 0%, ${hexToPasstel(course.course_color, 0.65)} 100%)` } 
                 : undefined;
               const customSwatchStyle = !colorClass && course.course_color 
                 ? { backgroundColor: course.course_color, display: 'inline-block' } 
