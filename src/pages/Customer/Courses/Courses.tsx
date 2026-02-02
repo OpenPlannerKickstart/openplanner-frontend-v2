@@ -1,21 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  getCoursesListDataAPI,
-  deleteSyllabusDataAPI,
-} from '../../../redux/Service/User/Courses/courses';
-import {
-  formatedDate,
-  isEmptyObjectOrNullUndefiend,
-  isNullUndefinedOrBlank,
-} from '../../../Utility/Helper';
+import { useQueryClient } from '@tanstack/react-query';
+import { isNullUndefinedOrBlank } from '../../../Utility/Helper';
 import moment from 'moment';
 import { ENUMFORROUTES } from '../../../interfaces/enum';
 import { useNavigate } from 'react-router-dom';
 import { logoutFromSystem } from '../../../redux/Service/auth/login';
-import { getUserAPI } from '../../../redux/Service/User/Settings/settings';
 import { useSidebar } from '../../../layouts/DashboardLayout';
+import { useUser } from '../../../hooks/queries/useUser';
+import { useCourses } from '../../../hooks/queries/useCourses';
+import { useDeleteSyllabus } from '../../../hooks/queries/useSyllabusDropdown';
+import { invalidateOnSyllabusChange } from '../../../lib/invalidationMap';
 import AddEditSyllabus from '../../../common/AddSyllabusEvents/AddEditSyllabus';
 import { useNotificationPanel } from '../../../components/Notifications/NotificationPanelContext';
 import ConfirmDeleteModal from '../../../components/ConfirmDeleteModal/ConfirmDeleteModal';
@@ -29,38 +25,31 @@ const Courses = () => {
   const { toggleSidebar } = useSidebar();
   const { open: openNotifications, unreadCount } = useNotificationPanel();
 
-  const settingsData: any = useSelector((state: RootState) => state.SettingsReducer);
+  // React Query client for cache invalidation
+  const queryClient = useQueryClient();
+
   const coursesData: any = useSelector((state: RootState) => state.CoursesReducer);
+
+  // Courses data - cached and shared, shows instantly on return visits
+  const { data: courses = [] } = useCourses();
+
+  // Delete syllabus mutation
+  const deleteSyllabusMutation = useDeleteSyllabus();
+
+  // User data - cached and shared across pages
+  const { data: userData } = useUser();
 
   /** -----------------User menu and notification state---------------------------*/
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   /** -----------------Courses state---------------------------*/
-  const [courses, setCourses] = useState<any>([]);
   const [showSyllabus, setShowSyllabus] = useState(false);
 
-  /** -------------------Get courses list-------------------------*/
-  const handleGetCoursesList = async () => {
-    try {
-      const reqBody = {};
-      const response = await dispatch(getCoursesListDataAPI(reqBody));
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        setCourses(response.payload);
-      }
-    } catch (error) {
-      console.error('Error fetching courses:', error);
-    }
-  };
-
+  // When syllabus is updated (e.g., from upload modal), invalidate courses cache
   useEffect(() => {
-    handleGetCoursesList();
-  }, []);
-
-  useEffect(() => {
-      if (coursesData.isUpdatedSyllabusData) {
-      handleGetCoursesList();
+    if (coursesData.isUpdatedSyllabusData) {
+      invalidateOnSyllabusChange(queryClient);
       // Reset flag so future uploads trigger refresh again
       setTimeout(() => {
         try {
@@ -68,7 +57,7 @@ const Courses = () => {
         } catch {}
       }, 250);
     }
-  }, [coursesData.isUpdatedSyllabusData]);
+  }, [coursesData.isUpdatedSyllabusData, queryClient, dispatch]);
 
   // Format class_time coming from backend. We store class_time as "HH:mm:ssZ" (time-only with offset).
   const formatCourseTime = (value: any): string => {
@@ -107,7 +96,6 @@ const Courses = () => {
   /** -------------------Delete course-------------------------*/
   const [deleteShow, setDeleteShow] = useState(false);
   const [deleteCourseId, setDeleteCourseId] = useState<number | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleDeleteShow = (e: React.MouseEvent, courseId: number) => {
     e.stopPropagation();
@@ -116,27 +104,22 @@ const Courses = () => {
   };
 
   const handleDeleteClose = () => {
-    if (deleteLoading) return;
+    if (deleteSyllabusMutation.isPending) return;
     setDeleteShow(false);
     setDeleteCourseId(null);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     if (deleteCourseId) {
-      try {
-        setDeleteLoading(true);
-        // Backend expects syllabus id(s), not `course_id`
-        // (matches SyllabusDetails.tsx delete flow)
-        const reqBody = { id: [deleteCourseId] };
-        const response = await dispatch(deleteSyllabusDataAPI(reqBody));
-        if (!isNullUndefinedOrBlank(response?.payload)) {
-          setDeleteShow(false);
-          setDeleteCourseId(null);
-          handleGetCoursesList();
+      deleteSyllabusMutation.mutate(
+        { id: [deleteCourseId] },
+        {
+          onSuccess: () => {
+            setDeleteShow(false);
+            setDeleteCourseId(null);
+          },
         }
-      } finally {
-        setDeleteLoading(false);
-      }
+      );
     }
   };
 
@@ -194,7 +177,8 @@ const Courses = () => {
   };
 
   const handleGetUpdatedData = () => {
-    handleGetCoursesList();
+    // Invalidate courses cache to refresh the list after syllabus changes
+    invalidateOnSyllabusChange(queryClient);
   };
 
   /** -------------------Navigate to course detail-------------------------*/
@@ -214,23 +198,7 @@ const Courses = () => {
     navigate(ENUMFORROUTES.LOGIN);
   };
 
-  // Fetch user data on component mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const response = await dispatch(getUserAPI());
-      if (response && !isNullUndefinedOrBlank(response?.payload)) {
-        setUserData(response.payload);
-      }
-    };
-    fetchUserData();
-  }, [dispatch]);
-
-  // Update user data when settings data changes
-  useEffect(() => {
-    if (!isNullUndefinedOrBlank(settingsData?.userData)) {
-      setUserData(settingsData.userData);
-    }
-  }, [settingsData?.userData]);
+  // Note: userData now comes from useUser() hook (cached and shared across pages)
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -249,9 +217,36 @@ const Courses = () => {
     };
   }, [isUserMenuOpen]);
 
+  /** --------------------Helper to create pastel colors from any hex------------------------*/
+  /** Converts a hex color to a lightened pastel version by mixing with white.
+   *  This ensures custom colors look consistent in both light and dark modes. */
+  const hexToPasstel = (hex: string, lightness: number = 0.8): string => {
+    // Remove # if present and normalize to 6 characters
+    let cleanHex = hex.replace('#', '');
+    if (cleanHex.length === 3) {
+      cleanHex = cleanHex.split('').map(c => c + c).join('');
+    }
+    
+    // Parse RGB values
+    const r = parseInt(cleanHex.substring(0, 2), 16);
+    const g = parseInt(cleanHex.substring(2, 4), 16);
+    const b = parseInt(cleanHex.substring(4, 6), 16);
+    
+    // Mix with white (255, 255, 255) based on lightness factor
+    // lightness of 0.8 means 80% white + 20% original color
+    const mixedR = Math.round(255 * lightness + r * (1 - lightness));
+    const mixedG = Math.round(255 * lightness + g * (1 - lightness));
+    const mixedB = Math.round(255 * lightness + b * (1 - lightness));
+    
+    // Convert back to hex
+    const toHex = (n: number) => n.toString(16).padStart(2, '0');
+    return `#${toHex(mixedR)}${toHex(mixedG)}${toHex(mixedB)}`;
+  };
+
   /** --------------------Map hex colors to CSS class names------------------------*/
   /** Map hex colors to CSS class names - synced with colorPalette in AddEditSyllabus */
-  const getColorClassName = (hexColor: string): string => {
+  /** Returns null for custom colors (from color wheel) so inline styles can be used */
+  const getColorClassName = (hexColor: string): string | null => {
     const colorMap: { [key: string]: string } = {
       // New design system colors (primary)
       '#F97316': 'orange',
@@ -314,7 +309,7 @@ const Courses = () => {
       '#607d8b': 'gray',
       '#607D8B': 'gray',
     };
-    return colorMap[hexColor] || 'cyan';
+    return colorMap[hexColor] || null;
   };
 
   return (
@@ -434,7 +429,7 @@ const Courses = () => {
         }
         cancelText="Cancel"
         confirmText="Delete"
-        loading={deleteLoading}
+        loading={deleteSyllabusMutation.isPending}
       />
 
       {/* Courses Content */}
@@ -450,6 +445,16 @@ const Courses = () => {
                 course?.class_time_display ||
                 formatCourseTime(course?.class_time ?? course?.course_time ?? course?.classTime);
 
+              // Generate inline styles for custom colors (when colorClass is null)
+              // Uses solid pastel colors instead of alpha transparency to ensure
+              // consistent appearance in both light and dark modes
+              const customBannerStyle = !colorClass && course.course_color 
+                ? { background: `linear-gradient(135deg, ${hexToPasstel(course.course_color, 0.8)} 0%, ${hexToPasstel(course.course_color, 0.65)} 100%)` } 
+                : undefined;
+              const customSwatchStyle = !colorClass && course.course_color 
+                ? { backgroundColor: course.course_color, display: 'inline-block' } 
+                : undefined;
+
               return (
                 <div
                   key={course.id}
@@ -457,7 +462,10 @@ const Courses = () => {
                   onClick={() => handleCourseClick(course)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <div className={`course-banner ${colorClass}`}>
+                  <div 
+                    className={`course-banner ${colorClass || ''}`}
+                    style={customBannerStyle}
+                  >
                     <div className="course-icon">
                       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -480,7 +488,10 @@ const Courses = () => {
                         <span>{classTimeDisplay}</span>
                   </div>
                       <div className="meta-item color-tag">
-                        <span className={`color-swatch ${colorClass}`}></span>
+                        <span 
+                          className={`color-swatch ${colorClass || ''}`}
+                          style={customSwatchStyle}
+                        ></span>
                         <span>{course.course_color}</span>
                   </div>
                 </div>

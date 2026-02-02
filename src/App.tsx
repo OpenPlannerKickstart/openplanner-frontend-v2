@@ -16,6 +16,9 @@ import { useSelector } from "react-redux";
 import InstagramBrowserPrompt from './components/InstagramBrowserPrompt/InstagramBrowserPrompt';
 import { SyllabusUploadProvider } from './context/SyllabusUploadContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { queryClient } from './lib/queryClient';
 
 /**
  * App Component
@@ -31,20 +34,24 @@ function App(props) {
 
 
   return (
-    <ThemeProvider>
-      <SyllabusUploadProvider>
-        <div>
-          {/* Instagram browser prompt */}
-          <InstagramBrowserPrompt />
-          {/* Toaster component for displaying notifications */}
-          <Toaster position="top-right" reverseOrder={flg} />
-          {/* Loader component to show loading indicator */}
-          <Loader loading={loading} />
-          {/* AppRouter component for routing */}
-          <AppRouter />
-        </div>
-      </SyllabusUploadProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <SyllabusUploadProvider>
+          <div>
+            {/* Instagram browser prompt */}
+            <InstagramBrowserPrompt />
+            {/* Toaster component for displaying notifications */}
+            <Toaster position="top-right" reverseOrder={flg} />
+            {/* Loader component to show loading indicator */}
+            <Loader loading={loading} />
+            {/* AppRouter component for routing */}
+            <AppRouter />
+          </div>
+        </SyllabusUploadProvider>
+      </ThemeProvider>
+      {/* React Query Devtools - only visible in development */}
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 

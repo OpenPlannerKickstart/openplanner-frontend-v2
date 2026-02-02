@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { connect, useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../../redux/store';
-import { getSyllabusDropDownDataAPI } from '../../redux/Service/User/Calender/calender';
+import { useSyllabusDropdown } from '../../hooks/queries/useSyllabusDropdown';
 import { addEvenData } from '../../interfaces/interface';
 import { END_DATE_IS_REQUIRED, SELECTION_IS_REQUIRED, START_DATE_IS_REQUIRED, TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
 import * as yup from 'yup';
@@ -192,7 +192,7 @@ export const AddEditEvent = (props) => {
             } else {
                 setSavedEventFormData(initEventData)
             }
-            handleGetSyllabusDropDownData();
+            // Note: syllabusDropDownData now comes from useSyllabusDropdown() hook (cached)
         }
         return () => {
 
@@ -209,18 +209,8 @@ export const AddEditEvent = (props) => {
     }, [props.editEventFormData])
 
     /* -------------------------- Add Event Data Start -------------------------- */
-    const [syllabusDropDownData, setSyllabusDropDownData] = useState<any>([]);
-    const handleGetSyllabusDropDownData = async (retries = 6) => {
-        for (let i = 0; i < retries; i++) {
-            const response = await dispatch(getSyllabusDropDownDataAPI({}));
-            if (response?.payload?.length) {
-            setSyllabusDropDownData(response.payload);
-            return;
-            }
-            if (i < retries - 1) await new Promise(r => setTimeout(r, 10000));
-        }
-        setSyllabusDropDownData([]);
-    };
+    // Syllabus dropdown data from React Query cache (shared across pages)
+    const { data: syllabusDropDownData = [] } = useSyllabusDropdown();
 
     const initEventData: addEvenData = {
         start_date: null,

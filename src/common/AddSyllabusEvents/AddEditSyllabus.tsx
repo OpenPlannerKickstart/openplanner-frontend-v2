@@ -2,12 +2,14 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { connect, useDispatch } from 'react-redux'
 import * as yup from 'yup';
+import { HexColorPicker } from 'react-colorful';
 import { addSyllabusData } from '../../interfaces/interface';
 import { CLASS_TIME_IS_REQUIRED, FILE_FORMATE_VALIDATION, PLEASE_ADD_VALID_PROFESSOR_NAME, PLEASE_ADD_VALID_TITLE, PROFESSOR_NAME_IS_REQUIRED, SYLLABUS_COLOR_IS_REQUIRED, SYLLABUS_DOC_IS_REQUIRED, SYLLABUS_TITLE_IS_REQUIRED } from '../../Utility/Validation_Message';
 import { customJsonInclude, formatedDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from '../../Utility/Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import { AppDispatch } from '../../redux/store';
-import { addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
+import { addEditSyllabusDataAPI } from '../../redux/Service/User/Courses/courses';
+import { useSyllabusDropdown } from '../../hooks/queries/useSyllabusDropdown';
 import { MAX_50, ONLY_ALPHABETS_AND_DOT } from '../../Utility/Validation_Helper';
 import GetImageIcon from '../GetImageIcon';
 import DatePicker from "react-datepicker";
@@ -43,6 +45,9 @@ export const AddEditSyllabus = (props) => {
     // Syllabus upload context for background upload
     const syllabusUploadContext = useSyllabusUpload();
     const [showAddSyllabusEvents, setShowAddSyllabusEvents] = useState(false);
+    
+    // Color wheel modal state
+    const [showColorWheel, setShowColorWheel] = useState(false);
 
     const applySyllabusFiles = (files: FileList | null) => {
         if (isEmptyObjectOrNullUndefiend(files) || !files || files.length === 0) return;
@@ -93,9 +98,10 @@ export const AddEditSyllabus = (props) => {
     const [savedSyllabusFormData, setSavedSyllabusFormData] = useState<addSyllabusData>(initSyllabusData);
     const onSubmitForSyllabus = (values) => {
     }
-    const [existingSyllabusCount, setExistingSyllabusCount] = useState<number | null>(
-        typeof props?.existingSyllabusCount === "number" ? props.existingSyllabusCount : null
-    );
+    
+    // Use syllabus dropdown from React Query cache for count (fallback if prop not provided)
+    const { data: syllabusDropdownData = [] } = useSyllabusDropdown();
+    const hookSyllabusCount = syllabusDropdownData.length;
     const localPlanTier = (() => {
         try {
             return localStorage.getItem("plan_tier");
@@ -117,6 +123,10 @@ export const AddEditSyllabus = (props) => {
         ? props.existingSyllabusCount
         : existingSyllabusCount;
     const referralUploadLimit = getFreemiumUploadLimit(getReferralSentCount());
+    // Use prop if provided, otherwise use the hook count from React Query cache
+    const effectiveSyllabusCount = typeof props?.existingSyllabusCount === "number"
+        ? props.existingSyllabusCount
+        : hookSyllabusCount;
     const upgradeRequired =
         !!props?.upgradeRequired ||
         (isFreemiumPlan &&
@@ -131,30 +141,8 @@ export const AddEditSyllabus = (props) => {
             (typeof effectiveSyllabusCount === "number" &&
                 effectiveSyllabusCount >= referralUploadLimit));
 
-    const fetchExistingSyllabusCount = async () => {
-        try {
-            const response: any = await dispatch(getSyllabusDropDownDataAPI({}));
-            if (Array.isArray(response?.payload)) {
-                setExistingSyllabusCount(response.payload.length);
-            } else {
-                setExistingSyllabusCount(0);
-            }
-        } catch (error) {
-            setExistingSyllabusCount(0);
-        }
-    };
-
-    useEffect(() => {
-        if (typeof props?.existingSyllabusCount === "number") {
-            setExistingSyllabusCount(props.existingSyllabusCount);
-        }
-    }, [props?.existingSyllabusCount]);
-
-    useEffect(() => {
-        if (showAddSyllabusEvents && typeof props?.existingSyllabusCount !== "number") {
-            fetchExistingSyllabusCount();
-        }
-    }, [showAddSyllabusEvents, props?.existingSyllabusCount]);
+    // Note: existingSyllabusCount now comes from useSyllabusDropdown() hook
+    // which is cached and shared across pages - no need for manual fetching
 
     const handleUnlockMoreUploads = () => {
         if (upgradeRequired) {
@@ -522,19 +510,34 @@ export const AddEditSyllabus = (props) => {
                         </div>
                                                             </div>
                     {/* Course Color */}
-                    <div className="form-group">
+                    <div className="form-group" style={{ position: 'relative' }}>
                         <label className="form-label">Course Color</label>
                         <div className="color-picker-container">
-                                                                        {colorPalette.map((color) => (
+                            {colorPalette.map((color) => (
                                 <div
-                                                                                key={color}
+                                    key={color}
                                     className={`color-option${syllabusFormData.values.course_color === color ? " selected" : ""}`}
                                     style={{ backgroundColor: color }}
-                                    onClick={() => syllabusFormData.setFieldValue("course_color", color)}
+                                    onClick={() => {
+                                        syllabusFormData.setFieldValue("course_color", color);
+                                        setShowColorWheel(false);
+                                    }}
                                 />
-                                                                        ))}
-                                                                    </div>
-                                                    </div>
+                            ))}
+                            {/* Color wheel trigger - rainbow gradient square */}
+                            <div
+                                className={`color-option color-wheel-trigger${!colorPalette.includes(syllabusFormData.values.course_color) ? " selected" : ""}`}
+                                onClick={() => setShowColorWheel(!showColorWheel)}
+                                title="Pick custom color"
+                                style={{
+                                    '--selected-color': !colorPalette.includes(syllabusFormData.values.course_color) 
+                                        ? syllabusFormData.values.course_color 
+                                        : undefined
+                                } as React.CSSProperties}
+                            />
+                        </div>
+                        
+                    </div>
                 </Modal.Body>
                 <div className="syllabus-footer">
                     <button type="button" className="btn btn-outline" onClick={handleCloseAddSyllabusEvents}>
@@ -552,29 +555,65 @@ export const AddEditSyllabus = (props) => {
             </Modal>
             {/***** Modal end *****/}
 
+            {/***** Color Wheel Modal *****/}
+            <Modal
+                className="modal-theme modal-confirmation color-wheel-modal"
+                show={showColorWheel}
+                onHide={() => setShowColorWheel(false)}
+                centered
+                backdrop={true}
+                backdropClassName="color-wheel-modal-backdrop"
+                keyboard
+            >
+                <Modal.Header>
+                    <Modal.Title>Pick a Color</Modal.Title>
+                    <button type="button" className="btn-close" onClick={() => setShowColorWheel(false)} aria-label="Close">
+                        <i className="material-symbols-outlined">close</i>
+                    </button>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="color-wheel-modal-content">
+                        <HexColorPicker
+                            color={syllabusFormData.values.course_color}
+                            onChange={(color) => syllabusFormData.setFieldValue("course_color", color)}
+                        />
+                        <div className="color-wheel-hex-input">
+                            <label>Hex Color</label>
+                            <div className="hex-input-row">
+                                <div 
+                                    className="color-preview" 
+                                    style={{ backgroundColor: syllabusFormData.values.course_color }}
+                                />
+                                <input
+                                    type="text"
+                                    value={syllabusFormData.values.course_color}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (value && !value.startsWith('#')) {
+                                            value = '#' + value;
+                                        }
+                                        syllabusFormData.setFieldValue("course_color", value);
+                                    }}
+                                    placeholder="#000000"
+                                    maxLength={7}
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            className="color-wheel-done-btn"
+                            onClick={() => setShowColorWheel(false)}
+                        >
+                            Done
+                        </button>
+                    </div>
+                </Modal.Body>
+            </Modal>
+            {/***** Color Wheel Modal end *****/}
+
             {loading && (
                 <div className="loader-container">
-                    <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
-                        <rect
-                            className="track"
-                            x="2.5"
-                            y="2.5"
-                            fill="none"
-                            stroke-width="5px"
-                            width="32.5"
-                            height="32.5"
-                        />
-                        <rect
-                            className="car"
-                            x="2.5"
-                            y="2.5"
-                            fill="none"
-                            stroke-width="5px"
-                            width="32.5"
-                            height="32.5"
-                            pathLength="100"
-                        />
-                    </svg>
+                    <div className="syllabus-round-spinner" aria-label="Loading" />
                 </div>
             )}
 

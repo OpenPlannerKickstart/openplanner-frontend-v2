@@ -1690,6 +1690,56 @@ $sm_sidebar_home_link_width: 170px;
                     border-color: #1e293b;
                     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #9ca3af;
                 }
+                
+                // Color wheel trigger - smooth rainbow gradient
+                // Color wheel trigger - circular button
+                &.color-wheel-trigger {
+                    border-radius: 50%;
+                    background: conic-gradient(
+                        from 0deg,
+                        #ff0000,
+                        #ff8000,
+                        #ffff00,
+                        #80ff00,
+                        #00ff00,
+                        #00ff80,
+                        #00ffff,
+                        #0080ff,
+                        #0000ff,
+                        #8000ff,
+                        #ff00ff,
+                        #ff0080,
+                        #ff0000
+                    );
+                    border: none;
+                    box-shadow: none;
+                    position: relative;
+                    
+                    // Inner circle (white) - creates color wheel look when not selected
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 60%;
+                        height: 60%;
+                        background: #ffffff;
+                        border-radius: 50%;
+                    }
+                    
+                    // When a custom color is selected, fill entire circle with that color
+                    &.selected {
+                        background: var(--selected-color);
+                        border: 2px solid #1e293b;
+                        box-shadow: 0 0 0 2px #fff, 0 0 0 4px #9ca3af;
+                        
+                        // Hide the inner circle when selected
+                        &::after {
+                            display: none;
+                        }
+                    }
+                }
             }
         }
     }
@@ -1750,7 +1800,160 @@ $sm_sidebar_home_link_width: 170px;
     }
 }
 
-// Add Event Modal (new design - matching NEW_FRONTEND)
+// Color Wheel Modal - overlays on top of other modals
+.color-wheel-modal {
+    z-index: 1060 !important; // Above the syllabus modal
+    
+    .modal-dialog {
+        max-width: 280px;
+    }
+}
+
+// Color wheel modal backdrop - dims and blurs above the syllabus modal
+// z-index 1055: Above syllabus modal (1050), below color wheel modal (1060)
+.color-wheel-modal-backdrop {
+    z-index: 1055 !important;
+    background-color: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.color-wheel-modal {
+    
+    .modal-content {
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #e2e8f0;
+        background: #fff;
+        
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .btn-close {
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            &:hover {
+                color: #334155;
+            }
+        }
+    }
+    
+    .modal-body {
+        padding: 1.25rem;
+        background: #fff;
+    }
+    
+    .color-wheel-modal-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        
+        // react-colorful picker styles
+        .react-colorful {
+            width: 100%;
+            height: 200px;
+        }
+        
+        .react-colorful__saturation {
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        
+        .react-colorful__hue {
+            height: 14px;
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+        
+        .react-colorful__saturation-pointer,
+        .react-colorful__hue-pointer {
+            width: 20px;
+            height: 20px;
+            border-width: 3px;
+        }
+        
+        // Hex input below the picker
+        .color-wheel-hex-input {
+            margin-top: 1rem;
+            width: 100%;
+            
+            label {
+                display: block;
+                font-size: 0.75rem;
+                color: #64748b;
+                margin-bottom: 0.25rem;
+                font-weight: 500;
+            }
+            
+            .hex-input-row {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                
+                .color-preview {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 0.375rem;
+                    border: 2px solid #e2e8f0;
+                    flex-shrink: 0;
+                }
+                
+                input {
+                    flex: 1;
+                    padding: 0.5rem 0.75rem;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 0.5rem;
+                    font-size: 0.875rem;
+                    font-family: ui-monospace, monospace;
+                    text-transform: uppercase;
+                    
+                    &:focus {
+                        outline: none;
+                        border-color: #239BC2;
+                        box-shadow: 0 0 0 3px rgba(35, 155, 194, 0.15);
+                    }
+                }
+            }
+        }
+        
+        // Done button
+        .color-wheel-done-btn {
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.625rem 1rem;
+            background: #239BC2;
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            
+            &:hover {
+                background: #1e8aad;
+            }
+        }
+    }
+}
+
+// Color wheel modal backdrop - above other modals
+.modal-backdrop + .modal-backdrop {
+    z-index: 1055;
+}
+
 .add-event-modal-wrapper {
     &.modal {
         display: flex !important;
@@ -7332,5 +7535,81 @@ $sm_sidebar_home_link_width: 170px;
   /* Toast notifications */
   .noti-tos {
     background-color: #1E293B !important;
+  }
+  
+  /* Color wheel trigger dark mode */
+  .color-wheel-trigger::after {
+    background: #0B1120 !important;
+  }
+  
+  .color-wheel-trigger.selected {
+    border-color: #E2E8F0 !important;
+    box-shadow: 0 0 0 2px #0B1120, 0 0 0 4px #64748B !important;
+  }
+  
+  /* Color wheel modal dark mode */
+  .color-wheel-modal {
+    .modal-content {
+      background: #1E293B !important;
+      border-color: #334155 !important;
+    }
+    
+    .modal-header {
+      background: #1E293B !important;
+      border-bottom-color: #334155 !important;
+      
+      .modal-title {
+        color: #F8FAFC !important;
+      }
+      
+      .btn-close {
+        color: #94A3B8 !important;
+        
+        &:hover {
+          color: #F8FAFC !important;
+        }
+      }
+    }
+    
+    .modal-body {
+      background: #1E293B !important;
+    }
+    
+    .color-wheel-hex-input {
+      label {
+        color: #94A3B8 !important;
+      }
+      
+      .hex-input-row {
+        .color-preview {
+          border-color: #475569 !important;
+        }
+        
+        input {
+          background-color: #0F172A !important;
+          border-color: #475569 !important;
+          color: #E2E8F0 !important;
+          
+          &:focus {
+            border-color: #5EBEE8 !important;
+            box-shadow: 0 0 0 3px rgba(94, 190, 232, 0.2) !important;
+          }
+        }
+      }
+    }
+    
+    .color-wheel-done-btn {
+      background: #5EBEE8 !important;
+      
+      &:hover {
+        background: #4AACDA !important;
+      }
+    }
+  }
+  
+  /* Color option selected state in dark mode */
+  .color-picker-container .color-option.selected {
+    border-color: #E2E8F0 !important;
+    box-shadow: 0 0 0 2px #1E293B, 0 0 0 4px #64748B !important;
   }
 }

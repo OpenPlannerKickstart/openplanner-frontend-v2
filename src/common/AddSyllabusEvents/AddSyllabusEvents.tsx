@@ -13,7 +13,8 @@ import { CLASS_TIME_IS_REQUIRED, END_DATE_IS_REQUIRED, FILE_FORMATE_VALIDATION, 
 import { customJsonInclude, formatedDate, getDate, isEmptyObjectOrNullUndefiend, isNullUndefinedOrBlank, renderError, SUPPORTED_SYLLABUS_UPLOAD_FORMATS } from '../../Utility/Helper';
 import { FormikTouched, FormikValues, setNestedObjectValues, useFormik } from 'formik';
 import * as yup from 'yup';
-import { addEditEventDataAPI, addEditSyllabusDataAPI, getSyllabusDropDownDataAPI } from '../../redux/Service/User/Courses/courses';
+import { addEditEventDataAPI, addEditSyllabusDataAPI } from '../../redux/Service/User/Courses/courses';
+import { useSyllabusDropdown } from '../../hooks/queries/useSyllabusDropdown';
 import { MAX_1000, MAX_3, MAX_300, MAX_50, ONLY_ALPHABETS_AND_DOT, ONLY_NUMBERS } from '../../Utility/Validation_Helper';
 import InputColor from 'react-input-color';
 import { ENUM_FOR_EVENT_PRIORITY, ENUM_FOR_SYLLABUS_TAB, ENUMFORROUTES } from '../../interfaces/enum';
@@ -69,10 +70,8 @@ const AddSyllabusEvents = (props) => {
       setSavedSyllabusFormData(initSyllabusData);
       eventFormData.resetForm();
       setSavedEventFormData(initEventData);
-
-      handleGetSyllabusDropDownData();
+      // Note: syllabusDropDownData now comes from useSyllabusDropdown() hook (cached)
     }
-
 
     return () => {
 
@@ -294,20 +293,8 @@ const AddSyllabusEvents = (props) => {
   /* ------------------------- Add Syllabus Data End ------------------------ */
 
   /* -------------------------- Add Event Data Start -------------------------- */
-  const [syllabusDropDownData, setSyllabusDropDownData] = useState<any>([]);
-
-  const handleGetSyllabusDropDownData = async (retries = 6) => {
-    for (let i = 0; i < retries; i++) {
-      const response = await dispatch(getSyllabusDropDownDataAPI({}));
-      console.log(response?.payload)
-      if (response?.payload?.length) {
-        setSyllabusDropDownData(response.payload);
-        return;
-      }
-      if (i < retries - 1) await new Promise(r => setTimeout(r, 10000));
-    }
-    setSyllabusDropDownData([]);
-  };
+  // Syllabus dropdown data from React Query cache (shared across pages)
+  const { data: syllabusDropDownData = [] } = useSyllabusDropdown();
 
   const initEventData: addEvenData = {
     start_date: null,
@@ -1291,27 +1278,7 @@ const AddSyllabusEvents = (props) => {
 
       {loading && (
         <div className="loader-container">
-          <svg className="inner-container" viewBox="0 0 35 35" height="35" width="35">
-            <rect
-              className="track"
-              x="2.5"
-              y="2.5"
-              fill="none"
-              stroke-width="5px"
-              width="32.5"
-              height="32.5"
-            />
-            <rect
-              className="car"
-              x="2.5"
-              y="2.5"
-              fill="none"
-              stroke-width="5px"
-              width="32.5"
-              height="32.5"
-              pathLength="100"
-            />
-          </svg>
+          <div className="syllabus-round-spinner" aria-label="Loading" />
         </div>
       )}
 

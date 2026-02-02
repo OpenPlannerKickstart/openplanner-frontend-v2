@@ -61,3 +61,24 @@
 [data-theme="dark"] .loader-container.inline-loader {
   background-color: rgba(15, 23, 42, 0.92);
 }
+
+/* Circular spinner for syllabus loading */
+.syllabus-round-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(35, 155, 194, 0.22);
+  border-top-color: #239BC2;
+  border-radius: 50%;
+  animation: syllabus-spin 0.8s linear infinite;
+}
+
+@keyframes syllabus-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+[data-theme="dark"] .syllabus-round-spinner {
+  border-color: rgba(94, 190, 232, 0.22);
+  border-top-color: #5EBEE8;
+}
