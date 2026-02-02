@@ -119,9 +119,6 @@ export const AddEditSyllabus = (props) => {
             return false;
         }
     })();
-    const effectiveSyllabusCount = typeof props?.existingSyllabusCount === "number"
-        ? props.existingSyllabusCount
-        : existingSyllabusCount;
     const referralUploadLimit = getFreemiumUploadLimit(getReferralSentCount());
     // Use prop if provided, otherwise use the hook count from React Query cache
     const effectiveSyllabusCount = typeof props?.existingSyllabusCount === "number"

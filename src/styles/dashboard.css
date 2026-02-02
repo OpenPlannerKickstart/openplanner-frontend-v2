@@ -179,17 +179,67 @@
   color: #F8FAFC;
 }
 
-/* Dark Mode Scrollbar */
+/* Dark Mode Scrollbar - Global */
+[data-theme="dark"] ::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
 [data-theme="dark"] ::-webkit-scrollbar-track {
-  background: #1E293B;
+  background: #1E293B !important;
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: #475569 !important;
+  border-radius: 4px !important;
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: #64748B;
+  background: #64748B !important;
+}
+
+/* Dark Mode Scrollbar - Target all elements including modals */
+[data-theme="dark"] *::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+[data-theme="dark"] *::-webkit-scrollbar-track {
+  background: #1E293B !important;
+}
+
+[data-theme="dark"] *::-webkit-scrollbar-thumb {
+  background: #475569 !important;
+  border-radius: 4px !important;
+}
+
+[data-theme="dark"] *::-webkit-scrollbar-thumb:hover {
+  background: #64748B !important;
+}
+
+/* Firefox scrollbar for dark mode */
+[data-theme="dark"] * {
+  scrollbar-width: thin !important;
+  scrollbar-color: #475569 #1E293B !important;
+}
+
+/* Specifically target modal scrollbars */
+[data-theme="dark"] .modal-body::-webkit-scrollbar-track,
+[data-theme="dark"] .modal-content::-webkit-scrollbar-track,
+[data-theme="dark"] .offcanvas-body::-webkit-scrollbar-track {
+  background: #1E293B !important;
+}
+
+[data-theme="dark"] .modal-body::-webkit-scrollbar-thumb,
+[data-theme="dark"] .modal-content::-webkit-scrollbar-thumb,
+[data-theme="dark"] .offcanvas-body::-webkit-scrollbar-thumb {
+  background: #475569 !important;
+}
+
+[data-theme="dark"] .modal-body::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] .modal-content::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] .offcanvas-body::-webkit-scrollbar-thumb:hover {
+  background: #64748B !important;
 }
 
 /* Dark Mode Dashboard Layout */
