@@ -304,15 +304,21 @@
   background: #334155;
 }
 
-/* Dark Mode Header Action Buttons - dark text for better contrast */
+/* Dark Mode Header Action Buttons - dark text for better contrast on light backgrounds */
 [data-theme="dark"] .dashboard-header-right .btn-primary,
 [data-theme="dark"] .dashboard-header-right .btn-accent {
-  color: #0F172A;
+  color: #0F172A !important;
 }
 
 [data-theme="dark"] .dashboard-header-right .btn-primary:hover,
 [data-theme="dark"] .dashboard-header-right .btn-accent:hover {
-  color: #0F172A;
+  color: #0F172A !important;
+}
+
+/* Ensure SVG icons inside these buttons also use dark color */
+[data-theme="dark"] .dashboard-header-right .btn-primary svg,
+[data-theme="dark"] .dashboard-header-right .btn-accent svg {
+  stroke: #0F172A !important;
 }
 
 /* Dark Mode Mobile Menu Toggle */
