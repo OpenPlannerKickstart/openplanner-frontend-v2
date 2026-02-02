@@ -371,6 +371,22 @@
   stroke: #0F172A !important;
 }
 
+/* Dark Mode Primary/Accent Buttons - Global (dark text for contrast on light button backgrounds) */
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .btn-accent {
+  color: #0F172A !important;
+}
+
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .btn-accent:hover {
+  color: #0F172A !important;
+}
+
+[data-theme="dark"] .btn-primary svg,
+[data-theme="dark"] .btn-accent svg {
+  stroke: #0F172A !important;
+}
+
 /* Dark Mode Mobile Menu Toggle */
 [data-theme="dark"] .mobile-menu-toggle {
   background: #1E293B;
