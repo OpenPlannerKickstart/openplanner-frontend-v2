@@ -9,11 +9,16 @@ import { AppDispatch } from '../../../redux/store'
 import { getEventListDataAPI, updateEventStatusDataAPI } from '../../../redux/Service/User/Courses/courses'
 import { useCourses } from '../../../hooks/queries/useCourses'
 import { useQueryClient } from '@tanstack/react-query'
-import { invalidateOnSyllabusChange } from '../../../lib/invalidationMap'
+import { invalidateOnSyllabusChange, invalidateOnPolicyChange } from '../../../lib/invalidationMap'
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout'
 import { Viewer } from '@react-pdf-viewer/core'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { ts } from '../../../Utility/Toaster'
+import GradesTab from './GradesTab'
+import { isGradesEnabled } from '../../../config/featureFlags'
+import PolicyReviewModal from '../../../components/Grades/PolicyReviewModal'
+import { useSyllabusUpload } from '../../../context/SyllabusUploadContext'
+import { useGradingPolicy } from '../../../hooks/queries/useGrades'
 
 const EditCourse = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -132,6 +137,45 @@ const EditCourse = () => {
     }
   }
 
+  // Policy review modal (triggered after syllabus upload completes)
+  const [showPolicyReview, setShowPolicyReview] = useState(false)
+  const syllabusUpload = useSyllabusUpload()
+  const { data: gradingPolicyData } = useGradingPolicy(
+    isGradesEnabled() ? selectedSyllabusObj?.id : undefined
+  )
+  const hasShownPolicyReviewRef = useRef(false)
+
+  useEffect(() => {
+    hasShownPolicyReviewRef.current = false
+  }, [selectedSyllabusObj?.id])
+
+  useEffect(() => {
+    if (
+      isGradesEnabled() &&
+      syllabusUpload.status === 'ready' &&
+      Number(syllabusUpload.syllabusId) === Number(selectedSyllabusObj?.id) &&
+      gradingPolicyData !== undefined &&
+      !hasShownPolicyReviewRef.current
+    ) {
+      if (gradingPolicyData && !gradingPolicyData.is_user_confirmed) {
+        hasShownPolicyReviewRef.current = true
+        setShowPolicyReview(true)
+      }
+    }
+  }, [syllabusUpload.status, syllabusUpload.syllabusId, selectedSyllabusObj?.id, gradingPolicyData])
+
+  // Invalidate grade caches when syllabus upload completes so fresh policy data is fetched
+  useEffect(() => {
+    if (
+      isGradesEnabled() &&
+      syllabusUpload.status === 'ready' &&
+      selectedSyllabusObj?.id &&
+      Number(syllabusUpload.syllabusId) === Number(selectedSyllabusObj?.id)
+    ) {
+      invalidateOnPolicyChange(queryClient, selectedSyllabusObj.id)
+    }
+  }, [syllabusUpload.status, syllabusUpload.syllabusId, selectedSyllabusObj?.id, queryClient])
+
   // PDF Preview logic
   const [pdfPreviewLink, setPdfPreviewLink] = useState("")
   const [isShowPdf, setIsShowPdf] = useState(true)
@@ -223,6 +267,14 @@ const EditCourse = () => {
                             >
                                 Syllabus Details
                             </button>
+                            {isGradesEnabled() && (
+                              <button
+                                className={`tab-btn ${selectedTab === ENUM_FOR_SYLLABUS_TAB.GRADES ? 'active' : ''}`}
+                                onClick={() => handleTabChange(ENUM_FOR_SYLLABUS_TAB.GRADES)}
+                              >
+                                Grades
+                              </button>
+                            )}
                             </div>
               <div className="tabs-right">
                 {!isShowPdf && (
@@ -272,6 +324,12 @@ const EditCourse = () => {
                 />
                             </div>
                         </div>
+
+            {isGradesEnabled() && (
+              <div className={`tab-content ${selectedTab === ENUM_FOR_SYLLABUS_TAB.GRADES ? 'active' : ''}`}>
+                <GradesTab selectedSyllabusObj={selectedSyllabusObj} />
+              </div>
+            )}
                         </div>
 
           {/* Right Panel - Syllabus Preview */}
@@ -326,6 +384,19 @@ const EditCourse = () => {
           editEventFormData={editEventFormData}
           selectedCourse={selectedSyllabusObj}
         />
+
+        {/* Policy Review Modal (shown after syllabus processing completes) */}
+        {isGradesEnabled() && (
+          <PolicyReviewModal
+            show={showPolicyReview}
+            onHide={() => setShowPolicyReview(false)}
+            syllabusId={selectedSyllabusObj?.id}
+            onEdit={() => {
+              setShowPolicyReview(false)
+              setSelectedTab(ENUM_FOR_SYLLABUS_TAB.GRADES)
+            }}
+          />
+        )}
     </>
   )
 }

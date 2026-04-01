@@ -98,4 +98,5 @@ export const REDEEM_CODE = 'api/redeem'
 // Student billing portal
 export const STUDENT_BILLING_PORTAL = 'api/billing/portal'
 
-
+// Grade prediction API (paths use dynamic syllabusId param, built in src/api/grades.ts)
+export const GRADE_API_BASE = 'api/courses';

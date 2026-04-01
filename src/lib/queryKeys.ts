@@ -25,6 +25,14 @@ export const queryKeys = {
   // User
   user: ['user'] as const,
 
+  // Grades
+  gradingPolicy: (syllabusId: number | string) =>
+    ['grades', 'policy', syllabusId] as const,
+  gradeSummary: (syllabusId: number | string) =>
+    ['grades', 'summary', syllabusId] as const,
+  eventsWorth: (syllabusId: number | string) =>
+    ['grades', 'worth', syllabusId] as const,
+
   // Notifications
   notifications: ['notifications'] as const,
   notificationCount: ['notifications', 'count'] as const,

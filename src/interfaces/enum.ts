@@ -82,6 +82,7 @@ export const ENUM_FOR_DISPLAY_VIEW = {
 export const ENUM_FOR_SYLLABUS_TAB = {
   SYLLABUS_DETAILS: "Syllabus Details",
   EVENT_DETAILS: "Event Details",
+  GRADES: "Grades",
 
 } as const;
 

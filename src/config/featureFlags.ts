@@ -17,6 +17,13 @@ export const FEATURE_FLAGS = {
    * - Student chat functionality
    */
   GROUPS_ENABLED: false,
+
+  /**
+   * Grades feature - includes:
+   * - Grades tab on course detail page
+   * - Grade prediction and tracking
+   */
+  GRADES_ENABLED: true,
 } as const;
 
 // Helper function to check if a feature is enabled
@@ -26,3 +33,4 @@ export function isFeatureEnabled(feature: keyof typeof FEATURE_FLAGS): boolean {
 
 // Shortcut helpers for common checks
 export const isGroupsEnabled = () => FEATURE_FLAGS.GROUPS_ENABLED;
+export const isGradesEnabled = () => FEATURE_FLAGS.GRADES_ENABLED;

@@ -21,6 +21,17 @@ export {
   useUpdateEventStatus,
 } from './useEvents';
 
+// Grade hooks
+export {
+  useGradingPolicy,
+  useGradeSummary,
+  useEventsWorth,
+  useUpdateGradingPolicy,
+  useSimulateGrade,
+  useNeededScore,
+  useUpdateEventGrade,
+} from './useGrades';
+
 // Notification hooks
 export {
   useNotifications,

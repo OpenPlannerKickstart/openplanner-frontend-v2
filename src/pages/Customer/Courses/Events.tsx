@@ -16,6 +16,11 @@ import {
 } from '../../../Utility/Helper'
 import { NO_END_DATE_ADDED, NO_START_DATE_ADDED } from '../../../Utility/Validation_Message'
 import { isUpdatedEvent } from '../../../redux/User/Courses/coursesSlice'
+import { useEventsWorth } from '../../../hooks/queries/useGrades'
+import { WorthBadge } from '../../../components/Grades'
+import ScoreEntryModal from '../../../components/Grades/ScoreEntryModal'
+import { isGradesEnabled } from '../../../config/featureFlags'
+import { AssignmentWorth } from '../../../interfaces/grades'
 
 const Events = (props: any) => {
   const dispatch: AppDispatch = useDispatch()
@@ -91,6 +96,16 @@ const Events = (props: any) => {
       setEventListData({} as EventResponseType)
     }
   }, [props?.eventData])
+
+  // Grade feature data
+  const syllabusId = props?.selectedSyllabusObj?.id
+  const { data: worthData } = useEventsWorth(isGradesEnabled() ? syllabusId : undefined)
+  const [scoreEntryEvent, setScoreEntryEvent] = useState<any>(null)
+
+  const getWorthForEvent = (eventId: number | string): AssignmentWorth | undefined => {
+    if (!worthData?.policy_available || !worthData?.assignments) return undefined
+    return worthData.assignments.find((a) => a.event_id === Number(eventId))
+  }
 
   const getPriorityKey = (priority?: string) => {
     if (!priority) return 'low'
@@ -248,10 +263,36 @@ const Events = (props: any) => {
         </div>
 
         <div className="col-event" style={{ textDecoration: isCompleted ? 'line-through' : 'none' }}>
-          {event?.title || ''}
+          <span className="event-title-text">{event?.title || ''}</span>
+          {isGradesEnabled() && (() => {
+            const worth = getWorthForEvent(event?.id)
+            return worth ? <WorthBadge worthPercent={worth.worth_percent} method={worth.method} /> : null
+          })()}
+          {isGradesEnabled() && event?.score_received != null && (
+            <span className="event-score-display">
+              {event.score_received}{event.points_possible != null ? `/${event.points_possible}` : ''}
+            </span>
+          )}
         </div>
 
         <div className="col-delete">
+          {isGradesEnabled() && (
+            <button
+              type="button"
+              className="grade-btn"
+              aria-label="Enter grade"
+              title="Enter grade"
+              onClick={(e) => {
+                e.stopPropagation()
+                setScoreEntryEvent(event)
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
+          )}
           <button
             type="button"
             className="delete-btn"
@@ -442,6 +483,17 @@ const Events = (props: any) => {
           </div>
         </Modal.Body>
       </Modal>
+
+      {/* Score Entry Modal */}
+      {isGradesEnabled() && (
+        <ScoreEntryModal
+          show={!!scoreEntryEvent}
+          onHide={() => setScoreEntryEvent(null)}
+          syllabusId={syllabusId}
+          event={scoreEntryEvent}
+          onSuccess={() => getEventListData()}
+        />
+      )}
     </>
   )
 }

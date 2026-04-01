@@ -23,9 +23,11 @@ export const invalidateOnTaskChange = (qc: QueryClient) => {
  */
 export const invalidateOnEventChange = (qc: QueryClient) => {
   qc.invalidateQueries({ queryKey: queryKeys.events });
-  qc.invalidateQueries({ queryKey: ['events', 'listing'] }); // partial match for any date range
+  qc.invalidateQueries({ queryKey: ['events', 'listing'] });
   qc.invalidateQueries({ queryKey: queryKeys.myWeek });
   qc.invalidateQueries({ queryKey: queryKeys.dashboardCounts });
+  qc.invalidateQueries({ queryKey: ['grades', 'summary'] });
+  qc.invalidateQueries({ queryKey: ['grades', 'worth'] });
 };
 
 /**
@@ -53,4 +55,21 @@ export const invalidateOnCourseChange = (qc: QueryClient, courseId?: string) => 
 export const invalidateOnNotificationChange = (qc: QueryClient) => {
   qc.invalidateQueries({ queryKey: queryKeys.notifications });
   qc.invalidateQueries({ queryKey: queryKeys.notificationCount });
+};
+
+/**
+ * Call after a grade is entered/updated or policy is changed
+ */
+export const invalidateOnGradeChange = (qc: QueryClient, syllabusId: number | string) => {
+  qc.invalidateQueries({ queryKey: queryKeys.gradeSummary(syllabusId) });
+  qc.invalidateQueries({ queryKey: queryKeys.eventsWorth(syllabusId) });
+};
+
+/**
+ * Call after grading policy is updated
+ */
+export const invalidateOnPolicyChange = (qc: QueryClient, syllabusId: number | string) => {
+  qc.invalidateQueries({ queryKey: queryKeys.gradingPolicy(syllabusId) });
+  qc.invalidateQueries({ queryKey: queryKeys.gradeSummary(syllabusId) });
+  qc.invalidateQueries({ queryKey: queryKeys.eventsWorth(syllabusId) });
 };

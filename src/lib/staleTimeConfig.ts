@@ -23,6 +23,11 @@ export const staleTimeConfig = {
   courses: 300_000,             // 5 minutes
   user: 300_000,                // 5 minutes
 
+  // Grades (compute-on-read, so refetch after score entry)
+  gradingPolicy: 300_000,       // 5 minutes (rarely changes)
+  gradeSummary: 30_000,         // 30 seconds (should feel current after score entry)
+  eventsWorth: 120_000,         // 2 minutes (changes with policy edits)
+
   // Notifications
   notifications: 60_000,        // 1 minute
   notificationCount: 30_000,    // 30 seconds (badge should feel current)
